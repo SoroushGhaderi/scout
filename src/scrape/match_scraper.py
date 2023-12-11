@@ -440,7 +440,6 @@ def match_time_information(
 
 
 def main(match_id: int, response_json: json):
-    
     dict_of_functions = {
         "event": match_event_information,
         "tournament": match_tournament_information,
@@ -454,9 +453,12 @@ def main(match_id: int, response_json: json):
         "time": match_time_information,
     }
 
-    for key, value in dict_of_functions.items():
-        match_stat = value(match_id=match_id, response_json=response_json)
-        json_to_parquet(
-            json_input=match_stat,
-            write_path=file_path["raw_match"] + f"{key}_{match_id}" + ".parquet",
-        )
+    for key, function in dict_of_functions.items():
+        try:
+            match_stat = function(match_id=match_id, response_json=response_json)
+            json_to_parquet(
+                json_input=match_stat,
+                write_path=file_path["raw_match"] + f"{key}_{match_id}" + ".parquet",
+            )
+        except:
+            continue
