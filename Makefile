@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3
+.PHONY: clean scrape lint requirements sync_data_to_s3 sync_data_from_s3
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -7,8 +7,10 @@
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 BUCKET = [OPTIONAL] your-bucket-for-syncing-data (do not include 's3://')
 PROFILE = default
-PROJECT_NAME = NBA
+PROJECT_NAME = Sofa Score
 PYTHON_INTERPRETER = python3
+TODAY = $(shell date +'%Y-%m-%d')
+YESTERDAY = $(shell date -d "1 day ago" +"%Y-%m-%d") 
 
 ifeq (,$(shell which conda))
 HAS_CONDA=False
@@ -26,8 +28,8 @@ requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Make Dataset
-data: requirements
-	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
+scrape: 
+	cd src/scrape && $(PYTHON_INTERPRETER) scraper.py -d $(YESTERDAY)-s -m -p -v -o -t
 
 ## Delete all compiled Python files
 clean:
