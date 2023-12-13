@@ -1,9 +1,10 @@
-.PHONY: clean scrape lint requirements sync_data_to_s3 sync_data_from_s3
+.PHONY: clean scrape lint create_environment requirements sync_data_to_s3 sync_data_from_s3
 
 #################################################################################
 # GLOBALS                                                                       #
 #################################################################################
 
+SHELL = /bin/bash
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 BUCKET = [OPTIONAL] your-bucket-for-syncing-data (do not include 's3://')
 PROFILE = default
@@ -59,7 +60,7 @@ endif
 ## Set up python interpreter environment
 create_environment:
 	$(PYTHON_INTERPRETER) -m venv venv
-	. venv/bin/activate && \
+	source venv/bin/activate && \
 	$(PYTHON_INTERPRETER) -m pip install pip setuptools wheel && \
 	$(PYTHON_INTERPRETER) -m pip install -e .
 
