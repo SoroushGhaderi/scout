@@ -456,9 +456,12 @@ def main(match_id: int, response_json: json):
     for key, function in dict_of_functions.items():
         try:
             match_stat = function(match_id=match_id, response_json=response_json)
-            json_to_parquet(
-                json_input=match_stat,
-                write_path=file_path["raw_match"] + f"{key}_{match_id}" + ".parquet",
-            )
+            if len(match_stat) > 0:
+                json_to_parquet(
+                    json_input=match_stat,
+                    write_path=file_path["raw_match"] + f"{key}_{match_id}" + ".parquet",
+                )
+            else:
+                continue
         except:
             continue
