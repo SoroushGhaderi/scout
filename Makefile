@@ -30,7 +30,7 @@ requirements: test_environment
 
 ## Make Dataset
 scrape: 
-	cd src/scrape && $(PYTHON_INTERPRETER) scraper.py -d $(YESTERDAY)-s -m -p -v -o -t
+	cd src/scrape && $(PYTHON_INTERPRETER) sofa_tennis_scraper.py -d $(YESTERDAY)-s -m -p -v -o -t
 
 ## Delete all compiled Python files
 clean:
