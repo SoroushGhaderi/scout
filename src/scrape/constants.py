@@ -25,5 +25,5 @@ file_path = {
     "raw_odds": "../../data/raw/raw_odds_parquet/",
     "raw_tennis_power": "../../data/raw/raw_tennis_power_parquet/",
     "tracking_scrape": "../../data/track/",
-    "save_data_path": "../../data/raw/",
+    "zip_save_path": "../../data/raw/",
 }

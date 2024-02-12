@@ -2,6 +2,7 @@ import os
 import time
 import logging
 import zipfile
+import shutil
 import pandas as pd
 
 
@@ -107,18 +108,16 @@ def main():
             else:
                 logging.info(f"{parameter} not valid to scrape.")
 
-    os.chdir(file_path["save_data_path"])
-    
     # zip 6 raw folders
-    with zipfile.ZipFile(f"{arguments.date.replace('-', '')}.zip", "w") as zip_file:
-        for filename in os.listdir():
-            if os.path.isdir(filename):
-                zip_file.write(filename)
+    with zipfile.ZipFile(os.path.join(file_path["zip_save_path"], f"{arguments.date.replace('-', '')}.zip"), "w") as zip_file:
+        for root, dirs, files in os.walk(file_path["zip_save_path"]):
+            for filename in files:
+                zip_file.write(os.path.join(root, filename))
 
     # remove 6 raw folders
-    for filename in os.listdir():
-        if os.path.isdir(filename):
-            os.rmdir(filename)
+    for filename in os.listdir(file_path["zip_save_path"]):
+        if not filename.endswith(".zip"):
+            shutil.rmtree(os.path.join(file_path["zip_save_path"], filename))
 
 
 if __name__ == "__main__":
