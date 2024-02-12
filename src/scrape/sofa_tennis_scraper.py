@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+import zipfile
 import pandas as pd
 
 
@@ -99,11 +100,25 @@ def main():
                         ),
                         index=False,
                     )
+                    time.sleep(2)
                 except:
                     scraper_dataframe.loc[row_num, parameter] = 0
+
             else:
                 logging.info(f"{parameter} not valid to scrape.")
-            time.sleep(2)
+
+    os.chdir(file_path["save_data_path"])
+    
+    # zip 6 raw folders
+    with zipfile.ZipFile(f"{arguments.date.replace('-', '')}.zip", "w") as zip_file:
+        for filename in os.listdir():
+            if os.path.isdir(filename):
+                zip_file.write(filename)
+
+    # remove 6 raw folders
+    for filename in os.listdir():
+        if os.path.isdir(filename):
+            os.rmdir(filename)
 
 
 if __name__ == "__main__":
