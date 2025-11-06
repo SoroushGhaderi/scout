@@ -74,6 +74,7 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*.ipynb
 
 # IPython
 profile_default/
@@ -146,3 +147,5 @@ Thumbs.db
 chromedriver.exe
 geckodriver.exe
 
+data
+*.ipynb
