@@ -1,0 +1,220 @@
+2025-11-27 22:39:34,842 - root - INFO - ================================================================================
+2025-11-27 22:39:34,850 - root - INFO - 📝 Logging initialized for links scraping
+2025-11-27 22:39:34,854 - root - INFO -    Log file: /app/logs/aiscore_scraper_links_20251002.log
+2025-11-27 22:39:34,858 - root - INFO -    Console level: INFO and above
+2025-11-27 22:39:34,860 - root - INFO -    File level: INFO and above (matches console)
+2025-11-27 22:39:34,863 - root - INFO -    File handler: ✓ Active
+2025-11-27 22:39:34,866 - root - INFO - ================================================================================
+Log file test write at 2025-11-27T22:39:34.871251
+2025-11-27 22:39:34,894 - root - INFO - Loading page: https://www.aiscore.com/20251002
+2025-11-27 22:39:34,897 - root - WARNING - Browser unresponsive, restarting...
+2025-11-27 22:39:34,900 - src.scrapers.aiscore.browser - INFO - Restarting browser...
+2025-11-27 22:39:36,902 - src.scrapers.aiscore.browser - INFO - Using Chrome binary: /usr/bin/chromium
+2025-11-27 22:39:36,948 - src.scrapers.aiscore.browser - INFO - Detected Chrome version: 142.0.7444.175 (major: 142)
+2025-11-27 22:39:36,949 - WDM - INFO - ====== WebDriver manager ======
+2025-11-27 22:39:38,224 - WDM - INFO - WebDriver version 142.0.7444.175 selected
+2025-11-27 22:39:38,230 - WDM - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-11-27 22:39:38,232 - WDM - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-11-27 22:39:39,115 - WDM - INFO - Driver downloading response is 200
+2025-11-27 22:39:45,178 - WDM - INFO - Driver has been saved in cache [/app/.wdm/drivers/chromedriver/linux64/142.0.7444.175]
+2025-11-27 22:39:45,452 - src.scrapers.aiscore.browser - INFO - Browser created successfully
+2025-11-27 22:39:45,453 - src.scrapers.aiscore.browser - INFO - Browser restarted successfully
+2025-11-27 22:39:56,652 - root - INFO - Cloudflare challenge detected. Waiting for it to complete...
+2025-11-27 22:40:06,667 - root - INFO - Still waiting for Cloudflare... (10s / 30s)
+2025-11-27 22:40:39,783 - root - WARNING - Cloudflare challenge did not complete within 30 seconds
+2025-11-27 22:40:39,786 - root - WARNING - Cloudflare challenge may not have completed. Continuing anyway...
+2025-11-27 22:41:10,873 - root - WARNING - Timeout waiting for page to load
+2025-11-27 22:41:21,433 - src.scrapers.aiscore.bronze_storage - INFO - Bronze storage initialized: data/aiscore
+2025-11-27 22:41:21,455 - root - INFO - ================================================================================
+2025-11-27 22:41:21,457 - root - INFO - Starting match links scraping...
+2025-11-27 22:41:21,459 - root - INFO - ================================================================================
+2025-11-27 22:41:21,461 - root - INFO - 🔍 Filtering: LEAGUE-BASED (✓ 118 leagues configured)
+2025-11-27 22:41:21,463 - root - INFO -    Sample leagues: Premier League, English Football League Championship, FA Cup, English Football League Cup, English Football League Trophy... (+113 more)
+2025-11-27 22:41:21,465 - root - INFO - Starting scroll to load all matches...
+2025-11-27 22:41:21,485 - root - INFO - Scroll 1 in progress...
+2025-11-27 22:41:41,535 - root - INFO - Scroll 2 in progress...
+2025-11-27 22:42:01,610 - root - INFO - Scroll 3 in progress...
+2025-11-27 22:42:21,690 - root - INFO - Scroll 4 in progress...
+2025-11-27 22:42:41,764 - root - INFO - Scroll 5 in progress...
+2025-11-27 22:43:01,805 - root - INFO - Scroll 6 in progress...
+2025-11-27 22:43:21,882 - root - INFO - Scroll 7 in progress...
+2025-11-27 22:43:41,949 - root - INFO - Scroll 8 in progress...
+2025-11-27 22:44:02,037 - root - INFO - Scroll 9 in progress...
+2025-11-27 22:44:22,083 - root - INFO - Scroll 10 in progress...
+2025-11-27 22:46:02,468 - root - INFO - Scroll 15 in progress...
+2025-11-27 22:47:42,832 - root - INFO - Scroll 20 in progress...
+2025-11-27 22:48:02,909 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 20/50)...
+2025-11-27 22:48:15,685 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ConnectionResetError(104, 'Connection reset by peer')': /session/c6ef5f62e0bd9f7a4fa56ece4f0363ce
+2025-11-27 22:48:15,688 - urllib3.connectionpool - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7c9ca4e13710>: Failed to establish a new connection: [Errno 111] Connection refused')': /session/c6ef5f62e0bd9f7a4fa56ece4f0363ce
+2025-11-27 22:48:15,694 - urllib3.connectionpool - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7c9ca4e13210>: Failed to establish a new connection: [Errno 111] Connection refused')': /session/c6ef5f62e0bd9f7a4fa56ece4f0363ce
+2025-11-27 22:48:15,696 - src.scrapers.aiscore.browser - INFO - Browser closed
+2025-11-27 22:48:33,513 - root - INFO - ================================================================================
+2025-11-27 22:48:33,514 - root - INFO - 📝 Logging initialized for links scraping
+2025-11-27 22:48:33,514 - root - INFO -    Log file: /app/logs/aiscore_scraper_links_20251002.log
+2025-11-27 22:48:33,515 - root - INFO -    Console level: INFO and above
+2025-11-27 22:48:33,516 - root - INFO -    File level: INFO and above (matches console)
+2025-11-27 22:48:33,516 - root - INFO -    File handler: ✓ Active
+2025-11-27 22:48:33,517 - root - INFO - ================================================================================
+Log file test write at 2025-11-27T22:48:33.518002
+2025-11-27 22:48:33,546 - root - INFO - Loading page: https://www.aiscore.com/20251002
+2025-11-27 22:48:33,547 - root - WARNING - Browser unresponsive, restarting...
+2025-11-27 22:48:33,559 - src.scrapers.aiscore.browser - INFO - Restarting browser...
+2025-11-27 22:48:35,562 - src.scrapers.aiscore.browser - INFO - Using Chrome binary: /usr/bin/chromium
+2025-11-27 22:48:35,602 - src.scrapers.aiscore.browser - INFO - Detected Chrome version: 142.0.7444.175 (major: 142)
+2025-11-27 22:48:35,603 - WDM - INFO - ====== WebDriver manager ======
+2025-11-27 22:48:36,915 - WDM - INFO - WebDriver version 142.0.7444.175 selected
+2025-11-27 22:48:36,922 - WDM - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-11-27 22:48:36,924 - WDM - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-11-27 22:48:37,579 - WDM - INFO - Driver downloading response is 200
+2025-11-27 22:48:40,928 - WDM - INFO - Driver has been saved in cache [/app/.wdm/drivers/chromedriver/linux64/142.0.7444.175]
+2025-11-27 22:48:41,224 - src.scrapers.aiscore.browser - INFO - Browser created successfully
+2025-11-27 22:48:41,225 - src.scrapers.aiscore.browser - INFO - Browser restarted successfully
+2025-11-27 22:48:55,328 - root - INFO - Cloudflare challenge detected. Waiting for it to complete...
+2025-11-27 22:49:05,416 - root - INFO - Still waiting for Cloudflare... (10s / 30s)
+2025-11-27 22:49:38,559 - root - WARNING - Cloudflare challenge did not complete within 30 seconds
+2025-11-27 22:49:38,562 - root - WARNING - Cloudflare challenge may not have completed. Continuing anyway...
+2025-11-27 22:50:09,659 - root - WARNING - Timeout waiting for page to load
+2025-11-27 22:50:10,870 - src.scrapers.aiscore.bronze_storage - INFO - Bronze storage initialized: data/aiscore
+2025-11-27 22:50:10,898 - root - INFO - ================================================================================
+2025-11-27 22:50:10,903 - root - INFO - Starting match links scraping...
+2025-11-27 22:50:10,906 - root - INFO - ================================================================================
+2025-11-27 22:50:10,907 - root - INFO - 🔍 Filtering: LEAGUE-BASED (✓ 118 leagues configured)
+2025-11-27 22:50:10,910 - root - INFO -    Sample leagues: Premier League, English Football League Championship, FA Cup, English Football League Cup, English Football League Trophy... (+113 more)
+2025-11-27 22:50:10,913 - root - INFO - Starting scroll to load all matches...
+2025-11-27 22:50:10,978 - root - INFO - Scroll 1 in progress...
+2025-11-27 22:50:11,537 - root - INFO - Included 1 countries with 1 matches: {'Argentina': 1}
+2025-11-27 22:50:11,544 - root - INFO - 📊 Scroll 1: 1 leagues, 1 matches in this scroll
+2025-11-27 22:50:11,572 - root - INFO - Scroll 2 in progress...
+2025-11-27 22:50:12,278 - root - INFO - Scroll 3 in progress...
+2025-11-27 22:50:15,836 - root - INFO - Included 1 countries with 1 matches: {'Americas': 1}
+2025-11-27 22:50:15,837 - root - INFO - 📊 Scroll 3: 1 leagues, 1 matches in this scroll
+2025-11-27 22:50:15,873 - root - INFO - Scroll 4 in progress...
+2025-11-27 22:50:16,488 - root - INFO - Included 3 countries with 8 matches: {'Brazil': 6, 'Americas': 1, 'Burundi': 1}
+2025-11-27 22:50:16,490 - root - INFO - 📊 Scroll 4: 4 leagues, 8 matches in this scroll
+2025-11-27 22:50:16,531 - root - INFO - Scroll 5 in progress...
+2025-11-27 22:50:20,177 - root - INFO - Included 4 countries with 9 matches: {'Americas': 1, 'Brazil': 6, 'Burundi': 1, 'Bhutan': 1}
+2025-11-27 22:50:20,178 - root - INFO - 📊 Scroll 5: 5 leagues, 9 matches in this scroll
+2025-11-27 22:50:20,213 - root - INFO - Scroll 6 in progress...
+2025-11-27 22:50:24,679 - root - INFO - Included 3 countries with 11 matches: {'Brazil': 9, 'Burundi': 1, 'Bhutan': 1}
+2025-11-27 22:50:24,680 - root - INFO - 📊 Scroll 6: 7 leagues, 11 matches in this scroll
+2025-11-27 22:50:24,754 - root - INFO - Scroll 7 in progress...
+2025-11-27 22:50:28,880 - root - INFO - Included 3 countries with 5 matches: {'Burundi': 1, 'Bhutan': 1, 'Brazil': 3}
+2025-11-27 22:50:28,881 - root - INFO - 📊 Scroll 7: 5 leagues, 5 matches in this scroll
+2025-11-27 22:50:28,936 - root - INFO - Scroll 8 in progress...
+2025-11-27 22:50:30,167 - root - INFO - Included 1 countries with 3 matches: {'Brazil': 3}
+2025-11-27 22:50:30,168 - root - INFO - 📊 Scroll 8: 3 leagues, 3 matches in this scroll
+2025-11-27 22:50:30,209 - root - INFO - Scroll 9 in progress...
+2025-11-27 22:50:31,374 - root - INFO - Included 1 countries with 1 matches: {'Denmark': 1}
+2025-11-27 22:50:31,376 - root - INFO - 📊 Scroll 9: 1 leagues, 1 matches in this scroll
+2025-11-27 22:50:31,455 - root - INFO - Scroll 10 in progress...
+2025-11-27 22:50:32,741 - root - INFO - Included 2 countries with 19 matches: {'Europe': 18, 'Denmark': 1}
+2025-11-27 22:50:32,743 - root - INFO - 📊 Scroll 10: 2 leagues, 19 matches in this scroll
+2025-11-27 22:50:32,743 - root - INFO - ⚡ Progress: 32 unique matches | Scroll 10 | 87.9 matches/min
+2025-11-27 22:50:32,744 - root - INFO -    🏆 Top leagues: UEFA Europa League (18), Brazilian Serie A (15), Premier League (7)
+2025-11-27 22:50:32,745 - root - INFO -    🌍 Top countries: Brazil (27), Europe (18), Burundi (4)
+2025-11-27 22:50:32,836 - root - INFO - Incremental save: Added 32 new matches. Total: 32 to /app/data/aiscore/daily_listings/20251002/matches.json
+2025-11-27 22:50:32,856 - root - INFO - 💾 Saved batch: 32 matches to file (scroll 10) | File size: 0.02 MB
+2025-11-27 22:50:34,416 - root - INFO - Included 2 countries with 37 matches: {'Europe': 36, 'Denmark': 1}
+2025-11-27 22:50:34,418 - root - INFO - 📊 Scroll 11: 3 leagues, 37 matches in this scroll
+2025-11-27 22:50:38,738 - root - INFO - Included 2 countries with 37 matches: {'Denmark': 1, 'Europe': 36}
+2025-11-27 22:50:38,739 - root - INFO - 📊 Scroll 12: 3 leagues, 37 matches in this scroll
+2025-11-27 22:50:43,090 - root - INFO - Included 2 countries with 37 matches: {'Denmark': 1, 'Europe': 36}
+2025-11-27 22:50:43,094 - root - INFO - 📊 Scroll 13: 3 leagues, 37 matches in this scroll
+2025-11-27 22:50:44,546 - root - INFO - Included 1 countries with 36 matches: {'Europe': 36}
+2025-11-27 22:50:44,548 - root - INFO - 📊 Scroll 14: 2 leagues, 36 matches in this scroll
+2025-11-27 22:50:44,624 - root - INFO - Scroll 15 in progress...
+2025-11-27 22:50:46,106 - root - INFO - Included 1 countries with 36 matches: {'Europe': 36}
+2025-11-27 22:50:46,110 - root - INFO - 📊 Scroll 15: 2 leagues, 36 matches in this scroll
+2025-11-27 22:50:54,470 - root - INFO - Included 2 countries with 5 matches: {'Iran': 1, 'International': 4}
+2025-11-27 22:50:54,472 - root - INFO - 📊 Scroll 17: 3 leagues, 5 matches in this scroll
+2025-11-27 22:50:55,921 - root - INFO - Included 2 countries with 5 matches: {'Iran': 1, 'International': 4}
+2025-11-27 22:50:55,922 - root - INFO - 📊 Scroll 18: 3 leagues, 5 matches in this scroll
+2025-11-27 22:51:00,273 - root - INFO - Included 2 countries with 5 matches: {'Iran': 1, 'International': 4}
+2025-11-27 22:51:00,274 - root - INFO - 📊 Scroll 19: 3 leagues, 5 matches in this scroll
+2025-11-27 22:51:00,331 - root - INFO - Scroll 20 in progress...
+2025-11-27 22:51:04,531 - root - INFO - Included 2 countries with 4 matches: {'International': 2, 'Malta': 2}
+2025-11-27 22:51:04,533 - root - INFO - 📊 Scroll 20: 2 leagues, 4 matches in this scroll
+2025-11-27 22:51:04,533 - root - INFO - ⚡ Progress: 57 unique matches | Scroll 20 | 63.8 matches/min
+2025-11-27 22:51:04,534 - root - INFO -    🏆 Top leagues: UEFA Europa League (108), UEFA Europa Conference League (90), Brazilian Serie A (15)
+2025-11-27 22:51:04,535 - root - INFO -    🌍 Top countries: Europe (198), Brazil (27), International (14)
+2025-11-27 22:51:04,669 - root - INFO - Incremental save: Added 25 new matches. Total: 57 to /app/data/aiscore/daily_listings/20251002/matches.json
+2025-11-27 22:51:04,686 - root - INFO - 💾 Saved batch: 25 matches to file (scroll 20) | File size: 0.03 MB
+2025-11-27 22:51:09,019 - root - INFO - Included 2 countries with 3 matches: {'Malta': 2, 'Nigeria': 1}
+2025-11-27 22:51:09,024 - root - INFO - 📊 Scroll 21: 2 leagues, 3 matches in this scroll
+2025-11-27 22:51:13,332 - root - INFO - Included 2 countries with 4 matches: {'Malta': 2, 'Nigeria': 2}
+2025-11-27 22:51:13,334 - root - INFO - 📊 Scroll 22: 3 leagues, 4 matches in this scroll
+2025-11-27 22:51:17,572 - root - INFO - Included 1 countries with 2 matches: {'Nigeria': 2}
+2025-11-27 22:51:17,573 - root - INFO - 📊 Scroll 23: 2 leagues, 2 matches in this scroll
+2025-11-27 22:51:18,862 - root - INFO - Included 1 countries with 2 matches: {'Nigeria': 2}
+2025-11-27 22:51:18,863 - root - INFO - 📊 Scroll 24: 2 leagues, 2 matches in this scroll
+2025-11-27 22:51:18,918 - root - INFO - Scroll 25 in progress...
+2025-11-27 22:51:24,857 - root - INFO - Included 2 countries with 2 matches: {'Russia': 1, 'Singapore': 1}
+2025-11-27 22:51:24,860 - root - INFO - 📊 Scroll 26: 2 leagues, 2 matches in this scroll
+2025-11-27 22:51:29,087 - root - INFO - Included 3 countries with 3 matches: {'Russia': 1, 'Singapore': 1, 'USA': 1}
+2025-11-27 22:51:29,088 - root - INFO - 📊 Scroll 27: 3 leagues, 3 matches in this scroll
+2025-11-27 22:51:30,425 - root - INFO - Included 4 countries with 5 matches: {'Uganda': 2, 'Russia': 1, 'Singapore': 1, 'USA': 1}
+2025-11-27 22:51:30,427 - root - INFO - 📊 Scroll 28: 4 leagues, 5 matches in this scroll
+2025-11-27 22:51:31,818 - root - INFO - Included 3 countries with 4 matches: {'Uruguay': 1, 'USA': 1, 'Uganda': 2}
+2025-11-27 22:51:31,820 - root - INFO - 📊 Scroll 29: 3 leagues, 4 matches in this scroll
+2025-11-27 22:51:31,834 - root - INFO - Scroll 30 in progress...
+2025-11-27 22:51:36,040 - root - INFO - Included 2 countries with 3 matches: {'Uganda': 2, 'Uruguay': 1}
+2025-11-27 22:51:36,041 - root - INFO - 📊 Scroll 30: 2 leagues, 3 matches in this scroll
+2025-11-27 22:51:36,136 - root - INFO - Incremental save: Added 8 new matches. Total: 65 to /app/data/aiscore/daily_listings/20251002/matches.json
+2025-11-27 22:51:36,150 - root - INFO - 💾 Saved batch: 8 matches to file (scroll 30) | File size: 0.03 MB
+2025-11-27 22:51:40,297 - root - INFO - Included 1 countries with 1 matches: {'Uruguay': 1}
+2025-11-27 22:51:40,299 - root - INFO - 📊 Scroll 31: 1 leagues, 1 matches in this scroll
+2025-11-27 22:51:44,577 - root - INFO - ================================================================================
+2025-11-27 22:51:44,580 - root - INFO - ✅ Scraping complete!
+2025-11-27 22:51:44,582 - root - INFO - ================================================================================
+2025-11-27 22:51:44,583 - root - INFO - 📊 Total matches found: 65
+2025-11-27 22:51:44,584 - root - INFO - 🔄 Total scrolls: 32
+2025-11-27 22:51:44,585 - root - INFO - ⏱️  Total time: 93.7s (1.6 min)
+2025-11-27 22:51:44,586 - root - INFO - ⚡ Average rate: 41.6 matches/min
+2025-11-27 22:51:44,587 - root - INFO - 
+2025-11-27 22:51:44,588 - root - INFO - Stop conditions: reached_bottom=True, page_not_growing=True, too_many_empty_scrolls=False
+2025-11-27 22:51:44,589 - root - INFO - 
+2025-11-27 22:51:44,591 - root - INFO - 🏆 League Distribution (13 unique leagues):
+2025-11-27 22:51:44,592 - root - INFO -     1. UEFA Europa League: 108 matches (166.2%)
+2025-11-27 22:51:44,596 - root - INFO -     2. UEFA Europa Conference League: 90 matches (138.5%)
+2025-11-27 22:51:44,598 - root - INFO -     3. Premier League: 29 matches (44.6%)
+2025-11-27 22:51:44,599 - root - INFO -     4. Brazilian Serie A: 15 matches (23.1%)
+2025-11-27 22:51:44,601 - root - INFO -     5. FIFA U20 World Cup: 14 matches (21.5%)
+2025-11-27 22:51:44,605 - root - INFO -     6. Cup: 9 matches (13.8%)
+2025-11-27 22:51:44,611 - root - INFO -     7. Copa Maria Bonita: 6 matches (9.2%)
+2025-11-27 22:51:44,613 - root - INFO -     8. Danish 1st Division: 5 matches (7.7%)
+2025-11-27 22:51:44,615 - root - INFO -     9. CONCACAF Central American Cup: 3 matches (4.6%)
+2025-11-27 22:51:44,616 - root - INFO -    10. Brazilian Serie B: 3 matches (4.6%)
+2025-11-27 22:51:44,618 - root - INFO -    ... and 3 more leagues (7 matches)
+2025-11-27 22:51:44,620 - root - INFO - 
+2025-11-27 22:51:44,621 - root - INFO - 🌍 Country Distribution (16 countries):
+2025-11-27 22:51:44,622 - root - INFO -     1. Europe: 198 matches (304.6%)
+2025-11-27 22:51:44,622 - root - INFO -     2. Brazil: 27 matches (41.5%)
+2025-11-27 22:51:44,623 - root - INFO -     3. International: 14 matches (21.5%)
+2025-11-27 22:51:44,624 - root - INFO -     4. Nigeria: 7 matches (10.8%)
+2025-11-27 22:51:44,625 - root - INFO -     5. Malta: 6 matches (9.2%)
+2025-11-27 22:51:44,625 - root - INFO -     6. Uganda: 6 matches (9.2%)
+2025-11-27 22:51:44,628 - root - INFO -     7. Denmark: 5 matches (7.7%)
+2025-11-27 22:51:44,628 - root - INFO -     8. Burundi: 4 matches (6.2%)
+2025-11-27 22:51:44,629 - root - INFO -     9. Americas: 3 matches (4.6%)
+2025-11-27 22:51:44,630 - root - INFO -    10. Bhutan: 3 matches (4.6%)
+2025-11-27 22:51:44,631 - root - INFO -    ... and 6 more countries (16 matches)
+2025-11-27 22:51:44,633 - root - INFO - 
+2025-11-27 22:51:44,635 - root - INFO - 🔍 Filtering Summary (LEAGUE-BASED):
+2025-11-27 22:51:44,637 - root - INFO -    Configured leagues: 118
+2025-11-27 22:51:44,638 - root - INFO -    Leagues found: 13
+2025-11-27 22:51:44,640 - root - INFO -    Matches captured: 65
+2025-11-27 22:51:44,642 - root - INFO -    ⚠️  104 configured leagues had no matches today
+2025-11-27 22:51:44,643 - root - INFO - 
+2025-11-27 22:51:44,645 - root - INFO - ================================================================================
+2025-11-27 22:51:44,647 - root - INFO - 📁 File Verification
+2025-11-27 22:51:44,648 - root - INFO - ================================================================================
+2025-11-27 22:51:44,661 - root - INFO - ✅ File saved successfully: matches.json
+2025-11-27 22:51:44,663 - root - INFO -    Path: data/aiscore/daily_listings/20251002/matches.json
+2025-11-27 22:51:44,664 - root - INFO -    Matches in file: 65
+2025-11-27 22:51:44,666 - root - INFO -    File size: 0.03 MB
+2025-11-27 22:51:44,667 - root - INFO -    ✅ Count verified: 65 matches (matches expected)
+2025-11-27 22:51:44,669 - root - INFO - ================================================================================
+2025-11-27 22:51:44,755 - root - INFO - ✅ Marked scraping as complete with metadata:
+2025-11-27 22:51:44,756 - root - INFO -    Completion time: 2025-11-27T22:51:44.683052
+2025-11-27 22:51:44,757 - root - INFO -    Leagues scraped: 13
+2025-11-27 22:51:44,833 - src.scrapers.aiscore.browser - INFO - Browser closed

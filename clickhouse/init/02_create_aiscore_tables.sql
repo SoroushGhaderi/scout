@@ -2,6 +2,9 @@
 -- This script creates all tables for AIScore match and odds data
 -- Run this AFTER creating the databases (00_create_databases_fotmob_and_aiscore.sql)
 -- Note: Database prefix (aiscore.) will be added automatically by setup script
+--
+-- Table deduplication: These tables use ReplacingMergeTree which handles duplicates automatically.
+-- Use SELECT ... FINAL for immediate deduplication, or OPTIMIZE TABLE ... FINAL to force merge.
 
 -- 1. Matches table - Main match information
 -- Using ReplacingMergeTree to automatically handle duplicates based on ORDER BY key
@@ -111,3 +114,12 @@ CREATE TABLE IF NOT EXISTS daily_listings (
 ORDER BY (scrape_date)
 PARTITION BY toYYYYMM(scrape_date);
 
+-- ============================================================================
+-- OPTIMIZE TABLES (run after data loading to force merge and deduplicate)
+-- ============================================================================
+-- Example usage:
+-- OPTIMIZE TABLE aiscore.matches FINAL;
+-- OPTIMIZE TABLE aiscore.odds_1x2 FINAL;
+-- OPTIMIZE TABLE aiscore.odds_asian_handicap FINAL;
+-- OPTIMIZE TABLE aiscore.odds_over_under FINAL;
+-- OPTIMIZE TABLE aiscore.daily_listings FINAL;

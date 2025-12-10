@@ -1,0 +1,229 @@
+2025-12-06 11:43:26,142 - root - INFO - ================================================================================
+2025-12-06 11:43:26,142 - root - INFO - 📝 Logging initialized
+2025-12-06 11:43:26,143 - root - INFO -    Log file: /app/logs/aiscore_scraper_links_20251007.log
+2025-12-06 11:43:26,144 - root - INFO -    Console level: INFO and above
+2025-12-06 11:43:26,144 - root - INFO -    File level: INFO and above
+2025-12-06 11:43:26,145 - root - INFO -    File handler: ✓ Active
+2025-12-06 11:43:26,145 - root - INFO - ================================================================================
+2025-12-06 11:43:26,146 - root - INFO - Loading page: https://www.aiscore.com/20251007
+2025-12-06 11:43:26,146 - root - WARNING - Browser unresponsive, restarting...
+2025-12-06 11:43:26,147 - src.scrapers.aiscore.browser - INFO - Restarting browser...
+2025-12-06 11:43:28,148 - src.scrapers.aiscore.browser - INFO - Using Chrome binary: /usr/bin/chromium
+2025-12-06 11:43:28,187 - src.scrapers.aiscore.browser - INFO - Detected Chrome version: 142.0.7444.175 (major: 142)
+2025-12-06 11:43:28,188 - WDM - INFO - ====== WebDriver manager ======
+2025-12-06 11:43:36,118 - __main__ - ERROR - Link scraping error: Failed to create browser: Could not reach host. Are you offline?
+Traceback (most recent call last):
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connection.py", line 790, in connect
+    sock_and_verified = _ssl_wrap_socket_and_match_hostname(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connection.py", line 969, in _ssl_wrap_socket_and_match_hostname
+    ssl_sock = ssl_wrap_socket(
+               ^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/util/ssl_.py", line 480, in ssl_wrap_socket
+    ssl_sock = _ssl_wrap_socket_impl(sock, context, tls_in_tls, server_hostname)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/util/ssl_.py", line 524, in _ssl_wrap_socket_impl
+    return ssl_context.wrap_socket(sock, server_hostname=server_hostname)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/ssl.py", line 517, in wrap_socket
+    return self.sslsocket_class._create(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/ssl.py", line 1104, in _create
+    self.do_handshake()
+  File "/usr/local/lib/python3.11/ssl.py", line 1382, in do_handshake
+    self._sslobj.do_handshake()
+ssl.SSLError: [SSL] record layer failure (_ssl.c:1016)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 488, in _make_request
+    raise new_e
+urllib3.exceptions.SSLError: [SSL] record layer failure (_ssl.c:1016)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/venv/lib/python3.11/site-packages/requests/adapters.py", line 644, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/util/retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='googlechromelabs.github.io', port=443): Max retries exceeded with url: /chrome-for-testing/known-good-versions-with-downloads.json (Caused by SSLError(SSLError(1, '[SSL] record layer failure (_ssl.c:1016)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/venv/lib/python3.11/site-packages/webdriver_manager/core/http.py", line 32, in get
+    resp = requests.get(
+           ^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/requests/adapters.py", line 675, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='googlechromelabs.github.io', port=443): Max retries exceeded with url: /chrome-for-testing/known-good-versions-with-downloads.json (Caused by SSLError(SSLError(1, '[SSL] record layer failure (_ssl.c:1016)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/src/scrapers/aiscore/browser.py", line 123, in create_driver
+    driver_path = driver_manager.install()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/webdriver_manager/chrome.py", line 40, in install
+    driver_path = self._get_driver_binary_path(self.driver)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/webdriver_manager/core/manager.py", line 40, in _get_driver_binary_path
+    file = self._download_manager.download_file(driver.get_driver_download_url(os_type))
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/webdriver_manager/drivers/chrome.py", line 45, in get_driver_download_url
+    modern_version_url = self.get_url_for_version_and_platform(driver_version_to_download, os_type)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/webdriver_manager/drivers/chrome.py", line 75, in get_url_for_version_and_platform
+    response = self._http_client.get(url)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/webdriver_manager/core/http.py", line 35, in get
+    raise exceptions.ConnectionError(f"Could not reach host. Are you offline?")
+requests.exceptions.ConnectionError: Could not reach host. Are you offline?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/scripts/scrape_aiscore.py", line 348, in run_links_scraping
+    return _execute_links_scraping(date_str, scrape_links, config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/scripts/scrape_aiscore.py", line 365, in _execute_links_scraping
+    url_list = scrape_links.scrape_match_links(date_str, browser, config)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/scripts/aiscore_scripts/scrape_links.py", line 107, in scrape_match_links
+    return _scrape_match_links_impl(date, browser, config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/scripts/aiscore_scripts/scrape_links.py", line 505, in _scrape_match_links_impl
+    browser.restart()
+  File "/app/src/scrapers/aiscore/browser.py", line 301, in restart
+    self.create_driver()
+  File "/app/src/scrapers/aiscore/browser.py", line 140, in create_driver
+    raise BrowserError(f"Failed to create browser: {e}")
+src.scrapers.aiscore.exceptions.BrowserError: Failed to create browser: Could not reach host. Are you offline?
+2025-12-09 19:42:25,054 - root - INFO - ================================================================================
+2025-12-09 19:42:25,058 - root - INFO - 📝 Logging initialized
+2025-12-09 19:42:25,059 - root - INFO -    Log file: /app/logs/aiscore_scraper_links_20251007.log
+2025-12-09 19:42:25,059 - root - INFO -    Console level: INFO and above
+2025-12-09 19:42:25,060 - root - INFO -    File level: INFO and above
+2025-12-09 19:42:25,061 - root - INFO -    File handler: ✓ Active
+2025-12-09 19:42:25,061 - root - INFO - ================================================================================
+2025-12-09 19:42:25,062 - root - INFO - Loading page: https://www.aiscore.com/20251007
+2025-12-09 19:42:25,063 - root - WARNING - Browser unresponsive, restarting...
+2025-12-09 19:42:25,064 - src.scrapers.aiscore.browser - INFO - Restarting browser...
+2025-12-09 19:42:27,065 - src.scrapers.aiscore.browser - INFO - Using Chrome binary: /usr/bin/chromium
+2025-12-09 19:42:27,067 - src.scrapers.aiscore.browser - INFO - Using pre-installed ChromeDriver at: /usr/bin/chromedriver
+2025-12-09 19:42:27,284 - src.scrapers.aiscore.browser - INFO - Browser created successfully
+2025-12-09 19:42:27,285 - src.scrapers.aiscore.browser - INFO - Browser restarted successfully
+2025-12-09 19:42:42,898 - root - INFO - Cloudflare challenge detected. Waiting for it to complete...
+2025-12-09 19:42:52,999 - root - INFO - Still waiting for Cloudflare... (10s / 30s)
+2025-12-09 19:43:26,214 - root - WARNING - Cloudflare challenge did not complete within 30 seconds
+2025-12-09 19:43:26,216 - root - WARNING - Cloudflare challenge may not have completed. Continuing anyway...
+2025-12-09 19:43:57,337 - root - WARNING - Timeout waiting for page to load
+2025-12-09 19:43:58,492 - root - INFO - Starting scroll to load all matches...
+2025-12-09 19:43:58,535 - root - INFO - Scroll 1 in progress...
+2025-12-09 19:44:19,076 - root - INFO - Included 2 countries with 3 matches: {'Argentina': 1, 'International': 2}
+2025-12-09 19:44:19,077 - root - INFO - Scroll 1: 2 leagues, 3 matches
+2025-12-09 19:44:19,105 - root - INFO - Scroll 2 in progress...
+2025-12-09 19:44:39,625 - root - INFO - Included 1 countries with 1 matches: {'Brazil': 1}
+2025-12-09 19:44:39,626 - root - INFO - Scroll 2: 1 leagues, 1 matches
+2025-12-09 19:44:39,667 - root - INFO - Scroll 3 in progress...
+2025-12-09 19:44:43,073 - root - INFO - Included 1 countries with 2 matches: {'Brazil': 2}
+2025-12-09 19:44:43,083 - root - INFO - Scroll 3: 2 leagues, 2 matches
+2025-12-09 19:44:43,118 - root - INFO - Scroll 4 in progress...
+2025-12-09 19:44:43,702 - root - INFO - Included 2 countries with 4 matches: {'Cambodia': 2, 'Brazil': 2}
+2025-12-09 19:44:43,704 - root - INFO - Scroll 4: 3 leagues, 4 matches
+2025-12-09 19:44:43,736 - root - INFO - Scroll 5 in progress...
+2025-12-09 19:44:47,428 - root - INFO - Included 3 countries with 5 matches: {'Brazil': 1, 'Cambodia': 2, 'Denmark': 2}
+2025-12-09 19:44:47,429 - root - INFO - Scroll 5: 3 leagues, 5 matches
+2025-12-09 19:44:47,460 - root - INFO - Scroll 6 in progress...
+2025-12-09 19:44:48,051 - root - INFO - Included 2 countries with 4 matches: {'Cambodia': 2, 'Denmark': 2}
+2025-12-09 19:44:48,052 - root - INFO - Scroll 6: 2 leagues, 4 matches
+2025-12-09 19:44:48,084 - root - INFO - Scroll 7 in progress...
+2025-12-09 19:44:48,690 - root - INFO - Included 2 countries with 5 matches: {'England': 3, 'Denmark': 2}
+2025-12-09 19:44:48,691 - root - INFO - Scroll 7: 3 leagues, 5 matches
+2025-12-09 19:44:48,725 - root - INFO - Scroll 8 in progress...
+2025-12-09 19:44:52,230 - root - INFO - Included 2 countries with 11 matches: {'Denmark': 2, 'England': 9}
+2025-12-09 19:44:52,248 - root - INFO - Scroll 8: 8 leagues, 11 matches
+2025-12-09 19:44:52,304 - root - INFO - Scroll 9 in progress...
+2025-12-09 19:44:56,012 - root - INFO - Included 1 countries with 16 matches: {'England': 16}
+2025-12-09 19:44:56,017 - root - INFO - Scroll 9: 13 leagues, 16 matches
+2025-12-09 19:44:56,058 - root - INFO - Scroll 10 in progress...
+2025-12-09 19:44:59,591 - root - INFO - Included 1 countries with 15 matches: {'England': 15}
+2025-12-09 19:44:59,635 - root - INFO - Scroll 10: 13 leagues, 15 matches
+2025-12-09 19:44:59,644 - root - INFO - Progress: 26 matches found | Scroll 10
+2025-12-09 19:44:59,728 - root - INFO - Incremental save: Added 26 new matches. Total: 26 to /app/data/aiscore/daily_listings/20251007/matches.json
+2025-12-09 19:44:59,731 - root - INFO - Saved 26 matches to file (after 10 scrolls)
+2025-12-09 19:45:00,479 - root - INFO - Included 1 countries with 8 matches: {'England': 8}
+2025-12-09 19:45:00,480 - root - INFO - Scroll 11: 7 leagues, 8 matches
+2025-12-09 19:45:01,205 - root - INFO - Included 1 countries with 3 matches: {'England': 3}
+2025-12-09 19:45:01,206 - root - INFO - Scroll 12: 2 leagues, 3 matches
+2025-12-09 19:45:05,661 - root - INFO - Included 1 countries with 6 matches: {'Europe': 6}
+2025-12-09 19:45:05,662 - root - INFO - Scroll 14: 2 leagues, 6 matches
+2025-12-09 19:45:05,693 - root - INFO - Scroll 15 in progress...
+2025-12-09 19:45:06,421 - root - INFO - Included 2 countries with 11 matches: {'Fiji': 5, 'Europe': 6}
+2025-12-09 19:45:06,422 - root - INFO - Scroll 15: 3 leagues, 11 matches
+2025-12-09 19:45:07,240 - root - INFO - Included 2 countries with 11 matches: {'Europe': 6, 'Fiji': 5}
+2025-12-09 19:45:07,243 - root - INFO - Scroll 16: 3 leagues, 11 matches
+2025-12-09 19:45:07,984 - root - INFO - Included 3 countries with 11 matches: {'International': 2, 'Europe': 4, 'Fiji': 5}
+2025-12-09 19:45:07,985 - root - INFO - Scroll 17: 3 leagues, 11 matches
+2025-12-09 19:45:08,890 - root - INFO - Included 1 countries with 2 matches: {'International': 2}
+2025-12-09 19:45:08,903 - root - INFO - Scroll 18: 1 leagues, 2 matches
+2025-12-09 19:45:12,638 - root - INFO - Included 2 countries with 3 matches: {'International': 2, 'Jamaica': 1}
+2025-12-09 19:45:12,639 - root - INFO - Scroll 19: 2 leagues, 3 matches
+2025-12-09 19:45:12,672 - root - INFO - Scroll 20 in progress...
+2025-12-09 19:45:16,291 - root - INFO - Included 2 countries with 3 matches: {'International': 2, 'Jamaica': 1}
+2025-12-09 19:45:16,293 - root - INFO - Scroll 20: 2 leagues, 3 matches
+2025-12-09 19:45:16,403 - root - INFO - Incremental save: Added 14 new matches. Total: 40 to /app/data/aiscore/daily_listings/20251007/matches.json
+2025-12-09 19:45:16,406 - root - INFO - Saved 14 matches to file (after 20 scrolls)
+2025-12-09 19:45:20,017 - root - INFO - Included 3 countries with 3 matches: {'Jamaica': 1, 'Mongolia': 1, 'Netherlands': 1}
+2025-12-09 19:45:20,018 - root - INFO - Scroll 21: 3 leagues, 3 matches
+2025-12-09 19:45:20,019 - root - INFO - Progress: 42 matches found | Scroll 21
+2025-12-09 19:45:20,772 - root - INFO - Included 2 countries with 2 matches: {'Mongolia': 1, 'Netherlands': 1}
+2025-12-09 19:45:20,785 - root - INFO - Scroll 22: 2 leagues, 2 matches
+2025-12-09 19:45:24,400 - root - INFO - Included 2 countries with 2 matches: {'Mongolia': 1, 'Netherlands': 1}
+2025-12-09 19:45:24,401 - root - INFO - Scroll 23: 2 leagues, 2 matches
+2025-12-09 19:45:25,152 - root - INFO - Included 1 countries with 1 matches: {'Netherlands': 1}
+2025-12-09 19:45:25,153 - root - INFO - Scroll 24: 1 leagues, 1 matches
+2025-12-09 19:45:25,183 - root - INFO - Scroll 25 in progress...
+2025-12-09 19:45:30,264 - root - INFO - Included 1 countries with 6 matches: {'Wales': 6}
+2025-12-09 19:45:30,305 - root - INFO - Scroll 27: 1 leagues, 6 matches
+2025-12-09 19:45:33,921 - root - INFO - Included 1 countries with 6 matches: {'Wales': 6}
+2025-12-09 19:45:33,922 - root - INFO - Scroll 28: 1 leagues, 6 matches
+2025-12-09 19:45:37,523 - root - INFO - Included 1 countries with 6 matches: {'Wales': 6}
+2025-12-09 19:45:37,524 - root - INFO - Scroll 29: 1 leagues, 6 matches
+2025-12-09 19:45:37,537 - root - INFO - Scroll 30 in progress...
+2025-12-09 19:45:41,134 - root - INFO - Included 1 countries with 6 matches: {'Wales': 6}
+2025-12-09 19:45:41,135 - root - INFO - Scroll 30: 1 leagues, 6 matches
+2025-12-09 19:45:41,186 - root - INFO - Incremental save: Added 8 new matches. Total: 48 to /app/data/aiscore/daily_listings/20251007/matches.json
+2025-12-09 19:45:41,187 - root - INFO - Saved 8 matches to file (after 30 scrolls)
+2025-12-09 19:45:44,804 - root - INFO - Included 1 countries with 6 matches: {'Wales': 6}
+2025-12-09 19:45:44,805 - root - INFO - Scroll 31: 1 leagues, 6 matches
+2025-12-09 19:45:44,806 - root - INFO - Scraping complete: 48 matches found after 31 scrolls
+2025-12-09 19:45:44,807 - root - INFO - Scraping complete. Total unique links found: 48
+2025-12-09 19:45:44,811 - root - INFO - File verification: 48 matches in data/aiscore/daily_listings/20251007/matches.json
+2025-12-09 19:45:44,881 - src.scrapers.aiscore.browser - INFO - Browser closed

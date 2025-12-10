@@ -1,8 +1,14 @@
 """
+
 AIScore scraper configuration.
 
 Configuration is read ONLY from environment variables (.env file).
+
 """
+
+
+
+
 
 import os
 from dataclasses import dataclass, field
@@ -57,7 +63,7 @@ class ScrapingConfig:
     base_url: str = "https://www.aiscore.com"
     filter_by_importance: bool = False
     filter_by_countries: bool = True
-    filter_by_leagues: bool = False  # NEW: League-based filtering
+    filter_by_leagues: bool = False
     allowed_countries: List[str] = field(
         default_factory=lambda: [
             "England",
@@ -94,7 +100,7 @@ class ScrapingConfig:
             "Oceania",
         ]
     )
-    allowed_leagues: List[str] = field(default_factory=list)  # NEW: List of allowed league names
+    allowed_leagues: List[str] = field(default_factory=list)
     extract_team_names_during_link_scraping: bool = False
     scroll: ScrollConfig = field(default_factory=ScrollConfig)
     timeouts: TimeoutConfig = field(default_factory=TimeoutConfig)
@@ -111,14 +117,18 @@ class BrowserConfig:
     block_css: bool = True
     block_fonts: bool = True
     block_media: bool = True
-    user_agent: str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    user_agent: str = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    )
 
 
 @dataclass
 class SelectorsConfig:
     """CSS selectors configuration."""
     match_container: str = ".match-container"
-    all_tab: str = ".changTabBox .changeItem"
+    all_tab: str = ".changeTabBox .changeItem"
     match_link: str = "a[href*='/match']"
 
 
@@ -134,32 +144,40 @@ class ValidationConfig:
 class AIScoreConfig(BaseConfig):
     """
     AIScore scraper configuration.
-    
+
     Configuration is read ONLY from environment variables (.env file).
-    
+
     Usage:
+
         config = AIScoreConfig()
+
         print(config.scraping.base_url)
+
         print(config.storage.bronze_path)
-        
+
     See .env.example for all available configuration options.
     """
-    
+
+
+
+
+
+
+
+
     def __init__(self):
         """Initialize AIScore configuration from environment variables."""
         self._load_config()
         self._apply_env_overrides()
         self._ensure_directories()
-    
+
     def _load_config(self):
         """Initialize configuration with defaults."""
-        # Storage configuration (AIScore only uses bronze layer)
         self.storage = StorageConfig(
             bronze_path="data/aiscore",
             enabled=True,
         )
-        
-        # Scraping configuration
+
         self.scraping = ScrapingConfig(
             base_url="https://www.aiscore.com",
             filter_by_importance=False,
@@ -170,7 +188,8 @@ class AIScoreConfig(BaseConfig):
                 'Austria', 'Switzerland', 'Scotland', 'Denmark', 'Sweden',
                 'Norway', 'Brazil', 'Argentina', 'Japan', 'Saudi Arabia',
                 'International', 'World Cup', 'Euro',
-                'UEFA Champions League', 'UEFA Europa League', 'UEFA Europa Conference League',
+                'UEFA Champions League', 'UEFA Europa League',
+                'UEFA Europa Conference League',
                 'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania'
             ],
             extract_team_names_during_link_scraping=False,
@@ -179,8 +198,7 @@ class AIScoreConfig(BaseConfig):
             navigation=NavigationConfig(),
             delays=DelayConfig(),
         )
-        
-        # Browser configuration
+
         self.browser = BrowserConfig(
             headless=True,
             window_size="1920x1080",
@@ -190,21 +208,18 @@ class AIScoreConfig(BaseConfig):
             block_media=True,
             user_agent=BrowserConfig.user_agent,
         )
-        
-        # Selectors configuration
+
         self.selectors = SelectorsConfig(
             match_container=".match-container",
-            all_tab=".changTabBox .changeItem",
+            all_tab=".changeTabBox .changeItem",
             match_link="a[href*='/match']",
         )
-        
-        # Validation configuration
+
         self.validation = ValidationConfig(
             excluded_paths=["/h2h", "/statistics", "/odds", "/predictions", "/lineups"],
             required_pattern="/match",
         )
-        
-        # Retry configuration
+
         self.retry = RetryConfig(
             max_attempts=3,
             initial_wait=2.0,
@@ -212,8 +227,7 @@ class AIScoreConfig(BaseConfig):
             exponential_base=2.0,
             backoff_factor=2.0,
         )
-        
-        # Logging configuration
+
         self.logging = LoggingConfig(
             level="INFO",
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -222,25 +236,22 @@ class AIScoreConfig(BaseConfig):
             backup_count=5,
             dir="logs",
         )
-        
-        # Metrics configuration
+
         self.metrics = MetricsConfig(
             enabled=True,
             export_path="metrics",
             export_format="json",
         )
-    
+
     def _apply_env_overrides(self):
         """Load configuration from environment variables (.env file)."""
         super()._apply_env_overrides()
-        
-        # Storage configuration
+
         if os.getenv('AISCORE_BRONZE_PATH'):
             self.storage.bronze_path = os.getenv('AISCORE_BRONZE_PATH')
         if os.getenv('AISCORE_STORAGE_ENABLED'):
             self.storage.enabled = os.getenv('AISCORE_STORAGE_ENABLED').lower() == 'true'
-        
-        # Scraping configuration
+
         if os.getenv('AISCORE_BASE_URL'):
             self.scraping.base_url = os.getenv('AISCORE_BASE_URL')
         if os.getenv('AISCORE_FILTER_BY_IMPORTANCE'):
@@ -253,20 +264,25 @@ class AIScoreConfig(BaseConfig):
             countries = [c.strip() for c in os.getenv('AISCORE_ALLOWED_COUNTRIES').split(',')]
             self.scraping.allowed_countries = countries
         if os.getenv('AISCORE_ALLOWED_LEAGUES'):
-            leagues = [l.strip() for l in os.getenv('AISCORE_ALLOWED_LEAGUES').split(',') if l.strip()]
+            leagues = [
+                league.strip()
+                for league in os.getenv('AISCORE_ALLOWED_LEAGUES').split(',')
+                if league.strip()
+            ]
             self.scraping.allowed_leagues = leagues
         if os.getenv('AISCORE_EXTRACT_TEAM_NAMES_DURING_LINK_SCRAPING'):
-            self.scraping.extract_team_names_during_link_scraping = os.getenv('AISCORE_EXTRACT_TEAM_NAMES_DURING_LINK_SCRAPING').lower() == 'true'
-        
-        # Scroll configuration
+            env_val = os.getenv('AISCORE_EXTRACT_TEAM_NAMES_DURING_LINK_SCRAPING')
+            self.scraping.extract_team_names_during_link_scraping = (
+                env_val.lower() == 'true'
+            )
+
         if os.getenv('AISCORE_SCROLL_INCREMENT'):
             self.scraping.scroll.increment = int(os.getenv('AISCORE_SCROLL_INCREMENT'))
         if os.getenv('AISCORE_SCROLL_PAUSE'):
             self.scraping.scroll.pause = float(os.getenv('AISCORE_SCROLL_PAUSE'))
         if os.getenv('AISCORE_SCROLL_MAX_NO_CHANGE'):
             self.scraping.scroll.max_no_change = int(os.getenv('AISCORE_SCROLL_MAX_NO_CHANGE'))
-        
-        # Timeout configuration
+
         if os.getenv('AISCORE_TIMEOUT_PAGE_LOAD'):
             self.scraping.timeouts.page_load = int(os.getenv('AISCORE_TIMEOUT_PAGE_LOAD'))
         if os.getenv('AISCORE_TIMEOUT_ELEMENT_WAIT'):
@@ -275,16 +291,14 @@ class AIScoreConfig(BaseConfig):
             self.scraping.timeouts.cloudflare_max = int(os.getenv('AISCORE_TIMEOUT_CLOUDFLARE_MAX'))
         if os.getenv('AISCORE_TIMEOUT_SCRIPT'):
             self.scraping.timeouts.script_timeout = int(os.getenv('AISCORE_TIMEOUT_SCRIPT'))
-        
-        # Navigation configuration
+
         if os.getenv('AISCORE_NAV_HOMEPAGE_LOAD'):
             self.scraping.navigation.homepage_load = float(os.getenv('AISCORE_NAV_HOMEPAGE_LOAD'))
         if os.getenv('AISCORE_NAV_DATE_PAGE_LOAD'):
             self.scraping.navigation.date_page_load = float(os.getenv('AISCORE_NAV_DATE_PAGE_LOAD'))
         if os.getenv('AISCORE_NAV_TAB_CLICK'):
             self.scraping.navigation.tab_click = float(os.getenv('AISCORE_NAV_TAB_CLICK'))
-        
-        # Delay configuration
+
         if os.getenv('AISCORE_DELAY_BETWEEN_DATES'):
             self.scraping.delays.between_dates = float(os.getenv('AISCORE_DELAY_BETWEEN_DATES'))
         if os.getenv('AISCORE_DELAY_BETWEEN_MATCHES'):
@@ -293,8 +307,7 @@ class AIScoreConfig(BaseConfig):
             self.scraping.delays.initial_load = float(os.getenv('AISCORE_DELAY_INITIAL_LOAD'))
         if os.getenv('AISCORE_DELAY_AFTER_CLICK'):
             self.scraping.delays.after_click = float(os.getenv('AISCORE_DELAY_AFTER_CLICK'))
-        
-        # Browser configuration
+
         if os.getenv('AISCORE_HEADLESS'):
             self.browser.headless = os.getenv('AISCORE_HEADLESS').lower() == 'true'
         if os.getenv('AISCORE_BROWSER_WINDOW_SIZE'):
@@ -309,31 +322,28 @@ class AIScoreConfig(BaseConfig):
             self.browser.block_media = os.getenv('AISCORE_BROWSER_BLOCK_MEDIA').lower() == 'true'
         if os.getenv('AISCORE_BROWSER_USER_AGENT'):
             self.browser.user_agent = os.getenv('AISCORE_BROWSER_USER_AGENT')
-        
-        # Selectors configuration
+
         if os.getenv('AISCORE_SELECTOR_MATCH_CONTAINER'):
             self.selectors.match_container = os.getenv('AISCORE_SELECTOR_MATCH_CONTAINER')
         if os.getenv('AISCORE_SELECTOR_ALL_TAB'):
             self.selectors.all_tab = os.getenv('AISCORE_SELECTOR_ALL_TAB')
         if os.getenv('AISCORE_SELECTOR_MATCH_LINK'):
             self.selectors.match_link = os.getenv('AISCORE_SELECTOR_MATCH_LINK')
-        
-        # Validation configuration
+
         if os.getenv('AISCORE_VALIDATION_EXCLUDED_PATHS'):
             paths = [p.strip() for p in os.getenv('AISCORE_VALIDATION_EXCLUDED_PATHS').split(',')]
             self.validation.excluded_paths = paths
         if os.getenv('AISCORE_VALIDATION_REQUIRED_PATTERN'):
             self.validation.required_pattern = os.getenv('AISCORE_VALIDATION_REQUIRED_PATTERN')
-        
-        # Retry configuration
+
         if os.getenv('AISCORE_RETRY_MAX_ATTEMPTS'):
             self.retry.max_attempts = int(os.getenv('AISCORE_RETRY_MAX_ATTEMPTS'))
         if os.getenv('AISCORE_RETRY_INITIAL_WAIT'):
             self.retry.initial_wait = float(os.getenv('AISCORE_RETRY_INITIAL_WAIT'))
         if os.getenv('AISCORE_RETRY_MAX_WAIT'):
             self.retry.max_wait = float(os.getenv('AISCORE_RETRY_MAX_WAIT'))
-    
-    # Backward compatibility properties
+
+
     @property
     def bronze_layer(self):
         """Backward compatibility: access storage as bronze_layer."""
@@ -342,7 +352,7 @@ class AIScoreConfig(BaseConfig):
                 self.enabled = storage.enabled
                 self.path = storage.bronze_path
         return BronzeLayerCompat(self.storage)
-    
+
     @property
     def database(self):
         """Backward compatibility: database config (not used but kept for compatibility)."""
@@ -351,7 +361,7 @@ class AIScoreConfig(BaseConfig):
             batch_size = 100
             connection_timeout = 30
         return DatabaseCompat()
-    
+
     def ensure_directories(self):
         """Ensure all required directories exist."""
-        super()._ensure_directories()
+        super().ensure_directories()

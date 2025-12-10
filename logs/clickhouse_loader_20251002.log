@@ -1,0 +1,116 @@
+2025-12-08 12:00:49,418 - clickhouse_loader - INFO - setup_logging:57 - Logging initialized. Log file: logs/clickhouse_loader_20251002.log
+2025-12-08 12:00:49,448 - clickhouse_loader - INFO - main:1619 - 
+================================================================================
+2025-12-08 12:00:49,448 - clickhouse_loader - INFO - main:1620 - Loading fotmob data for 20251002
+2025-12-08 12:00:49,449 - clickhouse_loader - INFO - main:1621 - ================================================================================
+
+2025-12-08 12:00:49,486 - clickhouse_loader - INFO - load_match_files_from_json_gz:466 - Found 90 .json.gz files
+2025-12-08 12:00:56,299 - clickhouse_loader - INFO - load_fotmob_data:656 - Processed 967 match files for 20251002
+2025-12-08 12:00:56,299 - clickhouse_loader - INFO - load_fotmob_data:661 - Accumulated dataframes summary:
+2025-12-08 12:00:56,300 - clickhouse_loader - INFO - load_fotmob_data:664 -   general: 90 dataframes, 90 total rows
+2025-12-08 12:00:56,300 - clickhouse_loader - INFO - load_fotmob_data:664 -   timeline: 90 dataframes, 90 total rows
+2025-12-08 12:00:56,301 - clickhouse_loader - INFO - load_fotmob_data:664 -   goal: 82 dataframes, 236 total rows
+2025-12-08 12:00:56,301 - clickhouse_loader - INFO - load_fotmob_data:664 -   red_card: 14 dataframes, 18 total rows
+2025-12-08 12:00:56,302 - clickhouse_loader - INFO - load_fotmob_data:664 -   cards: 67 dataframes, 297 total rows
+2025-12-08 12:00:56,302 - clickhouse_loader - INFO - load_fotmob_data:664 -   venue: 90 dataframes, 90 total rows
+2025-12-08 12:00:56,303 - clickhouse_loader - INFO - load_fotmob_data:664 -   team_form: 90 dataframes, 881 total rows
+2025-12-08 12:00:56,304 - clickhouse_loader - INFO - load_fotmob_data:664 -   momentum: 43 dataframes, 3956 total rows
+2025-12-08 12:00:56,305 - clickhouse_loader - INFO - load_fotmob_data:664 -   period: 71 dataframes, 211 total rows
+2025-12-08 12:00:56,306 - clickhouse_loader - INFO - load_fotmob_data:664 -   player: 70 dataframes, 3035 total rows
+2025-12-08 12:00:56,306 - clickhouse_loader - INFO - load_fotmob_data:664 -   shotmap: 44 dataframes, 1131 total rows
+2025-12-08 12:00:56,307 - clickhouse_loader - INFO - load_fotmob_data:664 -   starters: 77 dataframes, 1694 total rows
+2025-12-08 12:00:56,307 - clickhouse_loader - INFO - load_fotmob_data:664 -   substitutes: 76 dataframes, 1611 total rows
+2025-12-08 12:00:56,308 - clickhouse_loader - INFO - load_fotmob_data:664 -   coaches: 63 dataframes, 126 total rows
+2025-12-08 12:00:56,351 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 90 rows into fotmob.general
+2025-12-08 12:00:56,351 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.general table...
+2025-12-08 12:00:56,359 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.general table
+2025-12-08 12:00:56,431 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 90 rows into fotmob.timeline
+2025-12-08 12:00:56,432 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.timeline table...
+2025-12-08 12:00:56,440 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.timeline table
+2025-12-08 12:00:56,512 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 236 rows into fotmob.goal
+2025-12-08 12:00:56,512 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.goal table...
+2025-12-08 12:00:56,518 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.goal table
+2025-12-08 12:00:56,598 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 18 rows into fotmob.red_card
+2025-12-08 12:00:56,598 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.red_card table...
+2025-12-08 12:00:56,602 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.red_card table
+2025-12-08 12:00:56,660 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 297 rows into fotmob.cards
+2025-12-08 12:00:56,661 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.cards table...
+2025-12-08 12:00:56,666 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.cards table
+2025-12-08 12:00:56,731 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 90 rows into fotmob.venue
+2025-12-08 12:00:56,731 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.venue table...
+2025-12-08 12:00:56,737 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.venue table
+2025-12-08 12:00:56,796 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 881 rows into fotmob.team_form
+2025-12-08 12:00:56,797 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.team_form table...
+2025-12-08 12:00:56,813 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.team_form table
+2025-12-08 12:00:56,866 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 3956 rows into fotmob.momentum
+2025-12-08 12:00:56,867 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.momentum table...
+2025-12-08 12:00:56,879 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.momentum table
+2025-12-08 12:00:56,986 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 211 rows into fotmob.period
+2025-12-08 12:00:56,986 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.period table...
+2025-12-08 12:00:56,996 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.period table
+2025-12-08 12:00:57,096 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 3035 rows into fotmob.player
+2025-12-08 12:00:57,097 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.player table...
+2025-12-08 12:00:57,134 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.player table
+2025-12-08 12:00:57,201 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 1131 rows into fotmob.shotmap
+2025-12-08 12:00:57,201 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.shotmap table...
+2025-12-08 12:00:57,210 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.shotmap table
+2025-12-08 12:00:57,275 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 1694 rows into fotmob.starters
+2025-12-08 12:00:57,276 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.starters table...
+2025-12-08 12:00:57,291 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.starters table
+2025-12-08 12:00:57,344 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 1611 rows into fotmob.substitutes
+2025-12-08 12:00:57,345 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.substitutes table...
+2025-12-08 12:00:57,357 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.substitutes table
+2025-12-08 12:00:57,412 - clickhouse_loader - INFO - insert_dataframe_with_dlq:379 - Loaded 126 rows into fotmob.coaches
+2025-12-08 12:00:57,413 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.coaches table...
+2025-12-08 12:00:57,418 - clickhouse_loader - INFO - optimize_table:194 - Successfully optimized and deduplicated fotmob.coaches table
+2025-12-08 12:00:57,443 - clickhouse_loader - INFO - optimize_all_tables:203 - Optimizing all FOTMOB tables...
+2025-12-08 12:00:57,444 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.general table...
+2025-12-08 12:00:57,449 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.general table
+2025-12-08 12:00:57,449 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.timeline table...
+2025-12-08 12:00:57,453 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.timeline table
+2025-12-08 12:00:57,454 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.venue table...
+2025-12-08 12:00:57,457 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.venue table
+2025-12-08 12:00:57,457 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.player table...
+2025-12-08 12:00:57,477 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.player table
+2025-12-08 12:00:57,478 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.shotmap table...
+2025-12-08 12:00:57,484 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.shotmap table
+2025-12-08 12:00:57,484 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.goal table...
+2025-12-08 12:00:57,490 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.goal table
+2025-12-08 12:00:57,491 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.cards table...
+2025-12-08 12:00:57,496 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.cards table
+2025-12-08 12:00:57,496 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.red_card table...
+2025-12-08 12:00:57,499 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.red_card table
+2025-12-08 12:00:57,501 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.period table...
+2025-12-08 12:00:57,511 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.period table
+2025-12-08 12:00:57,512 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.momentum table...
+2025-12-08 12:00:57,516 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.momentum table
+2025-12-08 12:00:57,517 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.starters table...
+2025-12-08 12:00:57,528 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.starters table
+2025-12-08 12:00:57,528 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.substitutes table...
+2025-12-08 12:00:57,537 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.substitutes table
+2025-12-08 12:00:57,538 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.coaches table...
+2025-12-08 12:00:57,541 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.coaches table
+2025-12-08 12:00:57,541 - clickhouse_loader - INFO - optimize_all_tables:207 - Optimizing fotmob.team_form table...
+2025-12-08 12:00:57,549 - clickhouse_loader - INFO - optimize_all_tables:210 - Successfully optimized and deduplicated fotmob.team_form table
+2025-12-08 12:00:57,550 - clickhouse_loader - INFO - optimize_all_tables:214 - Optimized 14/14 FOTMOB tables
+2025-12-08 12:00:57,555 - clickhouse_loader - INFO - main:1649 - 
+================================================================================
+2025-12-08 12:00:57,556 - clickhouse_loader - INFO - main:1650 - LOADING SUMMARY
+2025-12-08 12:00:57,556 - clickhouse_loader - INFO - main:1651 - ================================================================================
+
+2025-12-08 12:00:57,556 - clickhouse_loader - INFO - main:1652 - Dates processed: 1
+2025-12-08 12:00:57,557 - clickhouse_loader - INFO - main:1653 - Total rows loaded by table:
+2025-12-08 12:00:57,557 - clickhouse_loader - INFO - main:1655 -   cards: 297 rows
+2025-12-08 12:00:57,558 - clickhouse_loader - INFO - main:1655 -   coaches: 126 rows
+2025-12-08 12:00:57,558 - clickhouse_loader - INFO - main:1655 -   general: 90 rows
+2025-12-08 12:00:57,558 - clickhouse_loader - INFO - main:1655 -   goal: 236 rows
+2025-12-08 12:00:57,558 - clickhouse_loader - INFO - main:1655 -   momentum: 3,956 rows
+2025-12-08 12:00:57,559 - clickhouse_loader - INFO - main:1655 -   period: 211 rows
+2025-12-08 12:00:57,559 - clickhouse_loader - INFO - main:1655 -   player: 3,035 rows
+2025-12-08 12:00:57,559 - clickhouse_loader - INFO - main:1655 -   red_card: 18 rows
+2025-12-08 12:00:57,560 - clickhouse_loader - INFO - main:1655 -   shotmap: 1,131 rows
+2025-12-08 12:00:57,560 - clickhouse_loader - INFO - main:1655 -   starters: 1,694 rows
+2025-12-08 12:00:57,560 - clickhouse_loader - INFO - main:1655 -   substitutes: 1,611 rows
+2025-12-08 12:00:57,560 - clickhouse_loader - INFO - main:1655 -   team_form: 881 rows
+2025-12-08 12:00:57,561 - clickhouse_loader - INFO - main:1655 -   timeline: 90 rows
+2025-12-08 12:00:57,561 - clickhouse_loader - INFO - main:1655 -   venue: 90 rows

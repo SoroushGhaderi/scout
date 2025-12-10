@@ -1,3 +1,1 @@
-"""
-AIScore scraper - Web scraping using Selenium
-"""
+"""AIScore scraper - Web scraping using Selenium."""

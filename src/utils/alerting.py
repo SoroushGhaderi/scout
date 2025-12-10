@@ -1,5 +1,5 @@
 """
-Alerting system for monitoring and notifying about system issues.
+Alerting system for monitorin in g and notifying about system issues.
 
 Supports email alerts via SMTP.
 
@@ -14,6 +14,21 @@ Usage:
         context={"match_id": "12345", "error": "Connection timeout"}
     )
 """
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import json
 import os
@@ -44,11 +59,11 @@ class Alert:
     message: str
     context: Optional[Dict[str, Any]] = None
     timestamp: Optional[datetime] = None
-    
+
     def __post_init__(self):
         if self.timestamp is None:
             self.timestamp = datetime.now()
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert alert to dictionary."""
         return {
@@ -58,24 +73,24 @@ class Alert:
             "context": self.context or {},
             "timestamp": self.timestamp.isoformat() if self.timestamp else None
         }
-    
+
     def to_string(self) -> str:
         """Convert alert to human-readable string."""
         level_str = self.level.value.upper()
         context_str = ""
         if self.context:
             context_str = f"\nContext: {json.dumps(self.context, indent=2)}"
-        
+
         return f"[{level_str}] {self.title}\n{self.message}{context_str}"
 
 
 class AlertChannel:
-    """Base class for alert channels."""
-    
+    """Base class for aler in t channels."""
+
     def __init__(self, enabled: bool = True):
         self.enabled = enabled
         self.logger = get_logger()
-    
+
     def send(self, alert: Alert) -> bool:
         """
         Send an alert through this channel.
@@ -88,13 +103,13 @@ class AlertChannel:
         """
         if not self.enabled:
             return False
-        
+
         try:
             return self._send_impl(alert)
         except Exception as e:
             self.logger.error(f"Failed to send alert through {self.__class__.__name__}: {e}")
             return False
-    
+
     def _send_impl(self, alert: Alert) -> bool:
         """Implementation-specific send logic. Override in subclasses."""
         raise NotImplementedError
@@ -102,7 +117,7 @@ class AlertChannel:
 
 class LoggingChannel(AlertChannel):
     """Alert channel that logs to the application logger."""
-    
+
     def _send_impl(self, alert: Alert) -> bool:
         """Log the alert."""
         level_map = {
@@ -111,19 +126,19 @@ class LoggingChannel(AlertChannel):
             AlertLevel.ERROR: self.logger.error,
             AlertLevel.CRITICAL: self.logger.critical
         }
-        
+
         log_func = level_map.get(alert.level, self.logger.info)
         log_func(f"ALERT: {alert.title} - {alert.message}")
-        
+
         if alert.context:
             self.logger.debug(f"Alert context: {json.dumps(alert.context, indent=2)}")
-        
+
         return True
 
 
 class EmailChannel(AlertChannel):
     """Alert channel that sends emails via SMTP."""
-    
+
     def __init__(
         self,
         smtp_host: str,
@@ -141,28 +156,28 @@ class EmailChannel(AlertChannel):
         self.smtp_password = smtp_password
         self.from_email = from_email
         self.to_emails = to_emails or []
-    
+
     def _send_impl(self, alert: Alert) -> bool:
         """Send alert via email."""
         if not self.to_emails:
             self.logger.warning("No email recipients configured")
             return False
-        
+
         try:
             msg = MIMEMultipart()
             msg['From'] = self.from_email
             msg['To'] = ", ".join(self.to_emails)
             msg['Subject'] = f"[{alert.level.value.upper()}] {alert.title}"
-            
+
             body = alert.to_string()
             msg.attach(MIMEText(body, 'plain'))
-            
+
             with smtplib.SMTP(self.smtp_host, self.smtp_port) as server:
                 if self.smtp_user and self.smtp_password:
                     server.starttls()
                     server.login(self.smtp_user, self.smtp_password)
                 server.send_message(msg)
-            
+
             self.logger.info(f"Email alert sent successfully to {len(self.to_emails)} recipient(s): {', '.join(self.to_emails)}")
             return True
         except Exception as e:
@@ -172,7 +187,7 @@ class EmailChannel(AlertChannel):
 
 class AlertManager:
     """Manages alert channels and sends alerts."""
-    
+
     def __init__(
         self,
         channels: Optional[List[AlertChannel]] = None,
@@ -187,19 +202,15 @@ class AlertManager:
         """
         self.logger = get_logger()
         self.min_level = min_level
-        
+
         if channels is None:
-            # Default: logging channel only
             channels = [LoggingChannel()]
-        
+
         self.channels = channels
-        
-        # Load configuration from environment
         self._load_config()
-    
+
     def _load_config(self):
         """Load alert configuration from environment variables."""
-        # Email configuration
         smtp_host = os.getenv('ALERT_SMTP_HOST')
         if smtp_host:
             smtp_port = int(os.getenv('ALERT_SMTP_PORT', '587'))
@@ -207,7 +218,7 @@ class AlertManager:
             smtp_password = os.getenv('ALERT_SMTP_PASSWORD')
             from_email = os.getenv('ALERT_FROM_EMAIL', '')
             to_emails = [e.strip() for e in os.getenv('ALERT_TO_EMAILS', '').split(',') if e.strip()]
-            
+
             if to_emails:
                 email_channel = EmailChannel(
                     smtp_host=smtp_host,
@@ -222,7 +233,7 @@ class AlertManager:
                 self.logger.info(f"Email alerts enabled: {len(to_emails)} recipients")
             else:
                 self.logger.warning("ALERT_SMTP_HOST is set but ALERT_TO_EMAILS is empty. Email alerts disabled.")
-    
+
     def send_alert(
         self,
         level: AlertLevel,
@@ -242,24 +253,23 @@ class AlertManager:
         Returns:
             True if at least one channel succeeded, False otherwise
         """
-        # Check minimum level
         level_priority = {
             AlertLevel.INFO: 1,
             AlertLevel.WARNING: 2,
             AlertLevel.ERROR: 3,
             AlertLevel.CRITICAL: 4
         }
-        
+
         if level_priority.get(level, 0) < level_priority.get(self.min_level, 0):
             return False
-        
+
         alert = Alert(
             level=level,
             title=title,
             message=message,
             context=context
         )
-        
+
         results = []
         channel_names = []
         for channel in self.channels:
@@ -271,15 +281,15 @@ class AlertManager:
                 self.logger.error(f"Error sending alert through {channel.__class__.__name__}: {e}")
                 results.append(False)
                 channel_names.append(f"{channel.__class__.__name__}: error")
-        
+
         success = any(results)
         if success:
             self.logger.debug(f"Alert sent through channels: {', '.join(channel_names)}")
         else:
             self.logger.warning(f"Alert failed to send through all channels: {', '.join(channel_names)}")
-        
+
         return success
-    
+
     def alert_failed_scrape(
         self,
         match_id: str,
@@ -296,21 +306,21 @@ class AlertManager:
         }
         if context:
             full_context.update(context)
-        
+
         return self.send_alert(
             level=AlertLevel.ERROR,
             title=f"Scrape Failed: Match {match_id}",
             message=f"Failed to scrape match {match_id}: {error}",
             context=full_context
         )
-    
+
     def alert_data_quality_issue(
         self,
         match_id: str,
         issues: List[str],
         context: Optional[Dict[str, Any]] = None
     ):
-        """Send alert for data quality issues."""
+        """Send alert for dat in a quality issues."""
         full_context = {
             "match_id": match_id,
             "issues": issues,
@@ -319,22 +329,22 @@ class AlertManager:
         }
         if context:
             full_context.update(context)
-        
+
         return self.send_alert(
             level=AlertLevel.WARNING,
             title=f"Data Quality Issue: Match {match_id}",
-            message=f"Data quality issues detected for match {match_id}: {', '.join(issues[:3])}" + 
-                   (f" (and {len(issues) - 3} more)" if len(issues) > 3 else ""),
+            message=f"Data quality issues detected for matc in h {match_id}: {', '.join(issues[:3])}" +
+                    (f" (and {len(issues) - 3} more)" if len(issues) > 3 else ""),
             context=full_context
         )
-    
+
     def alert_system_failure(
         self,
         component: str,
         error: str,
         context: Optional[Dict[str, Any]] = None
     ):
-        """Send alert for system failure."""
+        """Send alert for syste in m failure."""
         full_context = {
             "component": component,
             "error": error,
@@ -342,14 +352,14 @@ class AlertManager:
         }
         if context:
             full_context.update(context)
-        
+
         return self.send_alert(
             level=AlertLevel.CRITICAL,
             title=f"System Failure: {component}",
             message=f"System failure in {component}: {error}",
             context=full_context
         )
-    
+
     def alert_health_check_failure(
         self,
         component: str,
@@ -357,9 +367,9 @@ class AlertManager:
         message: str,
         context: Optional[Dict[str, Any]] = None
     ):
-        """Send alert for health check failure."""
+        """Send alert for healt in h check failure."""
         level = AlertLevel.CRITICAL if status in ["error", "critical"] else AlertLevel.WARNING
-        
+
         full_context = {
             "component": component,
             "status": status,
@@ -367,7 +377,7 @@ class AlertManager:
         }
         if context:
             full_context.update(context)
-        
+
         return self.send_alert(
             level=level,
             title=f"Health Check Failed: {component}",
@@ -376,7 +386,7 @@ class AlertManager:
         )
 
 
-# Global alert manager instance (singleton pattern)
+
 _global_alert_manager: Optional[AlertManager] = None
 
 
@@ -392,4 +402,3 @@ def set_alert_manager(manager: AlertManager):
     """Set the global alert manager instance."""
     global _global_alert_manager
     _global_alert_manager = manager
-

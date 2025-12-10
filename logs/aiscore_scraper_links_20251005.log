@@ -1,0 +1,438 @@
+2025-11-28 17:51:44,187 - root - INFO - ================================================================================
+2025-11-28 17:51:44,188 - root - INFO - 📝 Logging initialized for links scraping
+2025-11-28 17:51:44,189 - root - INFO -    Log file: /app/logs/aiscore_scraper_links_20251005.log
+2025-11-28 17:51:44,190 - root - INFO -    Console level: INFO and above
+2025-11-28 17:51:44,190 - root - INFO -    File level: INFO and above (matches console)
+2025-11-28 17:51:44,192 - root - INFO -    File handler: ✓ Active
+2025-11-28 17:51:44,193 - root - INFO - ================================================================================
+Log file test write at 2025-11-28T17:51:44.194373
+2025-11-28 17:51:44,212 - root - INFO - Loading page: https://www.aiscore.com/20251005
+2025-11-28 17:51:44,214 - root - WARNING - Browser unresponsive, restarting...
+2025-11-28 17:51:44,228 - src.scrapers.aiscore.browser - INFO - Restarting browser...
+2025-11-28 17:51:46,234 - src.scrapers.aiscore.browser - INFO - Using Chrome binary: /usr/bin/chromium
+2025-11-28 17:51:46,281 - src.scrapers.aiscore.browser - INFO - Detected Chrome version: 142.0.7444.175 (major: 142)
+2025-11-28 17:51:46,283 - WDM - INFO - ====== WebDriver manager ======
+2025-11-28 17:51:47,430 - WDM - INFO - WebDriver version 142.0.7444.175 selected
+2025-11-28 17:51:47,436 - WDM - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-11-28 17:51:47,438 - WDM - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-11-28 17:51:48,330 - WDM - INFO - Driver downloading response is 200
+2025-11-28 17:51:57,387 - WDM - INFO - Driver has been saved in cache [/app/.wdm/drivers/chromedriver/linux64/142.0.7444.175]
+2025-11-28 17:51:57,622 - src.scrapers.aiscore.browser - INFO - Browser created successfully
+2025-11-28 17:51:57,624 - src.scrapers.aiscore.browser - INFO - Browser restarted successfully
+2025-11-28 17:52:12,701 - root - INFO - Cloudflare challenge detected. Waiting for it to complete...
+2025-11-28 17:52:22,794 - root - INFO - Still waiting for Cloudflare... (10s / 30s)
+2025-11-28 17:52:56,002 - root - WARNING - Cloudflare challenge did not complete within 30 seconds
+2025-11-28 17:52:56,005 - root - WARNING - Cloudflare challenge may not have completed. Continuing anyway...
+2025-11-28 17:53:27,124 - root - WARNING - Timeout waiting for page to load
+2025-11-28 17:53:28,434 - src.scrapers.aiscore.bronze_storage - INFO - Bronze storage initialized: data/aiscore
+2025-11-28 17:53:28,445 - root - INFO - ================================================================================
+2025-11-28 17:53:28,447 - root - INFO - Starting match links scraping...
+2025-11-28 17:53:28,448 - root - INFO - ================================================================================
+2025-11-28 17:53:28,450 - root - INFO - 🔍 Filtering: LEAGUE-BASED (✓ 118 leagues configured)
+2025-11-28 17:53:28,451 - root - INFO -    Sample leagues: Premier League, English Football League Championship, FA Cup, English Football League Cup, English Football League Trophy... (+113 more)
+2025-11-28 17:53:28,453 - root - INFO - Starting scroll to load all matches...
+2025-11-28 17:53:28,476 - root - INFO - Scroll 1 in progress...
+2025-11-28 17:53:48,929 - root - INFO - Included 3 countries with 18 matches: {'Argentina': 14, 'Austria': 3, 'Africa': 1}
+2025-11-28 17:53:48,931 - root - INFO - 📊 Scroll 1: 6 leagues, 18 matches in this scroll
+2025-11-28 17:53:48,988 - root - INFO - Scroll 2 in progress...
+2025-11-28 17:53:49,554 - root - INFO - Included 5 countries with 21 matches: {'Armenia': 2, 'Azerbaijan': 2, 'Argentina': 13, 'Austria': 3, 'Africa': 1}
+2025-11-28 17:53:49,559 - root - INFO - 📊 Scroll 2: 7 leagues, 21 matches in this scroll
+2025-11-28 17:53:49,592 - root - INFO - Scroll 3 in progress...
+2025-11-28 17:53:52,987 - root - INFO - Included 4 countries with 14 matches: {'Africa': 1, 'Argentina': 9, 'Azerbaijan': 2, 'Armenia': 2}
+2025-11-28 17:53:52,989 - root - INFO - 📊 Scroll 3: 4 leagues, 14 matches in this scroll
+2025-11-28 17:53:53,025 - root - INFO - Scroll 4 in progress...
+2025-11-28 17:53:56,615 - root - INFO - Included 2 countries with 4 matches: {'Azerbaijan': 2, 'Armenia': 2}
+2025-11-28 17:53:56,616 - root - INFO - 📊 Scroll 4: 2 leagues, 4 matches in this scroll
+2025-11-28 17:53:56,661 - root - INFO - Scroll 5 in progress...
+2025-11-28 17:53:57,223 - root - INFO - Included 1 countries with 2 matches: {'Armenia': 2}
+2025-11-28 17:53:57,223 - root - INFO - 📊 Scroll 5: 1 leagues, 2 matches in this scroll
+2025-11-28 17:53:57,242 - root - INFO - Scroll 6 in progress...
+2025-11-28 17:54:00,736 - root - INFO - Scroll 7 in progress...
+2025-11-28 17:54:04,147 - root - INFO - Included 1 countries with 2 matches: {'Africa': 2}
+2025-11-28 17:54:04,148 - root - INFO - 📊 Scroll 7: 1 leagues, 2 matches in this scroll
+2025-11-28 17:54:04,183 - root - INFO - Scroll 8 in progress...
+2025-11-28 17:54:04,730 - root - INFO - Included 3 countries with 13 matches: {'Belgium': 4, 'Brazil': 7, 'Africa': 2}
+2025-11-28 17:54:04,731 - root - INFO - 📊 Scroll 8: 3 leagues, 13 matches in this scroll
+2025-11-28 17:54:04,762 - root - INFO - Scroll 9 in progress...
+2025-11-28 17:54:08,246 - root - INFO - Included 3 countries with 15 matches: {'Africa': 2, 'Brazil': 9, 'Belgium': 4}
+2025-11-28 17:54:08,247 - root - INFO - 📊 Scroll 9: 4 leagues, 15 matches in this scroll
+2025-11-28 17:54:08,274 - root - INFO - Scroll 10 in progress...
+2025-11-28 17:54:11,848 - root - INFO - Included 2 countries with 15 matches: {'Brazil': 9, 'Belgium': 6}
+2025-11-28 17:54:11,849 - root - INFO - 📊 Scroll 10: 4 leagues, 15 matches in this scroll
+2025-11-28 17:54:11,850 - root - INFO - ⚡ Progress: 39 unique matches | Scroll 10 | 53.9 matches/min
+2025-11-28 17:54:11,850 - root - INFO -    🏆 Top leagues: ARG Primera Nacional (27), Brazilian Serie A (21), Premier League (14)
+2025-11-28 17:54:11,851 - root - INFO -    🌍 Top countries: Argentina (36), Brazil (25), Belgium (14)
+2025-11-28 17:54:11,893 - root - INFO - Incremental save: Added 39 new matches. Total: 39 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:54:11,897 - root - INFO - 💾 Saved batch: 39 matches to file (scroll 10) | File size: 0.02 MB
+2025-11-28 17:54:12,476 - root - INFO - Included 2 countries with 15 matches: {'Brazil': 9, 'Belgium': 6}
+2025-11-28 17:54:12,477 - root - INFO - 📊 Scroll 11: 4 leagues, 15 matches in this scroll
+2025-11-28 17:54:15,949 - root - INFO - Included 3 countries with 6 matches: {'Brazil': 2, 'Belgium': 2, 'Bahrain': 2}
+2025-11-28 17:54:15,950 - root - INFO - 📊 Scroll 12: 3 leagues, 6 matches in this scroll
+2025-11-28 17:54:16,573 - root - INFO - Included 3 countries with 10 matches: {'Burundi': 4, 'Belgium': 4, 'Bahrain': 2}
+2025-11-28 17:54:16,575 - root - INFO - 📊 Scroll 13: 4 leagues, 10 matches in this scroll
+2025-11-28 17:54:20,032 - root - INFO - Included 3 countries with 8 matches: {'Bahrain': 2, 'Belgium': 2, 'Burundi': 4}
+2025-11-28 17:54:20,033 - root - INFO - 📊 Scroll 14: 3 leagues, 8 matches in this scroll
+2025-11-28 17:54:20,064 - root - INFO - Scroll 15 in progress...
+2025-11-28 17:54:23,523 - root - INFO - Included 4 countries with 9 matches: {'Belgium': 2, 'Burundi': 4, 'Bermuda': 2, 'Bhutan': 1}
+2025-11-28 17:54:23,524 - root - INFO - 📊 Scroll 15: 4 leagues, 9 matches in this scroll
+2025-11-28 17:54:24,111 - root - INFO - Included 5 countries with 10 matches: {'Belgium': 2, 'Burundi': 4, 'Bermuda': 2, 'Bhutan': 1, 'Brazil': 1}
+2025-11-28 17:54:24,112 - root - INFO - 📊 Scroll 16: 5 leagues, 10 matches in this scroll
+2025-11-28 17:54:24,746 - root - INFO - Included 3 countries with 4 matches: {'Bermuda': 2, 'Bhutan': 1, 'Brazil': 1}
+2025-11-28 17:54:24,747 - root - INFO - 📊 Scroll 17: 3 leagues, 4 matches in this scroll
+2025-11-28 17:54:25,409 - root - INFO - Included 2 countries with 2 matches: {'Chile': 1, 'Brazil': 1}
+2025-11-28 17:54:25,410 - root - INFO - 📊 Scroll 18: 2 leagues, 2 matches in this scroll
+2025-11-28 17:54:26,063 - root - INFO - Included 2 countries with 2 matches: {'Brazil': 1, 'Chile': 1}
+2025-11-28 17:54:26,063 - root - INFO - 📊 Scroll 19: 2 leagues, 2 matches in this scroll
+2025-11-28 17:54:26,095 - root - INFO - Scroll 20 in progress...
+2025-11-28 17:54:26,756 - root - INFO - Included 1 countries with 1 matches: {'Chile': 1}
+2025-11-28 17:54:26,757 - root - INFO - 📊 Scroll 20: 1 leagues, 1 matches in this scroll
+2025-11-28 17:54:26,813 - root - INFO - Incremental save: Added 13 new matches. Total: 52 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:54:26,818 - root - INFO - 💾 Saved batch: 13 matches to file (scroll 20) | File size: 0.03 MB
+2025-11-28 17:54:27,557 - root - INFO - Included 1 countries with 2 matches: {'Canada': 2}
+2025-11-28 17:54:27,558 - root - INFO - 📊 Scroll 21: 1 leagues, 2 matches in this scroll
+2025-11-28 17:54:27,559 - root - INFO - ⚡ Progress: 54 unique matches | Scroll 21 | 54.8 matches/min
+2025-11-28 17:54:27,559 - root - INFO -    🏆 Top leagues: Premier League (45), Brazilian Serie A (28), ARG Primera Nacional (27)
+2025-11-28 17:54:27,560 - root - INFO -    🌍 Top countries: Brazil (40), Argentina (36), Belgium (32)
+2025-11-28 17:54:31,312 - root - INFO - Included 1 countries with 2 matches: {'Canada': 2}
+2025-11-28 17:54:31,325 - root - INFO - 📊 Scroll 22: 1 leagues, 2 matches in this scroll
+2025-11-28 17:54:32,114 - root - INFO - Included 1 countries with 2 matches: {'Canada': 2}
+2025-11-28 17:54:32,118 - root - INFO - 📊 Scroll 23: 1 leagues, 2 matches in this scroll
+2025-11-28 17:54:32,897 - root - INFO - Scroll 25 in progress...
+2025-11-28 17:54:42,119 - root - INFO - Included 1 countries with 2 matches: {'Congo': 2}
+2025-11-28 17:54:42,120 - root - INFO - 📊 Scroll 29: 1 leagues, 2 matches in this scroll
+2025-11-28 17:54:42,151 - root - INFO - Scroll 30 in progress...
+2025-11-28 17:54:45,744 - root - INFO - Included 1 countries with 2 matches: {'Congo': 2}
+2025-11-28 17:54:45,745 - root - INFO - 📊 Scroll 30: 1 leagues, 2 matches in this scroll
+2025-11-28 17:54:45,793 - root - INFO - Incremental save: Added 4 new matches. Total: 56 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:54:45,797 - root - INFO - 💾 Saved batch: 4 matches to file (scroll 30) | File size: 0.03 MB
+2025-11-28 17:54:49,359 - root - INFO - Included 1 countries with 2 matches: {'Congo': 2}
+2025-11-28 17:54:49,381 - root - INFO - 📊 Scroll 31: 1 leagues, 2 matches in this scroll
+2025-11-28 17:54:50,042 - root - INFO - Included 1 countries with 7 matches: {'Denmark': 7}
+2025-11-28 17:54:50,043 - root - INFO - 📊 Scroll 32: 2 leagues, 7 matches in this scroll
+2025-11-28 17:54:50,044 - root - INFO - ⚡ Progress: 63 unique matches | Scroll 32 | 46.3 matches/min
+2025-11-28 17:54:50,045 - root - INFO -    🏆 Top leagues: Premier League (51), Brazilian Serie A (28), ARG Primera Nacional (27)
+2025-11-28 17:54:50,046 - root - INFO -    🌍 Top countries: Brazil (40), Argentina (36), Belgium (32)
+2025-11-28 17:54:50,671 - root - INFO - Included 1 countries with 9 matches: {'Denmark': 9}
+2025-11-28 17:54:50,672 - root - INFO - 📊 Scroll 33: 3 leagues, 9 matches in this scroll
+2025-11-28 17:54:51,314 - root - INFO - Included 2 countries with 14 matches: {'England': 5, 'Denmark': 9}
+2025-11-28 17:54:51,315 - root - INFO - 📊 Scroll 34: 4 leagues, 14 matches in this scroll
+2025-11-28 17:54:51,349 - root - INFO - Scroll 35 in progress...
+2025-11-28 17:54:54,962 - root - INFO - Included 3 countries with 12 matches: {'Denmark': 4, 'England': 6, 'Egypt': 2}
+2025-11-28 17:54:54,971 - root - INFO - 📊 Scroll 35: 5 leagues, 12 matches in this scroll
+2025-11-28 17:54:55,767 - root - INFO - Included 3 countries with 14 matches: {'England': 10, 'Denmark': 2, 'Egypt': 2}
+2025-11-28 17:54:55,771 - root - INFO - 📊 Scroll 36: 5 leagues, 14 matches in this scroll
+2025-11-28 17:54:59,480 - root - INFO - Included 2 countries with 13 matches: {'England': 11, 'Egypt': 2}
+2025-11-28 17:54:59,481 - root - INFO - 📊 Scroll 37: 4 leagues, 13 matches in this scroll
+2025-11-28 17:55:00,154 - root - INFO - Included 1 countries with 10 matches: {'England': 10}
+2025-11-28 17:55:00,156 - root - INFO - 📊 Scroll 38: 2 leagues, 10 matches in this scroll
+2025-11-28 17:55:00,836 - root - INFO - Included 1 countries with 10 matches: {'England': 10}
+2025-11-28 17:55:00,848 - root - INFO - 📊 Scroll 39: 2 leagues, 10 matches in this scroll
+2025-11-28 17:55:00,890 - root - INFO - Scroll 40 in progress...
+2025-11-28 17:55:04,431 - root - INFO - Included 1 countries with 9 matches: {'England': 9}
+2025-11-28 17:55:04,432 - root - INFO - 📊 Scroll 40: 2 leagues, 9 matches in this scroll
+2025-11-28 17:55:04,500 - root - INFO - Incremental save: Added 30 new matches. Total: 86 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:55:04,509 - root - INFO - 💾 Saved batch: 30 matches to file (scroll 40) | File size: 0.04 MB
+2025-11-28 17:55:08,122 - root - INFO - Included 3 countries with 10 matches: {'England': 3, 'France': 5, 'Faroe Islands': 2}
+2025-11-28 17:55:08,123 - root - INFO - 📊 Scroll 41: 3 leagues, 10 matches in this scroll
+2025-11-28 17:55:11,684 - root - INFO - Included 3 countries with 10 matches: {'England': 3, 'France': 5, 'Faroe Islands': 2}
+2025-11-28 17:55:11,685 - root - INFO - 📊 Scroll 42: 3 leagues, 10 matches in this scroll
+2025-11-28 17:55:15,275 - root - INFO - Included 2 countries with 7 matches: {'France': 5, 'Faroe Islands': 2}
+2025-11-28 17:55:15,277 - root - INFO - 📊 Scroll 43: 2 leagues, 7 matches in this scroll
+2025-11-28 17:55:16,036 - root - INFO - Scroll 45 in progress...
+2025-11-28 17:55:21,032 - root - INFO - Included 1 countries with 3 matches: {'Germany': 3}
+2025-11-28 17:55:21,033 - root - INFO - 📊 Scroll 47: 1 leagues, 3 matches in this scroll
+2025-11-28 17:55:21,034 - root - INFO - ⚡ Progress: 96 unique matches | Scroll 47 | 51.2 matches/min
+2025-11-28 17:55:21,035 - root - INFO -    🏆 Top leagues: Premier League (78), Brazilian Serie A (28), ARG Primera Nacional (27)
+2025-11-28 17:55:21,036 - root - INFO -    🌍 Top countries: England (67), Brazil (40), Argentina (36)
+2025-11-28 17:55:24,695 - root - INFO - Included 1 countries with 6 matches: {'Germany': 6}
+2025-11-28 17:55:24,696 - root - INFO - 📊 Scroll 48: 2 leagues, 6 matches in this scroll
+2025-11-28 17:55:25,385 - root - INFO - Included 2 countries with 14 matches: {'Germany': 8, 'Ghana': 6}
+2025-11-28 17:55:25,386 - root - INFO - 📊 Scroll 49: 4 leagues, 14 matches in this scroll
+2025-11-28 17:55:25,434 - root - INFO - Scroll 50 in progress...
+2025-11-28 17:55:26,136 - root - INFO - Included 2 countries with 11 matches: {'Germany': 5, 'Ghana': 6}
+2025-11-28 17:55:26,138 - root - INFO - 📊 Scroll 50: 3 leagues, 11 matches in this scroll
+2025-11-28 17:55:26,218 - root - INFO - Incremental save: Added 21 new matches. Total: 107 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:55:26,223 - root - INFO - 💾 Saved batch: 21 matches to file (scroll 50) | File size: 0.05 MB
+2025-11-28 17:55:29,851 - root - INFO - Included 2 countries with 8 matches: {'Ghana': 6, 'Germany': 2}
+2025-11-28 17:55:29,854 - root - INFO - 📊 Scroll 51: 2 leagues, 8 matches in this scroll
+2025-11-28 17:55:33,576 - root - INFO - Included 1 countries with 7 matches: {'Germany': 7}
+2025-11-28 17:55:33,578 - root - INFO - 📊 Scroll 52: 2 leagues, 7 matches in this scroll
+2025-11-28 17:55:34,303 - root - INFO - Included 1 countries with 5 matches: {'Germany': 5}
+2025-11-28 17:55:34,304 - root - INFO - 📊 Scroll 53: 1 leagues, 5 matches in this scroll
+2025-11-28 17:55:37,999 - root - INFO - Included 1 countries with 5 matches: {'Germany': 5}
+2025-11-28 17:55:38,009 - root - INFO - 📊 Scroll 54: 1 leagues, 5 matches in this scroll
+2025-11-28 17:55:38,068 - root - INFO - Scroll 55 in progress...
+2025-11-28 17:55:41,654 - root - INFO - Included 1 countries with 5 matches: {'Germany': 5}
+2025-11-28 17:55:41,655 - root - INFO - 📊 Scroll 55: 1 leagues, 5 matches in this scroll
+2025-11-28 17:55:53,863 - root - INFO - Scroll 60 in progress...
+2025-11-28 17:55:57,729 - root - INFO - Incremental save: Added 5 new matches. Total: 112 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:55:57,734 - root - INFO - 💾 Saved batch: 5 matches to file (scroll 60) | File size: 0.06 MB
+2025-11-28 17:56:09,982 - root - INFO - Scroll 65 in progress...
+2025-11-28 17:56:14,461 - root - INFO - Included 1 countries with 5 matches: {'Italy': 5}
+2025-11-28 17:56:14,462 - root - INFO - 📊 Scroll 66: 1 leagues, 5 matches in this scroll
+2025-11-28 17:56:14,463 - root - INFO - ⚡ Progress: 117 unique matches | Scroll 66 | 42.3 matches/min
+2025-11-28 17:56:14,463 - root - INFO -    🏆 Top leagues: Premier League (96), Brazilian Serie A (28), ARG Primera Nacional (27)
+2025-11-28 17:56:14,464 - root - INFO -    🌍 Top countries: England (67), Germany (46), Brazil (40)
+2025-11-28 17:56:18,183 - root - INFO - Included 4 countries with 10 matches: {'Italy': 5, 'Israel': 2, 'Iran': 1, 'International': 2}
+2025-11-28 17:56:18,185 - root - INFO - 📊 Scroll 67: 4 leagues, 10 matches in this scroll
+2025-11-28 17:56:21,869 - root - INFO - Included 4 countries with 16 matches: {'Italy': 9, 'Israel': 2, 'Iran': 1, 'International': 4}
+2025-11-28 17:56:21,870 - root - INFO - 📊 Scroll 68: 6 leagues, 16 matches in this scroll
+2025-11-28 17:56:25,591 - root - INFO - Included 4 countries with 16 matches: {'Italy': 9, 'Israel': 2, 'Iran': 1, 'International': 4}
+2025-11-28 17:56:25,592 - root - INFO - 📊 Scroll 69: 6 leagues, 16 matches in this scroll
+2025-11-28 17:56:25,628 - root - INFO - Scroll 70 in progress...
+2025-11-28 17:56:29,366 - root - INFO - Included 2 countries with 10 matches: {'International': 4, 'Italy': 6}
+2025-11-28 17:56:29,367 - root - INFO - 📊 Scroll 70: 4 leagues, 10 matches in this scroll
+2025-11-28 17:56:29,417 - root - INFO - Incremental save: Added 18 new matches. Total: 130 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:56:29,421 - root - INFO - 💾 Saved batch: 18 matches to file (scroll 70) | File size: 0.06 MB
+2025-11-28 17:56:30,186 - root - INFO - Included 1 countries with 6 matches: {'Italy': 6}
+2025-11-28 17:56:30,197 - root - INFO - 📊 Scroll 71: 2 leagues, 6 matches in this scroll
+2025-11-28 17:56:30,965 - root - INFO - Included 1 countries with 2 matches: {'Italy': 2}
+2025-11-28 17:56:30,966 - root - INFO - 📊 Scroll 72: 1 leagues, 2 matches in this scroll
+2025-11-28 17:56:32,092 - root - INFO - Included 1 countries with 2 matches: {'Italy': 2}
+2025-11-28 17:56:32,102 - root - INFO - 📊 Scroll 73: 1 leagues, 2 matches in this scroll
+2025-11-28 17:56:36,070 - root - INFO - Scroll 75 in progress...
+2025-11-28 17:56:56,007 - root - INFO - Scroll 80 in progress...
+2025-11-28 17:57:07,430 - root - INFO - Included 2 countries with 6 matches: {'Jamaica': 5, 'Japan': 1}
+2025-11-28 17:57:07,433 - root - INFO - 📊 Scroll 84: 2 leagues, 6 matches in this scroll
+2025-11-28 17:57:07,434 - root - INFO - ⚡ Progress: 136 unique matches | Scroll 84 | 37.3 matches/min
+2025-11-28 17:57:07,435 - root - INFO -    🏆 Top leagues: Premier League (107), Brazilian Serie A (28), ARG Primera Nacional (27)
+2025-11-28 17:57:07,436 - root - INFO -    🌍 Top countries: England (67), Germany (46), Italy (44)
+2025-11-28 17:57:07,527 - root - INFO - Incremental save: Added 6 new matches. Total: 136 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:57:07,536 - root - INFO - 💾 Saved batch: 6 matches to file (scroll 84) | File size: 0.07 MB
+2025-11-28 17:57:07,598 - root - INFO - Scroll 85 in progress...
+2025-11-28 17:57:11,227 - root - INFO - Included 2 countries with 6 matches: {'Japan': 1, 'Jamaica': 5}
+2025-11-28 17:57:11,228 - root - INFO - 📊 Scroll 85: 2 leagues, 6 matches in this scroll
+2025-11-28 17:57:11,991 - root - INFO - Included 2 countries with 14 matches: {'Japan': 9, 'Jamaica': 5}
+2025-11-28 17:57:11,992 - root - INFO - 📊 Scroll 86: 4 leagues, 14 matches in this scroll
+2025-11-28 17:57:12,784 - root - INFO - Included 2 countries with 17 matches: {'Japan': 12, 'Jamaica': 5}
+2025-11-28 17:57:12,802 - root - INFO - 📊 Scroll 87: 4 leagues, 17 matches in this scroll
+2025-11-28 17:57:16,421 - root - INFO - Included 2 countries with 13 matches: {'Japan': 12, 'Kazakhstan': 1}
+2025-11-28 17:57:16,422 - root - INFO - 📊 Scroll 88: 4 leagues, 13 matches in this scroll
+2025-11-28 17:57:19,945 - root - INFO - Included 2 countries with 9 matches: {'Japan': 8, 'Kazakhstan': 1}
+2025-11-28 17:57:19,947 - root - INFO - 📊 Scroll 89: 3 leagues, 9 matches in this scroll
+2025-11-28 17:57:19,982 - root - INFO - Scroll 90 in progress...
+2025-11-28 17:57:20,639 - root - INFO - Included 2 countries with 5 matches: {'Japan': 4, 'Kazakhstan': 1}
+2025-11-28 17:57:20,640 - root - INFO - 📊 Scroll 90: 2 leagues, 5 matches in this scroll
+2025-11-28 17:57:24,244 - root - INFO - Included 1 countries with 2 matches: {'Lebanon': 2}
+2025-11-28 17:57:24,245 - root - INFO - 📊 Scroll 91: 1 leagues, 2 matches in this scroll
+2025-11-28 17:57:24,929 - root - INFO - Included 1 countries with 2 matches: {'Lebanon': 2}
+2025-11-28 17:57:24,939 - root - INFO - 📊 Scroll 92: 1 leagues, 2 matches in this scroll
+2025-11-28 17:57:25,683 - root - INFO - Included 1 countries with 2 matches: {'Lebanon': 2}
+2025-11-28 17:57:25,685 - root - INFO - 📊 Scroll 93: 1 leagues, 2 matches in this scroll
+2025-11-28 17:57:29,345 - root - INFO - Incremental save: Added 15 new matches. Total: 151 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:57:29,349 - root - INFO - 💾 Saved batch: 15 matches to file (scroll 94) | File size: 0.08 MB
+2025-11-28 17:57:29,379 - root - INFO - Scroll 95 in progress...
+2025-11-28 17:57:30,141 - root - INFO - Included 2 countries with 4 matches: {'Mongolia': 2, 'Malta': 2}
+2025-11-28 17:57:30,142 - root - INFO - 📊 Scroll 95: 2 leagues, 4 matches in this scroll
+2025-11-28 17:57:30,143 - root - INFO - ⚡ Progress: 155 unique matches | Scroll 95 | 38.5 matches/min
+2025-11-28 17:57:30,144 - root - INFO -    🏆 Top leagues: Premier League (135), Brazilian Serie A (28), ARG Primera Nacional (27)
+2025-11-28 17:57:30,145 - root - INFO -    🌍 Top countries: England (67), Japan (47), Germany (46)
+2025-11-28 17:57:33,882 - root - INFO - Included 3 countries with 9 matches: {'Malta': 2, 'Mongolia': 2, 'Malawi': 5}
+2025-11-28 17:57:33,893 - root - INFO - 📊 Scroll 96: 3 leagues, 9 matches in this scroll
+2025-11-28 17:57:34,639 - root - INFO - Included 3 countries with 9 matches: {'Malta': 2, 'Mongolia': 2, 'Malawi': 5}
+2025-11-28 17:57:34,640 - root - INFO - 📊 Scroll 97: 3 leagues, 9 matches in this scroll
+2025-11-28 17:57:38,247 - root - INFO - Included 1 countries with 5 matches: {'Malawi': 5}
+2025-11-28 17:57:38,256 - root - INFO - 📊 Scroll 98: 1 leagues, 5 matches in this scroll
+2025-11-28 17:57:39,063 - root - INFO - Scroll 100 in progress...
+2025-11-28 17:57:39,744 - root - INFO - Included 1 countries with 4 matches: {'Netherlands': 4}
+2025-11-28 17:57:39,745 - root - INFO - 📊 Scroll 100: 1 leagues, 4 matches in this scroll
+2025-11-28 17:57:40,443 - root - INFO - Included 2 countries with 10 matches: {'Nigeria': 6, 'Netherlands': 4}
+2025-11-28 17:57:40,443 - root - INFO - 📊 Scroll 101: 2 leagues, 10 matches in this scroll
+2025-11-28 17:57:44,096 - root - INFO - Included 2 countries with 13 matches: {'Netherlands': 7, 'Nigeria': 6}
+2025-11-28 17:57:44,097 - root - INFO - 📊 Scroll 102: 3 leagues, 13 matches in this scroll
+2025-11-28 17:57:47,705 - root - INFO - Included 2 countries with 13 matches: {'Netherlands': 7, 'Nigeria': 6}
+2025-11-28 17:57:47,706 - root - INFO - 📊 Scroll 103: 3 leagues, 13 matches in this scroll
+2025-11-28 17:57:51,237 - root - INFO - Included 2 countries with 9 matches: {'Nigeria': 6, 'Netherlands': 3}
+2025-11-28 17:57:51,238 - root - INFO - 📊 Scroll 104: 2 leagues, 9 matches in this scroll
+2025-11-28 17:57:51,292 - root - INFO - Incremental save: Added 22 new matches. Total: 173 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:57:51,297 - root - INFO - 💾 Saved batch: 22 matches to file (scroll 104) | File size: 0.09 MB
+2025-11-28 17:57:51,329 - root - INFO - Scroll 105 in progress...
+2025-11-28 17:57:54,869 - root - INFO - Included 1 countries with 3 matches: {'Netherlands': 3}
+2025-11-28 17:57:54,871 - root - INFO - 📊 Scroll 105: 1 leagues, 3 matches in this scroll
+2025-11-28 17:58:05,571 - root - INFO - Included 1 countries with 4 matches: {'Portugal': 4}
+2025-11-28 17:58:05,572 - root - INFO - 📊 Scroll 108: 1 leagues, 4 matches in this scroll
+2025-11-28 17:58:05,573 - root - INFO - ⚡ Progress: 177 unique matches | Scroll 108 | 38.3 matches/min
+2025-11-28 17:58:05,574 - root - INFO -    🏆 Top leagues: Premier League (182), Brazilian Serie A (28), ARG Primera Nacional (27)
+2025-11-28 17:58:05,575 - root - INFO -    🌍 Top countries: England (67), Japan (47), Germany (46)
+2025-11-28 17:58:06,239 - root - INFO - Included 1 countries with 4 matches: {'Portugal': 4}
+2025-11-28 17:58:06,241 - root - INFO - 📊 Scroll 109: 1 leagues, 4 matches in this scroll
+2025-11-28 17:58:06,272 - root - INFO - Scroll 110 in progress...
+2025-11-28 17:58:06,912 - root - INFO - Included 1 countries with 4 matches: {'Portugal': 4}
+2025-11-28 17:58:06,958 - root - INFO - 📊 Scroll 110: 1 leagues, 4 matches in this scroll
+2025-11-28 17:58:07,700 - root - INFO - Included 1 countries with 4 matches: {'Portugal': 4}
+2025-11-28 17:58:07,701 - root - INFO - 📊 Scroll 111: 1 leagues, 4 matches in this scroll
+2025-11-28 17:58:12,863 - root - INFO - Incremental save: Added 4 new matches. Total: 177 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:58:12,930 - root - INFO - 💾 Saved batch: 4 matches to file (scroll 114) | File size: 0.09 MB
+2025-11-28 17:58:12,945 - root - INFO - Scroll 115 in progress...
+2025-11-28 17:58:18,254 - root - INFO - Included 1 countries with 3 matches: {'Portugal': 3}
+2025-11-28 17:58:18,255 - root - INFO - 📊 Scroll 117: 1 leagues, 3 matches in this scroll
+2025-11-28 17:58:21,947 - root - INFO - Included 2 countries with 10 matches: {'Portugal': 6, 'Russia': 4}
+2025-11-28 17:58:21,954 - root - INFO - 📊 Scroll 118: 4 leagues, 10 matches in this scroll
+2025-11-28 17:58:21,968 - root - INFO - ⚡ Progress: 187 unique matches | Scroll 118 | 38.2 matches/min
+2025-11-28 17:58:21,970 - root - INFO -    🏆 Top leagues: Premier League (186), Brazilian Serie A (28), ARG Primera Nacional (27)
+2025-11-28 17:58:21,972 - root - INFO -    🌍 Top countries: England (67), Japan (47), Germany (46)
+2025-11-28 17:58:25,662 - root - INFO - Included 2 countries with 10 matches: {'Portugal': 6, 'Russia': 4}
+2025-11-28 17:58:25,665 - root - INFO - 📊 Scroll 119: 4 leagues, 10 matches in this scroll
+2025-11-28 17:58:25,706 - root - INFO - Scroll 120 in progress...
+2025-11-28 17:58:26,438 - root - INFO - Included 2 countries with 10 matches: {'Portugal': 6, 'Russia': 4}
+2025-11-28 17:58:26,438 - root - INFO - 📊 Scroll 120: 4 leagues, 10 matches in this scroll
+2025-11-28 17:58:27,219 - root - INFO - Included 1 countries with 4 matches: {'Russia': 4}
+2025-11-28 17:58:27,220 - root - INFO - 📊 Scroll 121: 1 leagues, 4 matches in this scroll
+2025-11-28 17:58:27,982 - root - INFO - Included 1 countries with 5 matches: {'Spain': 5}
+2025-11-28 17:58:27,983 - root - INFO - 📊 Scroll 122: 1 leagues, 5 matches in this scroll
+2025-11-28 17:58:28,773 - root - INFO - Included 1 countries with 5 matches: {'Spain': 5}
+2025-11-28 17:58:28,774 - root - INFO - 📊 Scroll 123: 1 leagues, 5 matches in this scroll
+2025-11-28 17:58:32,483 - root - INFO - Included 3 countries with 12 matches: {'Spain': 5, 'Sweden': 4, 'Scotland': 3}
+2025-11-28 17:58:32,484 - root - INFO - 📊 Scroll 124: 3 leagues, 12 matches in this scroll
+2025-11-28 17:58:32,544 - root - INFO - Incremental save: Added 22 new matches. Total: 199 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:58:32,551 - root - INFO - 💾 Saved batch: 22 matches to file (scroll 124) | File size: 0.10 MB
+2025-11-28 17:58:32,583 - root - INFO - Scroll 125 in progress...
+2025-11-28 17:58:36,280 - root - INFO - Included 3 countries with 17 matches: {'Spain': 10, 'Sweden': 4, 'Scotland': 3}
+2025-11-28 17:58:36,281 - root - INFO - 📊 Scroll 125: 4 leagues, 17 matches in this scroll
+2025-11-28 17:58:39,919 - root - INFO - Included 4 countries with 13 matches: {'Sweden': 4, 'Scotland': 3, 'Spain': 5, 'Slovakia': 1}
+2025-11-28 17:58:39,920 - root - INFO - 📊 Scroll 126: 4 leagues, 13 matches in this scroll
+2025-11-28 17:58:43,581 - root - INFO - Included 3 countries with 9 matches: {'Spain': 5, 'Slovakia': 1, 'Sweden': 3}
+2025-11-28 17:58:43,583 - root - INFO - 📊 Scroll 127: 3 leagues, 9 matches in this scroll
+2025-11-28 17:58:47,144 - root - INFO - Included 3 countries with 9 matches: {'Spain': 5, 'Slovakia': 1, 'Sweden': 3}
+2025-11-28 17:58:47,145 - root - INFO - 📊 Scroll 128: 3 leagues, 9 matches in this scroll
+2025-11-28 17:58:50,712 - root - INFO - Included 1 countries with 6 matches: {'Sweden': 6}
+2025-11-28 17:58:50,714 - root - INFO - 📊 Scroll 129: 2 leagues, 6 matches in this scroll
+2025-11-28 17:58:50,714 - root - INFO - ⚡ Progress: 211 unique matches | Scroll 129 | 39.3 matches/min
+2025-11-28 17:58:50,715 - root - INFO -    🏆 Top leagues: Premier League (198), Brazilian Serie A (28), ARG Primera Nacional (27)
+2025-11-28 17:58:50,716 - root - INFO -    🌍 Top countries: England (67), Japan (47), Germany (46)
+2025-11-28 17:58:50,752 - root - INFO - Scroll 130 in progress...
+2025-11-28 17:58:51,416 - root - INFO - Included 1 countries with 3 matches: {'Sweden': 3}
+2025-11-28 17:58:51,418 - root - INFO - 📊 Scroll 130: 1 leagues, 3 matches in this scroll
+2025-11-28 17:58:52,091 - root - INFO - Included 1 countries with 3 matches: {'Sweden': 3}
+2025-11-28 17:58:52,092 - root - INFO - 📊 Scroll 131: 1 leagues, 3 matches in this scroll
+2025-11-28 17:58:52,815 - root - INFO - Included 1 countries with 3 matches: {'Sweden': 3}
+2025-11-28 17:58:52,816 - root - INFO - 📊 Scroll 132: 1 leagues, 3 matches in this scroll
+2025-11-28 17:58:57,163 - root - INFO - Included 1 countries with 3 matches: {'Spain': 3}
+2025-11-28 17:58:57,166 - root - INFO - 📊 Scroll 134: 1 leagues, 3 matches in this scroll
+2025-11-28 17:58:57,269 - root - INFO - Incremental save: Added 15 new matches. Total: 214 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:58:57,279 - root - INFO - 💾 Saved batch: 15 matches to file (scroll 134) | File size: 0.11 MB
+2025-11-28 17:58:57,312 - root - INFO - Scroll 135 in progress...
+2025-11-28 17:59:00,873 - root - INFO - Included 1 countries with 3 matches: {'Spain': 3}
+2025-11-28 17:59:00,874 - root - INFO - 📊 Scroll 135: 1 leagues, 3 matches in this scroll
+2025-11-28 17:59:01,545 - root - INFO - Included 1 countries with 3 matches: {'Spain': 3}
+2025-11-28 17:59:01,546 - root - INFO - 📊 Scroll 136: 1 leagues, 3 matches in this scroll
+2025-11-28 17:59:02,261 - root - INFO - Included 2 countries with 6 matches: {'Sweden': 3, 'Spain': 3}
+2025-11-28 17:59:02,263 - root - INFO - 📊 Scroll 137: 2 leagues, 6 matches in this scroll
+2025-11-28 17:59:03,038 - root - INFO - Included 1 countries with 3 matches: {'Sweden': 3}
+2025-11-28 17:59:03,039 - root - INFO - 📊 Scroll 138: 1 leagues, 3 matches in this scroll
+2025-11-28 17:59:03,824 - root - INFO - Included 1 countries with 3 matches: {'Sweden': 3}
+2025-11-28 17:59:03,826 - root - INFO - 📊 Scroll 139: 1 leagues, 3 matches in this scroll
+2025-11-28 17:59:03,858 - root - INFO - Scroll 140 in progress...
+2025-11-28 17:59:10,689 - root - INFO - Incremental save: Added 3 new matches. Total: 217 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:59:10,693 - root - INFO - 💾 Saved batch: 3 matches to file (scroll 144) | File size: 0.11 MB
+2025-11-28 17:59:10,725 - root - INFO - Scroll 145 in progress...
+2025-11-28 17:59:23,776 - root - INFO - Scroll 150 in progress...
+2025-11-28 17:59:41,941 - root - INFO - Scroll 155 in progress...
+2025-11-28 17:59:43,384 - root - INFO - Included 1 countries with 15 matches: {'Spain': 15}
+2025-11-28 17:59:43,385 - root - INFO - 📊 Scroll 156: 1 leagues, 15 matches in this scroll
+2025-11-28 17:59:43,386 - root - INFO - ⚡ Progress: 232 unique matches | Scroll 156 | 37.1 matches/min
+2025-11-28 17:59:43,387 - root - INFO -    🏆 Top leagues: Premier League (198), Brazilian Serie A (28), ARG Primera Nacional (27)
+2025-11-28 17:59:43,388 - root - INFO -    🌍 Top countries: England (67), Spain (67), Japan (47)
+2025-11-28 17:59:43,453 - root - INFO - Incremental save: Added 15 new matches. Total: 232 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 17:59:43,458 - root - INFO - 💾 Saved batch: 15 matches to file (scroll 156) | File size: 0.12 MB
+2025-11-28 17:59:47,062 - root - INFO - Included 1 countries with 15 matches: {'Spain': 15}
+2025-11-28 17:59:47,065 - root - INFO - 📊 Scroll 157: 1 leagues, 15 matches in this scroll
+2025-11-28 17:59:47,825 - root - INFO - Included 1 countries with 15 matches: {'Spain': 15}
+2025-11-28 17:59:47,827 - root - INFO - 📊 Scroll 158: 1 leagues, 15 matches in this scroll
+2025-11-28 17:59:48,646 - root - INFO - Included 2 countries with 19 matches: {'Turkey': 4, 'Spain': 15}
+2025-11-28 17:59:48,647 - root - INFO - 📊 Scroll 159: 2 leagues, 19 matches in this scroll
+2025-11-28 17:59:48,680 - root - INFO - Scroll 160 in progress...
+2025-11-28 17:59:49,398 - root - INFO - Included 2 countries with 23 matches: {'Turkey': 8, 'Spain': 15}
+2025-11-28 17:59:49,415 - root - INFO - 📊 Scroll 160: 3 leagues, 23 matches in this scroll
+2025-11-28 17:59:53,072 - root - INFO - Included 1 countries with 8 matches: {'Turkey': 8}
+2025-11-28 17:59:53,073 - root - INFO - 📊 Scroll 161: 2 leagues, 8 matches in this scroll
+2025-11-28 17:59:53,824 - root - INFO - Included 1 countries with 8 matches: {'Turkey': 8}
+2025-11-28 17:59:53,826 - root - INFO - 📊 Scroll 162: 2 leagues, 8 matches in this scroll
+2025-11-28 17:59:54,659 - root - INFO - Included 1 countries with 4 matches: {'Turkey': 4}
+2025-11-28 17:59:54,660 - root - INFO - 📊 Scroll 163: 1 leagues, 4 matches in this scroll
+2025-11-28 17:59:58,402 - root - INFO - Scroll 165 in progress...
+2025-11-28 18:00:05,836 - root - INFO - Incremental save: Added 8 new matches. Total: 240 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 18:00:05,853 - root - INFO - 💾 Saved batch: 8 matches to file (scroll 166) | File size: 0.12 MB
+2025-11-28 18:00:10,829 - root - INFO - Included 1 countries with 7 matches: {'Turkey': 7}
+2025-11-28 18:00:10,830 - root - INFO - 📊 Scroll 169: 1 leagues, 7 matches in this scroll
+2025-11-28 18:00:10,831 - root - INFO - ⚡ Progress: 247 unique matches | Scroll 169 | 36.8 matches/min
+2025-11-28 18:00:10,832 - root - INFO -    🏆 Top leagues: Premier League (198), Spanish U19 League (75), Brazilian Serie A (28)
+2025-11-28 18:00:10,833 - root - INFO -    🌍 Top countries: Spain (127), England (67), Japan (47)
+2025-11-28 18:00:10,871 - root - INFO - Scroll 170 in progress...
+2025-11-28 18:00:11,613 - root - INFO - Included 3 countries with 17 matches: {'USA': 7, 'Ukraine': 3, 'Turkey': 7}
+2025-11-28 18:00:11,614 - root - INFO - 📊 Scroll 170: 3 leagues, 17 matches in this scroll
+2025-11-28 18:00:15,268 - root - INFO - Included 3 countries with 17 matches: {'Turkey': 7, 'Ukraine': 3, 'USA': 7}
+2025-11-28 18:00:15,270 - root - INFO - 📊 Scroll 171: 3 leagues, 17 matches in this scroll
+2025-11-28 18:00:18,921 - root - INFO - Included 3 countries with 17 matches: {'Turkey': 7, 'Ukraine': 3, 'USA': 7}
+2025-11-28 18:00:18,927 - root - INFO - 📊 Scroll 172: 3 leagues, 17 matches in this scroll
+2025-11-28 18:00:22,716 - root - INFO - Included 1 countries with 7 matches: {'USA': 7}
+2025-11-28 18:00:22,719 - root - INFO - 📊 Scroll 173: 1 leagues, 7 matches in this scroll
+2025-11-28 18:00:23,589 - root - INFO - Scroll 175 in progress...
+2025-11-28 18:00:30,937 - root - INFO - Included 1 countries with 2 matches: {'Uzbekistan': 2}
+2025-11-28 18:00:30,938 - root - INFO - 📊 Scroll 176: 1 leagues, 2 matches in this scroll
+2025-11-28 18:00:30,996 - root - INFO - Incremental save: Added 19 new matches. Total: 259 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 18:00:31,012 - root - INFO - 💾 Saved batch: 19 matches to file (scroll 176) | File size: 0.13 MB
+2025-11-28 18:00:34,590 - root - INFO - Included 2 countries with 5 matches: {'Uzbekistan': 2, 'Venezuela': 3}
+2025-11-28 18:00:34,592 - root - INFO - 📊 Scroll 177: 2 leagues, 5 matches in this scroll
+2025-11-28 18:00:38,121 - root - INFO - Included 2 countries with 5 matches: {'Uzbekistan': 2, 'Venezuela': 3}
+2025-11-28 18:00:38,156 - root - INFO - 📊 Scroll 178: 2 leagues, 5 matches in this scroll
+2025-11-28 18:00:41,709 - root - INFO - Included 2 countries with 5 matches: {'Uzbekistan': 2, 'Venezuela': 3}
+2025-11-28 18:00:41,709 - root - INFO - 📊 Scroll 179: 2 leagues, 5 matches in this scroll
+2025-11-28 18:00:41,722 - root - INFO - Scroll 180 in progress...
+2025-11-28 18:00:48,800 - root - INFO - ================================================================================
+2025-11-28 18:00:48,801 - root - INFO - ✅ Scraping complete!
+2025-11-28 18:00:48,802 - root - INFO - ================================================================================
+2025-11-28 18:00:48,804 - root - INFO - 📊 Total matches found: 262
+2025-11-28 18:00:48,805 - root - INFO - 🔄 Total scrolls: 181
+2025-11-28 18:00:48,805 - root - INFO - ⏱️  Total time: 440.4s (7.3 min)
+2025-11-28 18:00:48,806 - root - INFO - ⚡ Average rate: 35.7 matches/min
+2025-11-28 18:00:48,806 - root - INFO - 
+2025-11-28 18:00:48,807 - root - INFO - Stop conditions: reached_bottom=True, page_not_growing=True, too_many_empty_scrolls=False
+2025-11-28 18:00:48,808 - root - INFO - 
+2025-11-28 18:00:48,809 - root - INFO - 🏆 League Distribution (52 unique leagues):
+2025-11-28 18:00:48,809 - root - INFO -     1. Premier League: 207 matches (79.0%)
+2025-11-28 18:00:48,810 - root - INFO -     2. Spanish U19 League: 75 matches (28.6%)
+2025-11-28 18:00:48,810 - root - INFO -     3. Segunda Division: 29 matches (11.1%)
+2025-11-28 18:00:48,811 - root - INFO -     4. Brazilian Serie A: 28 matches (10.7%)
+2025-11-28 18:00:48,812 - root - INFO -     5. Turkish Women's Super League: 28 matches (10.7%)
+2025-11-28 18:00:48,814 - root - INFO -     6. United States Major League Soccer: 28 matches (10.7%)
+2025-11-28 18:00:48,819 - root - INFO -     7. ARG Primera Nacional: 27 matches (10.3%)
+2025-11-28 18:00:48,825 - root - INFO -     8. Pro League: 27 matches (10.3%)
+2025-11-28 18:00:48,826 - root - INFO -     9. English FA Women's Super League 2: 24 matches (9.2%)
+2025-11-28 18:00:48,829 - root - INFO -    10. German Women's Bundesliga II: 20 matches (7.6%)
+2025-11-28 18:00:48,829 - root - INFO -    ... and 42 more leagues (449 matches)
+2025-11-28 18:00:48,830 - root - INFO - 
+2025-11-28 18:00:48,831 - root - INFO - 🌍 Country Distribution (45 countries):
+2025-11-28 18:00:48,832 - root - INFO -     1. Spain: 127 matches (48.5%)
+2025-11-28 18:00:48,832 - root - INFO -     2. England: 67 matches (25.6%)
+2025-11-28 18:00:48,833 - root - INFO -     3. Turkey: 60 matches (22.9%)
+2025-11-28 18:00:48,834 - root - INFO -     4. Japan: 47 matches (17.9%)
+2025-11-28 18:00:48,835 - root - INFO -     5. Germany: 46 matches (17.6%)
+2025-11-28 18:00:48,836 - root - INFO -     6. Italy: 44 matches (16.8%)
+2025-11-28 18:00:48,836 - root - INFO -     7. Sweden: 42 matches (16.0%)
+2025-11-28 18:00:48,837 - root - INFO -     8. Brazil: 40 matches (15.3%)
+2025-11-28 18:00:48,837 - root - INFO -     9. Portugal: 37 matches (14.1%)
+2025-11-28 18:00:48,838 - root - INFO -    10. Argentina: 36 matches (13.7%)
+2025-11-28 18:00:48,839 - root - INFO -    ... and 35 more countries (396 matches)
+2025-11-28 18:00:48,839 - root - INFO - 
+2025-11-28 18:00:48,840 - root - INFO - 🔍 Filtering Summary (LEAGUE-BASED):
+2025-11-28 18:00:48,842 - root - INFO -    Configured leagues: 118
+2025-11-28 18:00:48,843 - root - INFO -    Leagues found: 52
+2025-11-28 18:00:48,844 - root - INFO -    Matches captured: 262
+2025-11-28 18:00:48,845 - root - INFO -    ⚠️  65 configured leagues had no matches today
+2025-11-28 18:00:48,846 - root - INFO - 
+2025-11-28 18:00:48,922 - root - INFO - Incremental save: Added 3 new matches. Total: 262 to /app/data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 18:00:48,924 - root - INFO - 💾 Saved final batch: 3 matches to file
+2025-11-28 18:00:48,925 - root - INFO - ================================================================================
+2025-11-28 18:00:48,926 - root - INFO - 📁 File Verification
+2025-11-28 18:00:48,927 - root - INFO - ================================================================================
+2025-11-28 18:00:48,933 - root - INFO - ✅ File saved successfully: matches.json
+2025-11-28 18:00:48,933 - root - INFO -    Path: data/aiscore/daily_listings/20251005/matches.json
+2025-11-28 18:00:48,934 - root - INFO -    Matches in file: 262
+2025-11-28 18:00:48,935 - root - INFO -    File size: 0.13 MB
+2025-11-28 18:00:48,935 - root - INFO -    ✅ Count verified: 262 matches (matches expected)
+2025-11-28 18:00:48,936 - root - INFO - ================================================================================
+2025-11-28 18:00:48,989 - root - INFO - ✅ Marked scraping as complete with metadata:
+2025-11-28 18:00:48,990 - root - INFO -    Completion time: 2025-11-28T18:00:48.942539
+2025-11-28 18:00:48,991 - root - INFO -    Leagues scraped: 52
+2025-11-28 18:00:49,067 - src.scrapers.aiscore.browser - INFO - Browser closed

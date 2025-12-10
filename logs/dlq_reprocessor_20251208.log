@@ -1,0 +1,2 @@
+2025-12-08 11:24:55,738 - dlq_reprocessor - INFO - setup_logging:57 - Logging initialized. Log file: logs/dlq_reprocessor_20251208.log
+2025-12-08 11:24:55,753 - dlq_reprocessor - ERROR - main:99 - Failed to connect to ClickHouse

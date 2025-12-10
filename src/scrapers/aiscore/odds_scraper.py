@@ -1,4 +1,4 @@
-"""Odds scraper for football matches"""
+"""Odds scraper for football matches."""
 
 import logging
 import time
@@ -38,14 +38,13 @@ class OddsScraper:
         """
         self.config = config
         self.browser = browser
-        # Use storage.bronze_path from config (e.g., "data/aiscore")
-        # Support both new config structure (storage.bronze_path) and old (bronze_layer.path)
+
         if hasattr(config, "storage") and hasattr(config.storage, "bronze_path"):
             bronze_path = config.storage.bronze_path
         elif hasattr(config, "bronze_layer") and hasattr(config.bronze_layer, "path"):
             bronze_path = config.bronze_layer.path
         else:
-            bronze_path = "data/aiscore"  # Default fallback
+            bronze_path = "data/aiscore"
         self.bronze_storage = BronzeStorage(base_path=bronze_path)
         self.processed_matches = set()
 
@@ -64,10 +63,12 @@ class OddsScraper:
                 - odds_list: List of specialized odds objects
                 - match_info: Dictionary with match metadata (teams, result, league, etc.)
         """
+
         scrape_start = datetime.now()
         odds_list = []
         errors = []
         warnings = []
+        tabs_scraped = 0
         match_info = {
             "match_id": match_id,
             "match_url": match_url,
@@ -81,24 +82,32 @@ class OddsScraper:
 
         try:
             odds_url = self._build_odds_url(match_url)
-
-            self.browser.driver.get(odds_url)
+            
+            # Use shorter timeout for initial page load to avoid long waits
+            original_timeout = self.browser.driver.timeouts.page_load
+            self.browser.driver.set_page_load_timeout(5)
+            
+            try:
+                self.browser.driver.get(odds_url)
+            except Exception:
+                # Page load timeout is acceptable - page content may still be usable
+                logger.debug(f"[{match_id}] Page load timed out, continuing anyway...")
+            finally:
+                # Restore original timeout
+                self.browser.driver.set_page_load_timeout(original_timeout)
+            
             time.sleep(self.config.scraping.delays.initial_load)
 
-            # Check if content element exists - if not, no odds are available, skip this match
             try:
                 content_elements = self.browser.driver.find_elements(
                     By.CSS_SELECTOR, ".content"
                 )
                 if not content_elements:
-                    logger.info(
-                        f"No content element found for match {match_id}, skipping (no odds available)"
-                    )
+                    logger.info(f"[{match_id}] No odds available")
                     match_info = self._extract_match_metadata(
                         match_url, match_id, game_date
                     )
 
-                    # Save status indicating no odds available
                     scrape_end = datetime.now()
                     scrape_timestamp = scrape_end.strftime("%Y%m%d")
                     final_game_date = game_date or scrape_timestamp
@@ -130,11 +139,9 @@ class OddsScraper:
                 logger.debug(
                     f"Error checking for content element for match {match_id}: {e}"
                 )
-                # Continue anyway - might be a temporary issue
 
             match_info = self._extract_match_metadata(match_url, match_id, game_date)
 
-            # SPEED FIX: Reduced timeout from 10s to 2s (8 seconds saved!)
             try:
                 WebDriverWait(self.browser.driver, 1).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, ".lookBox.brb"))
@@ -146,15 +153,20 @@ class OddsScraper:
                 By.CSS_SELECTOR, ".lookBox.brb"
             )
 
+            tabs_found_after_refresh = False
+
             if not look_boxes:
+                logger.debug(f"[{match_id}] No lookBox.brb found, attempting direct tab search")
                 tabs = self.browser.driver.find_elements(
                     By.CSS_SELECTOR, "span.changeItem"
                 )
             else:
+                logger.debug(f"[{match_id}] Activating lookBox")
                 first_box = look_boxes[0]
                 try:
                     first_box.click()
-                except:
+                except Exception as e:
+                    logger.debug(f"[{match_id}] Using JavaScript click fallback")
                     self.browser.driver.execute_script(
                         "arguments[0].click();", first_box
                     )
@@ -166,13 +178,12 @@ class OddsScraper:
 
             if tabs:
                 tab_names = [tab.text.strip() for tab in tabs if tab.text.strip()]
-                total_tabs = len(tabs)  # Store count (tabs become stale after clicking)
+                total_tabs = len(tabs)
+                logger.debug(f"[{match_id}] Located {total_tabs} odds tabs: {', '.join(tab_names)}")
 
                 for tab_idx in range(total_tabs):
                     try:
-                        current_tabs = (
-                            self._get_tabs_from_changTabBox()
-                        )  # Re-fetch to avoid stale reference
+                        current_tabs = self._get_tabs_from_changeTabBox()
 
                         if tab_idx >= len(current_tabs):
                             logger.debug(f"Tab {tab_idx} not found after re-fetch")
@@ -184,7 +195,7 @@ class OddsScraper:
                         try:
                             classes_before = current_tab.get_attribute("class")
                             is_active_before = "activeElsTab" in classes_before
-                        except:
+                        except BaseException:
                             is_active_before = False
 
                         click_success = False
@@ -199,14 +210,14 @@ class OddsScraper:
                                 "arguments[0].click();", current_tab
                             )
                             click_success = True
-                        except:
+                        except BaseException:
                             pass
 
                         if not click_success:
                             try:
                                 current_tab.click()
                                 click_success = True
-                            except:
+                            except BaseException:
                                 pass
 
                         if not click_success:
@@ -214,73 +225,193 @@ class OddsScraper:
                                 from selenium.webdriver.common.action_chains import (
                                     ActionChains,
                                 )
-
                                 actions = ActionChains(self.browser.driver)
                                 actions.move_to_element(current_tab).click().perform()
                                 click_success = True
-                            except:
+                            except BaseException:
                                 pass
 
                         if not click_success:
                             logger.debug(f"Tab {tab_name} click failed, skipping")
                             continue
 
-                        # Wait for table content to load after tab click
-                        wait_start = time.time()
-                        content_loaded = False
-                        max_wait_iterations = 15  # Increased from 10 to 15
-                        for iteration in range(max_wait_iterations):
-                            try:
-                                if self.browser.driver.find_elements(
-                                    By.CSS_SELECTOR, ".el-table"
-                                ):
-                                    content_loaded = True
-                                    logger.debug(
-                                        f"Table found in tab {tab_name} after {iteration + 1} checks"
-                                    )
-                                    break
-                            except:
-                                pass
-                            time.sleep(
-                                self.config.scraping.delays.content_check_interval
-                            )
-
-                        if not content_loaded:
-                            logger.debug(
-                                f"Table not found in tab {tab_name} after {max_wait_iterations} checks, waiting fallback..."
-                            )
-                            time.sleep(self.config.scraping.delays.content_fallback)
-
-                        # Wait for tab content to load after click
+                        # Brief wait for tab content to start loading
                         time.sleep(0.3)
 
-                        # Don't skip based on active status - try to scrape anyway
-                        # Some tabs might have content even if not marked as active
-                        # The table check in _scrape_current_tab_odds will handle empty tabs
-
+                        # _scrape_current_tab_odds will handle waiting for table
                         tab_odds = self._scrape_current_tab_odds(
                             match_url, match_id, tab_name
                         )
                         if tab_odds:
                             odds_list.extend(tab_odds)
+                            tabs_scraped += 1
                             logger.debug(
-                                f"Scraped {len(tab_odds)} odds from tab {tab_name}"
+                                f"[{match_id}] Extracted {len(tab_odds)} odds from '{tab_name}'"
                             )
                         else:
-                            logger.debug(f"No odds found in tab {tab_name}")
+                            logger.debug(
+                                f"[{match_id}] Tab '{tab_name}' contains no odds data"
+                            )
 
                     except Exception as e:
                         logger.debug(f"Failed to scrape tab {tab_idx}: {e}")
                         continue
             else:
-                tab_odds = self._scrape_current_tab_odds(match_url, match_id, "Default")
-                if tab_odds:
-                    odds_list.extend(tab_odds)
+                logger.debug(f"[{match_id}] No tabs found, attempting page refresh")
+
+                for refresh_attempt in range(1, 3):
+                    try:
+                        logger.debug(f"[{match_id}] Refresh attempt {refresh_attempt}/2")
+
+                        # Reduce page load timeout temporarily for faster refresh
+                        original_timeout = self.browser.driver.timeouts.page_load
+                        self.browser.driver.set_page_load_timeout(5)
+                        
+                        try:
+                            self.browser.driver.refresh()
+                        except Exception:
+                            # Page load timeout is expected - page may not fully load
+                            pass
+                        finally:
+                            # Restore original timeout
+                            self.browser.driver.set_page_load_timeout(original_timeout)
+                        
+                        time.sleep(self.config.scraping.delays.initial_load)
+
+                        # Disable implicit wait for fast element checks after refresh
+                        self.browser.driver.implicitly_wait(0)
+                        
+                        try:
+                            look_boxes_after_refresh = self.browser.driver.find_elements(
+                                By.CSS_SELECTOR, ".lookBox.brb"
+                            )
+                            if look_boxes_after_refresh:
+                                logger.debug(
+                                    f"[{match_id}] Found lookBox after refresh "
+                                    f"{refresh_attempt}, clicking..."
+                                )
+                                try:
+                                    look_boxes_after_refresh[0].click()
+                                except BaseException:
+                                    self.browser.driver.execute_script(
+                                        "arguments[0].click();", look_boxes_after_refresh[0]
+                                    )
+                                time.sleep(self.config.scraping.delays.after_click)
+
+                            tabs_after_refresh = self.browser.driver.find_elements(
+                                By.CSS_SELECTOR, "span.changeItem"
+                            )
+                        finally:
+                            # Restore implicit wait
+                            self.browser.driver.implicitly_wait(self.config.scraping.timeouts.element_wait)
+
+                        if tabs_after_refresh:
+                            tab_texts = [
+                                tab.text.strip() for tab in tabs_after_refresh
+                                if tab.text.strip()
+                            ]
+                            logger.debug(
+                                f"[{match_id}] Refresh successful: {len(tabs_after_refresh)} "
+                                f"tabs recovered ({', '.join(tab_texts)})"
+                            )
+                            tabs_found_after_refresh = True
+                            break
+                        else:
+                            if refresh_attempt < 2:
+                                logger.debug(
+                                    f"[{match_id}] Refresh {refresh_attempt} unsuccessful, retrying"
+                                )
+                                # Wait before next refresh attempt to give page more time
+                                time.sleep(1.0)
+                    except Exception as refresh_error:
+                        logger.debug(
+                            f"[{match_id}] Refresh {refresh_attempt} error: {str(refresh_error)[:50]}"
+                        )
+                        if refresh_attempt < 2:
+                            # Wait before next refresh attempt after error
+                            time.sleep(1.0)
+                            continue
+                        else:
+                            break
+
+            if tabs_found_after_refresh:
+                # Disable implicit wait for fast element checks
+                self.browser.driver.implicitly_wait(0)
+                try:
+                    tabs_after_refresh = self.browser.driver.find_elements(
+                        By.CSS_SELECTOR, "span.changeItem"
+                    )
+                finally:
+                    # Restore implicit wait
+                    self.browser.driver.implicitly_wait(self.config.scraping.timeouts.element_wait)
+                
+                if tabs_after_refresh:
+                    tab_names = [tab.text.strip() for tab in tabs_after_refresh if tab.text.strip()]
+                    total_tabs = len(tabs_after_refresh)
+
+                    for tab_idx in range(total_tabs):
+                        try:
+                            current_tabs = self._get_tabs_from_changeTabBox()
+                            if tab_idx >= len(current_tabs):
+                                continue
+
+                            current_tab = current_tabs[tab_idx]
+                            tab_name = current_tab.text.strip() or f"Tab_{tab_idx}"
+
+                            click_success = False
+                            try:
+                                self.browser.driver.execute_script(
+                                    "arguments[0].scrollIntoView("
+                                    "{behavior: 'auto', block: 'center'});",
+                                    current_tab,
+                                )
+                                time.sleep(self.config.scraping.delays.tab_scroll)
+                                self.browser.driver.execute_script(
+                                    "arguments[0].click();", current_tab
+                                )
+                                click_success = True
+                            except BaseException:
+                                try:
+                                    current_tab.click()
+                                    click_success = True
+                                except BaseException:
+                                    pass
+
+                            if not click_success:
+                                continue
+
+                            # Brief wait for tab content to start loading
+                            time.sleep(0.3)
+
+                            # _scrape_current_tab_odds will handle waiting for table
+                            tab_odds = self._scrape_current_tab_odds(
+                                match_url, match_id, tab_name
+                            )
+                            if tab_odds:
+                                odds_list.extend(tab_odds)
+                                tabs_scraped += 1
+                                logger.debug(
+                                    f"[{match_id}] Extracted {len(tab_odds)} odds from '{tab_name}' (post-refresh)"
+                                )
+                        except Exception as e:
+                            logger.debug(f"Failed to scrape tab {tab_idx} after refresh: {e}")
+                            continue
+
+            if not tabs_found_after_refresh:
+                logger.debug(f"[{match_id}] Fallback: attempting default tab extraction")
+                try:
+                    tab_odds = self._scrape_current_tab_odds(match_url, match_id, "Default")
+                    if tab_odds:
+                        odds_list.extend(tab_odds)
+                        tabs_scraped += 1
+                        logger.debug(f"[{match_id}] Extracted {len(tab_odds)} odds from default view")
+                    else:
+                        logger.debug(f"[{match_id}] No odds data available in default view")
+                except Exception as default_error:
+                    logger.debug(f"[{match_id}] Default tab extraction failed: {str(default_error)[:50]}")
 
             scrape_end = datetime.now()
             scrape_timestamp = scrape_end.strftime("%Y%m%d")
-
-            # Use game_date for organizing files (not today's date)
             final_game_date = game_date or scrape_timestamp
 
             try:
@@ -312,12 +443,14 @@ class OddsScraper:
                     odds_asian_handicap=odds_ah_dicts,
                     odds_over_under=odds_ou_dicts,
                 )
-                logger.info(f"Match data saved to: {file_path}")
+                logger.info(
+                    f"[{match_id}] Scraped {tabs_scraped} tabs, {len(odds_list)} total odds "
+                    f"(1X2: {len(odds_1x2)}, AH: {len(odds_ah)}, O/U: {len(odds_ou)})"
+                )
 
             except Exception as e:
                 logger.error(f"Failed to save to bronze storage: {e}", exc_info=True)
                 errors.append(f"Bronze storage failed: {str(e)}")
-                # Re-raise to ensure the error is visible
                 raise
 
             return odds_list, match_info
@@ -327,7 +460,6 @@ class OddsScraper:
             logger.error(error_msg)
             errors.append(error_msg)
 
-            # Detect timeout errors (connection issues that should be retried)
             error_str = str(e).lower()
             is_timeout = any(
                 keyword in error_str
@@ -353,7 +485,7 @@ class OddsScraper:
                     match_id=match_id,
                     match_url=match_url,
                     game_date=final_game_date,
-                    scrape_date=final_game_date,  # Use game_date for organizing files
+                    scrape_date=final_game_date,
                     scrape_start=scrape_start,
                     scrape_end=scrape_end,
                     scrape_status=scrape_status,
@@ -364,55 +496,61 @@ class OddsScraper:
                     odds_asian_handicap=[],
                     odds_over_under=[],
                 )
-            except:
-                pass  # Don't fail on bronze write during error handling
+            except BaseException:
+                pass
 
-            # Return empty list with error status in match_info (status already saved in bronze)
             match_info["error_status"] = scrape_status
             return [], match_info
 
     def _build_odds_url(self, match_url: str) -> str:
-        """Build odds URL from match URL"""
+        """Build odds URL from match URL."""
         match_url = match_url.rstrip("/")
         if not match_url.endswith("/odds"):
             return f"{match_url}/odds"
         return match_url
 
-    def _get_tabs_from_changTabBox(self) -> List:
-        """
-        Get fresh tabs from changTabBox container
+    def _get_tabs_from_changeTabBox(self) -> List:
+        """Get fresh tabs from changeTabBox container.
 
-        Finds span elements with class "changeItem bh ml-12 elseMaxWidth"
+        Finds span elements with class "changeItem bh ml-12 else MaxWidth".
 
         This is called each time before clicking a tab to avoid stale element references.
 
         Returns:
             List of WebElement tabs (span elements)
         """
+
         tabs = []
 
         try:
-            tabs = self.browser.driver.find_elements(By.CSS_SELECTOR, "span.changeItem")
+            # Temporarily disable implicit wait for faster element checks
+            self.browser.driver.implicitly_wait(0)
+            
+            try:
+                tabs = self.browser.driver.find_elements(By.CSS_SELECTOR, "span.changeItem")
 
-            if not tabs:
-                tabs = self.browser.driver.find_elements(
-                    By.CSS_SELECTOR, "span.elseMaxWidth"
-                )
+                if not tabs:
+                    tabs = self.browser.driver.find_elements(
+                        By.CSS_SELECTOR, "span.else MaxWidth"
+                    )
 
-            if not tabs:
-                tabs = self.browser.driver.find_elements(
-                    By.XPATH, "//span[contains(@class, 'changeItem')]"
-                )
+                if not tabs:
+                    tabs = self.browser.driver.find_elements(
+                        By.XPATH, "//span[contains(@class, 'changeItem')]"
+                    )
 
-            visible_tabs = []
-            for tab in tabs:
-                try:
-                    if tab.is_displayed() and tab.text.strip():
-                        visible_tabs.append(tab)
-                except:
-                    continue
+                visible_tabs = []
+                for tab in tabs:
+                    try:
+                        if tab.is_displayed() and tab.text.strip():
+                            visible_tabs.append(tab)
+                    except BaseException:
+                        continue
 
-            return visible_tabs
+                return visible_tabs
+            finally:
+                # Restore implicit wait
+                self.browser.driver.implicitly_wait(self.config.scraping.timeouts.element_wait)
 
         except Exception as e:
             return []
@@ -421,55 +559,73 @@ class OddsScraper:
         self, match_url: str, match_id: str, tab_name: str
     ) -> List:
         """
-        Scrape odds from table in the currently active tab
+
+        Scrape odds from tablethe currently active tab
+
+
 
         Args:
+
             match_url: Match URL
+
             match_id: Match ID
+
             tab_name: Name of the current tab (e.g., "1 X 2", "Asian Handicap")
 
+
+
         Returns:
+
             List of specialized odds objects (Odds1X2, OddsAsianHandicap, etc.)
+
         """
+
         odds_list = []
 
         try:
-            # Wait for table to appear (increased timeout to ensure table loads)
             try:
                 WebDriverWait(self.browser.driver, 2.0).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, ".el-table"))
                 )
+                # Additional wait for table content to fully render
+                time.sleep(0.3)
             except TimeoutException:
-                logger.debug(f"No table in {tab_name} after waiting")
+                logger.debug(f"[{match_id}] No table element found in tab '{tab_name}'")
                 return odds_list
 
-            tables = self.browser.driver.find_elements(By.CSS_SELECTOR, ".el-table")
-            if not tables:
-                logger.debug(f"No .el-table elements found in tab {tab_name}")
-                return odds_list
-            table = tables[0]
-            logger.debug(f"Found table in tab {tab_name}, processing rows...")
-
+            # Disable implicit wait for fast element lookups
+            self.browser.driver.implicitly_wait(0)
+            
             try:
-                table_body = table.find_element(
-                    By.CSS_SELECTOR, ".el-table__body-wrapper"
-                )
-                max_height = table_body.get_attribute("style")
-                if "max-height" in (max_height or ""):
-                    self._scroll_table_body(table_body)
-            except:
-                pass
-
-            rows = table.find_elements(By.CSS_SELECTOR, ".el-table__body tbody tr")
-            if not rows:
-                alt_rows = table.find_elements(By.CSS_SELECTOR, "tbody tr")
-                if alt_rows:
-                    rows = alt_rows
-                else:
-                    logger.debug(f"No rows found in table for tab {tab_name}")
+                tables = self.browser.driver.find_elements(By.CSS_SELECTOR, ".el-table")
+                if not tables:
+                    logger.debug(f"[{match_id}] No table elements in tab '{tab_name}'")
                     return odds_list
+                table = tables[0]
 
-            logger.debug(f"Found {len(rows)} rows in tab {tab_name}")
+                try:
+                    table_body = table.find_element(
+                        By.CSS_SELECTOR, ".el-table__body-wrapper"
+                    )
+                    max_height = table_body.get_attribute("style")
+                    if "max-height" in (max_height or ""):
+                        self._scroll_table_body(table_body)
+                except BaseException:
+                    pass
+
+                rows = table.find_elements(By.CSS_SELECTOR, ".el-table__body tbody tr")
+                if not rows:
+                    alt_rows = table.find_elements(By.CSS_SELECTOR, "tbody tr")
+                    if alt_rows:
+                        rows = alt_rows
+                    else:
+                        logger.debug(f"[{match_id}] Tab '{tab_name}' table is empty")
+                        return odds_list
+            finally:
+                # Restore implicit wait
+                self.browser.driver.implicitly_wait(self.config.scraping.timeouts.element_wait)
+
+            logger.debug(f"[{match_id}] Processing {len(rows)} rows in '{tab_name}'")
 
             from .odds_parsers import OddsParserFactory
 
@@ -479,25 +635,120 @@ class OddsScraper:
             parsed_count = 0
             failed_count = 0
 
-            for idx, row in enumerate(rows):
-                try:
-                    odds_data = self._parse_table_row(
-                        row, match_url, match_id, parser, idx
-                    )
-                    if odds_data:
-                        odds_list.append(odds_data)
-                        odds_type = type(odds_data).__name__
-                        odds_types_count[odds_type] = (
-                            odds_types_count.get(odds_type, 0) + 1
-                        )
-                        parsed_count += 1
-                    else:
-                        failed_count += 1
-                except Exception as e:
-                    failed_count += 1
-                    continue
+            try:
+                # Wait a bit more before extracting to ensure content is fully loaded
+                time.sleep(0.2)
+                
+                all_rows_data = self.browser.driver.execute_script("""
 
-            # (Parsing result logs removed for cleaner output)
+                    var table = arguments[0];
+
+                    var rows = table.querySelectorAll('tbody tr, .el-table__body tbody tr');
+
+                    var result = [];
+
+                    for (var i = 0; i < rows.length; i++) {
+
+                        var cells = rows[i].querySelectorAll('td');
+
+                        var cellTexts = [];
+
+                        for (var j = 0; j < cells.length; j++) {
+
+                            var text = cells[j].textContent || cells[j].innerText || '';
+
+                            cellTexts.push(text.trim());
+
+                        }
+
+                        result.push(cellTexts);
+
+                    }
+
+                    return result;
+
+
+
+
+
+
+
+
+""", table)
+
+                for idx, cell_values in enumerate(all_rows_data):
+                    try:
+                        cleaned_cells = [str(c).strip() if c else "" for c in cell_values]
+
+                        if not cleaned_cells or all(not c for c in cleaned_cells):
+                            failed_count += 1
+                            continue
+
+                        odds_data = parser.parse_row(cleaned_cells, match_id, match_url)
+                        if odds_data:
+                            odds_list.append(odds_data)
+                            odds_type = type(odds_data).__name__
+                            odds_types_count[odds_type] = (
+                                odds_types_count.get(odds_type, 0) + 1
+                            )
+                            parsed_count += 1
+                        else:
+                            failed_count += 1
+                            # Check if this is a timestamp/date row to skip silently
+                            row_text = ' '.join(cleaned_cells).lower()
+                            is_timestamp_row = any(indicator in row_text for indicator in [
+                                'am ', 'pm ', 'monday', 'tuesday', 'wednesday', 
+                                'thursday', 'friday', 'saturday', 'sunday',
+                                'january', 'february', 'march', 'april', 'may', 'june',
+                                'july', 'august', 'september', 'october', 'november', 'december'
+                            ])
+                            
+                            if is_timestamp_row:
+                                # Silently skip timestamp/date rows
+                                pass
+                            elif failed_count <= 5:
+                                # Only log actual parsing failures (not timestamps)
+                                non_empty_cells = [c for c in cleaned_cells if c]
+                                if len(non_empty_cells) >= 3:
+                                    logger.debug(
+                                        f"[{match_id}] Parse failed row {idx}/{len(rows)} in '{tab_name}': {cleaned_cells[:3]}"
+                                    )
+                    except Exception as e:
+                        failed_count += 1
+                        # Log first 3 exceptions with details
+                        if failed_count <= 3:
+                            logger.debug(
+                                f"[{match_id}] Row parse exception in '{tab_name}': {str(e)[:60]}"
+                            )
+                        continue
+
+                if len(rows) > 50:
+                    logger.debug(
+                        f"[{match_id}] Parsed {parsed_count}/{len(rows)} rows "
+                        f"from '{tab_name}' ({failed_count} failed)"
+                    )
+            except Exception as batch_error:
+                logger.debug(
+                    f"[{match_id}] Batch extraction failed, using "
+                    f"individual processing: {batch_error}"
+                )
+                for idx, row in enumerate(rows):
+                    try:
+                        odds_data = self._parse_table_row(
+                            row, match_url, match_id, parser, idx
+                        )
+                        if odds_data:
+                            odds_list.append(odds_data)
+                            odds_type = type(odds_data).__name__
+                            odds_types_count[odds_type] = (
+                                odds_types_count.get(odds_type, 0) + 1
+                            )
+                            parsed_count += 1
+                        else:
+                            failed_count += 1
+                    except Exception as e:
+                        failed_count += 1
+                        continue
 
         except Exception as e:
             logger.error(f"Error scraping tab {tab_name}: {e}", exc_info=True)
@@ -506,50 +757,50 @@ class OddsScraper:
 
     def _scroll_table_body(self, table_body_element):
         """
+
         Scroll through table body to load all rows
 
-        Args:
-            table_body_element: The .el-table__body-wrapper element
-        """
-        try:
 
-            # Get initial scroll height
+
+        Args:
+
+            table_body_element: The .el-table__body-wrapper element
+
+        """
+
+        try:
             last_height = self.browser.driver.execute_script(
                 "return arguments[0].scrollHeight", table_body_element
             )
 
             scroll_attempts = 0
             max_scrolls = 10
-            previous_row_count = 0  # Track row count for smart waiting
+            previous_row_count = 0
 
             while scroll_attempts < max_scrolls:
-                # Scroll to bottom
                 self.browser.driver.execute_script(
                     "arguments[0].scrollTop = arguments[0].scrollHeight",
                     table_body_element,
                 )
 
-                # OPTIMIZATION: Smart wait for scroll content - reduced wait time
                 wait_start = time.time()
-                for _ in range(3):  # Max 0.15s (3 x 0.05s) - faster checks
+                for _ in range(3):
                     try:
                         new_rows = self.browser.driver.find_elements(
                             By.CSS_SELECTOR, ".el-table__row"
                         )
                         if len(new_rows) > previous_row_count:
                             break
-                    except:
+                    except BaseException:
                         pass
                     time.sleep(self.config.scraping.delays.content_check_interval)
 
                 previous_row_count = len(new_rows) if "new_rows" in locals() else 0
 
-                # Get new scroll height
                 new_height = self.browser.driver.execute_script(
                     "return arguments[0].scrollHeight", table_body_element
                 )
 
-                # Check if we've reached the bottom
                 if new_height == last_height:
                     break
 
@@ -557,41 +808,83 @@ class OddsScraper:
                 scroll_attempts += 1
 
         except Exception as e:
-            pass  # Scrolling errors are non-critical
+            pass
 
     def _parse_table_row(
         self, row_element, match_url: str, match_id: str, parser, row_idx: int
     ):
         """
+
         Parse a single table row using the provided parser
 
+
+
         Args:
+
             row_element: The tr element
+
             match_url: Match URL
+
             match_id: Match ID
+
             parser: The specialized parser (from OddsParserFactory)
+
             row_idx: Row index
 
-        Returns:
-            Specialized odds object (Odds1X2, OddsAsianHandicap, etc.) or None
-        """
-        try:
-            # Find all cells in the row
-            cells = row_element.find_elements(By.TAG_NAME, "td")
 
-            if not cells:
+
+        Returns:
+
+            Specialized odds object (Odds1X2, OddsAsianHandicap, etc.) or None
+
+        """
+
+        try:
+
+            try:
+
+                cell_texts = self.browser.driver.execute_script("""
+
+                    var cells = arguments[0].querySelectorAll('td');
+
+                    var texts = [];
+
+                    for (var i = 0; i < cells.length; i++) {
+
+                        texts.push(cells[i].textContent || cells[i].innerText || '');
+
+                    }
+
+                    return texts;
+
+""", row_element)
+
+                cell_values = []
+                for cell_text in cell_texts:
+                    if cell_text is None:
+                        cell_values.append("")
+                    else:
+                        text = str(cell_text).strip() if cell_text else ""
+                        cell_values.append(text)
+            except Exception:
+                cells = row_element.find_elements(By.TAG_NAME, "td")
+                if not cells:
+                    return None
+                cell_values = []
+                for cell in cells:
+                    try:
+                        cell_text = cell.text
+                        if cell_text is None:
+                            cell_values.append("")
+                        else:
+                            text = str(cell_text).strip() if cell_text else ""
+                            cell_values.append(text)
+                    except (AttributeError, TypeError, ValueError):
+                        cell_values.append("")
+
+            if not cell_values or all(not c for c in cell_values):
                 return None
 
-            # Extract text from each cell
-            cell_values = []
-            for cell in cells:
-                try:
-                    text = cell.text.strip()
-                    cell_values.append(text)
-                except:
-                    cell_values.append("")
-
-            # Use the specialized parser
             parsed = parser.parse_row(cell_values, match_id, match_url)
             return parsed
 
@@ -611,131 +904,145 @@ class OddsScraper:
         Returns:
             Dictionary containing all extracted match metadata
         """
+
         metadata = {
             "match_id": match_id,
             "match_url": match_url,
             "game_date": game_date,
             "teams": {"home": None, "away": None},
-            "home_team": None,  # Keep for backward compatibility
-            "away_team": None,  # Keep for backward compatibility
+            "home_team": None,
+            "away_team": None,
             "match_result": None,
             "home_score": None,
             "away_score": None,
             "league": None,
-            "match_time": None,  # FT, HT, Live, etc.
+            "match_time": None,
             "match_date_display": None,
             "venue": None,
             "referee": None,
         }
 
         try:
-            # Temporarily disable implicit wait for faster element lookup
-            # Store original value to restore later
-            original_implicit_wait = self.browser.driver.implicitly_wait(0)
 
             try:
-                # Extract home team - use find_elements() for immediate return if not found
-                home_boxes = self.browser.driver.find_elements(
-                    By.CSS_SELECTOR, ".home-box .teamName a"
-                )
-                if home_boxes:
-                    metadata["teams"]["home"] = home_boxes[0].text.strip()
-                    metadata["home_team"] = metadata["teams"]["home"]
+                try:
+                    original_implicit_wait = self.browser.driver.implicitly_wait(10)
+                except BaseException:
+                    original_implicit_wait = 10
 
-                # Extract away team
-                away_boxes = self.browser.driver.find_elements(
-                    By.CSS_SELECTOR, ".away-box .teamName a"
-                )
-                if away_boxes:
-                    metadata["teams"]["away"] = away_boxes[0].text.strip()
-                    metadata["away_team"] = metadata["teams"]["away"]
+                self.browser.driver.implicitly_wait(0)
 
-                # Extract home score
-                home_score_elems = self.browser.driver.find_elements(
-                    By.CSS_SELECTOR, ".home-score"
-                )
-                if home_score_elems:
-                    home_score_text = home_score_elems[0].text.strip()
-                    metadata["home_score"] = (
-                        int(home_score_text) if home_score_text.isdigit() else None
+                try:
+                    home_boxes = self.browser.driver.find_elements(
+                        By.CSS_SELECTOR, ".home-box .teamName a"
                     )
+                    if home_boxes:
+                        metadata["teams"]["home"] = home_boxes[0].text.strip()
+                        metadata["home_team"] = metadata["teams"]["home"]
 
-                # Extract away score
-                away_score_elems = self.browser.driver.find_elements(
-                    By.CSS_SELECTOR, ".away-score"
-                )
-                if away_score_elems:
-                    away_score_text = away_score_elems[0].text.strip()
-                    metadata["away_score"] = (
-                        int(away_score_text) if away_score_text.isdigit() else None
+                    away_boxes = self.browser.driver.find_elements(
+                        By.CSS_SELECTOR, ".away-box .teamName a"
                     )
+                    if away_boxes:
+                        metadata["teams"]["away"] = away_boxes[0].text.strip()
+                        metadata["away_team"] = metadata["teams"]["away"]
 
-                # Build match result string
-                if (
-                    metadata["home_score"] is not None
-                    and metadata["away_score"] is not None
-                ):
-                    metadata["match_result"] = (
-                        f"{metadata['home_score']}-{metadata['away_score']}"
+                    home_score_elems = self.browser.driver.find_elements(
+                        By.CSS_SELECTOR, ".home-score"
                     )
+                    if home_score_elems:
+                        try:
+                            home_score_text_raw = home_score_elems[0].text
+                            if home_score_text_raw is not None:
+                                home_score_text = str(home_score_text_raw).strip()
+                                if home_score_text and home_score_text.isdigit():
+                                    metadata["home_score"] = int(home_score_text)
+                        except (AttributeError, TypeError, ValueError) as e:
+                            logger.debug(f"Error extracting home score: {e}")
 
-                # Extract league/competition name
-                league_elems = self.browser.driver.find_elements(
-                    By.CSS_SELECTOR, ".league-name, .competition-name, .breadcrumb a"
-                )
-                if league_elems:
-                    metadata["league"] = league_elems[0].text.strip()
+                    away_score_elems = self.browser.driver.find_elements(
+                        By.CSS_SELECTOR, ".away-score"
+                    )
+                    if away_score_elems:
+                        try:
+                            away_score_text_raw = away_score_elems[0].text
+                            if away_score_text_raw is not None:
+                                away_score_text = str(away_score_text_raw).strip()
+                                if away_score_text and away_score_text.isdigit():
+                                    metadata["away_score"] = int(away_score_text)
+                        except (AttributeError, TypeError, ValueError) as e:
+                            logger.debug(f"Error extracting away score: {e}")
 
-                # Extract match time/status (FT, HT, Live, etc.)
-                status_elems = self.browser.driver.find_elements(
-                    By.CSS_SELECTOR, ".match-status, .matchStatus, .time-status"
-                )
-                if status_elems:
-                    metadata["match_time"] = status_elems[0].text.strip()
+                    if (
+                        metadata["home_score"] is not None
+                        and metadata["away_score"] is not None
+                    ):
+                        metadata["match_result"] = (
+                            f"{metadata['home_score']}-{metadata['away_score']}"
+                        )
 
-                # Extract match date display
-                date_elems = self.browser.driver.find_elements(
-                    By.CSS_SELECTOR, ".h-top-center .matchStatus, .match-date"
-                )
-                if date_elems:
-                    metadata["match_date_display"] = date_elems[0].text.strip()
+                    league_elems = self.browser.driver.find_elements(
+                        By.CSS_SELECTOR, ".league-name, .competition-name, .breadcrumb a"
+                    )
+                    if league_elems:
+                        metadata["league"] = league_elems[0].text.strip()
 
-                # Extract venue if available
-                venue_elems = self.browser.driver.find_elements(
-                    By.CSS_SELECTOR, ".venue-name, .stadium-name"
-                )
-                if venue_elems:
-                    metadata["venue"] = venue_elems[0].text.strip()
+                    status_elems = self.browser.driver.find_elements(
+                        By.CSS_SELECTOR, ".match-status, .matchStatus, .time-status"
+                    )
+                    if status_elems:
+                        metadata["match_time"] = status_elems[0].text.strip()
 
-                # Extract referee if available
-                referee_elems = self.browser.driver.find_elements(
-                    By.CSS_SELECTOR, ".referee-name"
-                )
-                if referee_elems:
-                    metadata["referee"] = referee_elems[0].text.strip()
+                    date_elems = self.browser.driver.find_elements(
+                        By.CSS_SELECTOR, ".h-top-center .matchStatus, .match-date"
+                    )
+                    if date_elems:
+                        metadata["match_date_display"] = date_elems[0].text.strip()
+
+                    venue_elems = self.browser.driver.find_elements(
+                        By.CSS_SELECTOR, ".venue-name, .stadium-name"
+                    )
+                    if venue_elems:
+                        metadata["venue"] = venue_elems[0].text.strip()
+
+                    referee_elems = self.browser.driver.find_elements(
+                        By.CSS_SELECTOR, ".referee-name"
+                    )
+                    if referee_elems:
+                        metadata["referee"] = referee_elems[0].text.strip()
+                except Exception as e:
+                    logger.debug(f"Error extracting metadata elements: {e}")
 
             finally:
-                # Restore original implicit wait timeout
-                self.browser.driver.implicitly_wait(original_implicit_wait)
+                if original_implicit_wait is not None:
+                    try:
+                        self.browser.driver.implicitly_wait(original_implicit_wait)
+                    except (TypeError, ValueError) as e:
+                        logger.debug(f"Error restoring implicit wait: {e}, using default 10")
+                        self.browser.driver.implicitly_wait(10)
+                else:
+                    logger.debug("original_implicit_wait is None, using default 10")
+                    self.browser.driver.implicitly_wait(10)
 
-            # If game_date not provided, try to extract from URL or page
             if not metadata["game_date"]:
-                # Try to extract from URL pattern
                 try:
                     import re
-
-                    # Look for date pattern in URL: YYYYMMDD or YYYY-MM-DD
                     date_match = re.search(r"(\d{8})|(\d{4}-\d{2}-\d{2})", match_url)
                     if date_match:
                         date_str = date_match.group(1) or date_match.group(2).replace(
                             "-", ""
                         )
                         metadata["game_date"] = date_str
-                except:
+                except BaseException:
                     pass
 
         except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
             logger.error(f"Error extracting match metadata: {e}")
+            logger.error(f"Full traceback:\n{error_details}")
+            logger.debug(f" URL: {match_url}")
+            logger.debug(f" Match ID: {match_id}")
 
         return metadata
 
@@ -748,16 +1055,15 @@ class OddsScraper:
         Returns:
             Dictionary representation
         """
+
         if hasattr(odds, "__dict__"):
             data = odds.__dict__.copy()
         elif hasattr(odds, "to_dict"):
             data = odds.to_dict()
         else:
             from dataclasses import asdict
-
             data = asdict(odds)
 
-        # Convert datetime objects to ISO strings
         for key, value in list(data.items()):
             if isinstance(value, datetime):
                 data[key] = value.isoformat()
@@ -766,21 +1072,32 @@ class OddsScraper:
 
     def _extract_and_save_match_info(self, match_url: str):
         """Legacy method - now using _extract_match_metadata instead."""
-        pass  # Keep for backward compatibility
+        pass
 
     def scrape_from_daily_matches(self, scrape_date: str, bronze_storage) -> dict:
         """Scrape matches from bronze/{date}/daily_listings.json.
 
-        After successful scraping, updates scrape_status to 'success' in daily_listings file.
+
+
+        After successful scraping, updates scrape_status to 'success' in
+        daily_listings file.
+
+
 
         Args:
+
             scrape_date: Date of daily_listings file (YYYYMMDD)
+
             bronze_storage: BronzeStorage instance
 
+
+
         Returns:
+
             Dictionary with scraping statistics
+
         """
-        # Read daily listings
+
         daily_data = bronze_storage.load_daily_listing(scrape_date)
 
         if not daily_data:
@@ -792,7 +1109,6 @@ class OddsScraper:
 
         matches = daily_data.get("matches", [])
 
-        # Check status distribution
         status_counts = {}
         for match in matches:
             status = match.get("scrape_status", "n/a")
@@ -800,121 +1116,106 @@ class OddsScraper:
 
         to_scrape = (
             status_counts.get("n/a", 0)
-            + status_counts.get("failed", 0)
             + status_counts.get("pending", 0)
-            + status_counts.get("failed_by_timeout", 0)
         )
         to_skip = (
             status_counts.get("success", 0)
             + status_counts.get("partial", 0)
             + status_counts.get("forbidden", 0)
+            + status_counts.get("failed", 0)
+            + status_counts.get("failed_by_timeout", 0)
         )
 
         logger.info(
-            f"Scraping odds for {scrape_date}: {to_scrape} matches to process, {to_skip} skipped"
+            f"Starting odds scrape for {scrape_date}: {to_scrape} to scrape (n/a + pending), "
+            f"{to_skip} skipped (success/failed/forbidden)"
         )
 
-        # Initialize browser
         self.initialize()
 
-        # Track results
         successful = 0
         failed = 0
         total_odds_scraped = 0
-        last_logged = 0
-        log_interval = max(
-            10, len(matches) // 20
-        )  # Log every 10 matches or ~5% progress
 
-        # Process each match
         for i, match in enumerate(matches, 1):
             match_id = match["match_id"]
             match_url = match["match_url"]
             game_date = match.get("game_date", scrape_date)
             current_status = match.get("scrape_status", "n/a")
 
-            # Skip forbidden matches silently
             if current_status == "forbidden":
                 continue
 
-            # Skip matches with no odds available
             if current_status == "no_odds_available":
-                successful += 1  # Count as successful (we determined no odds available)
+                successful += 1
                 continue
 
-            # Skip already scraped matches (resumable)
-            # Check both status and actual file existence
             if current_status in ["success", "partial"]:
                 successful += 1
                 continue
+            
+            # Skip failed matches - don't retry them
+            if current_status in ["failed", "failed_by_timeout"]:
+                failed += 1
+                continue
 
-            # Also check if match file actually exists in bronze storage
-            # This handles cases where file exists but status wasn't updated
             if bronze_storage.match_exists(match_id, scrape_date):
                 successful += 1
-                # Update status to success if file exists but status wasn't updated
                 try:
-                    bronze_storage.update_match_status_in_daily_list(
+                    bronze_storage.update_match_status__daily_list(
                         scrape_date, match_id, "success"
                     )
                 except Exception as e:
                     logger.warning(f"Could not update status for match {match_id}: {e}")
                 continue
 
-            # Change status to pending (retry failed_by_timeout as they may be temporary connection issues)
-            if current_status in ["n/a", "failed", "failed_by_timeout"]:
-                bronze_storage.update_match_status_in_daily_list(
+            if current_status in ["n/a", "pending"]:
+                bronze_storage.update_match_status__daily_list(
                     scrape_date, match_id, "pending"
                 )
 
             try:
-                # Scrape odds
                 odds_list, match_info = self.scrape_match_odds(
                     match_url, match_id, game_date
                 )
 
-                # Check if error status was already saved (from exception handler in scrape_match_odds)
                 error_status = match_info.get("error_status")
 
                 if error_status:
-                    # Status already saved with timeout/failed/no_odds_available in scrape_match_odds
                     if error_status == "no_odds_available":
-                        # Update daily listing to mark as no odds available
                         try:
-                            bronze_storage.update_match_status_in_daily_list(
+                            bronze_storage.update_match_status__daily_list(
                                 scrape_date, match_id, "no_odds_available"
                             )
                         except Exception as e:
                             logger.warning(
                                 f"Could not update status for match {match_id}: {e}"
                             )
-                    failed += 1
+                        failed += 1
                 elif odds_list:
-                    # Success: update status
-                    bronze_storage.update_match_status_in_daily_list(
+                    bronze_storage.update_match_status__daily_list(
                         scrape_date, match_id, "success"
                     )
                     total_odds_scraped += len(odds_list)
                     successful += 1
                 else:
-                    # No odds but no error (shouldn't happen, but handle it)
-                    bronze_storage.update_match_status_in_daily_list(
+                    bronze_storage.update_match_status__daily_list(
                         scrape_date, match_id, "failed"
                     )
                     failed += 1
 
-                # Log progress periodically
-                if i - last_logged >= log_interval or i == len(matches):
+                # Log progress every 10 matches or at milestones
+                if i % 10 == 0 or i == len(matches):
                     progress_pct = (i / len(matches)) * 100
                     logger.info(
-                        f"Progress: {i}/{len(matches)} ({progress_pct:.0f}%) | Success: {successful} | Failed: {failed} | Odds: {total_odds_scraped}"
+                        f"Progress: {i}/{len(matches)} ({progress_pct:.0f}%) - "
+                        f"Success: {successful}, Failed: {failed}, "
+                        f"Total odds: {total_odds_scraped}"
                     )
-                    last_logged = i
 
                 time.sleep(self.config.scraping.delays.between_matches)
 
             except Exception as e:
-                # Detect timeout errors (connection issues that should be retried)
                 error_str = str(e).lower()
                 is_timeout = any(
                     keyword in error_str
@@ -931,23 +1232,31 @@ class OddsScraper:
                 )
 
                 status = "failed_by_timeout" if is_timeout else "failed"
-                bronze_storage.update_match_status_in_daily_list(
+                bronze_storage.update_match_status__daily_list(
                     scrape_date, match_id, status
                 )
                 failed += 1
 
-                # Log errors only periodically or if critical
-                if i - last_logged >= log_interval or not is_timeout:
-                    if is_timeout:
-                        logger.debug(f"Match {i}/{len(matches)} timeout: {match_id}")
-                    else:
-                        logger.error(
-                            f"Match {i}/{len(matches)} error: {match_id} - {str(e)[:100]}"
-                        )
+                # Log error for non-timeout errors
+                if not is_timeout:
+                    logger.warning(f"Match {match_id} failed: {str(e)[:80]}")
+                else:
+                    logger.debug(f"Match {match_id} timeout")
+                
+                # Log progress even on errors (every 10 matches)
+                if i % 10 == 0:
+                    progress_pct = (i / len(matches)) * 100
+                    logger.info(
+                        f"Progress: {i}/{len(matches)} ({progress_pct:.0f}%) - "
+                        f"Success: {successful}, Failed: {failed}, "
+                        f"Total odds: {total_odds_scraped}"
+                    )
                 continue
 
+        success_rate = (successful / len(matches) * 100) if len(matches) > 0 else 0
         logger.info(
-            f"Complete: {successful} success, {failed} failed, {total_odds_scraped} total odds"
+            f"Scraping complete for {scrape_date}: {successful}/{len(matches)} successful ({success_rate:.1f}%), "
+            f"{total_odds_scraped} total odds extracted"
         )
 
         return {
@@ -957,23 +1266,18 @@ class OddsScraper:
             "total_odds": total_odds_scraped,
         }
 
-    # Legacy database-based method removed - use scrape_from_daily_matches() instead
-
     def initialize(self):
         """Initialize scraper"""
         try:
-            # Create browser if not exists
             if not self.browser.driver:
                 self.browser.create_driver()
-
         except Exception as e:
             logger.error(f"Initialization failed: {e}")
             raise ScraperError(f"Failed to initialize odds scraper: {e}")
 
     def cleanup(self):
-        """Cleanup resources"""
+        """Cleanup resources."""
         try:
-            # Close all extra windows
             if self.browser.driver:
                 original_window = self.browser.driver.current_window_handle
                 for handle in self.browser.driver.window_handles:

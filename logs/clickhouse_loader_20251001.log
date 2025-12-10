@@ -1,0 +1,1679 @@
+2025-12-08 08:48:52,053 - clickhouse_loader - INFO - setup_logging:57 - Logging initialized. Log file: logs/clickhouse_loader_20251001.log
+2025-12-08 08:48:52,070 - clickhouse_loader - INFO - main:1620 - 
+================================================================================
+2025-12-08 08:48:52,070 - clickhouse_loader - INFO - main:1621 - Loading fotmob data for 20251001
+2025-12-08 08:48:52,070 - clickhouse_loader - INFO - main:1622 - ================================================================================
+
+2025-12-08 08:48:52,090 - clickhouse_loader - INFO - load_match_files_from_json_gz:465 - Found 130 .json.gz files
+2025-12-08 08:48:52,091 - clickhouse_loader - ERROR - load_fotmob_data:693 - Error loading FotMob data: cannot access local variable 'e' where it is not associated with a value
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 649, in load_fotmob_data
+    all_dataframes = load_fotmob_match_files(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/scripts/load_clickhouse.py", line 525, in load_fotmob_match_files
+    all_dataframes = load_match_files_from_json_gz(matches_dir, processor, logger)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/scripts/load_clickhouse.py", line 466, in load_match_files_from_json_gz
+    for json_gz_fil in e in json_gz_files:
+                       ^
+UnboundLocalError: cannot access local variable 'e' where it is not associated with a value
+2025-12-08 08:48:52,095 - clickhouse_loader - ERROR - main:1633 - Failed to load fotmob data for 20251001: cannot access local variable 'e' where it is not associated with a value
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 1630, in main
+    for tabl in e, count in stats.items():
+                ^
+UnboundLocalError: cannot access local variable 'e' where it is not associated with a value
+2025-12-08 08:48:57,678 - clickhouse_loader - INFO - main:1650 - 
+================================================================================
+2025-12-08 08:48:57,679 - clickhouse_loader - INFO - main:1651 - LOADING SUMMARY
+2025-12-08 08:48:57,679 - clickhouse_loader - INFO - main:1652 - ================================================================================
+
+2025-12-08 08:48:57,679 - clickhouse_loader - INFO - main:1653 - Dates processed: 1
+2025-12-08 08:48:57,680 - clickhouse_loader - INFO - main:1654 - Total rows loaded by table:
+2025-12-08 08:51:39,828 - clickhouse_loader - INFO - setup_logging:57 - Logging initialized. Log file: logs/clickhouse_loader_20251001.log
+2025-12-08 08:51:39,847 - clickhouse_loader - INFO - main:1620 - 
+================================================================================
+2025-12-08 08:51:39,848 - clickhouse_loader - INFO - main:1621 - Loading fotmob data for 20251001
+2025-12-08 08:51:39,848 - clickhouse_loader - INFO - main:1622 - ================================================================================
+
+2025-12-08 08:51:39,879 - clickhouse_loader - INFO - load_match_files_from_json_gz:465 - Found 130 .json.gz files
+2025-12-08 08:51:41,982 - clickhouse_loader - INFO - load_fotmob_data:657 - Processed 1182 match files for 20251001
+2025-12-08 08:51:41,983 - clickhouse_loader - INFO - load_fotmob_data:662 - Accumulated dataframes summary:
+2025-12-08 08:51:41,983 - clickhouse_loader - INFO - load_fotmob_data:665 -   general: 130 dataframes, 130 total rows
+2025-12-08 08:51:41,984 - clickhouse_loader - INFO - load_fotmob_data:665 -   timeline: 130 dataframes, 130 total rows
+2025-12-08 08:51:41,985 - clickhouse_loader - INFO - load_fotmob_data:665 -   goal: 119 dataframes, 378 total rows
+2025-12-08 08:51:41,985 - clickhouse_loader - INFO - load_fotmob_data:665 -   red_card: 24 dataframes, 29 total rows
+2025-12-08 08:51:41,985 - clickhouse_loader - INFO - load_fotmob_data:665 -   cards: 84 dataframes, 312 total rows
+2025-12-08 08:51:41,986 - clickhouse_loader - INFO - load_fotmob_data:665 -   venue: 130 dataframes, 130 total rows
+2025-12-08 08:51:41,986 - clickhouse_loader - INFO - load_fotmob_data:665 -   team_form: 130 dataframes, 1142 total rows
+2025-12-08 08:51:41,986 - clickhouse_loader - INFO - load_fotmob_data:665 -   momentum: 21 dataframes, 1931 total rows
+2025-12-08 08:51:41,986 - clickhouse_loader - INFO - load_fotmob_data:665 -   period: 63 dataframes, 181 total rows
+2025-12-08 08:51:41,987 - clickhouse_loader - INFO - load_fotmob_data:665 -   player: 59 dataframes, 2477 total rows
+2025-12-08 08:51:41,987 - clickhouse_loader - INFO - load_fotmob_data:665 -   shotmap: 25 dataframes, 578 total rows
+2025-12-08 08:51:41,987 - clickhouse_loader - INFO - load_fotmob_data:665 -   starters: 104 dataframes, 2288 total rows
+2025-12-08 08:51:41,989 - clickhouse_loader - INFO - load_fotmob_data:665 -   substitutes: 101 dataframes, 1924 total rows
+2025-12-08 08:51:41,990 - clickhouse_loader - INFO - load_fotmob_data:665 -   coaches: 62 dataframes, 124 total rows
+2025-12-08 08:51:42,029 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 130 rows into fotmob.general
+2025-12-08 08:51:42,030 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.general table...
+2025-12-08 08:51:42,033 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.general table
+2025-12-08 08:51:42,078 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 130 rows into fotmob.timeline
+2025-12-08 08:51:42,079 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.timeline table...
+2025-12-08 08:51:42,081 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.timeline table
+2025-12-08 08:51:42,141 - clickhouse_loader - ERROR - process_fotmob_table:618 - Error loading goal: Object of type Timestamp is not JSON serializable
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 376, in insert_dataframe_with_dlq
+    rows_inserted = client.insert_dataframe(table_name, df, database=database)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/storage/clickhouse_client.py", line 197, in insert_dataframe
+    self.client.insert_df(full_table, df)
+  File "/opt/venv/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 840, in insert_df
+    return self.insert(table,
+           ^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 793, in insert
+    context = self.create_insert_context(table,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 982, in create_insert_context
+    raise ProgrammingError(f'Unrecognized column {ex} in table {table}') from None
+clickhouse_connect.driver.exceptions.ProgrammingError: Unrecognized column 'shot_mute' in table fotmob.goal
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 588, in process_fotmob_table
+    rows_inserted = insert_dataframe_with_dlq(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/scripts/load_clickhouse.py", line 380, in insert_dataframe_with_dlq
+    dlq.send_to_dlq(
+  File "/app/src/storage/dlq.py", line 65, in send_to_dlq
+    f.write(json.dumps(record, ensure_ascii=False) + "\n")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/json/encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/json/encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type Timestamp is not JSON serializable
+2025-12-08 08:51:42,170 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 29 rows into fotmob.red_card
+2025-12-08 08:51:42,170 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.red_card table...
+2025-12-08 08:51:42,173 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.red_card table
+2025-12-08 08:51:42,223 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 312 rows into fotmob.cards
+2025-12-08 08:51:42,223 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.cards table...
+2025-12-08 08:51:42,226 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.cards table
+2025-12-08 08:51:42,279 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 130 rows into fotmob.venue
+2025-12-08 08:51:42,280 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.venue table...
+2025-12-08 08:51:42,283 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.venue table
+2025-12-08 08:51:42,346 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 1142 rows into fotmob.team_form
+2025-12-08 08:51:42,347 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.team_form table...
+2025-12-08 08:51:42,350 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.team_form table
+2025-12-08 08:51:42,398 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 1931 rows into fotmob.momentum
+2025-12-08 08:51:42,398 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.momentum table...
+2025-12-08 08:51:42,401 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.momentum table
+2025-12-08 08:51:42,469 - clickhouse_loader - ERROR - process_fotmob_table:618 - Error loading period: Object of type Timestamp is not JSON serializable
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 376, in insert_dataframe_with_dlq
+    rows_inserted = client.insert_dataframe(table_name, df, database=database)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/storage/clickhouse_client.py", line 197, in insert_dataframe
+    self.client.insert_df(full_table, df)
+  File "/opt/venv/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 840, in insert_df
+    return self.insert(table,
+           ^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 793, in insert
+    context = self.create_insert_context(table,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 982, in create_insert_context
+    raise ProgrammingError(f'Unrecognized column {ex} in table {table}') from None
+clickhouse_connect.driver.exceptions.ProgrammingError: Unrecognized column 'shots_sidebox_home' in table fotmob.period
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 588, in process_fotmob_table
+    rows_inserted = insert_dataframe_with_dlq(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/scripts/load_clickhouse.py", line 380, in insert_dataframe_with_dlq
+    dlq.send_to_dlq(
+  File "/app/src/storage/dlq.py", line 65, in send_to_dlq
+    f.write(json.dumps(record, ensure_ascii=False) + "\n")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/json/encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/json/encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type Timestamp is not JSON serializable
+2025-12-08 08:51:42,577 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 2477 rows into fotmob.player
+2025-12-08 08:51:42,577 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.player table...
+2025-12-08 08:51:42,583 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.player table
+2025-12-08 08:51:42,637 - clickhouse_loader - ERROR - process_fotmob_table:618 - Error loading shotmap: Object of type Timestamp is not JSON serializable
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 376, in insert_dataframe_with_dlq
+    rows_inserted = client.insert_dataframe(table_name, df, database=database)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/storage/clickhouse_client.py", line 197, in insert_dataframe
+    self.client.insert_df(full_table, df)
+  File "/opt/venv/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 840, in insert_df
+    return self.insert(table,
+           ^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 793, in insert
+    context = self.create_insert_context(table,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 982, in create_insert_context
+    raise ProgrammingError(f'Unrecognized column {ex} in table {table}') from None
+clickhouse_connect.driver.exceptions.ProgrammingError: Unrecognized column 'm_min' in table fotmob.shotmap
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 588, in process_fotmob_table
+    rows_inserted = insert_dataframe_with_dlq(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/scripts/load_clickhouse.py", line 380, in insert_dataframe_with_dlq
+    dlq.send_to_dlq(
+  File "/app/src/storage/dlq.py", line 65, in send_to_dlq
+    f.write(json.dumps(record, ensure_ascii=False) + "\n")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/json/encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/json/encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type Timestamp is not JSON serializable
+2025-12-08 08:51:42,692 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 2288 rows into fotmob.starters
+2025-12-08 08:51:42,693 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.starters table...
+2025-12-08 08:51:42,697 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.starters table
+2025-12-08 08:51:42,775 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 1924 rows into fotmob.substitutes
+2025-12-08 08:51:42,775 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.substitutes table...
+2025-12-08 08:51:42,784 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.substitutes table
+2025-12-08 08:51:42,831 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 124 rows into fotmob.coaches
+2025-12-08 08:51:42,831 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.coaches table...
+2025-12-08 08:51:42,834 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.coaches table
+2025-12-08 08:51:42,865 - clickhouse_loader - INFO - optimize_all_tables:202 - Optimizing all FOTMOB tables...
+2025-12-08 08:51:42,865 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.general table...
+2025-12-08 08:51:42,869 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.general table
+2025-12-08 08:51:42,870 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.timeline table...
+2025-12-08 08:51:42,873 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.timeline table
+2025-12-08 08:51:42,874 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.venue table...
+2025-12-08 08:51:42,877 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.venue table
+2025-12-08 08:51:42,878 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.player table...
+2025-12-08 08:51:42,886 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.player table
+2025-12-08 08:51:42,886 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.shotmap table...
+2025-12-08 08:51:42,888 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.shotmap table
+2025-12-08 08:51:42,889 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.goal table...
+2025-12-08 08:51:42,890 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.goal table
+2025-12-08 08:51:42,891 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.cards table...
+2025-12-08 08:51:42,895 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.cards table
+2025-12-08 08:51:42,896 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.red_card table...
+2025-12-08 08:51:42,900 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.red_card table
+2025-12-08 08:51:42,901 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.period table...
+2025-12-08 08:51:42,903 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.period table
+2025-12-08 08:51:42,903 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.momentum table...
+2025-12-08 08:51:42,906 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.momentum table
+2025-12-08 08:51:42,908 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.starters table...
+2025-12-08 08:51:42,913 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.starters table
+2025-12-08 08:51:42,913 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.substitutes table...
+2025-12-08 08:51:42,919 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.substitutes table
+2025-12-08 08:51:42,920 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.coaches table...
+2025-12-08 08:51:42,923 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.coaches table
+2025-12-08 08:51:42,923 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.team_form table...
+2025-12-08 08:51:42,927 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.team_form table
+2025-12-08 08:51:42,928 - clickhouse_loader - INFO - optimize_all_tables:212 - Optimized 14/14 FOTMOB tables
+2025-12-08 08:51:42,937 - clickhouse_loader - INFO - main:1650 - 
+================================================================================
+2025-12-08 08:51:42,938 - clickhouse_loader - INFO - main:1651 - LOADING SUMMARY
+2025-12-08 08:51:42,939 - clickhouse_loader - INFO - main:1652 - ================================================================================
+
+2025-12-08 08:51:42,939 - clickhouse_loader - INFO - main:1653 - Dates processed: 1
+2025-12-08 08:51:42,940 - clickhouse_loader - INFO - main:1654 - Total rows loaded by table:
+2025-12-08 08:51:42,940 - clickhouse_loader - INFO - main:1656 -   cards: 312 rows
+2025-12-08 08:51:42,940 - clickhouse_loader - INFO - main:1656 -   coaches: 124 rows
+2025-12-08 08:51:42,941 - clickhouse_loader - INFO - main:1656 -   general: 130 rows
+2025-12-08 08:51:42,941 - clickhouse_loader - INFO - main:1656 -   goal: 0 rows
+2025-12-08 08:51:42,941 - clickhouse_loader - INFO - main:1656 -   momentum: 1,931 rows
+2025-12-08 08:51:42,942 - clickhouse_loader - INFO - main:1656 -   period: 0 rows
+2025-12-08 08:51:42,942 - clickhouse_loader - INFO - main:1656 -   player: 2,477 rows
+2025-12-08 08:51:42,942 - clickhouse_loader - INFO - main:1656 -   red_card: 29 rows
+2025-12-08 08:51:42,943 - clickhouse_loader - INFO - main:1656 -   shotmap: 0 rows
+2025-12-08 08:51:42,943 - clickhouse_loader - INFO - main:1656 -   starters: 2,288 rows
+2025-12-08 08:51:42,943 - clickhouse_loader - INFO - main:1656 -   substitutes: 1,924 rows
+2025-12-08 08:51:42,943 - clickhouse_loader - INFO - main:1656 -   team_form: 1,142 rows
+2025-12-08 08:51:42,944 - clickhouse_loader - INFO - main:1656 -   timeline: 130 rows
+2025-12-08 08:51:42,944 - clickhouse_loader - INFO - main:1656 -   venue: 130 rows
+2025-12-08 11:00:04,333 - clickhouse_loader - INFO - setup_logging:57 - Logging initialized. Log file: logs/clickhouse_loader_20251001.log
+2025-12-08 11:00:04,360 - clickhouse_loader - INFO - main:1620 - 
+================================================================================
+2025-12-08 11:00:04,361 - clickhouse_loader - INFO - main:1621 - Loading fotmob data for 20251001
+2025-12-08 11:00:04,362 - clickhouse_loader - INFO - main:1622 - ================================================================================
+
+2025-12-08 11:00:04,409 - clickhouse_loader - INFO - load_match_files_from_json_gz:465 - Found 130 .json.gz files
+2025-12-08 11:00:04,486 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_1000002056.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:04,566 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_1000003608.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:04,649 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_1000003609.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:04,701 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4692335.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:04,765 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4693111.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:04,884 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4695530.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:05,011 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4699175.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:05,110 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4699456.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:05,196 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4699464.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:05,283 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4727857.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:05,382 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4732838.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:05,489 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4732840.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:05,575 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4732841.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:05,668 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4732842.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:05,776 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4732845.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:05,899 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4739070.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:05,993 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4798304.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:06,086 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4798305.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:06,174 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4798311.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:06,263 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4798312.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:06,312 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4810418.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:06,389 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4817140.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:06,465 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4821520.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:06,584 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4825125.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:06,681 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4825126.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:06,769 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4825127.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:06,869 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4825128.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:06,964 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4846724.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:07,039 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4846725.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:07,110 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4846729.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:07,202 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4846730.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:07,291 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4846731.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:07,354 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4847437.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:07,411 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4847448.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:07,507 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4847460.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:07,650 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4847461.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:07,798 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4850575.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:07,860 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4854746.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:07,913 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4854748.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:07,964 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4854749.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,022 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4854750.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,063 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4854751.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,107 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4854752.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,153 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4854753.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,216 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4856659.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,277 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4856660.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,352 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4856661.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,421 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4856662.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,475 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4856663.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,541 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4856664.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,594 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4858603.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,690 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4858604.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,738 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4858605.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,781 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4858606.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,821 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4858607.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,868 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4860873.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,919 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4860874.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:08,959 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4869234.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:09,008 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4869235.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:09,056 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4869237.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:09,095 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4869239.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:09,127 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4869240.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:09,174 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4869241.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:09,267 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4906036.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:09,396 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4906037.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:09,495 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4906043.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:09,631 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4906045.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:09,801 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4909980.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:09,931 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4919167.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:10,002 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4919170.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:10,064 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4919171.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:10,116 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4927897.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:10,177 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4932143.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:10,244 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4933064.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:10,388 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4933473.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:10,483 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4933474.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:10,659 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4933485.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:10,746 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4933486.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:10,817 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4933509.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:10,915 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4933510.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:11,008 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4933553.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:11,100 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4933554.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:11,181 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4933587.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:11,276 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4933588.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:11,418 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4947137.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:11,645 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4947145.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:11,772 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4947165.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:11,885 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4947169.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:12,020 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4947175.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:12,136 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4947199.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:12,249 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4947225.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:12,352 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4947246.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:12,460 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4947250.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:12,528 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4947307.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:12,598 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4947719.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:12,647 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4948863.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:12,693 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4948864.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:12,739 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4950915.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:12,785 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4950916.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:12,834 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953770.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:12,926 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953771.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,028 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953773.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,093 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953774.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,193 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953775.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,248 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953776.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,302 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953777.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,387 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953778.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,437 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953779.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,494 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953856.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,538 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953860.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,595 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953862.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,646 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953864.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,706 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953868.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,773 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953870.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,823 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953872.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,870 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4953874.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:13,950 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4958640.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,031 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4958641.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,079 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4969202.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,120 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4971611.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,170 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4971612.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,221 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4971735.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,279 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4971736.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,339 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4971742.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,385 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4972148.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,437 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4972149.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,493 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4972200.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,553 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4974089.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,609 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4974090.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,658 - clickhouse_loader - ERROR - load_match_files_from_json_gz:475 - Error processing data/fotmob/matches/20251001/match_4974091.json.gz: 'tuple' object has no attribute 'items'
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 471, in load_match_files_from_json_gz
+    _add_processed_dataframes(
+  File "/app/scripts/load_clickhouse.py", line 505, in _add_processed_dataframes
+    for table_name, df in dataframes.items():
+                          ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'items'
+2025-12-08 11:00:14,667 - clickhouse_loader - WARNING - load_fotmob_data:654 - No match files found in data/fotmob/matches/20251001
+2025-12-08 11:00:14,667 - clickhouse_loader - INFO - main:1650 - 
+================================================================================
+2025-12-08 11:00:14,668 - clickhouse_loader - INFO - main:1651 - LOADING SUMMARY
+2025-12-08 11:00:14,668 - clickhouse_loader - INFO - main:1652 - ================================================================================
+
+2025-12-08 11:00:14,669 - clickhouse_loader - INFO - main:1653 - Dates processed: 1
+2025-12-08 11:00:14,669 - clickhouse_loader - INFO - main:1654 - Total rows loaded by table:
+2025-12-08 11:02:00,448 - clickhouse_loader - INFO - setup_logging:57 - Logging initialized. Log file: logs/clickhouse_loader_20251001.log
+2025-12-08 11:02:00,466 - clickhouse_loader - INFO - main:1617 - 
+================================================================================
+2025-12-08 11:02:00,467 - clickhouse_loader - INFO - main:1618 - Loading fotmob data for 20251001
+2025-12-08 11:02:00,467 - clickhouse_loader - INFO - main:1619 - ================================================================================
+
+2025-12-08 11:02:00,503 - clickhouse_loader - INFO - load_match_files_from_json_gz:464 - Found 130 .json.gz files
+2025-12-08 11:02:07,459 - clickhouse_loader - INFO - load_fotmob_data:654 - Processed 1182 match files for 20251001
+2025-12-08 11:02:07,459 - clickhouse_loader - INFO - load_fotmob_data:659 - Accumulated dataframes summary:
+2025-12-08 11:02:07,460 - clickhouse_loader - INFO - load_fotmob_data:662 -   general: 130 dataframes, 130 total rows
+2025-12-08 11:02:07,460 - clickhouse_loader - INFO - load_fotmob_data:662 -   timeline: 130 dataframes, 130 total rows
+2025-12-08 11:02:07,461 - clickhouse_loader - INFO - load_fotmob_data:662 -   goal: 119 dataframes, 378 total rows
+2025-12-08 11:02:07,462 - clickhouse_loader - INFO - load_fotmob_data:662 -   red_card: 24 dataframes, 29 total rows
+2025-12-08 11:02:07,462 - clickhouse_loader - INFO - load_fotmob_data:662 -   cards: 84 dataframes, 312 total rows
+2025-12-08 11:02:07,463 - clickhouse_loader - INFO - load_fotmob_data:662 -   venue: 130 dataframes, 130 total rows
+2025-12-08 11:02:07,463 - clickhouse_loader - INFO - load_fotmob_data:662 -   team_form: 130 dataframes, 1142 total rows
+2025-12-08 11:02:07,463 - clickhouse_loader - INFO - load_fotmob_data:662 -   momentum: 21 dataframes, 1931 total rows
+2025-12-08 11:02:07,464 - clickhouse_loader - INFO - load_fotmob_data:662 -   period: 63 dataframes, 181 total rows
+2025-12-08 11:02:07,464 - clickhouse_loader - INFO - load_fotmob_data:662 -   player: 59 dataframes, 2477 total rows
+2025-12-08 11:02:07,465 - clickhouse_loader - INFO - load_fotmob_data:662 -   shotmap: 25 dataframes, 578 total rows
+2025-12-08 11:02:07,466 - clickhouse_loader - INFO - load_fotmob_data:662 -   starters: 104 dataframes, 2288 total rows
+2025-12-08 11:02:07,467 - clickhouse_loader - INFO - load_fotmob_data:662 -   substitutes: 101 dataframes, 1924 total rows
+2025-12-08 11:02:07,467 - clickhouse_loader - INFO - load_fotmob_data:662 -   coaches: 62 dataframes, 124 total rows
+2025-12-08 11:02:07,518 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 130 rows into fotmob.general
+2025-12-08 11:02:07,518 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.general table...
+2025-12-08 11:02:07,523 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.general table
+2025-12-08 11:02:07,573 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 130 rows into fotmob.timeline
+2025-12-08 11:02:07,574 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.timeline table...
+2025-12-08 11:02:07,577 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.timeline table
+2025-12-08 11:02:07,645 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 378 rows into fotmob.goal
+2025-12-08 11:02:07,645 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.goal table...
+2025-12-08 11:02:07,648 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.goal table
+2025-12-08 11:02:07,693 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 29 rows into fotmob.red_card
+2025-12-08 11:02:07,695 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.red_card table...
+2025-12-08 11:02:07,698 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.red_card table
+2025-12-08 11:02:07,754 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 312 rows into fotmob.cards
+2025-12-08 11:02:07,754 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.cards table...
+2025-12-08 11:02:07,757 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.cards table
+2025-12-08 11:02:07,803 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 130 rows into fotmob.venue
+2025-12-08 11:02:07,803 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.venue table...
+2025-12-08 11:02:07,808 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.venue table
+2025-12-08 11:02:07,867 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 1142 rows into fotmob.team_form
+2025-12-08 11:02:07,868 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.team_form table...
+2025-12-08 11:02:07,875 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.team_form table
+2025-12-08 11:02:07,926 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 1931 rows into fotmob.momentum
+2025-12-08 11:02:07,927 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.momentum table...
+2025-12-08 11:02:07,931 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.momentum table
+2025-12-08 11:02:08,073 - clickhouse_loader - ERROR - insert_dataframe_with_dlq:386 - Failed to insert period, sent to DLQ: Unrecognized column 'shots_sidebox_home' in table fotmob.period
+2025-12-08 11:02:08,074 - clickhouse_loader - ERROR - process_fotmob_table:615 - Error loading period: Unrecognized column 'shots_sidebox_home' in table fotmob.period
+Traceback (most recent call last):
+  File "/app/scripts/load_clickhouse.py", line 585, in process_fotmob_table
+    rows_inserted = insert_dataframe_with_dlq(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/scripts/load_clickhouse.py", line 376, in insert_dataframe_with_dlq
+    rows_inserted = client.insert_dataframe(table_name, df, database=database)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/storage/clickhouse_client.py", line 197, in insert_dataframe
+    self.client.insert_df(full_table, df)
+  File "/opt/venv/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 840, in insert_df
+    return self.insert(table,
+           ^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 793, in insert
+    context = self.create_insert_context(table,
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 982, in create_insert_context
+    raise ProgrammingError(f'Unrecognized column {ex} in table {table}') from None
+clickhouse_connect.driver.exceptions.ProgrammingError: Unrecognized column 'shots_sidebox_home' in table fotmob.period
+2025-12-08 11:02:08,161 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 2477 rows into fotmob.player
+2025-12-08 11:02:08,162 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.player table...
+2025-12-08 11:02:08,178 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.player table
+2025-12-08 11:02:08,226 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 578 rows into fotmob.shotmap
+2025-12-08 11:02:08,227 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.shotmap table...
+2025-12-08 11:02:08,230 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.shotmap table
+2025-12-08 11:02:08,297 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 2288 rows into fotmob.starters
+2025-12-08 11:02:08,298 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.starters table...
+2025-12-08 11:02:08,306 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.starters table
+2025-12-08 11:02:08,362 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 1924 rows into fotmob.substitutes
+2025-12-08 11:02:08,363 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.substitutes table...
+2025-12-08 11:02:08,370 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.substitutes table
+2025-12-08 11:02:08,442 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 124 rows into fotmob.coaches
+2025-12-08 11:02:08,442 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.coaches table...
+2025-12-08 11:02:08,446 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.coaches table
+2025-12-08 11:02:08,478 - clickhouse_loader - INFO - optimize_all_tables:202 - Optimizing all FOTMOB tables...
+2025-12-08 11:02:08,479 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.general table...
+2025-12-08 11:02:08,482 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.general table
+2025-12-08 11:02:08,483 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.timeline table...
+2025-12-08 11:02:08,487 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.timeline table
+2025-12-08 11:02:08,488 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.venue table...
+2025-12-08 11:02:08,491 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.venue table
+2025-12-08 11:02:08,492 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.player table...
+2025-12-08 11:02:08,509 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.player table
+2025-12-08 11:02:08,510 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.shotmap table...
+2025-12-08 11:02:08,513 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.shotmap table
+2025-12-08 11:02:08,514 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.goal table...
+2025-12-08 11:02:08,517 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.goal table
+2025-12-08 11:02:08,517 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.cards table...
+2025-12-08 11:02:08,521 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.cards table
+2025-12-08 11:02:08,522 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.red_card table...
+2025-12-08 11:02:08,525 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.red_card table
+2025-12-08 11:02:08,526 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.period table...
+2025-12-08 11:02:08,528 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.period table
+2025-12-08 11:02:08,529 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.momentum table...
+2025-12-08 11:02:08,532 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.momentum table
+2025-12-08 11:02:08,532 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.starters table...
+2025-12-08 11:02:08,543 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.starters table
+2025-12-08 11:02:08,544 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.substitutes table...
+2025-12-08 11:02:08,549 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.substitutes table
+2025-12-08 11:02:08,549 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.coaches table...
+2025-12-08 11:02:08,555 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.coaches table
+2025-12-08 11:02:08,556 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.team_form table...
+2025-12-08 11:02:08,567 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.team_form table
+2025-12-08 11:02:08,568 - clickhouse_loader - INFO - optimize_all_tables:212 - Optimized 14/14 FOTMOB tables
+2025-12-08 11:02:08,579 - clickhouse_loader - INFO - main:1647 - 
+================================================================================
+2025-12-08 11:02:08,579 - clickhouse_loader - INFO - main:1648 - LOADING SUMMARY
+2025-12-08 11:02:08,580 - clickhouse_loader - INFO - main:1649 - ================================================================================
+
+2025-12-08 11:02:08,580 - clickhouse_loader - INFO - main:1650 - Dates processed: 1
+2025-12-08 11:02:08,581 - clickhouse_loader - INFO - main:1651 - Total rows loaded by table:
+2025-12-08 11:02:08,581 - clickhouse_loader - INFO - main:1653 -   cards: 312 rows
+2025-12-08 11:02:08,582 - clickhouse_loader - INFO - main:1653 -   coaches: 124 rows
+2025-12-08 11:02:08,582 - clickhouse_loader - INFO - main:1653 -   general: 130 rows
+2025-12-08 11:02:08,583 - clickhouse_loader - INFO - main:1653 -   goal: 378 rows
+2025-12-08 11:02:08,584 - clickhouse_loader - INFO - main:1653 -   momentum: 1,931 rows
+2025-12-08 11:02:08,584 - clickhouse_loader - INFO - main:1653 -   period: 0 rows
+2025-12-08 11:02:08,584 - clickhouse_loader - INFO - main:1653 -   player: 2,477 rows
+2025-12-08 11:02:08,585 - clickhouse_loader - INFO - main:1653 -   red_card: 29 rows
+2025-12-08 11:02:08,585 - clickhouse_loader - INFO - main:1653 -   shotmap: 578 rows
+2025-12-08 11:02:08,585 - clickhouse_loader - INFO - main:1653 -   starters: 2,288 rows
+2025-12-08 11:02:08,586 - clickhouse_loader - INFO - main:1653 -   substitutes: 1,924 rows
+2025-12-08 11:02:08,586 - clickhouse_loader - INFO - main:1653 -   team_form: 1,142 rows
+2025-12-08 11:02:08,587 - clickhouse_loader - INFO - main:1653 -   timeline: 130 rows
+2025-12-08 11:02:08,588 - clickhouse_loader - INFO - main:1653 -   venue: 130 rows
+2025-12-08 11:28:50,972 - clickhouse_loader - INFO - setup_logging:57 - Logging initialized. Log file: logs/clickhouse_loader_20251001.log
+2025-12-08 11:28:50,988 - clickhouse_loader - INFO - main:1617 - 
+================================================================================
+2025-12-08 11:28:50,989 - clickhouse_loader - INFO - main:1618 - Loading fotmob data for 20251001
+2025-12-08 11:28:50,989 - clickhouse_loader - INFO - main:1619 - ================================================================================
+
+2025-12-08 11:28:51,020 - clickhouse_loader - INFO - load_match_files_from_json_gz:464 - Found 130 .json.gz files
+2025-12-08 11:28:57,770 - clickhouse_loader - INFO - load_fotmob_data:654 - Processed 1182 match files for 20251001
+2025-12-08 11:28:57,772 - clickhouse_loader - INFO - load_fotmob_data:659 - Accumulated dataframes summary:
+2025-12-08 11:28:57,774 - clickhouse_loader - INFO - load_fotmob_data:662 -   general: 130 dataframes, 130 total rows
+2025-12-08 11:28:57,775 - clickhouse_loader - INFO - load_fotmob_data:662 -   timeline: 130 dataframes, 130 total rows
+2025-12-08 11:28:57,775 - clickhouse_loader - INFO - load_fotmob_data:662 -   goal: 119 dataframes, 378 total rows
+2025-12-08 11:28:57,776 - clickhouse_loader - INFO - load_fotmob_data:662 -   red_card: 24 dataframes, 29 total rows
+2025-12-08 11:28:57,776 - clickhouse_loader - INFO - load_fotmob_data:662 -   cards: 84 dataframes, 312 total rows
+2025-12-08 11:28:57,777 - clickhouse_loader - INFO - load_fotmob_data:662 -   venue: 130 dataframes, 130 total rows
+2025-12-08 11:28:57,777 - clickhouse_loader - INFO - load_fotmob_data:662 -   team_form: 130 dataframes, 1142 total rows
+2025-12-08 11:28:57,778 - clickhouse_loader - INFO - load_fotmob_data:662 -   momentum: 21 dataframes, 1931 total rows
+2025-12-08 11:28:57,779 - clickhouse_loader - INFO - load_fotmob_data:662 -   period: 63 dataframes, 181 total rows
+2025-12-08 11:28:57,779 - clickhouse_loader - INFO - load_fotmob_data:662 -   player: 59 dataframes, 2477 total rows
+2025-12-08 11:28:57,780 - clickhouse_loader - INFO - load_fotmob_data:662 -   shotmap: 25 dataframes, 578 total rows
+2025-12-08 11:28:57,780 - clickhouse_loader - INFO - load_fotmob_data:662 -   starters: 104 dataframes, 2288 total rows
+2025-12-08 11:28:57,781 - clickhouse_loader - INFO - load_fotmob_data:662 -   substitutes: 101 dataframes, 1924 total rows
+2025-12-08 11:28:57,781 - clickhouse_loader - INFO - load_fotmob_data:662 -   coaches: 62 dataframes, 124 total rows
+2025-12-08 11:28:57,822 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 130 rows into fotmob.general
+2025-12-08 11:28:57,823 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.general table...
+2025-12-08 11:28:57,827 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.general table
+2025-12-08 11:28:57,883 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 130 rows into fotmob.timeline
+2025-12-08 11:28:57,883 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.timeline table...
+2025-12-08 11:28:57,887 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.timeline table
+2025-12-08 11:28:57,981 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 378 rows into fotmob.goal
+2025-12-08 11:28:57,982 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.goal table...
+2025-12-08 11:28:57,987 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.goal table
+2025-12-08 11:28:58,041 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 29 rows into fotmob.red_card
+2025-12-08 11:28:58,042 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.red_card table...
+2025-12-08 11:28:58,045 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.red_card table
+2025-12-08 11:28:58,101 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 312 rows into fotmob.cards
+2025-12-08 11:28:58,101 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.cards table...
+2025-12-08 11:28:58,105 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.cards table
+2025-12-08 11:28:58,171 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 130 rows into fotmob.venue
+2025-12-08 11:28:58,172 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.venue table...
+2025-12-08 11:28:58,176 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.venue table
+2025-12-08 11:28:58,264 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 1142 rows into fotmob.team_form
+2025-12-08 11:28:58,264 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.team_form table...
+2025-12-08 11:28:58,274 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.team_form table
+2025-12-08 11:28:58,315 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 1931 rows into fotmob.momentum
+2025-12-08 11:28:58,315 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.momentum table...
+2025-12-08 11:28:58,319 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.momentum table
+2025-12-08 11:28:58,426 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 181 rows into fotmob.period
+2025-12-08 11:28:58,426 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.period table...
+2025-12-08 11:28:58,431 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.period table
+2025-12-08 11:28:58,560 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 2477 rows into fotmob.player
+2025-12-08 11:28:58,561 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.player table...
+2025-12-08 11:28:58,583 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.player table
+2025-12-08 11:28:58,661 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 578 rows into fotmob.shotmap
+2025-12-08 11:28:58,665 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.shotmap table...
+2025-12-08 11:28:58,673 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.shotmap table
+2025-12-08 11:28:58,742 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 2288 rows into fotmob.starters
+2025-12-08 11:28:58,742 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.starters table...
+2025-12-08 11:28:58,752 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.starters table
+2025-12-08 11:28:58,825 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 1924 rows into fotmob.substitutes
+2025-12-08 11:28:58,826 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.substitutes table...
+2025-12-08 11:28:58,834 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.substitutes table
+2025-12-08 11:28:58,878 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 124 rows into fotmob.coaches
+2025-12-08 11:28:58,879 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.coaches table...
+2025-12-08 11:28:58,883 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.coaches table
+2025-12-08 11:28:58,911 - clickhouse_loader - INFO - optimize_all_tables:202 - Optimizing all FOTMOB tables...
+2025-12-08 11:28:58,911 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.general table...
+2025-12-08 11:28:58,915 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.general table
+2025-12-08 11:28:58,916 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.timeline table...
+2025-12-08 11:28:58,919 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.timeline table
+2025-12-08 11:28:58,920 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.venue table...
+2025-12-08 11:28:58,924 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.venue table
+2025-12-08 11:28:58,925 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.player table...
+2025-12-08 11:28:58,935 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.player table
+2025-12-08 11:28:58,936 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.shotmap table...
+2025-12-08 11:28:58,939 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.shotmap table
+2025-12-08 11:28:58,940 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.goal table...
+2025-12-08 11:28:58,943 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.goal table
+2025-12-08 11:28:58,943 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.cards table...
+2025-12-08 11:28:58,947 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.cards table
+2025-12-08 11:28:58,947 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.red_card table...
+2025-12-08 11:28:58,951 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.red_card table
+2025-12-08 11:28:58,952 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.period table...
+2025-12-08 11:28:58,958 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.period table
+2025-12-08 11:28:58,958 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.momentum table...
+2025-12-08 11:28:58,961 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.momentum table
+2025-12-08 11:28:58,962 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.starters table...
+2025-12-08 11:28:58,970 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.starters table
+2025-12-08 11:28:58,970 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.substitutes table...
+2025-12-08 11:28:58,974 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.substitutes table
+2025-12-08 11:28:58,975 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.coaches table...
+2025-12-08 11:28:58,977 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.coaches table
+2025-12-08 11:28:58,978 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.team_form table...
+2025-12-08 11:28:58,984 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.team_form table
+2025-12-08 11:28:58,985 - clickhouse_loader - INFO - optimize_all_tables:212 - Optimized 14/14 FOTMOB tables
+2025-12-08 11:28:58,995 - clickhouse_loader - INFO - main:1647 - 
+================================================================================
+2025-12-08 11:28:58,996 - clickhouse_loader - INFO - main:1648 - LOADING SUMMARY
+2025-12-08 11:28:58,996 - clickhouse_loader - INFO - main:1649 - ================================================================================
+
+2025-12-08 11:28:58,997 - clickhouse_loader - INFO - main:1650 - Dates processed: 1
+2025-12-08 11:28:58,997 - clickhouse_loader - INFO - main:1651 - Total rows loaded by table:
+2025-12-08 11:28:58,998 - clickhouse_loader - INFO - main:1653 -   cards: 312 rows
+2025-12-08 11:28:58,998 - clickhouse_loader - INFO - main:1653 -   coaches: 124 rows
+2025-12-08 11:28:58,998 - clickhouse_loader - INFO - main:1653 -   general: 130 rows
+2025-12-08 11:28:58,998 - clickhouse_loader - INFO - main:1653 -   goal: 378 rows
+2025-12-08 11:28:58,999 - clickhouse_loader - INFO - main:1653 -   momentum: 1,931 rows
+2025-12-08 11:28:58,999 - clickhouse_loader - INFO - main:1653 -   period: 181 rows
+2025-12-08 11:28:58,999 - clickhouse_loader - INFO - main:1653 -   player: 2,477 rows
+2025-12-08 11:28:59,000 - clickhouse_loader - INFO - main:1653 -   red_card: 29 rows
+2025-12-08 11:28:59,000 - clickhouse_loader - INFO - main:1653 -   shotmap: 578 rows
+2025-12-08 11:28:59,001 - clickhouse_loader - INFO - main:1653 -   starters: 2,288 rows
+2025-12-08 11:28:59,001 - clickhouse_loader - INFO - main:1653 -   substitutes: 1,924 rows
+2025-12-08 11:28:59,001 - clickhouse_loader - INFO - main:1653 -   team_form: 1,142 rows
+2025-12-08 11:28:59,002 - clickhouse_loader - INFO - main:1653 -   timeline: 130 rows
+2025-12-08 11:28:59,002 - clickhouse_loader - INFO - main:1653 -   venue: 130 rows
+2025-12-08 11:39:23,412 - clickhouse_loader - INFO - setup_logging:57 - Logging initialized. Log file: logs/clickhouse_loader_20251001.log
+2025-12-08 11:39:23,430 - clickhouse_loader - INFO - main:1617 - 
+================================================================================
+2025-12-08 11:39:23,431 - clickhouse_loader - INFO - main:1618 - Loading fotmob data for 20251001
+2025-12-08 11:39:23,431 - clickhouse_loader - INFO - main:1619 - ================================================================================
+
+2025-12-08 11:39:23,474 - clickhouse_loader - INFO - load_match_files_from_json_gz:464 - Found 130 .json.gz files
+2025-12-08 11:39:30,670 - clickhouse_loader - INFO - load_fotmob_data:654 - Processed 1182 match files for 20251001
+2025-12-08 11:39:30,670 - clickhouse_loader - INFO - load_fotmob_data:659 - Accumulated dataframes summary:
+2025-12-08 11:39:30,671 - clickhouse_loader - INFO - load_fotmob_data:662 -   general: 130 dataframes, 130 total rows
+2025-12-08 11:39:30,672 - clickhouse_loader - INFO - load_fotmob_data:662 -   timeline: 130 dataframes, 130 total rows
+2025-12-08 11:39:30,673 - clickhouse_loader - INFO - load_fotmob_data:662 -   goal: 119 dataframes, 378 total rows
+2025-12-08 11:39:30,673 - clickhouse_loader - INFO - load_fotmob_data:662 -   red_card: 24 dataframes, 29 total rows
+2025-12-08 11:39:30,674 - clickhouse_loader - INFO - load_fotmob_data:662 -   cards: 84 dataframes, 312 total rows
+2025-12-08 11:39:30,675 - clickhouse_loader - INFO - load_fotmob_data:662 -   venue: 130 dataframes, 130 total rows
+2025-12-08 11:39:30,676 - clickhouse_loader - INFO - load_fotmob_data:662 -   team_form: 130 dataframes, 1142 total rows
+2025-12-08 11:39:30,676 - clickhouse_loader - INFO - load_fotmob_data:662 -   momentum: 21 dataframes, 1931 total rows
+2025-12-08 11:39:30,678 - clickhouse_loader - INFO - load_fotmob_data:662 -   period: 63 dataframes, 181 total rows
+2025-12-08 11:39:30,679 - clickhouse_loader - INFO - load_fotmob_data:662 -   player: 59 dataframes, 2477 total rows
+2025-12-08 11:39:30,679 - clickhouse_loader - INFO - load_fotmob_data:662 -   shotmap: 25 dataframes, 578 total rows
+2025-12-08 11:39:30,680 - clickhouse_loader - INFO - load_fotmob_data:662 -   starters: 104 dataframes, 2288 total rows
+2025-12-08 11:39:30,680 - clickhouse_loader - INFO - load_fotmob_data:662 -   substitutes: 101 dataframes, 1924 total rows
+2025-12-08 11:39:30,680 - clickhouse_loader - INFO - load_fotmob_data:662 -   coaches: 62 dataframes, 124 total rows
+2025-12-08 11:39:30,721 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 130 rows into fotmob.general
+2025-12-08 11:39:30,722 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.general table...
+2025-12-08 11:39:30,726 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.general table
+2025-12-08 11:39:30,799 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 130 rows into fotmob.timeline
+2025-12-08 11:39:30,799 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.timeline table...
+2025-12-08 11:39:30,805 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.timeline table
+2025-12-08 11:39:30,926 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 378 rows into fotmob.goal
+2025-12-08 11:39:30,926 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.goal table...
+2025-12-08 11:39:30,930 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.goal table
+2025-12-08 11:39:30,988 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 29 rows into fotmob.red_card
+2025-12-08 11:39:30,988 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.red_card table...
+2025-12-08 11:39:30,991 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.red_card table
+2025-12-08 11:39:31,041 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 312 rows into fotmob.cards
+2025-12-08 11:39:31,042 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.cards table...
+2025-12-08 11:39:31,046 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.cards table
+2025-12-08 11:39:31,117 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 130 rows into fotmob.venue
+2025-12-08 11:39:31,118 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.venue table...
+2025-12-08 11:39:31,123 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.venue table
+2025-12-08 11:39:31,191 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 1142 rows into fotmob.team_form
+2025-12-08 11:39:31,191 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.team_form table...
+2025-12-08 11:39:31,201 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.team_form table
+2025-12-08 11:39:31,265 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 1931 rows into fotmob.momentum
+2025-12-08 11:39:31,265 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.momentum table...
+2025-12-08 11:39:31,269 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.momentum table
+2025-12-08 11:39:31,376 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 181 rows into fotmob.period
+2025-12-08 11:39:31,376 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.period table...
+2025-12-08 11:39:31,384 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.period table
+2025-12-08 11:39:31,495 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 2477 rows into fotmob.player
+2025-12-08 11:39:31,496 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.player table...
+2025-12-08 11:39:31,517 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.player table
+2025-12-08 11:39:31,611 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 578 rows into fotmob.shotmap
+2025-12-08 11:39:31,611 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.shotmap table...
+2025-12-08 11:39:31,618 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.shotmap table
+2025-12-08 11:39:31,695 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 2288 rows into fotmob.starters
+2025-12-08 11:39:31,696 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.starters table...
+2025-12-08 11:39:31,708 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.starters table
+2025-12-08 11:39:31,771 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 1924 rows into fotmob.substitutes
+2025-12-08 11:39:31,772 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.substitutes table...
+2025-12-08 11:39:31,780 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.substitutes table
+2025-12-08 11:39:31,830 - clickhouse_loader - INFO - insert_dataframe_with_dlq:377 - Loaded 124 rows into fotmob.coaches
+2025-12-08 11:39:31,832 - clickhouse_loader - INFO - optimize_table:191 - Optimizing fotmob.coaches table...
+2025-12-08 11:39:31,835 - clickhouse_loader - INFO - optimize_table:193 - Successfully optimized fotmob.coaches table
+2025-12-08 11:39:31,905 - clickhouse_loader - INFO - optimize_all_tables:202 - Optimizing all FOTMOB tables...
+2025-12-08 11:39:31,906 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.general table...
+2025-12-08 11:39:31,912 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.general table
+2025-12-08 11:39:31,913 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.timeline table...
+2025-12-08 11:39:31,916 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.timeline table
+2025-12-08 11:39:31,917 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.venue table...
+2025-12-08 11:39:31,920 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.venue table
+2025-12-08 11:39:31,921 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.player table...
+2025-12-08 11:39:31,933 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.player table
+2025-12-08 11:39:31,934 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.shotmap table...
+2025-12-08 11:39:31,942 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.shotmap table
+2025-12-08 11:39:31,944 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.goal table...
+2025-12-08 11:39:31,948 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.goal table
+2025-12-08 11:39:31,949 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.cards table...
+2025-12-08 11:39:31,952 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.cards table
+2025-12-08 11:39:31,952 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.red_card table...
+2025-12-08 11:39:31,957 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.red_card table
+2025-12-08 11:39:31,957 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.period table...
+2025-12-08 11:39:31,964 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.period table
+2025-12-08 11:39:31,965 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.momentum table...
+2025-12-08 11:39:31,970 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.momentum table
+2025-12-08 11:39:31,971 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.starters table...
+2025-12-08 11:39:31,978 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.starters table
+2025-12-08 11:39:31,978 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.substitutes table...
+2025-12-08 11:39:31,984 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.substitutes table
+2025-12-08 11:39:31,985 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.coaches table...
+2025-12-08 11:39:31,989 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.coaches table
+2025-12-08 11:39:31,989 - clickhouse_loader - INFO - optimize_all_tables:206 - Optimizing fotmob.team_form table...
+2025-12-08 11:39:31,994 - clickhouse_loader - INFO - optimize_all_tables:208 - Successfully optimized fotmob.team_form table
+2025-12-08 11:39:31,995 - clickhouse_loader - INFO - optimize_all_tables:212 - Optimized 14/14 FOTMOB tables
+2025-12-08 11:39:32,004 - clickhouse_loader - INFO - main:1647 - 
+================================================================================
+2025-12-08 11:39:32,005 - clickhouse_loader - INFO - main:1648 - LOADING SUMMARY
+2025-12-08 11:39:32,006 - clickhouse_loader - INFO - main:1649 - ================================================================================
+
+2025-12-08 11:39:32,007 - clickhouse_loader - INFO - main:1650 - Dates processed: 1
+2025-12-08 11:39:32,007 - clickhouse_loader - INFO - main:1651 - Total rows loaded by table:
+2025-12-08 11:39:32,008 - clickhouse_loader - INFO - main:1653 -   cards: 312 rows
+2025-12-08 11:39:32,009 - clickhouse_loader - INFO - main:1653 -   coaches: 124 rows
+2025-12-08 11:39:32,010 - clickhouse_loader - INFO - main:1653 -   general: 130 rows
+2025-12-08 11:39:32,010 - clickhouse_loader - INFO - main:1653 -   goal: 378 rows
+2025-12-08 11:39:32,010 - clickhouse_loader - INFO - main:1653 -   momentum: 1,931 rows
+2025-12-08 11:39:32,011 - clickhouse_loader - INFO - main:1653 -   period: 181 rows
+2025-12-08 11:39:32,011 - clickhouse_loader - INFO - main:1653 -   player: 2,477 rows
+2025-12-08 11:39:32,011 - clickhouse_loader - INFO - main:1653 -   red_card: 29 rows
+2025-12-08 11:39:32,012 - clickhouse_loader - INFO - main:1653 -   shotmap: 578 rows
+2025-12-08 11:39:32,013 - clickhouse_loader - INFO - main:1653 -   starters: 2,288 rows
+2025-12-08 11:39:32,013 - clickhouse_loader - INFO - main:1653 -   substitutes: 1,924 rows
+2025-12-08 11:39:32,014 - clickhouse_loader - INFO - main:1653 -   team_form: 1,142 rows
+2025-12-08 11:39:32,014 - clickhouse_loader - INFO - main:1653 -   timeline: 130 rows
+2025-12-08 11:39:32,015 - clickhouse_loader - INFO - main:1653 -   venue: 130 rows

@@ -356,12 +356,9 @@ def _handle_cloudflare(browser: BrowserManager, config: Config, max_wait: int = 
             # If not solved automatically, wait for manual solving (if visible) or just wait
             if not captcha_solved:
                 if not config.browser.headless:
-                    logging.info("=" * 60)
                     logging.info("MANUAL CAPTCHA SOLVING REQUIRED")
-                    logging.info("=" * 60)
-                    logging.info("Browser is visible. Please solve the CAPTCHA in the browser window.")
-                    logging.info("The scraper will automatically detect when CAPTCHA is solved.")
-                    logging.info("=" * 60)
+                    logging.info("Browser is visible - please solve the CAPTCHA in the browser window")
+                    logging.info("The scraper will automatically detect when CAPTCHA is solved")
                     
                     # Wait for CAPTCHA to be solved manually (check every 2 seconds)
                     manual_wait_start = time.time()
@@ -905,7 +902,7 @@ def _scrape_match_links_impl(
                 logging.info(
                     f"Scraping complete: {len(links)} matches found after {scroll_count} scrolls"
                 )
-                logging.info(f"Stop conditions: reached_bottom={reached_bottom}, page_not_growing={page_not_growing}, too_many_empty_scrolls={too_many_empty_scrolls}")
+                logging.debug(f"Stop conditions met: bottom={reached_bottom}, stagnant={page_not_growing}, empty_scrolls={too_many_empty_scrolls}")
 
                 # Final summary of what was found
                 if config and config.scraping.filter_by_countries:
@@ -915,7 +912,7 @@ def _scrape_match_links_impl(
                 
                 # Warn if very few matches found
                 if len(links) < 10:
-                    logging.warning(f"⚠️ WARNING: Only {len(links)} matches found! This seems low.")
+                    logging.warning(f"Low match count detected: only {len(links)} matches found")
                     logging.warning("Possible issues:")
                     logging.warning("  1. Page is not loading all matches")
                     logging.warning("  2. Country filtering is too restrictive")
@@ -1472,21 +1469,23 @@ def extract_league_and_matches(
                 should_process = False
 
                 if config:
-                    # Method 1: Filter by league name (PRIORITY - checked first)
+                    # Method 1: Filter by specific league names (NEW - highest priority)
                     if config.scraping.filter_by_leagues:
                         allowed_leagues = config.scraping.allowed_leagues or []
                         if allowed_leagues:
                             # Normalize league name for comparison (case-insensitive)
-                            league_normalized = league_name.strip().lower()
-                            allowed_leagues_normalized = [l.strip().lower() for l in allowed_leagues]
-                            should_process = league_normalized in allowed_leagues_normalized
+                            league_name_normalized = league_name.strip().lower()
+                            allowed_leagues_normalized = [
+                                league.strip().lower() for league in allowed_leagues
+                            ]
+                            should_process = league_name_normalized in allowed_leagues_normalized
                             filter_reason = f"league={league_name}"
                         else:
                             # No leagues specified - skip all
                             should_process = False
-                            filter_reason = "league=no-leagues-configured"
+                            filter_reason = "league=empty_list"
 
-                    # Method 2: Filter by country (fallback if league filtering not enabled)
+                    # Method 2: Filter by country
                     elif config.scraping.filter_by_countries:
                         # OPTIMIZATION: Use cached allowed_countries_set if available
                         country_normalized = country.strip().lower()
@@ -1522,6 +1521,13 @@ def extract_league_and_matches(
                     # No config: default to processing all
                     should_process = True
                     filter_reason = "no-config"
+
+                # Log filtering decision (only for first few leagues or when debugging)
+                if idx < 5 or (idx % 50 == 0):  # Log first 5 and every 50th league
+                    if should_process:
+                        logging.debug(f"✓ Including league: {league_name} ({country}) - {filter_reason}")
+                    else:
+                        logging.debug(f"✗ Filtering out: {league_name} ({country}) - {filter_reason}")
 
                 # Get all match links within this container
                 match_links = []
@@ -2092,9 +2098,9 @@ def save_to_json(
             raise IOError(f"File was not created: {daily_file.absolute()}")
         
         if new_matches:
-            logging.info(f"✓ Added {len(new_matches)} new matches. Total: {len(all_matches)} matches saved to {daily_file.absolute()} ({file_size:.1f} KB)")
+            logging.info(f"Added {len(new_matches)} new matches - Total: {len(all_matches)} saved ({file_size:.1f} KB)")
         else:
-            logging.info(f"✓ No new matches to add. Total: {len(all_matches)} matches in {daily_file.absolute()} ({file_size:.1f} KB)")
+            logging.info(f"No new matches to add - Total: {len(all_matches)} matches ({file_size:.1f} KB)")
             
         # Final verification - read back the file
         with open(daily_file, "r", encoding="utf-8") as f:
@@ -2103,7 +2109,7 @@ def save_to_json(
             if verify_count != len(all_matches):
                 logging.error(f"VERIFICATION FAILED: Saved {len(all_matches)} but file contains {verify_count} matches!")
             else:
-                logging.info(f"✓ Verification passed: File contains {verify_count} matches")
+                logging.debug(f"Verification passed: {verify_count} matches confirmed")
                 
     except Exception as e:
         logging.error(f"Error saving to {daily_file.absolute()}: {e}", exc_info=True)
@@ -2219,14 +2225,10 @@ NO DATABASE USED - Direct JSON storage
     # Setup logging with date suffix
     setup_logging(config, date_suffix=date)
 
-    logging.info("=" * 80)
-    browser_mode = 'Visible' if not config.browser.headless else 'Headless'
-    logging.info(
-        f"Football Link Scraper | Date: {date} | Browser: {browser_mode}"
-    )
+    browser_mode = 'visible' if not config.browser.headless else 'headless'
+    logging.info(f"Starting link scraper for {date} ({browser_mode} mode)")
     if not config.browser.headless:
-        logging.info("NOTE: Browser window should be visible. If running in Docker, use -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix")
-    logging.info("=" * 80)
+        logging.debug("Note: Browser window should be visible for manual intervention if needed")
 
     # Initialize bronze storage
     bronze_storage = BronzeStorage(config.storage.bronze_path)
@@ -2242,11 +2244,10 @@ NO DATABASE USED - Direct JSON storage
                 if existing_data.get("links_scraping_complete", False):
                     completed_at = existing_data.get("links_scraping_completed_at", "unknown")
                     total_matches = existing_data.get("total_matches", 0)
-                    logging.info(f"✓ Links scraping already completed for {date}")
+                    logging.info(f"Links scraping already completed for {date}")
                     logging.info(f"  Completed at: {completed_at}")
                     logging.info(f"  Total matches: {total_matches}")
-                    logging.info(f"  Skipping links scraping. To re-scrape, delete: {daily_file.absolute()}")
-                    logging.info("=" * 80)
+                    logging.info(f"  Skipping - already complete. To re-scrape, delete: {daily_file.name}")
                     sys.exit(0)
         except Exception as e:
             logging.warning(f"Error checking daily listing file: {e}, continuing with scraping")
@@ -2313,12 +2314,10 @@ NO DATABASE USED - Direct JSON storage
             # Note: Links scraping completion is tracked via data lineage
             # No need to mark as complete - lineage tracks all operations automatically
 
-            logging.info("=" * 80)
             logging.info(
-                f"Summary: {len(links)} matches scraped in {elapsed_time:.1f}s"
+                f"Link scraping complete: {len(links)} matches collected in {elapsed_time:.1f}s"
             )
-            logging.info(f"Next: python scrape_odds.py --date {date}")
-            logging.info("=" * 80)
+            logging.info(f"Next step: python scrape_odds.py --date {date}")
 
     except KeyboardInterrupt:
         logging.info("\nScraping interrupted by user")
@@ -2364,14 +2363,12 @@ def scrape_month(dates_to_scrape: list, args):
     month_suffix = dates_to_scrape[0][:6] if dates_to_scrape else None  # YYYYMM format
     setup_logging(config, date_suffix=month_suffix)
 
-    browser_mode = 'Visible' if not config.browser.headless else 'Headless'
-    logging.info("=" * 80)
+    browser_mode = 'visible' if not config.browser.headless else 'headless'
     logging.info(
-        f"Monthly Scraping Mode | {len(dates_to_scrape)} dates | Browser: {browser_mode}"
+        f"Starting monthly scraping: {len(dates_to_scrape)} dates ({browser_mode} mode)"
     )
     if not config.browser.headless:
-        logging.info("NOTE: Browser window should be visible. If running in Docker, use -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix")
-    logging.info("=" * 80)
+        logging.debug("Note: Browser window should be visible for manual intervention if needed")
 
     # Initialize bronze storage
     bronze_storage = BronzeStorage(config.storage.bronze_path)
@@ -2392,9 +2389,7 @@ def scrape_month(dates_to_scrape: list, args):
 
         for idx, date in enumerate(dates_to_scrape, 1):
             try:
-                logging.info("=" * 80)
                 logging.info(f"Processing date {idx}/{len(dates_to_scrape)}: {date}")
-                logging.info("=" * 80)
                 
                 # Check if links scraping is already complete for this date
                 date_folder = bronze_storage.daily_listings_dir / date
@@ -2407,7 +2402,7 @@ def scrape_month(dates_to_scrape: list, args):
                             if existing_data.get("links_scraping_complete", False):
                                 completed_at = existing_data.get("links_scraping_completed_at", "unknown")
                                 total_matches = existing_data.get("total_matches", 0)
-                                logging.info(f"✓ Links scraping already completed for {date} ({total_matches} matches, completed at: {completed_at})")
+                                logging.info(f"Already completed for {date}: {total_matches} matches (at {completed_at})")
                                 logging.info(f"  Skipping. To re-scrape, delete: {daily_file.absolute()}")
                                 successful_dates += 1
                                 continue
@@ -2453,17 +2448,14 @@ def scrape_month(dates_to_scrape: list, args):
         month_elapsed_time = time.time() - month_start_time
 
         # Final summary
-        logging.info("=" * 80)
         logging.info("MONTHLY SCRAPING SUMMARY")
-        logging.info("=" * 80)
-        logging.info(f"Total dates processed: {len(dates_to_scrape)}")
-        logging.info(f"Successful: {successful_dates}")
-        logging.info(f"Failed: {failed_dates}")
-        logging.info(f"Total matches found: {total_matches}")
+        success_rate = (successful_dates / len(dates_to_scrape) * 100) if len(dates_to_scrape) > 0 else 0
         logging.info(
-            f"Total time: {month_elapsed_time:.1f}s ({month_elapsed_time/60:.1f} minutes)"
+            f"Completed: {successful_dates}/{len(dates_to_scrape)} dates ({success_rate:.0f}%), "
+            f"Failed: {failed_dates}, "
+            f"Total matches: {total_matches}, "
+            f"Duration: {month_elapsed_time/60:.1f} minutes"
         )
-        logging.info("=" * 80)
 
     except KeyboardInterrupt:
         logging.info("\nMonthly scraping interrupted by user")

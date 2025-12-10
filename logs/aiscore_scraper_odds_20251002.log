@@ -1,0 +1,1104 @@
+2025-11-27 22:51:44,911 - root - INFO - ================================================================================
+2025-11-27 22:51:44,912 - root - INFO - 📝 Logging initialized for odds scraping
+2025-11-27 22:51:44,913 - root - INFO -    Log file: /app/logs/aiscore_scraper_odds_20251002.log
+2025-11-27 22:51:44,915 - root - INFO -    Console level: INFO and above
+2025-11-27 22:51:44,916 - root - INFO -    File level: INFO and above (matches console)
+2025-11-27 22:51:44,917 - root - INFO -    File handler: ✓ Active
+2025-11-27 22:51:44,918 - root - INFO - ================================================================================
+Log file test write at 2025-11-27T22:51:44.919602
+2025-11-27 22:51:45,005 - src.scrapers.aiscore.bronze_storage - INFO - Bronze storage initialized: data/aiscore
+2025-11-27 22:51:45,019 - src.scrapers.aiscore.odds_scraper - INFO - Scraping odds for 20251002: 65 matches to process, 0 skipped
+2025-11-27 22:51:45,022 - src.scrapers.aiscore.browser - INFO - Using Chrome binary: /usr/bin/chromium
+2025-11-27 22:51:45,080 - src.scrapers.aiscore.browser - INFO - Detected Chrome version: 142.0.7444.175 (major: 142)
+2025-11-27 22:51:45,081 - WDM - INFO - ====== WebDriver manager ======
+2025-11-27 22:51:46,304 - WDM - INFO - WebDriver version 142.0.7444.175 selected
+2025-11-27 22:51:46,319 - WDM - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-11-27 22:51:46,322 - WDM - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-11-27 22:51:47,226 - WDM - INFO - Driver downloading response is 200
+2025-11-27 22:51:51,547 - WDM - INFO - Driver has been saved in cache [/app/.wdm/drivers/chromedriver/linux64/142.0.7444.175]
+2025-11-27 22:51:51,959 - src.scrapers.aiscore.browser - INFO - Browser created successfully
+2025-11-27 22:51:51,977 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8g665b879 status to 'pending' in daily listing
+2025-11-27 22:52:27,454 - src.scrapers.aiscore.odds_scraper - WARNING - [xvkjoi8g665b879] ⚠️  No tabs found - refreshing page and retrying...
+2025-11-27 22:52:48,442 - src.scrapers.aiscore.odds_scraper - WARNING - [xvkjoi8g665b879] ⚠️  Still no tabs found after refresh - trying default tab
+2025-11-27 22:52:58,499 - src.scrapers.aiscore.odds_scraper - WARNING - [xvkjoi8g665b879] ⚠️  No table in tab 'Default' after waiting 2 seconds
+2025-11-27 22:52:58,501 - src.scrapers.aiscore.odds_scraper - WARNING - [xvkjoi8g665b879] ⚠️  No odds found in default tab either
+2025-11-27 22:52:58,702 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: xvkjoi8g665b879 to data/aiscore/matches/20251002/match_xvkjoi8g665b879.json
+2025-11-27 22:52:58,704 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_xvkjoi8g665b879.json
+2025-11-27 22:52:58,713 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8g665b879 status to 'failed' in daily listing
+2025-11-27 22:52:59,283 - src.scrapers.aiscore.bronze_storage - INFO - Updated match m2q15iz1d53ce76 status to 'pending' in daily listing
+2025-11-27 22:53:02,771 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1d53ce76] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:53:03,601 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1d53ce76] Found 249 rows in tab '1 X 2', parsing...
+2025-11-27 22:53:03,627 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1d53ce76] Parsed 240/249 rows from '1 X 2' (9 failed)
+2025-11-27 22:53:03,629 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1d53ce76] ✓ Scraped 240 odds from tab '1 X 2'
+2025-11-27 22:53:04,533 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1d53ce76] Found 249 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:53:04,545 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1d53ce76] Parsed 207/249 rows from 'Asian Handicap' (42 failed)
+2025-11-27 22:53:04,547 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1d53ce76] ✓ Scraped 207 odds from tab 'Asian Handicap'
+2025-11-27 22:53:05,465 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1d53ce76] Found 298 rows in tab 'Total Goals', parsing...
+2025-11-27 22:53:05,475 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1d53ce76] Parsed 146/298 rows from 'Total Goals' (152 failed)
+2025-11-27 22:53:05,476 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1d53ce76] ✓ Scraped 146 odds from tab 'Total Goals'
+2025-11-27 22:53:06,309 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1d53ce76] Found 151 rows in tab 'Total Corners', parsing...
+2025-11-27 22:53:06,318 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1d53ce76] Parsed 136/151 rows from 'Total Corners' (15 failed)
+2025-11-27 22:53:06,320 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1d53ce76] ✓ Scraped 136 odds from tab 'Total Corners'
+2025-11-27 22:53:06,469 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: m2q15iz1d53ce76 to data/aiscore/matches/20251002/match_m2q15iz1d53ce76.json
+2025-11-27 22:53:06,470 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_m2q15iz1d53ce76.json
+2025-11-27 22:53:06,494 - src.scrapers.aiscore.bronze_storage - INFO - Updated match m2q15iz1d53ce76 status to 'success' in daily listing
+2025-11-27 22:53:07,066 - src.scrapers.aiscore.bronze_storage - INFO - Updated match zrkn6ivzp90twql status to 'pending' in daily listing
+2025-11-27 22:53:40,155 - src.scrapers.aiscore.odds_scraper - WARNING - [zrkn6ivzp90twql] ⚠️  No tabs found - refreshing page and retrying...
+2025-11-27 22:53:42,232 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6ivzp90twql] ✓ Found 4 tab(s) after refresh: ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:53:43,176 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6ivzp90twql] Found 199 rows in tab '1 X 2', parsing...
+2025-11-27 22:53:43,196 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6ivzp90twql] Parsed 174/199 rows from '1 X 2' (25 failed)
+2025-11-27 22:53:43,198 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6ivzp90twql] ✓ Scraped 174 odds from tab '1 X 2' after refresh
+2025-11-27 22:53:44,224 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6ivzp90twql] Found 261 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:53:44,241 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6ivzp90twql] Parsed 170/261 rows from 'Asian Handicap' (91 failed)
+2025-11-27 22:53:44,244 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6ivzp90twql] ✓ Scraped 170 odds from tab 'Asian Handicap' after refresh
+2025-11-27 22:53:45,331 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6ivzp90twql] Found 336 rows in tab 'Total Goals', parsing...
+2025-11-27 22:53:45,341 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6ivzp90twql] Parsed 166/336 rows from 'Total Goals' (170 failed)
+2025-11-27 22:53:45,343 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6ivzp90twql] ✓ Scraped 166 odds from tab 'Total Goals' after refresh
+2025-11-27 22:53:46,270 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6ivzp90twql] Found 144 rows in tab 'Total Corners', parsing...
+2025-11-27 22:53:46,277 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6ivzp90twql] Parsed 129/144 rows from 'Total Corners' (15 failed)
+2025-11-27 22:53:46,278 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6ivzp90twql] ✓ Scraped 129 odds from tab 'Total Corners' after refresh
+2025-11-27 22:53:46,465 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: zrkn6ivzp90twql to data/aiscore/matches/20251002/match_zrkn6ivzp90twql.json
+2025-11-27 22:53:46,466 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_zrkn6ivzp90twql.json
+2025-11-27 22:53:46,484 - src.scrapers.aiscore.bronze_storage - INFO - Updated match zrkn6ivzp90twql status to 'success' in daily listing
+2025-11-27 22:53:47,076 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ndkz6iled92sxq3 status to 'pending' in daily listing
+2025-11-27 22:53:50,231 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6iled92sxq3] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:53:51,041 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6iled92sxq3] Found 263 rows in tab '1 X 2', parsing...
+2025-11-27 22:53:51,051 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6iled92sxq3] Parsed 239/263 rows from '1 X 2' (24 failed)
+2025-11-27 22:53:51,053 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6iled92sxq3] ✓ Scraped 239 odds from tab '1 X 2'
+2025-11-27 22:53:51,936 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6iled92sxq3] Found 286 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:53:51,946 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6iled92sxq3] Parsed 190/286 rows from 'Asian Handicap' (96 failed)
+2025-11-27 22:53:51,948 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6iled92sxq3] ✓ Scraped 190 odds from tab 'Asian Handicap'
+2025-11-27 22:53:52,852 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6iled92sxq3] Found 294 rows in tab 'Total Goals', parsing...
+2025-11-27 22:53:52,861 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6iled92sxq3] Parsed 153/294 rows from 'Total Goals' (141 failed)
+2025-11-27 22:53:52,862 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6iled92sxq3] ✓ Scraped 153 odds from tab 'Total Goals'
+2025-11-27 22:53:53,683 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6iled92sxq3] Found 211 rows in tab 'Total Corners', parsing...
+2025-11-27 22:53:53,692 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6iled92sxq3] Parsed 194/211 rows from 'Total Corners' (17 failed)
+2025-11-27 22:53:53,694 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6iled92sxq3] ✓ Scraped 194 odds from tab 'Total Corners'
+2025-11-27 22:53:53,809 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: ndkz6iled92sxq3 to data/aiscore/matches/20251002/match_ndkz6iled92sxq3.json
+2025-11-27 22:53:53,810 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_ndkz6iled92sxq3.json
+2025-11-27 22:53:53,831 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ndkz6iled92sxq3 status to 'success' in daily listing
+2025-11-27 22:53:54,403 - src.scrapers.aiscore.bronze_storage - INFO - Updated match wv78xi80yjgaokr status to 'pending' in daily listing
+2025-11-27 22:53:57,553 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xi80yjgaokr] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:53:58,388 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xi80yjgaokr] Found 189 rows in tab '1 X 2', parsing...
+2025-11-27 22:53:58,398 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xi80yjgaokr] Parsed 171/189 rows from '1 X 2' (18 failed)
+2025-11-27 22:53:58,400 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xi80yjgaokr] ✓ Scraped 171 odds from tab '1 X 2'
+2025-11-27 22:53:59,260 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xi80yjgaokr] Found 173 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:53:59,269 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xi80yjgaokr] Parsed 119/173 rows from 'Asian Handicap' (54 failed)
+2025-11-27 22:53:59,270 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xi80yjgaokr] ✓ Scraped 119 odds from tab 'Asian Handicap'
+2025-11-27 22:54:00,143 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xi80yjgaokr] Found 173 rows in tab 'Total Goals', parsing...
+2025-11-27 22:54:00,152 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xi80yjgaokr] Parsed 0/173 rows from 'Total Goals' (173 failed)
+2025-11-27 22:54:00,154 - src.scrapers.aiscore.odds_scraper - WARNING - [wv78xi80yjgaokr] ⚠️  No odds found in tab 'Total Goals' - table may be empty or not loaded
+2025-11-27 22:54:00,959 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xi80yjgaokr] Found 156 rows in tab 'Total Corners', parsing...
+2025-11-27 22:54:00,970 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xi80yjgaokr] Parsed 136/156 rows from 'Total Corners' (20 failed)
+2025-11-27 22:54:00,971 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xi80yjgaokr] ✓ Scraped 136 odds from tab 'Total Corners'
+2025-11-27 22:54:01,108 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: wv78xi80yjgaokr to data/aiscore/matches/20251002/match_wv78xi80yjgaokr.json
+2025-11-27 22:54:01,109 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_wv78xi80yjgaokr.json
+2025-11-27 22:54:01,120 - src.scrapers.aiscore.bronze_storage - INFO - Updated match wv78xi80yjgaokr status to 'success' in daily listing
+2025-11-27 22:54:01,717 - src.scrapers.aiscore.bronze_storage - INFO - Updated match vmqy9ilgxpwbgk9 status to 'pending' in daily listing
+2025-11-27 22:54:04,979 - src.scrapers.aiscore.odds_scraper - INFO - [vmqy9ilgxpwbgk9] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:54:05,775 - src.scrapers.aiscore.odds_scraper - INFO - [vmqy9ilgxpwbgk9] Found 220 rows in tab '1 X 2', parsing...
+2025-11-27 22:54:05,784 - src.scrapers.aiscore.odds_scraper - INFO - [vmqy9ilgxpwbgk9] Parsed 203/220 rows from '1 X 2' (17 failed)
+2025-11-27 22:54:05,786 - src.scrapers.aiscore.odds_scraper - INFO - [vmqy9ilgxpwbgk9] ✓ Scraped 203 odds from tab '1 X 2'
+2025-11-27 22:54:06,678 - src.scrapers.aiscore.odds_scraper - INFO - [vmqy9ilgxpwbgk9] Found 285 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:54:06,688 - src.scrapers.aiscore.odds_scraper - INFO - [vmqy9ilgxpwbgk9] Parsed 202/285 rows from 'Asian Handicap' (83 failed)
+2025-11-27 22:54:06,689 - src.scrapers.aiscore.odds_scraper - INFO - [vmqy9ilgxpwbgk9] ✓ Scraped 202 odds from tab 'Asian Handicap'
+2025-11-27 22:54:07,599 - src.scrapers.aiscore.odds_scraper - INFO - [vmqy9ilgxpwbgk9] Found 285 rows in tab 'Total Goals', parsing...
+2025-11-27 22:54:07,610 - src.scrapers.aiscore.odds_scraper - INFO - [vmqy9ilgxpwbgk9] Parsed 83/285 rows from 'Total Goals' (202 failed)
+2025-11-27 22:54:07,615 - src.scrapers.aiscore.odds_scraper - INFO - [vmqy9ilgxpwbgk9] ✓ Scraped 83 odds from tab 'Total Goals'
+2025-11-27 22:54:08,450 - src.scrapers.aiscore.odds_scraper - INFO - [vmqy9ilgxpwbgk9] Found 307 rows in tab 'Total Corners', parsing...
+2025-11-27 22:54:08,461 - src.scrapers.aiscore.odds_scraper - INFO - [vmqy9ilgxpwbgk9] Parsed 0/307 rows from 'Total Corners' (307 failed)
+2025-11-27 22:54:08,463 - src.scrapers.aiscore.odds_scraper - WARNING - [vmqy9ilgxpwbgk9] ⚠️  No odds found in tab 'Total Corners' - table may be empty or not loaded
+2025-11-27 22:54:08,575 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: vmqy9ilgxpwbgk9 to data/aiscore/matches/20251002/match_vmqy9ilgxpwbgk9.json
+2025-11-27 22:54:08,576 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_vmqy9ilgxpwbgk9.json
+2025-11-27 22:54:08,593 - src.scrapers.aiscore.bronze_storage - INFO - Updated match vmqy9ilgxpwbgk9 status to 'success' in daily listing
+2025-11-27 22:54:09,172 - src.scrapers.aiscore.bronze_storage - INFO - Updated match oj7x9in4v6dc47g status to 'pending' in daily listing
+2025-11-27 22:54:12,395 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9in4v6dc47g] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:54:13,200 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9in4v6dc47g] Found 293 rows in tab '1 X 2', parsing...
+2025-11-27 22:54:13,212 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9in4v6dc47g] Parsed 267/293 rows from '1 X 2' (26 failed)
+2025-11-27 22:54:13,213 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9in4v6dc47g] ✓ Scraped 267 odds from tab '1 X 2'
+2025-11-27 22:54:14,091 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9in4v6dc47g] Found 255 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:54:14,099 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9in4v6dc47g] Parsed 174/255 rows from 'Asian Handicap' (81 failed)
+2025-11-27 22:54:14,100 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9in4v6dc47g] ✓ Scraped 174 odds from tab 'Asian Handicap'
+2025-11-27 22:54:14,987 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9in4v6dc47g] Found 306 rows in tab 'Total Goals', parsing...
+2025-11-27 22:54:14,997 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9in4v6dc47g] Parsed 172/306 rows from 'Total Goals' (134 failed)
+2025-11-27 22:54:14,999 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9in4v6dc47g] ✓ Scraped 172 odds from tab 'Total Goals'
+2025-11-27 22:54:15,787 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9in4v6dc47g] Found 156 rows in tab 'Total Corners', parsing...
+2025-11-27 22:54:15,794 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9in4v6dc47g] Parsed 140/156 rows from 'Total Corners' (16 failed)
+2025-11-27 22:54:15,795 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9in4v6dc47g] ✓ Scraped 140 odds from tab 'Total Corners'
+2025-11-27 22:54:15,880 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: oj7x9in4v6dc47g to data/aiscore/matches/20251002/match_oj7x9in4v6dc47g.json
+2025-11-27 22:54:15,881 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_oj7x9in4v6dc47g.json
+2025-11-27 22:54:15,901 - src.scrapers.aiscore.bronze_storage - INFO - Updated match oj7x9in4v6dc47g status to 'success' in daily listing
+2025-11-27 22:54:16,468 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ndkz6il5rrlsxq3 status to 'pending' in daily listing
+2025-11-27 22:54:19,517 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6il5rrlsxq3] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:54:20,343 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6il5rrlsxq3] Found 257 rows in tab '1 X 2', parsing...
+2025-11-27 22:54:20,355 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6il5rrlsxq3] Parsed 247/257 rows from '1 X 2' (10 failed)
+2025-11-27 22:54:20,357 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6il5rrlsxq3] ✓ Scraped 247 odds from tab '1 X 2'
+2025-11-27 22:54:21,272 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6il5rrlsxq3] Found 184 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:54:21,281 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6il5rrlsxq3] Parsed 117/184 rows from 'Asian Handicap' (67 failed)
+2025-11-27 22:54:21,283 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6il5rrlsxq3] ✓ Scraped 117 odds from tab 'Asian Handicap'
+2025-11-27 22:54:22,191 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6il5rrlsxq3] Found 265 rows in tab 'Total Goals', parsing...
+2025-11-27 22:54:22,203 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6il5rrlsxq3] Parsed 167/265 rows from 'Total Goals' (98 failed)
+2025-11-27 22:54:22,205 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6il5rrlsxq3] ✓ Scraped 167 odds from tab 'Total Goals'
+2025-11-27 22:54:23,057 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6il5rrlsxq3] Found 159 rows in tab 'Total Corners', parsing...
+2025-11-27 22:54:23,067 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6il5rrlsxq3] Parsed 146/159 rows from 'Total Corners' (13 failed)
+2025-11-27 22:54:23,068 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6il5rrlsxq3] ✓ Scraped 146 odds from tab 'Total Corners'
+2025-11-27 22:54:23,217 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: ndkz6il5rrlsxq3 to data/aiscore/matches/20251002/match_ndkz6il5rrlsxq3.json
+2025-11-27 22:54:23,219 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_ndkz6il5rrlsxq3.json
+2025-11-27 22:54:23,230 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ndkz6il5rrlsxq3 status to 'success' in daily listing
+2025-11-27 22:54:23,844 - src.scrapers.aiscore.bronze_storage - INFO - Updated match g6763i543vgso7r status to 'pending' in daily listing
+2025-11-27 22:54:26,904 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i543vgso7r] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:54:27,679 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i543vgso7r] Found 3 rows in tab '1 X 2', parsing...
+2025-11-27 22:54:27,686 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i543vgso7r] ✓ Scraped 3 odds from tab '1 X 2'
+2025-11-27 22:54:28,460 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i543vgso7r] Found 1 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:54:28,469 - src.scrapers.aiscore.odds_scraper - WARNING - [g6763i543vgso7r] ⚠️  No odds found in tab 'Asian Handicap' - table may be empty or not loaded
+2025-11-27 22:54:29,240 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i543vgso7r] Found 1 rows in tab 'Total Goals', parsing...
+2025-11-27 22:54:29,247 - src.scrapers.aiscore.odds_scraper - WARNING - [g6763i543vgso7r] ⚠️  No odds found in tab 'Total Goals' - table may be empty or not loaded
+2025-11-27 22:55:20,595 - src.scrapers.aiscore.odds_scraper - WARNING - [g6763i543vgso7r] ⚠️  No rows found in table for tab 'Total Corners'
+2025-11-27 22:55:20,598 - src.scrapers.aiscore.odds_scraper - WARNING - [g6763i543vgso7r] ⚠️  No odds found in tab 'Total Corners' - table may be empty or not loaded
+2025-11-27 22:55:20,681 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: g6763i543vgso7r to data/aiscore/matches/20251002/match_g6763i543vgso7r.json
+2025-11-27 22:55:20,683 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_g6763i543vgso7r.json
+2025-11-27 22:55:20,694 - src.scrapers.aiscore.bronze_storage - INFO - Updated match g6763i543vgso7r status to 'success' in daily listing
+2025-11-27 22:55:21,330 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8553pt879 status to 'pending' in daily listing
+2025-11-27 22:55:54,255 - src.scrapers.aiscore.odds_scraper - WARNING - [xvkjoi8553pt879] ⚠️  No tabs found - refreshing page and retrying...
+2025-11-27 22:56:15,357 - src.scrapers.aiscore.odds_scraper - WARNING - [xvkjoi8553pt879] ⚠️  Still no tabs found after refresh - trying default tab
+2025-11-27 22:56:25,385 - src.scrapers.aiscore.odds_scraper - WARNING - [xvkjoi8553pt879] ⚠️  No table in tab 'Default' after waiting 2 seconds
+2025-11-27 22:56:25,386 - src.scrapers.aiscore.odds_scraper - WARNING - [xvkjoi8553pt879] ⚠️  No odds found in default tab either
+2025-11-27 22:56:25,485 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: xvkjoi8553pt879 to data/aiscore/matches/20251002/match_xvkjoi8553pt879.json
+2025-11-27 22:56:25,486 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_xvkjoi8553pt879.json
+2025-11-27 22:56:25,508 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8553pt879 status to 'failed' in daily listing
+2025-11-27 22:56:25,580 - src.scrapers.aiscore.odds_scraper - INFO - Progress: 10/65 (15%) | Success: 8 | Failed: 2 | Odds: 4491
+2025-11-27 22:56:26,100 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ndqmliwxjn1brkv status to 'pending' in daily listing
+2025-11-27 22:56:29,515 - src.scrapers.aiscore.odds_scraper - INFO - [ndqmliwxjn1brkv] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:56:30,458 - src.scrapers.aiscore.odds_scraper - INFO - [ndqmliwxjn1brkv] Found 150 rows in tab '1 X 2', parsing...
+2025-11-27 22:56:30,476 - src.scrapers.aiscore.odds_scraper - INFO - [ndqmliwxjn1brkv] Parsed 148/150 rows from '1 X 2' (2 failed)
+2025-11-27 22:56:30,478 - src.scrapers.aiscore.odds_scraper - INFO - [ndqmliwxjn1brkv] ✓ Scraped 148 odds from tab '1 X 2'
+2025-11-27 22:56:31,511 - src.scrapers.aiscore.odds_scraper - INFO - [ndqmliwxjn1brkv] Found 97 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:56:31,520 - src.scrapers.aiscore.odds_scraper - INFO - [ndqmliwxjn1brkv] Parsed 86/97 rows from 'Asian Handicap' (11 failed)
+2025-11-27 22:56:31,521 - src.scrapers.aiscore.odds_scraper - INFO - [ndqmliwxjn1brkv] ✓ Scraped 86 odds from tab 'Asian Handicap'
+2025-11-27 22:56:32,530 - src.scrapers.aiscore.odds_scraper - INFO - [ndqmliwxjn1brkv] Found 212 rows in tab 'Total Goals', parsing...
+2025-11-27 22:56:32,552 - src.scrapers.aiscore.odds_scraper - INFO - [ndqmliwxjn1brkv] Parsed 143/212 rows from 'Total Goals' (69 failed)
+2025-11-27 22:56:32,554 - src.scrapers.aiscore.odds_scraper - INFO - [ndqmliwxjn1brkv] ✓ Scraped 143 odds from tab 'Total Goals'
+2025-11-27 22:56:33,467 - src.scrapers.aiscore.odds_scraper - INFO - [ndqmliwxjn1brkv] Found 130 rows in tab 'Total Corners', parsing...
+2025-11-27 22:56:33,475 - src.scrapers.aiscore.odds_scraper - INFO - [ndqmliwxjn1brkv] Parsed 120/130 rows from 'Total Corners' (10 failed)
+2025-11-27 22:56:33,481 - src.scrapers.aiscore.odds_scraper - INFO - [ndqmliwxjn1brkv] ✓ Scraped 120 odds from tab 'Total Corners'
+2025-11-27 22:56:33,684 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: ndqmliwxjn1brkv to data/aiscore/matches/20251002/match_ndqmliwxjn1brkv.json
+2025-11-27 22:56:33,686 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_ndqmliwxjn1brkv.json
+2025-11-27 22:56:33,699 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ndqmliwxjn1brkv status to 'success' in daily listing
+2025-11-27 22:56:34,304 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ndkz6i360zvfxq3 status to 'pending' in daily listing
+2025-11-27 22:57:07,133 - src.scrapers.aiscore.odds_scraper - WARNING - [ndkz6i360zvfxq3] ⚠️  No tabs found - refreshing page and retrying...
+2025-11-27 22:57:28,619 - src.scrapers.aiscore.odds_scraper - WARNING - [ndkz6i360zvfxq3] ⚠️  Still no tabs found after refresh - trying default tab
+2025-11-27 22:57:38,644 - src.scrapers.aiscore.odds_scraper - WARNING - [ndkz6i360zvfxq3] ⚠️  No table in tab 'Default' after waiting 2 seconds
+2025-11-27 22:57:38,646 - src.scrapers.aiscore.odds_scraper - WARNING - [ndkz6i360zvfxq3] ⚠️  No odds found in default tab either
+2025-11-27 22:57:38,764 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: ndkz6i360zvfxq3 to data/aiscore/matches/20251002/match_ndkz6i360zvfxq3.json
+2025-11-27 22:57:38,765 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_ndkz6i360zvfxq3.json
+2025-11-27 22:57:38,772 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ndkz6i360zvfxq3 status to 'failed' in daily listing
+2025-11-27 22:57:39,399 - src.scrapers.aiscore.bronze_storage - INFO - Updated match wv78xiverprcokr status to 'pending' in daily listing
+2025-11-27 22:58:12,419 - src.scrapers.aiscore.odds_scraper - WARNING - [wv78xiverprcokr] ⚠️  No tabs found - refreshing page and retrying...
+2025-11-27 22:58:33,475 - src.scrapers.aiscore.odds_scraper - WARNING - [wv78xiverprcokr] ⚠️  Still no tabs found after refresh - trying default tab
+2025-11-27 22:58:43,545 - src.scrapers.aiscore.odds_scraper - WARNING - [wv78xiverprcokr] ⚠️  No table in tab 'Default' after waiting 2 seconds
+2025-11-27 22:58:43,548 - src.scrapers.aiscore.odds_scraper - WARNING - [wv78xiverprcokr] ⚠️  No odds found in default tab either
+2025-11-27 22:58:43,698 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: wv78xiverprcokr to data/aiscore/matches/20251002/match_wv78xiverprcokr.json
+2025-11-27 22:58:43,701 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_wv78xiverprcokr.json
+2025-11-27 22:58:43,718 - src.scrapers.aiscore.bronze_storage - INFO - Updated match wv78xiverprcokr status to 'failed' in daily listing
+2025-11-27 22:58:44,378 - src.scrapers.aiscore.bronze_storage - INFO - Updated match l6kegi8x69euv75 status to 'pending' in daily listing
+2025-11-27 22:58:47,946 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8x69euv75] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:58:48,859 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8x69euv75] Found 198 rows in tab '1 X 2', parsing...
+2025-11-27 22:58:48,886 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8x69euv75] Parsed 192/198 rows from '1 X 2' (6 failed)
+2025-11-27 22:58:48,888 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8x69euv75] ✓ Scraped 192 odds from tab '1 X 2'
+2025-11-27 22:58:49,936 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8x69euv75] Found 221 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:58:49,945 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8x69euv75] Parsed 173/221 rows from 'Asian Handicap' (48 failed)
+2025-11-27 22:58:49,946 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8x69euv75] ✓ Scraped 173 odds from tab 'Asian Handicap'
+2025-11-27 22:58:51,033 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8x69euv75] Found 309 rows in tab 'Total Goals', parsing...
+2025-11-27 22:58:51,052 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8x69euv75] Parsed 183/309 rows from 'Total Goals' (126 failed)
+2025-11-27 22:58:51,054 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8x69euv75] ✓ Scraped 183 odds from tab 'Total Goals'
+2025-11-27 22:58:52,017 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8x69euv75] Found 140 rows in tab 'Total Corners', parsing...
+2025-11-27 22:58:52,030 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8x69euv75] Parsed 127/140 rows from 'Total Corners' (13 failed)
+2025-11-27 22:58:52,033 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8x69euv75] ✓ Scraped 127 odds from tab 'Total Corners'
+2025-11-27 22:58:52,271 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: l6kegi8x69euv75 to data/aiscore/matches/20251002/match_l6kegi8x69euv75.json
+2025-11-27 22:58:52,275 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_l6kegi8x69euv75.json
+2025-11-27 22:58:52,292 - src.scrapers.aiscore.bronze_storage - INFO - Updated match l6kegi8x69euv75 status to 'success' in daily listing
+2025-11-27 22:58:52,918 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 9gklzi19rmpbm7x status to 'pending' in daily listing
+2025-11-27 22:58:56,448 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rmpbm7x] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:58:57,303 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rmpbm7x] Found 242 rows in tab '1 X 2', parsing...
+2025-11-27 22:58:57,312 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rmpbm7x] Parsed 221/242 rows from '1 X 2' (21 failed)
+2025-11-27 22:58:57,314 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rmpbm7x] ✓ Scraped 221 odds from tab '1 X 2'
+2025-11-27 22:58:58,248 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rmpbm7x] Found 272 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:58:58,261 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rmpbm7x] Parsed 153/272 rows from 'Asian Handicap' (119 failed)
+2025-11-27 22:58:58,263 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rmpbm7x] ✓ Scraped 153 odds from tab 'Asian Handicap'
+2025-11-27 22:58:59,171 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rmpbm7x] Found 309 rows in tab 'Total Goals', parsing...
+2025-11-27 22:58:59,184 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rmpbm7x] Parsed 183/309 rows from 'Total Goals' (126 failed)
+2025-11-27 22:58:59,193 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rmpbm7x] ✓ Scraped 183 odds from tab 'Total Goals'
+2025-11-27 22:59:00,009 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rmpbm7x] Found 179 rows in tab 'Total Corners', parsing...
+2025-11-27 22:59:00,020 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rmpbm7x] Parsed 160/179 rows from 'Total Corners' (19 failed)
+2025-11-27 22:59:00,022 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rmpbm7x] ✓ Scraped 160 odds from tab 'Total Corners'
+2025-11-27 22:59:00,224 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 9gklzi19rmpbm7x to data/aiscore/matches/20251002/match_9gklzi19rmpbm7x.json
+2025-11-27 22:59:00,225 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_9gklzi19rmpbm7x.json
+2025-11-27 22:59:00,237 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 9gklzi19rmpbm7x status to 'success' in daily listing
+2025-11-27 22:59:00,809 - src.scrapers.aiscore.bronze_storage - INFO - Updated match oj7x9ix80y9f47g status to 'pending' in daily listing
+2025-11-27 22:59:03,859 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80y9f47g] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:59:04,673 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80y9f47g] Found 226 rows in tab '1 X 2', parsing...
+2025-11-27 22:59:04,682 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80y9f47g] Parsed 209/226 rows from '1 X 2' (17 failed)
+2025-11-27 22:59:04,684 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80y9f47g] ✓ Scraped 209 odds from tab '1 X 2'
+2025-11-27 22:59:05,564 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80y9f47g] Found 242 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:59:05,572 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80y9f47g] Parsed 117/242 rows from 'Asian Handicap' (125 failed)
+2025-11-27 22:59:05,573 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80y9f47g] ✓ Scraped 117 odds from tab 'Asian Handicap'
+2025-11-27 22:59:06,462 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80y9f47g] Found 294 rows in tab 'Total Goals', parsing...
+2025-11-27 22:59:06,472 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80y9f47g] Parsed 160/294 rows from 'Total Goals' (134 failed)
+2025-11-27 22:59:06,473 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80y9f47g] ✓ Scraped 160 odds from tab 'Total Goals'
+2025-11-27 22:59:07,281 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80y9f47g] Found 156 rows in tab 'Total Corners', parsing...
+2025-11-27 22:59:07,288 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80y9f47g] Parsed 136/156 rows from 'Total Corners' (20 failed)
+2025-11-27 22:59:07,289 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80y9f47g] ✓ Scraped 136 odds from tab 'Total Corners'
+2025-11-27 22:59:07,487 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: oj7x9ix80y9f47g to data/aiscore/matches/20251002/match_oj7x9ix80y9f47g.json
+2025-11-27 22:59:07,489 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_oj7x9ix80y9f47g.json
+2025-11-27 22:59:07,506 - src.scrapers.aiscore.bronze_storage - INFO - Updated match oj7x9ix80y9f47g status to 'success' in daily listing
+2025-11-27 22:59:08,148 - src.scrapers.aiscore.bronze_storage - INFO - Updated match edq09il8o5yaeqx status to 'pending' in daily listing
+2025-11-27 22:59:11,468 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8o5yaeqx] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:59:12,415 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8o5yaeqx] Found 178 rows in tab '1 X 2', parsing...
+2025-11-27 22:59:12,433 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8o5yaeqx] Parsed 175/178 rows from '1 X 2' (3 failed)
+2025-11-27 22:59:12,434 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8o5yaeqx] ✓ Scraped 175 odds from tab '1 X 2'
+2025-11-27 22:59:13,467 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8o5yaeqx] Found 204 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:59:13,477 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8o5yaeqx] Parsed 104/204 rows from 'Asian Handicap' (100 failed)
+2025-11-27 22:59:13,479 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8o5yaeqx] ✓ Scraped 104 odds from tab 'Asian Handicap'
+2025-11-27 22:59:14,550 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8o5yaeqx] Found 248 rows in tab 'Total Goals', parsing...
+2025-11-27 22:59:14,560 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8o5yaeqx] Parsed 152/248 rows from 'Total Goals' (96 failed)
+2025-11-27 22:59:14,562 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8o5yaeqx] ✓ Scraped 152 odds from tab 'Total Goals'
+2025-11-27 22:59:15,474 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8o5yaeqx] Found 143 rows in tab 'Total Corners', parsing...
+2025-11-27 22:59:15,488 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8o5yaeqx] Parsed 134/143 rows from 'Total Corners' (9 failed)
+2025-11-27 22:59:15,491 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8o5yaeqx] ✓ Scraped 134 odds from tab 'Total Corners'
+2025-11-27 22:59:15,674 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: edq09il8o5yaeqx to data/aiscore/matches/20251002/match_edq09il8o5yaeqx.json
+2025-11-27 22:59:15,675 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_edq09il8o5yaeqx.json
+2025-11-27 22:59:15,685 - src.scrapers.aiscore.bronze_storage - INFO - Updated match edq09il8o5yaeqx status to 'success' in daily listing
+2025-11-27 22:59:16,349 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ndkz6i3gj1juxq3 status to 'pending' in daily listing
+2025-11-27 22:59:19,767 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6i3gj1juxq3] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:59:20,715 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6i3gj1juxq3] Found 254 rows in tab '1 X 2', parsing...
+2025-11-27 22:59:20,726 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6i3gj1juxq3] Parsed 240/254 rows from '1 X 2' (14 failed)
+2025-11-27 22:59:20,727 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6i3gj1juxq3] ✓ Scraped 240 odds from tab '1 X 2'
+2025-11-27 22:59:21,777 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6i3gj1juxq3] Found 296 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:59:21,800 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6i3gj1juxq3] Parsed 196/296 rows from 'Asian Handicap' (100 failed)
+2025-11-27 22:59:21,802 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6i3gj1juxq3] ✓ Scraped 196 odds from tab 'Asian Handicap'
+2025-11-27 22:59:22,929 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6i3gj1juxq3] Found 296 rows in tab 'Total Goals', parsing...
+2025-11-27 22:59:22,943 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6i3gj1juxq3] Parsed 155/296 rows from 'Total Goals' (141 failed)
+2025-11-27 22:59:22,948 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6i3gj1juxq3] ✓ Scraped 155 odds from tab 'Total Goals'
+2025-11-27 22:59:23,888 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6i3gj1juxq3] Found 198 rows in tab 'Total Corners', parsing...
+2025-11-27 22:59:23,901 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6i3gj1juxq3] Parsed 180/198 rows from 'Total Corners' (18 failed)
+2025-11-27 22:59:23,904 - src.scrapers.aiscore.odds_scraper - INFO - [ndkz6i3gj1juxq3] ✓ Scraped 180 odds from tab 'Total Corners'
+2025-11-27 22:59:24,142 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: ndkz6i3gj1juxq3 to data/aiscore/matches/20251002/match_ndkz6i3gj1juxq3.json
+2025-11-27 22:59:24,145 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_ndkz6i3gj1juxq3.json
+2025-11-27 22:59:24,160 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ndkz6i3gj1juxq3 status to 'success' in daily listing
+2025-11-27 22:59:24,746 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 34kgmio0epgheko status to 'pending' in daily listing
+2025-11-27 22:59:28,196 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0epgheko] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:59:29,107 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0epgheko] Found 128 rows in tab '1 X 2', parsing...
+2025-11-27 22:59:29,129 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0epgheko] Parsed 123/128 rows from '1 X 2' (5 failed)
+2025-11-27 22:59:29,130 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0epgheko] ✓ Scraped 123 odds from tab '1 X 2'
+2025-11-27 22:59:30,168 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0epgheko] Found 244 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:59:30,188 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0epgheko] Parsed 140/244 rows from 'Asian Handicap' (104 failed)
+2025-11-27 22:59:30,189 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0epgheko] ✓ Scraped 140 odds from tab 'Asian Handicap'
+2025-11-27 22:59:31,233 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0epgheko] Found 300 rows in tab 'Total Goals', parsing...
+2025-11-27 22:59:31,255 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0epgheko] Parsed 169/300 rows from 'Total Goals' (131 failed)
+2025-11-27 22:59:31,257 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0epgheko] ✓ Scraped 169 odds from tab 'Total Goals'
+2025-11-27 22:59:32,224 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0epgheko] Found 159 rows in tab 'Total Corners', parsing...
+2025-11-27 22:59:32,244 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0epgheko] Parsed 143/159 rows from 'Total Corners' (16 failed)
+2025-11-27 22:59:32,249 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0epgheko] ✓ Scraped 143 odds from tab 'Total Corners'
+2025-11-27 22:59:32,396 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 34kgmio0epgheko to data/aiscore/matches/20251002/match_34kgmio0epgheko.json
+2025-11-27 22:59:32,397 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_34kgmio0epgheko.json
+2025-11-27 22:59:32,416 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 34kgmio0epgheko status to 'success' in daily listing
+2025-11-27 22:59:33,058 - src.scrapers.aiscore.bronze_storage - INFO - Updated match o17pjio3933ay7j status to 'pending' in daily listing
+2025-11-27 22:59:36,405 - src.scrapers.aiscore.odds_scraper - INFO - [o17pjio3933ay7j] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:59:37,353 - src.scrapers.aiscore.odds_scraper - INFO - [o17pjio3933ay7j] Found 197 rows in tab '1 X 2', parsing...
+2025-11-27 22:59:37,375 - src.scrapers.aiscore.odds_scraper - INFO - [o17pjio3933ay7j] Parsed 178/197 rows from '1 X 2' (19 failed)
+2025-11-27 22:59:37,377 - src.scrapers.aiscore.odds_scraper - INFO - [o17pjio3933ay7j] ✓ Scraped 178 odds from tab '1 X 2'
+2025-11-27 22:59:38,338 - src.scrapers.aiscore.odds_scraper - INFO - [o17pjio3933ay7j] Found 249 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:59:38,348 - src.scrapers.aiscore.odds_scraper - INFO - [o17pjio3933ay7j] Parsed 129/249 rows from 'Asian Handicap' (120 failed)
+2025-11-27 22:59:38,350 - src.scrapers.aiscore.odds_scraper - INFO - [o17pjio3933ay7j] ✓ Scraped 129 odds from tab 'Asian Handicap'
+2025-11-27 22:59:39,429 - src.scrapers.aiscore.odds_scraper - INFO - [o17pjio3933ay7j] Found 302 rows in tab 'Total Goals', parsing...
+2025-11-27 22:59:39,439 - src.scrapers.aiscore.odds_scraper - INFO - [o17pjio3933ay7j] Parsed 161/302 rows from 'Total Goals' (141 failed)
+2025-11-27 22:59:39,445 - src.scrapers.aiscore.odds_scraper - INFO - [o17pjio3933ay7j] ✓ Scraped 161 odds from tab 'Total Goals'
+2025-11-27 22:59:40,349 - src.scrapers.aiscore.odds_scraper - INFO - [o17pjio3933ay7j] Found 149 rows in tab 'Total Corners', parsing...
+2025-11-27 22:59:40,381 - src.scrapers.aiscore.odds_scraper - INFO - [o17pjio3933ay7j] Parsed 133/149 rows from 'Total Corners' (16 failed)
+2025-11-27 22:59:40,383 - src.scrapers.aiscore.odds_scraper - INFO - [o17pjio3933ay7j] ✓ Scraped 133 odds from tab 'Total Corners'
+2025-11-27 22:59:40,584 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: o17pjio3933ay7j to data/aiscore/matches/20251002/match_o17pjio3933ay7j.json
+2025-11-27 22:59:40,586 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_o17pjio3933ay7j.json
+2025-11-27 22:59:40,595 - src.scrapers.aiscore.bronze_storage - INFO - Updated match o17pjio3933ay7j status to 'success' in daily listing
+2025-11-27 22:59:40,707 - src.scrapers.aiscore.odds_scraper - INFO - Progress: 20/65 (31%) | Success: 16 | Failed: 4 | Odds: 9514
+2025-11-27 22:59:41,247 - src.scrapers.aiscore.bronze_storage - INFO - Updated match l6kegi8y6gziv75 status to 'pending' in daily listing
+2025-11-27 22:59:44,550 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8y6gziv75] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:59:45,467 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8y6gziv75] Found 181 rows in tab '1 X 2', parsing...
+2025-11-27 22:59:45,477 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8y6gziv75] Parsed 172/181 rows from '1 X 2' (9 failed)
+2025-11-27 22:59:45,479 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8y6gziv75] ✓ Scraped 172 odds from tab '1 X 2'
+2025-11-27 22:59:46,464 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8y6gziv75] Found 240 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:59:46,474 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8y6gziv75] Parsed 138/240 rows from 'Asian Handicap' (102 failed)
+2025-11-27 22:59:46,475 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8y6gziv75] ✓ Scraped 138 odds from tab 'Asian Handicap'
+2025-11-27 22:59:47,495 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8y6gziv75] Found 278 rows in tab 'Total Goals', parsing...
+2025-11-27 22:59:47,510 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8y6gziv75] Parsed 157/278 rows from 'Total Goals' (121 failed)
+2025-11-27 22:59:47,513 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8y6gziv75] ✓ Scraped 157 odds from tab 'Total Goals'
+2025-11-27 22:59:48,467 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8y6gziv75] Found 164 rows in tab 'Total Corners', parsing...
+2025-11-27 22:59:48,475 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8y6gziv75] Parsed 149/164 rows from 'Total Corners' (15 failed)
+2025-11-27 22:59:48,476 - src.scrapers.aiscore.odds_scraper - INFO - [l6kegi8y6gziv75] ✓ Scraped 149 odds from tab 'Total Corners'
+2025-11-27 22:59:48,708 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: l6kegi8y6gziv75 to data/aiscore/matches/20251002/match_l6kegi8y6gziv75.json
+2025-11-27 22:59:48,709 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_l6kegi8y6gziv75.json
+2025-11-27 22:59:48,720 - src.scrapers.aiscore.bronze_storage - INFO - Updated match l6kegi8y6gziv75 status to 'success' in daily listing
+2025-11-27 22:59:49,355 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 8lk2dirv4o6sz73 status to 'pending' in daily listing
+2025-11-27 22:59:52,740 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4o6sz73] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 22:59:53,634 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4o6sz73] Found 176 rows in tab '1 X 2', parsing...
+2025-11-27 22:59:53,643 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4o6sz73] Parsed 167/176 rows from '1 X 2' (9 failed)
+2025-11-27 22:59:53,645 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4o6sz73] ✓ Scraped 167 odds from tab '1 X 2'
+2025-11-27 22:59:54,659 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4o6sz73] Found 243 rows in tab 'Asian Handicap', parsing...
+2025-11-27 22:59:54,683 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4o6sz73] Parsed 138/243 rows from 'Asian Handicap' (105 failed)
+2025-11-27 22:59:54,685 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4o6sz73] ✓ Scraped 138 odds from tab 'Asian Handicap'
+2025-11-27 22:59:55,720 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4o6sz73] Found 264 rows in tab 'Total Goals', parsing...
+2025-11-27 22:59:55,730 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4o6sz73] Parsed 157/264 rows from 'Total Goals' (107 failed)
+2025-11-27 22:59:55,733 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4o6sz73] ✓ Scraped 157 odds from tab 'Total Goals'
+2025-11-27 22:59:56,635 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4o6sz73] Found 154 rows in tab 'Total Corners', parsing...
+2025-11-27 22:59:56,643 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4o6sz73] Parsed 143/154 rows from 'Total Corners' (11 failed)
+2025-11-27 22:59:56,643 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4o6sz73] ✓ Scraped 143 odds from tab 'Total Corners'
+2025-11-27 22:59:56,844 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 8lk2dirv4o6sz73 to data/aiscore/matches/20251002/match_8lk2dirv4o6sz73.json
+2025-11-27 22:59:56,846 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_8lk2dirv4o6sz73.json
+2025-11-27 22:59:56,861 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 8lk2dirv4o6sz73 status to 'success' in daily listing
+2025-11-27 22:59:57,471 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 69759ig1zvzugk2 status to 'pending' in daily listing
+2025-11-27 23:00:00,976 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zvzugk2] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:00:01,891 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zvzugk2] Found 254 rows in tab '1 X 2', parsing...
+2025-11-27 23:00:01,912 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zvzugk2] Parsed 235/254 rows from '1 X 2' (19 failed)
+2025-11-27 23:00:01,920 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zvzugk2] ✓ Scraped 235 odds from tab '1 X 2'
+2025-11-27 23:00:02,982 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zvzugk2] Found 244 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:00:03,008 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zvzugk2] Parsed 189/244 rows from 'Asian Handicap' (55 failed)
+2025-11-27 23:00:03,011 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zvzugk2] ✓ Scraped 189 odds from tab 'Asian Handicap'
+2025-11-27 23:00:04,047 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zvzugk2] Found 288 rows in tab 'Total Goals', parsing...
+2025-11-27 23:00:04,058 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zvzugk2] Parsed 171/288 rows from 'Total Goals' (117 failed)
+2025-11-27 23:00:04,059 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zvzugk2] ✓ Scraped 171 odds from tab 'Total Goals'
+2025-11-27 23:00:04,988 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zvzugk2] Found 202 rows in tab 'Total Corners', parsing...
+2025-11-27 23:00:05,006 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zvzugk2] Parsed 178/202 rows from 'Total Corners' (24 failed)
+2025-11-27 23:00:05,008 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zvzugk2] ✓ Scraped 178 odds from tab 'Total Corners'
+2025-11-27 23:00:05,185 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 69759ig1zvzugk2 to data/aiscore/matches/20251002/match_69759ig1zvzugk2.json
+2025-11-27 23:00:05,187 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_69759ig1zvzugk2.json
+2025-11-27 23:00:05,196 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 69759ig1zvzugk2 status to 'success' in daily listing
+2025-11-27 23:00:05,799 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 527r3i4mlyph47e status to 'pending' in daily listing
+2025-11-27 23:00:09,136 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlyph47e] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:00:10,061 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlyph47e] Found 205 rows in tab '1 X 2', parsing...
+2025-11-27 23:00:10,084 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlyph47e] Parsed 189/205 rows from '1 X 2' (16 failed)
+2025-11-27 23:00:10,088 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlyph47e] ✓ Scraped 189 odds from tab '1 X 2'
+2025-11-27 23:00:11,068 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlyph47e] Found 265 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:00:11,089 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlyph47e] Parsed 180/265 rows from 'Asian Handicap' (85 failed)
+2025-11-27 23:00:11,091 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlyph47e] ✓ Scraped 180 odds from tab 'Asian Handicap'
+2025-11-27 23:00:12,182 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlyph47e] Found 337 rows in tab 'Total Goals', parsing...
+2025-11-27 23:00:12,201 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlyph47e] Parsed 170/337 rows from 'Total Goals' (167 failed)
+2025-11-27 23:00:12,206 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlyph47e] ✓ Scraped 170 odds from tab 'Total Goals'
+2025-11-27 23:00:13,154 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlyph47e] Found 191 rows in tab 'Total Corners', parsing...
+2025-11-27 23:00:13,175 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlyph47e] Parsed 173/191 rows from 'Total Corners' (18 failed)
+2025-11-27 23:00:13,179 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlyph47e] ✓ Scraped 173 odds from tab 'Total Corners'
+2025-11-27 23:00:13,372 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 527r3i4mlyph47e to data/aiscore/matches/20251002/match_527r3i4mlyph47e.json
+2025-11-27 23:00:13,373 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_527r3i4mlyph47e.json
+2025-11-27 23:00:13,383 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 527r3i4mlyph47e status to 'success' in daily listing
+2025-11-27 23:00:14,001 - src.scrapers.aiscore.bronze_storage - INFO - Updated match m2q15izmw9gte76 status to 'pending' in daily listing
+2025-11-27 23:00:17,436 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15izmw9gte76] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:00:18,354 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15izmw9gte76] Found 281 rows in tab '1 X 2', parsing...
+2025-11-27 23:00:18,379 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15izmw9gte76] Parsed 272/281 rows from '1 X 2' (9 failed)
+2025-11-27 23:00:18,384 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15izmw9gte76] ✓ Scraped 272 odds from tab '1 X 2'
+2025-11-27 23:00:19,475 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15izmw9gte76] Found 301 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:00:19,487 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15izmw9gte76] Parsed 199/301 rows from 'Asian Handicap' (102 failed)
+2025-11-27 23:00:19,490 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15izmw9gte76] ✓ Scraped 199 odds from tab 'Asian Handicap'
+2025-11-27 23:00:20,551 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15izmw9gte76] Found 290 rows in tab 'Total Goals', parsing...
+2025-11-27 23:00:20,561 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15izmw9gte76] Parsed 189/290 rows from 'Total Goals' (101 failed)
+2025-11-27 23:00:20,563 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15izmw9gte76] ✓ Scraped 189 odds from tab 'Total Goals'
+2025-11-27 23:00:21,532 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15izmw9gte76] Found 169 rows in tab 'Total Corners', parsing...
+2025-11-27 23:00:21,546 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15izmw9gte76] Parsed 153/169 rows from 'Total Corners' (16 failed)
+2025-11-27 23:00:21,548 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15izmw9gte76] ✓ Scraped 153 odds from tab 'Total Corners'
+2025-11-27 23:00:21,821 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: m2q15izmw9gte76 to data/aiscore/matches/20251002/match_m2q15izmw9gte76.json
+2025-11-27 23:00:21,822 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_m2q15izmw9gte76.json
+2025-11-27 23:00:21,845 - src.scrapers.aiscore.bronze_storage - INFO - Updated match m2q15izmw9gte76 status to 'success' in daily listing
+2025-11-27 23:00:22,448 - src.scrapers.aiscore.bronze_storage - INFO - Updated match j374oi053dyigqo status to 'pending' in daily listing
+2025-11-27 23:00:25,974 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053dyigqo] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:00:26,883 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053dyigqo] Found 248 rows in tab '1 X 2', parsing...
+2025-11-27 23:00:26,892 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053dyigqo] Parsed 225/248 rows from '1 X 2' (23 failed)
+2025-11-27 23:00:26,893 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053dyigqo] ✓ Scraped 225 odds from tab '1 X 2'
+2025-11-27 23:00:27,941 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053dyigqo] Found 248 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:00:27,960 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053dyigqo] Parsed 193/248 rows from 'Asian Handicap' (55 failed)
+2025-11-27 23:00:27,963 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053dyigqo] ✓ Scraped 193 odds from tab 'Asian Handicap'
+2025-11-27 23:00:29,053 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053dyigqo] Found 270 rows in tab 'Total Goals', parsing...
+2025-11-27 23:00:29,065 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053dyigqo] Parsed 32/270 rows from 'Total Goals' (238 failed)
+2025-11-27 23:00:29,068 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053dyigqo] ✓ Scraped 32 odds from tab 'Total Goals'
+2025-11-27 23:00:30,163 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053dyigqo] Found 196 rows in tab 'Total Corners', parsing...
+2025-11-27 23:00:30,174 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053dyigqo] Parsed 175/196 rows from 'Total Corners' (21 failed)
+2025-11-27 23:00:30,177 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053dyigqo] ✓ Scraped 175 odds from tab 'Total Corners'
+2025-11-27 23:00:30,418 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: j374oi053dyigqo to data/aiscore/matches/20251002/match_j374oi053dyigqo.json
+2025-11-27 23:00:30,419 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_j374oi053dyigqo.json
+2025-11-27 23:00:30,425 - src.scrapers.aiscore.bronze_storage - INFO - Updated match j374oi053dyigqo status to 'success' in daily listing
+2025-11-27 23:00:31,088 - src.scrapers.aiscore.bronze_storage - INFO - Updated match j374oi053eyugqo status to 'pending' in daily listing
+2025-11-27 23:00:34,477 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053eyugqo] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:00:35,418 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053eyugqo] Found 173 rows in tab '1 X 2', parsing...
+2025-11-27 23:00:35,428 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053eyugqo] Parsed 164/173 rows from '1 X 2' (9 failed)
+2025-11-27 23:00:35,429 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053eyugqo] ✓ Scraped 164 odds from tab '1 X 2'
+2025-11-27 23:00:36,442 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053eyugqo] Found 214 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:00:36,515 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053eyugqo] Parsed 125/214 rows from 'Asian Handicap' (89 failed)
+2025-11-27 23:00:36,516 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053eyugqo] ✓ Scraped 125 odds from tab 'Asian Handicap'
+2025-11-27 23:00:37,550 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053eyugqo] Found 270 rows in tab 'Total Goals', parsing...
+2025-11-27 23:00:37,561 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053eyugqo] Parsed 159/270 rows from 'Total Goals' (111 failed)
+2025-11-27 23:00:37,565 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053eyugqo] ✓ Scraped 159 odds from tab 'Total Goals'
+2025-11-27 23:00:38,555 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053eyugqo] Found 155 rows in tab 'Total Corners', parsing...
+2025-11-27 23:00:38,576 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053eyugqo] Parsed 150/155 rows from 'Total Corners' (5 failed)
+2025-11-27 23:00:38,582 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi053eyugqo] ✓ Scraped 150 odds from tab 'Total Corners'
+2025-11-27 23:00:38,739 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: j374oi053eyugqo to data/aiscore/matches/20251002/match_j374oi053eyugqo.json
+2025-11-27 23:00:38,745 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_j374oi053eyugqo.json
+2025-11-27 23:00:38,759 - src.scrapers.aiscore.bronze_storage - INFO - Updated match j374oi053eyugqo status to 'success' in daily listing
+2025-11-27 23:00:39,376 - src.scrapers.aiscore.bronze_storage - INFO - Updated match zrkn6i42ednawql status to 'pending' in daily listing
+2025-11-27 23:00:42,785 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i42ednawql] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:00:43,747 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i42ednawql] Found 147 rows in tab '1 X 2', parsing...
+2025-11-27 23:00:43,757 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i42ednawql] Parsed 137/147 rows from '1 X 2' (10 failed)
+2025-11-27 23:00:43,758 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i42ednawql] ✓ Scraped 137 odds from tab '1 X 2'
+2025-11-27 23:00:44,766 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i42ednawql] Found 175 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:00:44,776 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i42ednawql] Parsed 109/175 rows from 'Asian Handicap' (66 failed)
+2025-11-27 23:00:44,778 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i42ednawql] ✓ Scraped 109 odds from tab 'Asian Handicap'
+2025-11-27 23:00:45,807 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i42ednawql] Found 259 rows in tab 'Total Goals', parsing...
+2025-11-27 23:00:45,832 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i42ednawql] Parsed 147/259 rows from 'Total Goals' (112 failed)
+2025-11-27 23:00:45,834 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i42ednawql] ✓ Scraped 147 odds from tab 'Total Goals'
+2025-11-27 23:00:46,733 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i42ednawql] Found 145 rows in tab 'Total Corners', parsing...
+2025-11-27 23:00:46,752 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i42ednawql] Parsed 136/145 rows from 'Total Corners' (9 failed)
+2025-11-27 23:00:46,754 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i42ednawql] ✓ Scraped 136 odds from tab 'Total Corners'
+2025-11-27 23:00:46,951 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: zrkn6i42ednawql to data/aiscore/matches/20251002/match_zrkn6i42ednawql.json
+2025-11-27 23:00:46,954 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_zrkn6i42ednawql.json
+2025-11-27 23:00:46,968 - src.scrapers.aiscore.bronze_storage - INFO - Updated match zrkn6i42ednawql status to 'success' in daily listing
+2025-11-27 23:00:47,581 - src.scrapers.aiscore.bronze_storage - INFO - Updated match g6763i50r0gso7r status to 'pending' in daily listing
+2025-11-27 23:00:51,096 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i50r0gso7r] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:00:52,054 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i50r0gso7r] Found 294 rows in tab '1 X 2', parsing...
+2025-11-27 23:00:52,071 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i50r0gso7r] Parsed 268/294 rows from '1 X 2' (26 failed)
+2025-11-27 23:00:52,074 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i50r0gso7r] ✓ Scraped 268 odds from tab '1 X 2'
+2025-11-27 23:00:53,137 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i50r0gso7r] Found 373 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:00:53,153 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i50r0gso7r] Parsed 241/373 rows from 'Asian Handicap' (132 failed)
+2025-11-27 23:00:53,157 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i50r0gso7r] ✓ Scraped 241 odds from tab 'Asian Handicap'
+2025-11-27 23:00:54,281 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i50r0gso7r] Found 418 rows in tab 'Total Goals', parsing...
+2025-11-27 23:00:54,305 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i50r0gso7r] Parsed 250/418 rows from 'Total Goals' (168 failed)
+2025-11-27 23:00:54,308 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i50r0gso7r] ✓ Scraped 250 odds from tab 'Total Goals'
+2025-11-27 23:00:55,278 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i50r0gso7r] Found 242 rows in tab 'Total Corners', parsing...
+2025-11-27 23:00:55,287 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i50r0gso7r] Parsed 209/242 rows from 'Total Corners' (33 failed)
+2025-11-27 23:00:55,289 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i50r0gso7r] ✓ Scraped 209 odds from tab 'Total Corners'
+2025-11-27 23:00:55,458 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: g6763i50r0gso7r to data/aiscore/matches/20251002/match_g6763i50r0gso7r.json
+2025-11-27 23:00:55,459 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_g6763i50r0gso7r.json
+2025-11-27 23:00:55,468 - src.scrapers.aiscore.bronze_storage - INFO - Updated match g6763i50r0gso7r status to 'success' in daily listing
+2025-11-27 23:00:56,047 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8gnm4t879 status to 'pending' in daily listing
+2025-11-27 23:00:59,597 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnm4t879] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:01:00,554 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnm4t879] Found 237 rows in tab '1 X 2', parsing...
+2025-11-27 23:01:00,574 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnm4t879] Parsed 220/237 rows from '1 X 2' (17 failed)
+2025-11-27 23:01:00,577 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnm4t879] ✓ Scraped 220 odds from tab '1 X 2'
+2025-11-27 23:01:01,497 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnm4t879] Found 227 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:01:01,506 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnm4t879] Parsed 169/227 rows from 'Asian Handicap' (58 failed)
+2025-11-27 23:01:01,508 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnm4t879] ✓ Scraped 169 odds from tab 'Asian Handicap'
+2025-11-27 23:01:02,389 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnm4t879] Found 285 rows in tab 'Total Goals', parsing...
+2025-11-27 23:01:02,400 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnm4t879] Parsed 174/285 rows from 'Total Goals' (111 failed)
+2025-11-27 23:01:02,401 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnm4t879] ✓ Scraped 174 odds from tab 'Total Goals'
+2025-11-27 23:01:03,191 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnm4t879] Found 170 rows in tab 'Total Corners', parsing...
+2025-11-27 23:01:03,200 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnm4t879] Parsed 156/170 rows from 'Total Corners' (14 failed)
+2025-11-27 23:01:03,202 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnm4t879] ✓ Scraped 156 odds from tab 'Total Corners'
+2025-11-27 23:01:03,351 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: xvkjoi8gnm4t879 to data/aiscore/matches/20251002/match_xvkjoi8gnm4t879.json
+2025-11-27 23:01:03,353 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_xvkjoi8gnm4t879.json
+2025-11-27 23:01:03,362 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8gnm4t879 status to 'success' in daily listing
+2025-11-27 23:01:03,424 - src.scrapers.aiscore.odds_scraper - INFO - Progress: 30/65 (46%) | Success: 26 | Failed: 4 | Odds: 16472
+2025-11-27 23:01:04,020 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 9gklzi19rvpim7x status to 'pending' in daily listing
+2025-11-27 23:01:07,452 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rvpim7x] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:01:08,376 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rvpim7x] Found 153 rows in tab '1 X 2', parsing...
+2025-11-27 23:01:08,395 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rvpim7x] Parsed 137/153 rows from '1 X 2' (16 failed)
+2025-11-27 23:01:08,396 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rvpim7x] ✓ Scraped 137 odds from tab '1 X 2'
+2025-11-27 23:01:09,371 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rvpim7x] Found 212 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:01:09,392 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rvpim7x] Parsed 139/212 rows from 'Asian Handicap' (73 failed)
+2025-11-27 23:01:09,396 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rvpim7x] ✓ Scraped 139 odds from tab 'Asian Handicap'
+2025-11-27 23:01:10,402 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rvpim7x] Found 268 rows in tab 'Total Goals', parsing...
+2025-11-27 23:01:10,415 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rvpim7x] Parsed 162/268 rows from 'Total Goals' (106 failed)
+2025-11-27 23:01:10,428 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rvpim7x] ✓ Scraped 162 odds from tab 'Total Goals'
+2025-11-27 23:01:11,337 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rvpim7x] Found 171 rows in tab 'Total Corners', parsing...
+2025-11-27 23:01:11,354 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rvpim7x] Parsed 141/171 rows from 'Total Corners' (30 failed)
+2025-11-27 23:01:11,356 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rvpim7x] ✓ Scraped 141 odds from tab 'Total Corners'
+2025-11-27 23:01:11,520 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 9gklzi19rvpim7x to data/aiscore/matches/20251002/match_9gklzi19rvpim7x.json
+2025-11-27 23:01:11,522 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_9gklzi19rvpim7x.json
+2025-11-27 23:01:11,532 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 9gklzi19rvpim7x status to 'success' in daily listing
+2025-11-27 23:01:12,122 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 527r3i4mlywi47e status to 'pending' in daily listing
+2025-11-27 23:01:15,282 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlywi47e] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:01:16,336 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlywi47e] Found 185 rows in tab '1 X 2', parsing...
+2025-11-27 23:01:16,347 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlywi47e] Parsed 174/185 rows from '1 X 2' (11 failed)
+2025-11-27 23:01:16,349 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlywi47e] ✓ Scraped 174 odds from tab '1 X 2'
+2025-11-27 23:01:17,385 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlywi47e] Found 223 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:01:17,405 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlywi47e] Parsed 141/223 rows from 'Asian Handicap' (82 failed)
+2025-11-27 23:01:17,409 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlywi47e] ✓ Scraped 141 odds from tab 'Asian Handicap'
+2025-11-27 23:01:18,458 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlywi47e] Found 250 rows in tab 'Total Goals', parsing...
+2025-11-27 23:01:18,468 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlywi47e] Parsed 143/250 rows from 'Total Goals' (107 failed)
+2025-11-27 23:01:18,471 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlywi47e] ✓ Scraped 143 odds from tab 'Total Goals'
+2025-11-27 23:01:19,379 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlywi47e] Found 142 rows in tab 'Total Corners', parsing...
+2025-11-27 23:01:19,390 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlywi47e] Parsed 128/142 rows from 'Total Corners' (14 failed)
+2025-11-27 23:01:19,393 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4mlywi47e] ✓ Scraped 128 odds from tab 'Total Corners'
+2025-11-27 23:01:19,545 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 527r3i4mlywi47e to data/aiscore/matches/20251002/match_527r3i4mlywi47e.json
+2025-11-27 23:01:19,546 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_527r3i4mlywi47e.json
+2025-11-27 23:01:19,555 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 527r3i4mlywi47e status to 'success' in daily listing
+2025-11-27 23:01:20,157 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 63kv9ig3rr1sx7e status to 'pending' in daily listing
+2025-11-27 23:01:23,606 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3rr1sx7e] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:01:24,595 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3rr1sx7e] Found 251 rows in tab '1 X 2', parsing...
+2025-11-27 23:01:24,618 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3rr1sx7e] Parsed 229/251 rows from '1 X 2' (22 failed)
+2025-11-27 23:01:24,620 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3rr1sx7e] ✓ Scraped 229 odds from tab '1 X 2'
+2025-11-27 23:01:25,794 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3rr1sx7e] Found 325 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:01:25,810 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3rr1sx7e] Parsed 167/325 rows from 'Asian Handicap' (158 failed)
+2025-11-27 23:01:25,819 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3rr1sx7e] ✓ Scraped 167 odds from tab 'Asian Handicap'
+2025-11-27 23:01:26,926 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3rr1sx7e] Found 292 rows in tab 'Total Goals', parsing...
+2025-11-27 23:01:26,937 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3rr1sx7e] Parsed 136/292 rows from 'Total Goals' (156 failed)
+2025-11-27 23:01:26,940 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3rr1sx7e] ✓ Scraped 136 odds from tab 'Total Goals'
+2025-11-27 23:01:27,882 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3rr1sx7e] Found 170 rows in tab 'Total Corners', parsing...
+2025-11-27 23:01:27,904 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3rr1sx7e] Parsed 147/170 rows from 'Total Corners' (23 failed)
+2025-11-27 23:01:27,907 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3rr1sx7e] ✓ Scraped 147 odds from tab 'Total Corners'
+2025-11-27 23:01:28,072 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 63kv9ig3rr1sx7e to data/aiscore/matches/20251002/match_63kv9ig3rr1sx7e.json
+2025-11-27 23:01:28,073 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_63kv9ig3rr1sx7e.json
+2025-11-27 23:01:28,111 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 63kv9ig3rr1sx7e status to 'success' in daily listing
+2025-11-27 23:01:28,739 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 34kgmio0eovheko status to 'pending' in daily listing
+2025-11-27 23:01:32,172 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0eovheko] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:01:33,080 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0eovheko] Found 163 rows in tab '1 X 2', parsing...
+2025-11-27 23:01:33,091 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0eovheko] Parsed 145/163 rows from '1 X 2' (18 failed)
+2025-11-27 23:01:33,093 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0eovheko] ✓ Scraped 145 odds from tab '1 X 2'
+2025-11-27 23:01:34,089 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0eovheko] Found 185 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:01:34,100 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0eovheko] Parsed 122/185 rows from 'Asian Handicap' (63 failed)
+2025-11-27 23:01:34,102 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0eovheko] ✓ Scraped 122 odds from tab 'Asian Handicap'
+2025-11-27 23:01:35,106 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0eovheko] Found 234 rows in tab 'Total Goals', parsing...
+2025-11-27 23:01:35,126 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0eovheko] Parsed 139/234 rows from 'Total Goals' (95 failed)
+2025-11-27 23:01:35,128 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0eovheko] ✓ Scraped 139 odds from tab 'Total Goals'
+2025-11-27 23:01:36,052 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0eovheko] Found 137 rows in tab 'Total Corners', parsing...
+2025-11-27 23:01:36,075 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0eovheko] Parsed 126/137 rows from 'Total Corners' (11 failed)
+2025-11-27 23:01:36,077 - src.scrapers.aiscore.odds_scraper - INFO - [34kgmio0eovheko] ✓ Scraped 126 odds from tab 'Total Corners'
+2025-11-27 23:01:36,241 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 34kgmio0eovheko to data/aiscore/matches/20251002/match_34kgmio0eovheko.json
+2025-11-27 23:01:36,242 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_34kgmio0eovheko.json
+2025-11-27 23:01:36,248 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 34kgmio0eovheko status to 'success' in daily listing
+2025-11-27 23:01:36,834 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8gnvgf879 status to 'pending' in daily listing
+2025-11-27 23:01:40,134 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnvgf879] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:01:41,027 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnvgf879] Found 115 rows in tab '1 X 2', parsing...
+2025-11-27 23:01:41,040 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnvgf879] Parsed 107/115 rows from '1 X 2' (8 failed)
+2025-11-27 23:01:41,042 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnvgf879] ✓ Scraped 107 odds from tab '1 X 2'
+2025-11-27 23:01:42,080 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnvgf879] Found 336 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:01:42,100 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnvgf879] Parsed 225/336 rows from 'Asian Handicap' (111 failed)
+2025-11-27 23:01:42,103 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnvgf879] ✓ Scraped 225 odds from tab 'Asian Handicap'
+2025-11-27 23:01:43,305 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnvgf879] Found 385 rows in tab 'Total Goals', parsing...
+2025-11-27 23:01:43,333 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnvgf879] Parsed 249/385 rows from 'Total Goals' (136 failed)
+2025-11-27 23:01:43,335 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnvgf879] ✓ Scraped 249 odds from tab 'Total Goals'
+2025-11-27 23:01:44,311 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnvgf879] Found 149 rows in tab 'Total Corners', parsing...
+2025-11-27 23:01:44,334 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnvgf879] Parsed 139/149 rows from 'Total Corners' (10 failed)
+2025-11-27 23:01:44,335 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gnvgf879] ✓ Scraped 139 odds from tab 'Total Corners'
+2025-11-27 23:01:44,535 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: xvkjoi8gnvgf879 to data/aiscore/matches/20251002/match_xvkjoi8gnvgf879.json
+2025-11-27 23:01:44,537 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_xvkjoi8gnvgf879.json
+2025-11-27 23:01:44,546 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8gnvgf879 status to 'success' in daily listing
+2025-11-27 23:01:45,155 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8gn0ga879 status to 'pending' in daily listing
+2025-11-27 23:01:48,486 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gn0ga879] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:01:49,323 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gn0ga879] Found 250 rows in tab '1 X 2', parsing...
+2025-11-27 23:01:49,333 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gn0ga879] Parsed 224/250 rows from '1 X 2' (26 failed)
+2025-11-27 23:01:49,335 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gn0ga879] ✓ Scraped 224 odds from tab '1 X 2'
+2025-11-27 23:01:50,234 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gn0ga879] Found 316 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:01:50,244 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gn0ga879] Parsed 196/316 rows from 'Asian Handicap' (120 failed)
+2025-11-27 23:01:50,245 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gn0ga879] ✓ Scraped 196 odds from tab 'Asian Handicap'
+2025-11-27 23:01:51,164 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gn0ga879] Found 334 rows in tab 'Total Goals', parsing...
+2025-11-27 23:01:51,175 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gn0ga879] Parsed 207/334 rows from 'Total Goals' (127 failed)
+2025-11-27 23:01:51,175 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gn0ga879] ✓ Scraped 207 odds from tab 'Total Goals'
+2025-11-27 23:01:51,997 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gn0ga879] Found 153 rows in tab 'Total Corners', parsing...
+2025-11-27 23:01:52,007 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gn0ga879] Parsed 125/153 rows from 'Total Corners' (28 failed)
+2025-11-27 23:01:52,009 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8gn0ga879] ✓ Scraped 125 odds from tab 'Total Corners'
+2025-11-27 23:01:52,188 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: xvkjoi8gn0ga879 to data/aiscore/matches/20251002/match_xvkjoi8gn0ga879.json
+2025-11-27 23:01:52,189 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_xvkjoi8gn0ga879.json
+2025-11-27 23:01:52,204 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8gn0ga879 status to 'success' in daily listing
+2025-11-27 23:01:52,805 - src.scrapers.aiscore.bronze_storage - INFO - Updated match wv78xiv3m5zsokr status to 'pending' in daily listing
+2025-11-27 23:01:56,018 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3m5zsokr] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:01:56,847 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3m5zsokr] Found 292 rows in tab '1 X 2', parsing...
+2025-11-27 23:01:56,858 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3m5zsokr] Parsed 285/292 rows from '1 X 2' (7 failed)
+2025-11-27 23:01:56,860 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3m5zsokr] ✓ Scraped 285 odds from tab '1 X 2'
+2025-11-27 23:01:57,768 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3m5zsokr] Found 239 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:01:57,778 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3m5zsokr] Parsed 120/239 rows from 'Asian Handicap' (119 failed)
+2025-11-27 23:01:57,779 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3m5zsokr] ✓ Scraped 120 odds from tab 'Asian Handicap'
+2025-11-27 23:01:58,677 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3m5zsokr] Found 300 rows in tab 'Total Goals', parsing...
+2025-11-27 23:01:58,689 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3m5zsokr] Parsed 214/300 rows from 'Total Goals' (86 failed)
+2025-11-27 23:01:58,690 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3m5zsokr] ✓ Scraped 214 odds from tab 'Total Goals'
+2025-11-27 23:01:59,530 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3m5zsokr] Found 142 rows in tab 'Total Corners', parsing...
+2025-11-27 23:01:59,539 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3m5zsokr] Parsed 135/142 rows from 'Total Corners' (7 failed)
+2025-11-27 23:01:59,540 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3m5zsokr] ✓ Scraped 135 odds from tab 'Total Corners'
+2025-11-27 23:01:59,694 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: wv78xiv3m5zsokr to data/aiscore/matches/20251002/match_wv78xiv3m5zsokr.json
+2025-11-27 23:01:59,696 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_wv78xiv3m5zsokr.json
+2025-11-27 23:01:59,709 - src.scrapers.aiscore.bronze_storage - INFO - Updated match wv78xiv3m5zsokr status to 'success' in daily listing
+2025-11-27 23:02:00,299 - src.scrapers.aiscore.bronze_storage - INFO - Updated match oj7x9ix8000s47g status to 'pending' in daily listing
+2025-11-27 23:02:03,556 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix8000s47g] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:02:04,385 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix8000s47g] Found 140 rows in tab '1 X 2', parsing...
+2025-11-27 23:02:04,396 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix8000s47g] Parsed 129/140 rows from '1 X 2' (11 failed)
+2025-11-27 23:02:04,398 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix8000s47g] ✓ Scraped 129 odds from tab '1 X 2'
+2025-11-27 23:02:05,327 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix8000s47g] Found 290 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:02:05,340 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix8000s47g] Parsed 160/290 rows from 'Asian Handicap' (130 failed)
+2025-11-27 23:02:05,342 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix8000s47g] ✓ Scraped 160 odds from tab 'Asian Handicap'
+2025-11-27 23:02:06,322 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix8000s47g] Found 275 rows in tab 'Total Goals', parsing...
+2025-11-27 23:02:06,335 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix8000s47g] Parsed 157/275 rows from 'Total Goals' (118 failed)
+2025-11-27 23:02:06,336 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix8000s47g] ✓ Scraped 157 odds from tab 'Total Goals'
+2025-11-27 23:02:07,192 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix8000s47g] Found 167 rows in tab 'Total Corners', parsing...
+2025-11-27 23:02:07,203 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix8000s47g] Parsed 149/167 rows from 'Total Corners' (18 failed)
+2025-11-27 23:02:07,205 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix8000s47g] ✓ Scraped 149 odds from tab 'Total Corners'
+2025-11-27 23:02:07,345 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: oj7x9ix8000s47g to data/aiscore/matches/20251002/match_oj7x9ix8000s47g.json
+2025-11-27 23:02:07,346 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_oj7x9ix8000s47g.json
+2025-11-27 23:02:07,357 - src.scrapers.aiscore.bronze_storage - INFO - Updated match oj7x9ix8000s47g status to 'success' in daily listing
+2025-11-27 23:02:07,990 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 69759ig1zg3bgk2 status to 'pending' in daily listing
+2025-11-27 23:02:14,240 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zg3bgk2] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:02:15,049 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zg3bgk2] Found 141 rows in tab '1 X 2', parsing...
+2025-11-27 23:02:15,061 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zg3bgk2] Parsed 126/141 rows from '1 X 2' (15 failed)
+2025-11-27 23:02:15,063 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zg3bgk2] ✓ Scraped 126 odds from tab '1 X 2'
+2025-11-27 23:02:15,900 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zg3bgk2] Found 216 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:02:15,911 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zg3bgk2] Parsed 133/216 rows from 'Asian Handicap' (83 failed)
+2025-11-27 23:02:15,912 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zg3bgk2] ✓ Scraped 133 odds from tab 'Asian Handicap'
+2025-11-27 23:02:16,779 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zg3bgk2] Found 278 rows in tab 'Total Goals', parsing...
+2025-11-27 23:02:16,788 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zg3bgk2] Parsed 126/278 rows from 'Total Goals' (152 failed)
+2025-11-27 23:02:16,789 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zg3bgk2] ✓ Scraped 126 odds from tab 'Total Goals'
+2025-11-27 23:02:17,606 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zg3bgk2] Found 165 rows in tab 'Total Corners', parsing...
+2025-11-27 23:02:17,616 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zg3bgk2] Parsed 154/165 rows from 'Total Corners' (11 failed)
+2025-11-27 23:02:17,617 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1zg3bgk2] ✓ Scraped 154 odds from tab 'Total Corners'
+2025-11-27 23:02:17,735 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 69759ig1zg3bgk2 to data/aiscore/matches/20251002/match_69759ig1zg3bgk2.json
+2025-11-27 23:02:17,737 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_69759ig1zg3bgk2.json
+2025-11-27 23:02:17,768 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 69759ig1zg3bgk2 status to 'success' in daily listing
+2025-11-27 23:02:18,333 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 8lk2dirv4n2hz73 status to 'pending' in daily listing
+2025-11-27 23:02:21,105 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4n2hz73] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:02:21,901 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4n2hz73] Found 234 rows in tab '1 X 2', parsing...
+2025-11-27 23:02:21,910 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4n2hz73] Parsed 220/234 rows from '1 X 2' (14 failed)
+2025-11-27 23:02:21,911 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4n2hz73] ✓ Scraped 220 odds from tab '1 X 2'
+2025-11-27 23:02:22,790 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4n2hz73] Found 232 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:02:22,800 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4n2hz73] Parsed 150/232 rows from 'Asian Handicap' (82 failed)
+2025-11-27 23:02:22,802 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4n2hz73] ✓ Scraped 150 odds from tab 'Asian Handicap'
+2025-11-27 23:02:23,686 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4n2hz73] Found 250 rows in tab 'Total Goals', parsing...
+2025-11-27 23:02:23,694 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4n2hz73] Parsed 128/250 rows from 'Total Goals' (122 failed)
+2025-11-27 23:02:23,694 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4n2hz73] ✓ Scraped 128 odds from tab 'Total Goals'
+2025-11-27 23:02:24,498 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4n2hz73] Found 162 rows in tab 'Total Corners', parsing...
+2025-11-27 23:02:24,506 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4n2hz73] Parsed 137/162 rows from 'Total Corners' (25 failed)
+2025-11-27 23:02:24,508 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv4n2hz73] ✓ Scraped 137 odds from tab 'Total Corners'
+2025-11-27 23:02:24,622 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 8lk2dirv4n2hz73 to data/aiscore/matches/20251002/match_8lk2dirv4n2hz73.json
+2025-11-27 23:02:24,623 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_8lk2dirv4n2hz73.json
+2025-11-27 23:02:24,651 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 8lk2dirv4n2hz73 status to 'success' in daily listing
+2025-11-27 23:02:24,710 - src.scrapers.aiscore.odds_scraper - INFO - Progress: 40/65 (62%) | Success: 36 | Failed: 4 | Odds: 22843
+2025-11-27 23:02:25,225 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 9gklzi19rp5im7x status to 'pending' in daily listing
+2025-11-27 23:02:28,025 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rp5im7x] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:02:28,880 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rp5im7x] Found 175 rows in tab '1 X 2', parsing...
+2025-11-27 23:02:28,889 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rp5im7x] Parsed 171/175 rows from '1 X 2' (4 failed)
+2025-11-27 23:02:28,891 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rp5im7x] ✓ Scraped 171 odds from tab '1 X 2'
+2025-11-27 23:02:29,834 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rp5im7x] Found 175 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:02:29,847 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rp5im7x] Parsed 257/175 rows from 'Asian Handicap' (115 failed)
+2025-11-27 23:02:29,849 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rp5im7x] ✓ Scraped 257 odds from tab 'Asian Handicap'
+2025-11-27 23:02:30,802 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rp5im7x] Found 350 rows in tab 'Total Goals', parsing...
+2025-11-27 23:02:30,811 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rp5im7x] Parsed 231/350 rows from 'Total Goals' (119 failed)
+2025-11-27 23:02:30,812 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rp5im7x] ✓ Scraped 231 odds from tab 'Total Goals'
+2025-11-27 23:02:31,623 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rp5im7x] Found 178 rows in tab 'Total Corners', parsing...
+2025-11-27 23:02:31,631 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rp5im7x] Parsed 161/178 rows from 'Total Corners' (17 failed)
+2025-11-27 23:02:31,633 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19rp5im7x] ✓ Scraped 161 odds from tab 'Total Corners'
+2025-11-27 23:02:31,735 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 9gklzi19rp5im7x to data/aiscore/matches/20251002/match_9gklzi19rp5im7x.json
+2025-11-27 23:02:31,736 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_9gklzi19rp5im7x.json
+2025-11-27 23:02:31,761 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 9gklzi19rp5im7x status to 'success' in daily listing
+2025-11-27 23:02:32,335 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 69759ig1z0pugk2 status to 'pending' in daily listing
+2025-11-27 23:02:35,128 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1z0pugk2] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:02:35,981 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1z0pugk2] Found 270 rows in tab '1 X 2', parsing...
+2025-11-27 23:02:35,992 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1z0pugk2] Parsed 252/270 rows from '1 X 2' (18 failed)
+2025-11-27 23:02:35,993 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1z0pugk2] ✓ Scraped 252 odds from tab '1 X 2'
+2025-11-27 23:02:36,865 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1z0pugk2] Found 279 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:02:36,873 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1z0pugk2] Parsed 156/279 rows from 'Asian Handicap' (123 failed)
+2025-11-27 23:02:36,875 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1z0pugk2] ✓ Scraped 156 odds from tab 'Asian Handicap'
+2025-11-27 23:02:37,790 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1z0pugk2] Found 348 rows in tab 'Total Goals', parsing...
+2025-11-27 23:02:37,801 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1z0pugk2] Parsed 166/348 rows from 'Total Goals' (182 failed)
+2025-11-27 23:02:37,803 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1z0pugk2] ✓ Scraped 166 odds from tab 'Total Goals'
+2025-11-27 23:02:38,626 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1z0pugk2] Found 154 rows in tab 'Total Corners', parsing...
+2025-11-27 23:02:38,635 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1z0pugk2] Parsed 141/154 rows from 'Total Corners' (13 failed)
+2025-11-27 23:02:38,637 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig1z0pugk2] ✓ Scraped 141 odds from tab 'Total Corners'
+2025-11-27 23:02:38,860 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 69759ig1z0pugk2 to data/aiscore/matches/20251002/match_69759ig1z0pugk2.json
+2025-11-27 23:02:38,862 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_69759ig1z0pugk2.json
+2025-11-27 23:02:38,873 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 69759ig1z0pugk2 status to 'success' in daily listing
+2025-11-27 23:02:39,451 - src.scrapers.aiscore.bronze_storage - INFO - Updated match jek33i83gdls9ko status to 'pending' in daily listing
+2025-11-27 23:02:42,601 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83gdls9ko] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:02:43,424 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83gdls9ko] Found 140 rows in tab '1 X 2', parsing...
+2025-11-27 23:02:43,434 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83gdls9ko] Parsed 127/140 rows from '1 X 2' (13 failed)
+2025-11-27 23:02:43,435 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83gdls9ko] ✓ Scraped 127 odds from tab '1 X 2'
+2025-11-27 23:02:44,250 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83gdls9ko] Found 224 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:02:44,259 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83gdls9ko] Parsed 180/224 rows from 'Asian Handicap' (44 failed)
+2025-11-27 23:02:44,260 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83gdls9ko] ✓ Scraped 180 odds from tab 'Asian Handicap'
+2025-11-27 23:02:45,153 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83gdls9ko] Found 291 rows in tab 'Total Goals', parsing...
+2025-11-27 23:02:45,163 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83gdls9ko] Parsed 165/291 rows from 'Total Goals' (126 failed)
+2025-11-27 23:02:45,164 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83gdls9ko] ✓ Scraped 165 odds from tab 'Total Goals'
+2025-11-27 23:02:45,966 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83gdls9ko] Found 181 rows in tab 'Total Corners', parsing...
+2025-11-27 23:02:45,975 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83gdls9ko] Parsed 167/181 rows from 'Total Corners' (14 failed)
+2025-11-27 23:02:45,976 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83gdls9ko] ✓ Scraped 167 odds from tab 'Total Corners'
+2025-11-27 23:02:46,126 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: jek33i83gdls9ko to data/aiscore/matches/20251002/match_jek33i83gdls9ko.json
+2025-11-27 23:02:46,128 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_jek33i83gdls9ko.json
+2025-11-27 23:02:46,144 - src.scrapers.aiscore.bronze_storage - INFO - Updated match jek33i83gdls9ko status to 'success' in daily listing
+2025-11-27 23:02:46,757 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 9gklzi19r45tm7x status to 'pending' in daily listing
+2025-11-27 23:02:49,888 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19r45tm7x] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:02:50,694 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19r45tm7x] Found 279 rows in tab '1 X 2', parsing...
+2025-11-27 23:02:50,704 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19r45tm7x] Parsed 264/279 rows from '1 X 2' (15 failed)
+2025-11-27 23:02:50,706 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19r45tm7x] ✓ Scraped 264 odds from tab '1 X 2'
+2025-11-27 23:02:51,570 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19r45tm7x] Found 275 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:02:51,583 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19r45tm7x] Parsed 202/275 rows from 'Asian Handicap' (73 failed)
+2025-11-27 23:02:51,584 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19r45tm7x] ✓ Scraped 202 odds from tab 'Asian Handicap'
+2025-11-27 23:02:52,505 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19r45tm7x] Found 311 rows in tab 'Total Goals', parsing...
+2025-11-27 23:02:52,514 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19r45tm7x] Parsed 152/311 rows from 'Total Goals' (159 failed)
+2025-11-27 23:02:52,516 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19r45tm7x] ✓ Scraped 152 odds from tab 'Total Goals'
+2025-11-27 23:02:53,314 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19r45tm7x] Found 160 rows in tab 'Total Corners', parsing...
+2025-11-27 23:02:53,322 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19r45tm7x] Parsed 139/160 rows from 'Total Corners' (21 failed)
+2025-11-27 23:02:53,323 - src.scrapers.aiscore.odds_scraper - INFO - [9gklzi19r45tm7x] ✓ Scraped 139 odds from tab 'Total Corners'
+2025-11-27 23:02:53,477 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 9gklzi19r45tm7x to data/aiscore/matches/20251002/match_9gklzi19r45tm7x.json
+2025-11-27 23:02:53,489 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_9gklzi19r45tm7x.json
+2025-11-27 23:02:53,551 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 9gklzi19r45tm7x status to 'success' in daily listing
+2025-11-27 23:02:54,180 - src.scrapers.aiscore.bronze_storage - INFO - Updated match o07dni5ovgytmkn status to 'pending' in daily listing
+2025-11-27 23:02:57,092 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5ovgytmkn] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:02:57,883 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5ovgytmkn] Found 229 rows in tab '1 X 2', parsing...
+2025-11-27 23:02:57,893 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5ovgytmkn] Parsed 219/229 rows from '1 X 2' (10 failed)
+2025-11-27 23:02:57,894 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5ovgytmkn] ✓ Scraped 219 odds from tab '1 X 2'
+2025-11-27 23:02:58,751 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5ovgytmkn] Found 210 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:02:58,758 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5ovgytmkn] Parsed 143/210 rows from 'Asian Handicap' (67 failed)
+2025-11-27 23:02:58,760 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5ovgytmkn] ✓ Scraped 143 odds from tab 'Asian Handicap'
+2025-11-27 23:02:59,609 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5ovgytmkn] Found 276 rows in tab 'Total Goals', parsing...
+2025-11-27 23:02:59,625 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5ovgytmkn] Parsed 145/276 rows from 'Total Goals' (131 failed)
+2025-11-27 23:02:59,627 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5ovgytmkn] ✓ Scraped 145 odds from tab 'Total Goals'
+2025-11-27 23:03:00,421 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5ovgytmkn] Found 154 rows in tab 'Total Corners', parsing...
+2025-11-27 23:03:00,428 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5ovgytmkn] Parsed 143/154 rows from 'Total Corners' (11 failed)
+2025-11-27 23:03:00,430 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5ovgytmkn] ✓ Scraped 143 odds from tab 'Total Corners'
+2025-11-27 23:03:00,523 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: o07dni5ovgytmkn to data/aiscore/matches/20251002/match_o07dni5ovgytmkn.json
+2025-11-27 23:03:00,524 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_o07dni5ovgytmkn.json
+2025-11-27 23:03:00,534 - src.scrapers.aiscore.bronze_storage - INFO - Updated match o07dni5ovgytmkn status to 'success' in daily listing
+2025-11-27 23:03:01,254 - src.scrapers.aiscore.bronze_storage - INFO - Updated match jek33i83g8oi9ko status to 'pending' in daily listing
+2025-11-27 23:03:04,297 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83g8oi9ko] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:03:05,085 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83g8oi9ko] Found 182 rows in tab '1 X 2', parsing...
+2025-11-27 23:03:05,095 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83g8oi9ko] Parsed 167/182 rows from '1 X 2' (15 failed)
+2025-11-27 23:03:05,097 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83g8oi9ko] ✓ Scraped 167 odds from tab '1 X 2'
+2025-11-27 23:03:05,920 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83g8oi9ko] Found 205 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:03:05,928 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83g8oi9ko] Parsed 131/205 rows from 'Asian Handicap' (74 failed)
+2025-11-27 23:03:05,929 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83g8oi9ko] ✓ Scraped 131 odds from tab 'Asian Handicap'
+2025-11-27 23:03:06,765 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83g8oi9ko] Found 284 rows in tab 'Total Goals', parsing...
+2025-11-27 23:03:06,775 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83g8oi9ko] Parsed 128/284 rows from 'Total Goals' (156 failed)
+2025-11-27 23:03:06,777 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83g8oi9ko] ✓ Scraped 128 odds from tab 'Total Goals'
+2025-11-27 23:03:07,568 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83g8oi9ko] Found 155 rows in tab 'Total Corners', parsing...
+2025-11-27 23:03:07,576 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83g8oi9ko] Parsed 143/155 rows from 'Total Corners' (12 failed)
+2025-11-27 23:03:07,578 - src.scrapers.aiscore.odds_scraper - INFO - [jek33i83g8oi9ko] ✓ Scraped 143 odds from tab 'Total Corners'
+2025-11-27 23:03:07,718 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: jek33i83g8oi9ko to data/aiscore/matches/20251002/match_jek33i83g8oi9ko.json
+2025-11-27 23:03:07,719 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_jek33i83g8oi9ko.json
+2025-11-27 23:03:07,740 - src.scrapers.aiscore.bronze_storage - INFO - Updated match jek33i83g8oi9ko status to 'success' in daily listing
+2025-11-27 23:03:08,501 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 8lk2dirv462az73 status to 'pending' in daily listing
+2025-11-27 23:03:11,317 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv462az73] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:03:12,115 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv462az73] Found 191 rows in tab '1 X 2', parsing...
+2025-11-27 23:03:12,141 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv462az73] Parsed 178/191 rows from '1 X 2' (13 failed)
+2025-11-27 23:03:12,155 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv462az73] ✓ Scraped 178 odds from tab '1 X 2'
+2025-11-27 23:03:13,114 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv462az73] Found 223 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:03:13,131 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv462az73] Parsed 152/223 rows from 'Asian Handicap' (71 failed)
+2025-11-27 23:03:13,136 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv462az73] ✓ Scraped 152 odds from tab 'Asian Handicap'
+2025-11-27 23:03:14,031 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv462az73] Found 244 rows in tab 'Total Goals', parsing...
+2025-11-27 23:03:14,041 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv462az73] Parsed 135/244 rows from 'Total Goals' (109 failed)
+2025-11-27 23:03:14,042 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv462az73] ✓ Scraped 135 odds from tab 'Total Goals'
+2025-11-27 23:03:14,831 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv462az73] Found 139 rows in tab 'Total Corners', parsing...
+2025-11-27 23:03:14,839 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv462az73] Parsed 110/139 rows from 'Total Corners' (29 failed)
+2025-11-27 23:03:14,844 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirv462az73] ✓ Scraped 110 odds from tab 'Total Corners'
+2025-11-27 23:03:15,129 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 8lk2dirv462az73 to data/aiscore/matches/20251002/match_8lk2dirv462az73.json
+2025-11-27 23:03:15,130 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_8lk2dirv462az73.json
+2025-11-27 23:03:15,143 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 8lk2dirv462az73 status to 'success' in daily listing
+2025-11-27 23:03:15,757 - src.scrapers.aiscore.bronze_storage - INFO - Updated match oj7x9ix80z0b47g status to 'pending' in daily listing
+2025-11-27 23:03:18,611 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80z0b47g] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:03:19,431 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80z0b47g] Found 226 rows in tab '1 X 2', parsing...
+2025-11-27 23:03:19,441 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80z0b47g] Parsed 218/226 rows from '1 X 2' (8 failed)
+2025-11-27 23:03:19,442 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80z0b47g] ✓ Scraped 218 odds from tab '1 X 2'
+2025-11-27 23:03:20,340 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80z0b47g] Found 213 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:03:20,351 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80z0b47g] Parsed 119/213 rows from 'Asian Handicap' (94 failed)
+2025-11-27 23:03:20,353 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80z0b47g] ✓ Scraped 119 odds from tab 'Asian Handicap'
+2025-11-27 23:03:21,223 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80z0b47g] Found 276 rows in tab 'Total Goals', parsing...
+2025-11-27 23:03:21,236 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80z0b47g] Parsed 167/276 rows from 'Total Goals' (109 failed)
+2025-11-27 23:03:21,241 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80z0b47g] ✓ Scraped 167 odds from tab 'Total Goals'
+2025-11-27 23:03:22,045 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80z0b47g] Found 141 rows in tab 'Total Corners', parsing...
+2025-11-27 23:03:22,057 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80z0b47g] Parsed 125/141 rows from 'Total Corners' (16 failed)
+2025-11-27 23:03:22,061 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ix80z0b47g] ✓ Scraped 125 odds from tab 'Total Corners'
+2025-11-27 23:03:22,385 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: oj7x9ix80z0b47g to data/aiscore/matches/20251002/match_oj7x9ix80z0b47g.json
+2025-11-27 23:03:22,389 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_oj7x9ix80z0b47g.json
+2025-11-27 23:03:22,408 - src.scrapers.aiscore.bronze_storage - INFO - Updated match oj7x9ix80z0b47g status to 'success' in daily listing
+2025-11-27 23:03:22,972 - src.scrapers.aiscore.bronze_storage - INFO - Updated match wv78xiv3mezbokr status to 'pending' in daily listing
+2025-11-27 23:03:25,939 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3mezbokr] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:03:26,749 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3mezbokr] Found 214 rows in tab '1 X 2', parsing...
+2025-11-27 23:03:26,760 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3mezbokr] Parsed 203/214 rows from '1 X 2' (11 failed)
+2025-11-27 23:03:26,761 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3mezbokr] ✓ Scraped 203 odds from tab '1 X 2'
+2025-11-27 23:03:27,615 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3mezbokr] Found 185 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:03:27,626 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3mezbokr] Parsed 118/185 rows from 'Asian Handicap' (67 failed)
+2025-11-27 23:03:27,630 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3mezbokr] ✓ Scraped 118 odds from tab 'Asian Handicap'
+2025-11-27 23:03:28,474 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3mezbokr] Found 282 rows in tab 'Total Goals', parsing...
+2025-11-27 23:03:28,485 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3mezbokr] Parsed 136/282 rows from 'Total Goals' (146 failed)
+2025-11-27 23:03:28,491 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3mezbokr] ✓ Scraped 136 odds from tab 'Total Goals'
+2025-11-27 23:03:29,306 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3mezbokr] Found 172 rows in tab 'Total Corners', parsing...
+2025-11-27 23:03:29,326 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3mezbokr] Parsed 157/172 rows from 'Total Corners' (15 failed)
+2025-11-27 23:03:29,328 - src.scrapers.aiscore.odds_scraper - INFO - [wv78xiv3mezbokr] ✓ Scraped 157 odds from tab 'Total Corners'
+2025-11-27 23:03:29,498 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: wv78xiv3mezbokr to data/aiscore/matches/20251002/match_wv78xiv3mezbokr.json
+2025-11-27 23:03:29,499 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_wv78xiv3mezbokr.json
+2025-11-27 23:03:29,521 - src.scrapers.aiscore.bronze_storage - INFO - Updated match wv78xiv3mezbokr status to 'success' in daily listing
+2025-11-27 23:03:30,247 - src.scrapers.aiscore.bronze_storage - INFO - Updated match edq09il8odzteqx status to 'pending' in daily listing
+2025-11-27 23:03:33,070 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8odzteqx] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:03:33,881 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8odzteqx] Found 136 rows in tab '1 X 2', parsing...
+2025-11-27 23:03:33,889 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8odzteqx] Parsed 131/136 rows from '1 X 2' (5 failed)
+2025-11-27 23:03:33,890 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8odzteqx] ✓ Scraped 131 odds from tab '1 X 2'
+2025-11-27 23:03:34,740 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8odzteqx] Found 271 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:03:34,749 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8odzteqx] Parsed 166/271 rows from 'Asian Handicap' (105 failed)
+2025-11-27 23:03:34,751 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8odzteqx] ✓ Scraped 166 odds from tab 'Asian Handicap'
+2025-11-27 23:03:35,607 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8odzteqx] Found 286 rows in tab 'Total Goals', parsing...
+2025-11-27 23:03:35,616 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8odzteqx] Parsed 134/286 rows from 'Total Goals' (152 failed)
+2025-11-27 23:03:35,618 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8odzteqx] ✓ Scraped 134 odds from tab 'Total Goals'
+2025-11-27 23:03:36,391 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8odzteqx] Found 140 rows in tab 'Total Corners', parsing...
+2025-11-27 23:03:36,398 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8odzteqx] Parsed 124/140 rows from 'Total Corners' (16 failed)
+2025-11-27 23:03:36,399 - src.scrapers.aiscore.odds_scraper - INFO - [edq09il8odzteqx] ✓ Scraped 124 odds from tab 'Total Corners'
+2025-11-27 23:03:36,520 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: edq09il8odzteqx to data/aiscore/matches/20251002/match_edq09il8odzteqx.json
+2025-11-27 23:03:36,521 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_edq09il8odzteqx.json
+2025-11-27 23:03:36,543 - src.scrapers.aiscore.bronze_storage - INFO - Updated match edq09il8odzteqx status to 'success' in daily listing
+2025-11-27 23:03:36,751 - src.scrapers.aiscore.odds_scraper - INFO - Progress: 50/65 (77%) | Success: 46 | Failed: 4 | Odds: 29366
+2025-11-27 23:03:37,288 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ezk96i3e4gwf1kn status to 'pending' in daily listing
+2025-11-27 23:04:09,733 - src.scrapers.aiscore.odds_scraper - WARNING - [ezk96i3e4gwf1kn] ⚠️  No tabs found - refreshing page and retrying...
+2025-11-27 23:04:30,755 - src.scrapers.aiscore.odds_scraper - WARNING - [ezk96i3e4gwf1kn] ⚠️  Still no tabs found after refresh - trying default tab
+2025-11-27 23:04:40,810 - src.scrapers.aiscore.odds_scraper - WARNING - [ezk96i3e4gwf1kn] ⚠️  No table in tab 'Default' after waiting 2 seconds
+2025-11-27 23:04:40,813 - src.scrapers.aiscore.odds_scraper - WARNING - [ezk96i3e4gwf1kn] ⚠️  No odds found in default tab either
+2025-11-27 23:04:41,214 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: ezk96i3e4gwf1kn to data/aiscore/matches/20251002/match_ezk96i3e4gwf1kn.json
+2025-11-27 23:04:41,217 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_ezk96i3e4gwf1kn.json
+2025-11-27 23:04:41,278 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ezk96i3e4gwf1kn status to 'failed' in daily listing
+2025-11-27 23:04:41,883 - src.scrapers.aiscore.bronze_storage - INFO - Updated match j374oi01yp1fgqo status to 'pending' in daily listing
+2025-11-27 23:04:44,805 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi01yp1fgqo] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:04:45,640 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi01yp1fgqo] Found 191 rows in tab '1 X 2', parsing...
+2025-11-27 23:04:45,650 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi01yp1fgqo] Parsed 185/191 rows from '1 X 2' (6 failed)
+2025-11-27 23:04:45,652 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi01yp1fgqo] ✓ Scraped 185 odds from tab '1 X 2'
+2025-11-27 23:04:46,500 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi01yp1fgqo] Found 219 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:04:46,509 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi01yp1fgqo] Parsed 93/219 rows from 'Asian Handicap' (126 failed)
+2025-11-27 23:04:46,513 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi01yp1fgqo] ✓ Scraped 93 odds from tab 'Asian Handicap'
+2025-11-27 23:04:47,364 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi01yp1fgqo] Found 251 rows in tab 'Total Goals', parsing...
+2025-11-27 23:04:47,377 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi01yp1fgqo] Parsed 155/251 rows from 'Total Goals' (96 failed)
+2025-11-27 23:04:47,378 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi01yp1fgqo] ✓ Scraped 155 odds from tab 'Total Goals'
+2025-11-27 23:04:48,148 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi01yp1fgqo] Found 131 rows in tab 'Total Corners', parsing...
+2025-11-27 23:04:48,154 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi01yp1fgqo] Parsed 115/131 rows from 'Total Corners' (16 failed)
+2025-11-27 23:04:48,155 - src.scrapers.aiscore.odds_scraper - INFO - [j374oi01yp1fgqo] ✓ Scraped 115 odds from tab 'Total Corners'
+2025-11-27 23:04:48,318 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: j374oi01yp1fgqo to data/aiscore/matches/20251002/match_j374oi01yp1fgqo.json
+2025-11-27 23:04:48,320 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_j374oi01yp1fgqo.json
+2025-11-27 23:04:48,344 - src.scrapers.aiscore.bronze_storage - INFO - Updated match j374oi01yp1fgqo status to 'success' in daily listing
+2025-11-27 23:04:48,930 - src.scrapers.aiscore.bronze_storage - INFO - Updated match g6763i5vogdho7r status to 'pending' in daily listing
+2025-11-27 23:04:51,809 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i5vogdho7r] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:04:52,579 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i5vogdho7r] Found 17 rows in tab '1 X 2', parsing...
+2025-11-27 23:04:52,586 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i5vogdho7r] ✓ Scraped 15 odds from tab '1 X 2'
+2025-11-27 23:04:53,409 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i5vogdho7r] Found 317 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:04:53,421 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i5vogdho7r] Parsed 264/317 rows from 'Asian Handicap' (53 failed)
+2025-11-27 23:04:53,422 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i5vogdho7r] ✓ Scraped 264 odds from tab 'Asian Handicap'
+2025-11-27 23:04:54,377 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i5vogdho7r] Found 310 rows in tab 'Total Goals', parsing...
+2025-11-27 23:04:54,386 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i5vogdho7r] Parsed 133/310 rows from 'Total Goals' (177 failed)
+2025-11-27 23:04:54,387 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i5vogdho7r] ✓ Scraped 133 odds from tab 'Total Goals'
+2025-11-27 23:04:55,198 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i5vogdho7r] Found 332 rows in tab 'Total Corners', parsing...
+2025-11-27 23:04:55,208 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i5vogdho7r] Parsed 299/332 rows from 'Total Corners' (33 failed)
+2025-11-27 23:04:55,212 - src.scrapers.aiscore.odds_scraper - INFO - [g6763i5vogdho7r] ✓ Scraped 299 odds from tab 'Total Corners'
+2025-11-27 23:04:55,377 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: g6763i5vogdho7r to data/aiscore/matches/20251002/match_g6763i5vogdho7r.json
+2025-11-27 23:04:55,378 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_g6763i5vogdho7r.json
+2025-11-27 23:04:55,386 - src.scrapers.aiscore.bronze_storage - INFO - Updated match g6763i5vogdho7r status to 'success' in daily listing
+2025-11-27 23:04:55,977 - src.scrapers.aiscore.bronze_storage - INFO - Updated match zrkn6i4mgj2bwql status to 'pending' in daily listing
+2025-11-27 23:04:58,868 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4mgj2bwql] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:04:59,636 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4mgj2bwql] Found 208 rows in tab '1 X 2', parsing...
+2025-11-27 23:04:59,646 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4mgj2bwql] Parsed 203/208 rows from '1 X 2' (5 failed)
+2025-11-27 23:04:59,649 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4mgj2bwql] ✓ Scraped 203 odds from tab '1 X 2'
+2025-11-27 23:05:00,498 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4mgj2bwql] Found 188 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:05:00,509 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4mgj2bwql] Parsed 124/188 rows from 'Asian Handicap' (64 failed)
+2025-11-27 23:05:00,517 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4mgj2bwql] ✓ Scraped 124 odds from tab 'Asian Handicap'
+2025-11-27 23:05:01,360 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4mgj2bwql] Found 236 rows in tab 'Total Goals', parsing...
+2025-11-27 23:05:01,369 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4mgj2bwql] Parsed 134/236 rows from 'Total Goals' (102 failed)
+2025-11-27 23:05:01,369 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4mgj2bwql] ✓ Scraped 134 odds from tab 'Total Goals'
+2025-11-27 23:05:02,143 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4mgj2bwql] Found 131 rows in tab 'Total Corners', parsing...
+2025-11-27 23:05:02,152 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4mgj2bwql] Parsed 123/131 rows from 'Total Corners' (8 failed)
+2025-11-27 23:05:02,154 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4mgj2bwql] ✓ Scraped 123 odds from tab 'Total Corners'
+2025-11-27 23:05:02,257 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: zrkn6i4mgj2bwql to data/aiscore/matches/20251002/match_zrkn6i4mgj2bwql.json
+2025-11-27 23:05:02,258 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_zrkn6i4mgj2bwql.json
+2025-11-27 23:05:02,275 - src.scrapers.aiscore.bronze_storage - INFO - Updated match zrkn6i4mgj2bwql status to 'success' in daily listing
+2025-11-27 23:05:03,022 - src.scrapers.aiscore.bronze_storage - INFO - Updated match oj7x9ixrjoei47g status to 'pending' in daily listing
+2025-11-27 23:05:06,045 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ixrjoei47g] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:05:06,845 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ixrjoei47g] Found 241 rows in tab '1 X 2', parsing...
+2025-11-27 23:05:06,855 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ixrjoei47g] Parsed 222/241 rows from '1 X 2' (19 failed)
+2025-11-27 23:05:06,856 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ixrjoei47g] ✓ Scraped 222 odds from tab '1 X 2'
+2025-11-27 23:05:07,709 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ixrjoei47g] Found 259 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:05:07,721 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ixrjoei47g] Parsed 125/259 rows from 'Asian Handicap' (134 failed)
+2025-11-27 23:05:07,722 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ixrjoei47g] ✓ Scraped 125 odds from tab 'Asian Handicap'
+2025-11-27 23:05:08,603 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ixrjoei47g] Found 316 rows in tab 'Total Goals', parsing...
+2025-11-27 23:05:08,617 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ixrjoei47g] Parsed 149/316 rows from 'Total Goals' (167 failed)
+2025-11-27 23:05:08,619 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ixrjoei47g] ✓ Scraped 149 odds from tab 'Total Goals'
+2025-11-27 23:05:09,426 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ixrjoei47g] Found 125 rows in tab 'Total Corners', parsing...
+2025-11-27 23:05:09,435 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ixrjoei47g] Parsed 114/125 rows from 'Total Corners' (11 failed)
+2025-11-27 23:05:09,436 - src.scrapers.aiscore.odds_scraper - INFO - [oj7x9ixrjoei47g] ✓ Scraped 114 odds from tab 'Total Corners'
+2025-11-27 23:05:09,507 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: oj7x9ixrjoei47g to data/aiscore/matches/20251002/match_oj7x9ixrjoei47g.json
+2025-11-27 23:05:09,508 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_oj7x9ixrjoei47g.json
+2025-11-27 23:05:09,530 - src.scrapers.aiscore.bronze_storage - INFO - Updated match oj7x9ixrjoei47g status to 'success' in daily listing
+2025-11-27 23:05:10,102 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 527r3i415zxi47e status to 'pending' in daily listing
+2025-11-27 23:05:13,070 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i415zxi47e] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:05:13,838 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i415zxi47e] Found 177 rows in tab '1 X 2', parsing...
+2025-11-27 23:05:13,846 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i415zxi47e] Parsed 171/177 rows from '1 X 2' (6 failed)
+2025-11-27 23:05:13,847 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i415zxi47e] ✓ Scraped 171 odds from tab '1 X 2'
+2025-11-27 23:05:14,652 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i415zxi47e] Found 141 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:05:14,662 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i415zxi47e] Parsed 115/141 rows from 'Asian Handicap' (26 failed)
+2025-11-27 23:05:14,663 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i415zxi47e] ✓ Scraped 115 odds from tab 'Asian Handicap'
+2025-11-27 23:05:15,499 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i415zxi47e] Found 239 rows in tab 'Total Goals', parsing...
+2025-11-27 23:05:15,511 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i415zxi47e] Parsed 129/239 rows from 'Total Goals' (110 failed)
+2025-11-27 23:05:15,512 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i415zxi47e] ✓ Scraped 129 odds from tab 'Total Goals'
+2025-11-27 23:06:06,735 - src.scrapers.aiscore.odds_scraper - WARNING - [527r3i415zxi47e] ⚠️  No rows found in table for tab 'Total Corners'
+2025-11-27 23:06:06,737 - src.scrapers.aiscore.odds_scraper - WARNING - [527r3i415zxi47e] ⚠️  No odds found in tab 'Total Corners' - table may be empty or not loaded
+2025-11-27 23:06:06,922 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 527r3i415zxi47e to data/aiscore/matches/20251002/match_527r3i415zxi47e.json
+2025-11-27 23:06:06,923 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_527r3i415zxi47e.json
+2025-11-27 23:06:06,945 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 527r3i415zxi47e status to 'success' in daily listing
+2025-11-27 23:06:07,594 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 8lk2dirnwljiz73 status to 'pending' in daily listing
+2025-11-27 23:06:10,519 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirnwljiz73] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:06:11,302 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirnwljiz73] Found 154 rows in tab '1 X 2', parsing...
+2025-11-27 23:06:11,309 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirnwljiz73] Parsed 147/154 rows from '1 X 2' (7 failed)
+2025-11-27 23:06:11,311 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirnwljiz73] ✓ Scraped 147 odds from tab '1 X 2'
+2025-11-27 23:06:12,080 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirnwljiz73] Found 164 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:06:12,089 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirnwljiz73] Parsed 136/164 rows from 'Asian Handicap' (28 failed)
+2025-11-27 23:06:12,089 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirnwljiz73] ✓ Scraped 136 odds from tab 'Asian Handicap'
+2025-11-27 23:06:12,942 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirnwljiz73] Found 226 rows in tab 'Total Goals', parsing...
+2025-11-27 23:06:12,953 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirnwljiz73] Parsed 117/226 rows from 'Total Goals' (109 failed)
+2025-11-27 23:06:12,954 - src.scrapers.aiscore.odds_scraper - INFO - [8lk2dirnwljiz73] ✓ Scraped 117 odds from tab 'Total Goals'
+2025-11-27 23:07:04,259 - src.scrapers.aiscore.odds_scraper - WARNING - [8lk2dirnwljiz73] ⚠️  No rows found in table for tab 'Total Corners'
+2025-11-27 23:07:04,261 - src.scrapers.aiscore.odds_scraper - WARNING - [8lk2dirnwljiz73] ⚠️  No odds found in tab 'Total Corners' - table may be empty or not loaded
+2025-11-27 23:07:04,423 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 8lk2dirnwljiz73 to data/aiscore/matches/20251002/match_8lk2dirnwljiz73.json
+2025-11-27 23:07:04,425 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_8lk2dirnwljiz73.json
+2025-11-27 23:07:04,437 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 8lk2dirnwljiz73 status to 'success' in daily listing
+2025-11-27 23:07:05,089 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 69759ig113mcgk2 status to 'pending' in daily listing
+2025-11-27 23:07:08,210 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig113mcgk2] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:07:09,021 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig113mcgk2] Found 214 rows in tab '1 X 2', parsing...
+2025-11-27 23:07:09,037 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig113mcgk2] Parsed 207/214 rows from '1 X 2' (7 failed)
+2025-11-27 23:07:09,042 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig113mcgk2] ✓ Scraped 207 odds from tab '1 X 2'
+2025-11-27 23:07:09,947 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig113mcgk2] Found 171 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:07:09,956 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig113mcgk2] Parsed 153/171 rows from 'Asian Handicap' (18 failed)
+2025-11-27 23:07:09,958 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig113mcgk2] ✓ Scraped 153 odds from tab 'Asian Handicap'
+2025-11-27 23:07:10,809 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig113mcgk2] Found 233 rows in tab 'Total Goals', parsing...
+2025-11-27 23:07:10,822 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig113mcgk2] Parsed 145/233 rows from 'Total Goals' (88 failed)
+2025-11-27 23:07:10,825 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig113mcgk2] ✓ Scraped 145 odds from tab 'Total Goals'
+2025-11-27 23:07:11,618 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig113mcgk2] Found 150 rows in tab 'Total Corners', parsing...
+2025-11-27 23:07:11,627 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig113mcgk2] Parsed 123/150 rows from 'Total Corners' (27 failed)
+2025-11-27 23:07:11,629 - src.scrapers.aiscore.odds_scraper - INFO - [69759ig113mcgk2] ✓ Scraped 123 odds from tab 'Total Corners'
+2025-11-27 23:07:11,912 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 69759ig113mcgk2 to data/aiscore/matches/20251002/match_69759ig113mcgk2.json
+2025-11-27 23:07:11,914 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_69759ig113mcgk2.json
+2025-11-27 23:07:11,929 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 69759ig113mcgk2 status to 'success' in daily listing
+2025-11-27 23:07:12,513 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8ggm5b879 status to 'pending' in daily listing
+2025-11-27 23:07:15,444 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8ggm5b879] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:07:16,238 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8ggm5b879] Found 183 rows in tab '1 X 2', parsing...
+2025-11-27 23:07:16,249 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8ggm5b879] Parsed 180/183 rows from '1 X 2' (3 failed)
+2025-11-27 23:07:16,250 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8ggm5b879] ✓ Scraped 180 odds from tab '1 X 2'
+2025-11-27 23:07:17,094 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8ggm5b879] Found 186 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:07:17,105 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8ggm5b879] Parsed 166/186 rows from 'Asian Handicap' (20 failed)
+2025-11-27 23:07:17,106 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8ggm5b879] ✓ Scraped 166 odds from tab 'Asian Handicap'
+2025-11-27 23:07:17,952 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8ggm5b879] Found 207 rows in tab 'Total Goals', parsing...
+2025-11-27 23:07:17,959 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8ggm5b879] Parsed 118/207 rows from 'Total Goals' (89 failed)
+2025-11-27 23:07:17,960 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8ggm5b879] ✓ Scraped 118 odds from tab 'Total Goals'
+2025-11-27 23:07:18,726 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8ggm5b879] Found 115 rows in tab 'Total Corners', parsing...
+2025-11-27 23:07:18,735 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8ggm5b879] Parsed 111/115 rows from 'Total Corners' (4 failed)
+2025-11-27 23:07:18,737 - src.scrapers.aiscore.odds_scraper - INFO - [xvkjoi8ggm5b879] ✓ Scraped 111 odds from tab 'Total Corners'
+2025-11-27 23:07:18,912 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: xvkjoi8ggm5b879 to data/aiscore/matches/20251002/match_xvkjoi8ggm5b879.json
+2025-11-27 23:07:18,913 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_xvkjoi8ggm5b879.json
+2025-11-27 23:07:18,918 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8ggm5b879 status to 'success' in daily listing
+2025-11-27 23:07:19,497 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 527r3i4yjdri47e status to 'pending' in daily listing
+2025-11-27 23:07:22,389 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4yjdri47e] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:07:23,223 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4yjdri47e] Found 371 rows in tab '1 X 2', parsing...
+2025-11-27 23:07:23,234 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4yjdri47e] Parsed 317/371 rows from '1 X 2' (54 failed)
+2025-11-27 23:07:23,235 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4yjdri47e] ✓ Scraped 317 odds from tab '1 X 2'
+2025-11-27 23:07:24,136 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4yjdri47e] Found 300 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:07:24,144 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4yjdri47e] Parsed 167/300 rows from 'Asian Handicap' (133 failed)
+2025-11-27 23:07:24,156 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4yjdri47e] ✓ Scraped 167 odds from tab 'Asian Handicap'
+2025-11-27 23:07:25,059 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4yjdri47e] Found 379 rows in tab 'Total Goals', parsing...
+2025-11-27 23:07:25,070 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4yjdri47e] Parsed 208/379 rows from 'Total Goals' (171 failed)
+2025-11-27 23:07:25,072 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4yjdri47e] ✓ Scraped 208 odds from tab 'Total Goals'
+2025-11-27 23:07:26,032 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4yjdri47e] Found 519 rows in tab 'Total Corners', parsing...
+2025-11-27 23:07:26,043 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4yjdri47e] Parsed 457/519 rows from 'Total Corners' (62 failed)
+2025-11-27 23:07:26,044 - src.scrapers.aiscore.odds_scraper - INFO - [527r3i4yjdri47e] ✓ Scraped 457 odds from tab 'Total Corners'
+2025-11-27 23:07:26,196 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 527r3i4yjdri47e to data/aiscore/matches/20251002/match_527r3i4yjdri47e.json
+2025-11-27 23:07:26,197 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_527r3i4yjdri47e.json
+2025-11-27 23:07:26,223 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 527r3i4yjdri47e status to 'success' in daily listing
+2025-11-27 23:07:26,310 - src.scrapers.aiscore.odds_scraper - INFO - Progress: 60/65 (92%) | Success: 55 | Failed: 5 | Odds: 34986
+2025-11-27 23:07:26,830 - src.scrapers.aiscore.bronze_storage - INFO - Updated match o07dni5epjvfmkn status to 'pending' in daily listing
+2025-11-27 23:07:29,698 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5epjvfmkn] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:07:30,495 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5epjvfmkn] Found 160 rows in tab '1 X 2', parsing...
+2025-11-27 23:07:30,504 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5epjvfmkn] Parsed 155/160 rows from '1 X 2' (5 failed)
+2025-11-27 23:07:30,505 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5epjvfmkn] ✓ Scraped 155 odds from tab '1 X 2'
+2025-11-27 23:07:31,299 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5epjvfmkn] Found 165 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:07:31,310 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5epjvfmkn] Parsed 140/165 rows from 'Asian Handicap' (25 failed)
+2025-11-27 23:07:31,313 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5epjvfmkn] ✓ Scraped 140 odds from tab 'Asian Handicap'
+2025-11-27 23:07:32,161 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5epjvfmkn] Found 249 rows in tab 'Total Goals', parsing...
+2025-11-27 23:07:32,169 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5epjvfmkn] Parsed 144/249 rows from 'Total Goals' (105 failed)
+2025-11-27 23:07:32,170 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni5epjvfmkn] ✓ Scraped 144 odds from tab 'Total Goals'
+2025-11-27 23:08:23,405 - src.scrapers.aiscore.odds_scraper - WARNING - [o07dni5epjvfmkn] ⚠️  No rows found in table for tab 'Total Corners'
+2025-11-27 23:08:23,407 - src.scrapers.aiscore.odds_scraper - WARNING - [o07dni5epjvfmkn] ⚠️  No odds found in tab 'Total Corners' - table may be empty or not loaded
+2025-11-27 23:08:23,569 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: o07dni5epjvfmkn to data/aiscore/matches/20251002/match_o07dni5epjvfmkn.json
+2025-11-27 23:08:23,571 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_o07dni5epjvfmkn.json
+2025-11-27 23:08:23,579 - src.scrapers.aiscore.bronze_storage - INFO - Updated match o07dni5epjvfmkn status to 'success' in daily listing
+2025-11-27 23:08:24,188 - src.scrapers.aiscore.bronze_storage - INFO - Updated match o07dni53j0zcmkn status to 'pending' in daily listing
+2025-11-27 23:08:27,289 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni53j0zcmkn] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:08:28,113 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni53j0zcmkn] Found 182 rows in tab '1 X 2', parsing...
+2025-11-27 23:08:28,123 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni53j0zcmkn] Parsed 172/182 rows from '1 X 2' (10 failed)
+2025-11-27 23:08:28,124 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni53j0zcmkn] ✓ Scraped 172 odds from tab '1 X 2'
+2025-11-27 23:08:28,985 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni53j0zcmkn] Found 139 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:08:28,994 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni53j0zcmkn] Parsed 95/139 rows from 'Asian Handicap' (44 failed)
+2025-11-27 23:08:28,997 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni53j0zcmkn] ✓ Scraped 95 odds from tab 'Asian Handicap'
+2025-11-27 23:08:29,806 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni53j0zcmkn] Found 238 rows in tab 'Total Goals', parsing...
+2025-11-27 23:08:29,816 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni53j0zcmkn] Parsed 158/238 rows from 'Total Goals' (80 failed)
+2025-11-27 23:08:29,817 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni53j0zcmkn] ✓ Scraped 158 odds from tab 'Total Goals'
+2025-11-27 23:08:30,616 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni53j0zcmkn] Found 138 rows in tab 'Total Corners', parsing...
+2025-11-27 23:08:30,624 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni53j0zcmkn] Parsed 122/138 rows from 'Total Corners' (16 failed)
+2025-11-27 23:08:30,628 - src.scrapers.aiscore.odds_scraper - INFO - [o07dni53j0zcmkn] ✓ Scraped 122 odds from tab 'Total Corners'
+2025-11-27 23:08:30,799 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: o07dni53j0zcmkn to data/aiscore/matches/20251002/match_o07dni53j0zcmkn.json
+2025-11-27 23:08:30,802 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_o07dni53j0zcmkn.json
+2025-11-27 23:08:30,811 - src.scrapers.aiscore.bronze_storage - INFO - Updated match o07dni53j0zcmkn status to 'success' in daily listing
+2025-11-27 23:08:31,572 - src.scrapers.aiscore.bronze_storage - INFO - Updated match zrkn6i4259obwql status to 'pending' in daily listing
+2025-11-27 23:08:34,413 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4259obwql] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:08:35,194 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4259obwql] Found 139 rows in tab '1 X 2', parsing...
+2025-11-27 23:08:35,204 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4259obwql] Parsed 136/139 rows from '1 X 2' (3 failed)
+2025-11-27 23:08:35,206 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4259obwql] ✓ Scraped 136 odds from tab '1 X 2'
+2025-11-27 23:08:35,988 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4259obwql] Found 119 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:08:35,994 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4259obwql] Parsed 105/119 rows from 'Asian Handicap' (14 failed)
+2025-11-27 23:08:35,996 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4259obwql] ✓ Scraped 105 odds from tab 'Asian Handicap'
+2025-11-27 23:08:36,769 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4259obwql] Found 204 rows in tab 'Total Goals', parsing...
+2025-11-27 23:08:36,778 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4259obwql] Parsed 130/204 rows from 'Total Goals' (74 failed)
+2025-11-27 23:08:36,794 - src.scrapers.aiscore.odds_scraper - INFO - [zrkn6i4259obwql] ✓ Scraped 130 odds from tab 'Total Goals'
+2025-11-27 23:09:28,075 - src.scrapers.aiscore.odds_scraper - WARNING - [zrkn6i4259obwql] ⚠️  No rows found in table for tab 'Total Corners'
+2025-11-27 23:09:28,076 - src.scrapers.aiscore.odds_scraper - WARNING - [zrkn6i4259obwql] ⚠️  No odds found in tab 'Total Corners' - table may be empty or not loaded
+2025-11-27 23:09:28,195 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: zrkn6i4259obwql to data/aiscore/matches/20251002/match_zrkn6i4259obwql.json
+2025-11-27 23:09:28,209 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_zrkn6i4259obwql.json
+2025-11-27 23:09:28,220 - src.scrapers.aiscore.bronze_storage - INFO - Updated match zrkn6i4259obwql status to 'success' in daily listing
+2025-11-27 23:09:28,841 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 63kv9ig3ojlsx7e status to 'pending' in daily listing
+2025-11-27 23:09:31,828 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3ojlsx7e] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:09:32,602 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3ojlsx7e] Found 10 rows in tab '1 X 2', parsing...
+2025-11-27 23:09:32,611 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3ojlsx7e] ✓ Scraped 10 odds from tab '1 X 2'
+2025-11-27 23:09:33,359 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3ojlsx7e] Found 7 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:09:33,371 - src.scrapers.aiscore.odds_scraper - WARNING - [63kv9ig3ojlsx7e] ⚠️  No odds found in tab 'Asian Handicap' - table may be empty or not loaded
+2025-11-27 23:09:34,135 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3ojlsx7e] Found 1 rows in tab 'Total Goals', parsing...
+2025-11-27 23:09:34,142 - src.scrapers.aiscore.odds_scraper - INFO - [63kv9ig3ojlsx7e] ✓ Scraped 1 odds from tab 'Total Goals'
+2025-11-27 23:10:25,335 - src.scrapers.aiscore.odds_scraper - WARNING - [63kv9ig3ojlsx7e] ⚠️  No rows found in table for tab 'Total Corners'
+2025-11-27 23:10:25,337 - src.scrapers.aiscore.odds_scraper - WARNING - [63kv9ig3ojlsx7e] ⚠️  No odds found in tab 'Total Corners' - table may be empty or not loaded
+2025-11-27 23:10:25,454 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: 63kv9ig3ojlsx7e to data/aiscore/matches/20251002/match_63kv9ig3ojlsx7e.json
+2025-11-27 23:10:25,455 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_63kv9ig3ojlsx7e.json
+2025-11-27 23:10:25,469 - src.scrapers.aiscore.bronze_storage - INFO - Updated match 63kv9ig3ojlsx7e status to 'success' in daily listing
+2025-11-27 23:10:26,057 - src.scrapers.aiscore.bronze_storage - INFO - Updated match m2q15iz1w5die76 status to 'pending' in daily listing
+2025-11-27 23:10:29,052 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1w5die76] ✓ Found 4 tab(s): ['1 X 2', 'Asian Handicap', 'Total Goals', 'Total Corners']
+2025-11-27 23:10:29,855 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1w5die76] Found 162 rows in tab '1 X 2', parsing...
+2025-11-27 23:10:29,863 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1w5die76] Parsed 139/162 rows from '1 X 2' (23 failed)
+2025-11-27 23:10:29,866 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1w5die76] ✓ Scraped 139 odds from tab '1 X 2'
+2025-11-27 23:10:30,691 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1w5die76] Found 143 rows in tab 'Asian Handicap', parsing...
+2025-11-27 23:10:30,699 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1w5die76] Parsed 105/143 rows from 'Asian Handicap' (38 failed)
+2025-11-27 23:10:30,701 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1w5die76] ✓ Scraped 105 odds from tab 'Asian Handicap'
+2025-11-27 23:10:31,500 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1w5die76] Found 225 rows in tab 'Total Goals', parsing...
+2025-11-27 23:10:31,509 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1w5die76] Parsed 134/225 rows from 'Total Goals' (91 failed)
+2025-11-27 23:10:31,510 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1w5die76] ✓ Scraped 134 odds from tab 'Total Goals'
+2025-11-27 23:10:32,276 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1w5die76] Found 130 rows in tab 'Total Corners', parsing...
+2025-11-27 23:10:32,283 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1w5die76] Parsed 117/130 rows from 'Total Corners' (13 failed)
+2025-11-27 23:10:32,284 - src.scrapers.aiscore.odds_scraper - INFO - [m2q15iz1w5die76] ✓ Scraped 117 odds from tab 'Total Corners'
+2025-11-27 23:10:32,379 - src.scrapers.aiscore.bronze_storage - INFO - Complete match saved: m2q15iz1w5die76 to data/aiscore/matches/20251002/match_m2q15iz1w5die76.json
+2025-11-27 23:10:32,381 - src.scrapers.aiscore.odds_scraper - INFO - Match data saved to: data/aiscore/matches/20251002/match_m2q15iz1w5die76.json
+2025-11-27 23:10:32,393 - src.scrapers.aiscore.bronze_storage - INFO - Updated match m2q15iz1w5die76 status to 'success' in daily listing
+2025-11-27 23:10:32,447 - src.scrapers.aiscore.odds_scraper - INFO - Progress: 65/65 (100%) | Success: 60 | Failed: 5 | Odds: 36849
+2025-11-27 23:10:32,948 - src.scrapers.aiscore.odds_scraper - INFO - Complete: 60 success, 5 failed, 36849 total odds
+2025-11-27 23:10:32,967 - __main__ - INFO - Odds scraping for 20251002 took 1127.96s
+2025-11-27 23:10:33,067 - src.scrapers.aiscore.browser - INFO - Browser closed
+2025-11-28 16:45:47,282 - root - INFO - ================================================================================
+2025-11-28 16:45:47,283 - root - INFO - 📝 Logging initialized for odds scraping
+2025-11-28 16:45:47,284 - root - INFO -    Log file: /app/logs/aiscore_scraper_odds_20251002.log
+2025-11-28 16:45:47,285 - root - INFO -    Console level: INFO and above
+2025-11-28 16:45:47,286 - root - INFO -    File level: INFO and above (matches console)
+2025-11-28 16:45:47,286 - root - INFO -    File handler: ✓ Active
+2025-11-28 16:45:47,287 - root - INFO - ================================================================================
+Log file test write at 2025-11-28T16:45:47.287823
+2025-11-28 16:45:47,378 - src.scrapers.aiscore.bronze_storage - INFO - Bronze storage initialized: data/aiscore
+2025-11-28 16:45:47,390 - src.scrapers.aiscore.odds_scraper - INFO - Scraping odds for 20251002: 5 matches to process, 60 skipped
+2025-11-28 16:45:47,392 - src.scrapers.aiscore.browser - INFO - Using Chrome binary: /usr/bin/chromium
+2025-11-28 16:45:47,606 - src.scrapers.aiscore.browser - INFO - Detected Chrome version: 142.0.7444.175 (major: 142)
+2025-11-28 16:45:47,608 - WDM - INFO - ====== WebDriver manager ======
+2025-11-28 16:45:51,249 - WDM - INFO - WebDriver version 142.0.7444.175 selected
+2025-11-28 16:45:51,283 - WDM - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-11-28 16:45:51,316 - WDM - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-11-28 16:45:52,344 - WDM - INFO - Driver downloading response is 200
+2025-11-28 16:46:30,607 - WDM - INFO - Driver has been saved in cache [/app/.wdm/drivers/chromedriver/linux64/142.0.7444.175]
+2025-11-28 16:46:31,313 - src.scrapers.aiscore.browser - INFO - Browser created successfully
+2025-11-28 16:46:31,341 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8g665b879 status to 'success' in daily listing
+2025-11-28 16:46:31,428 - src.scrapers.aiscore.bronze_storage - INFO - Updated match xvkjoi8553pt879 status to 'success' in daily listing
+2025-11-28 16:46:31,498 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ndkz6i360zvfxq3 status to 'success' in daily listing
+2025-11-28 16:46:31,562 - src.scrapers.aiscore.bronze_storage - INFO - Updated match wv78xiverprcokr status to 'success' in daily listing
+2025-11-28 16:46:31,642 - src.scrapers.aiscore.bronze_storage - INFO - Updated match ezk96i3e4gwf1kn status to 'success' in daily listing
+2025-11-28 16:46:31,937 - src.scrapers.aiscore.odds_scraper - INFO - Complete: 65 success, 0 failed, 0 total odds
+2025-11-28 16:46:31,939 - __main__ - INFO - Odds scraping for 20251002 took 44.56s
+2025-11-28 16:46:32,000 - src.scrapers.aiscore.browser - INFO - Browser closed

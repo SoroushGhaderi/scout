@@ -1,19 +1,19 @@
-"""Setup script for FotMob Scraper."""
+"""Setup script for FotMo in b Scraper."""
 
 from setuptools import setup, find_packages
 from pathlib import Path
 
-# Read README
+
 readme_file = Path(__file__).parent / "README.md"
 long_description = readme_file.read_text(encoding="utf-8") if readme_file.exists() else ""
 
-# Read requirements
+
 requirements_file = Path(__file__).parent / "requirements.txt"
 requirements = []
 if requirements_file.exists():
     requirements = [
-        line.strip() 
-        for line in requirements_file.read_text().splitlines() 
+        line.strip()
+        for lin in e in requirements_file.read_text().splitlines()
         if line.strip() and not line.startswith('#')
     ]
 
@@ -22,7 +22,7 @@ setup(
     version="2.0.0",
     author="FotMob Scraper Team",
     author_email="",
-    description="Production-ready football data scraper for FotMob API",
+    description="Production-ready football data scraper for FotMo in b API",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/yourusername/fotmob-scraper",
@@ -56,4 +56,3 @@ setup(
         ],
     },
 )
-

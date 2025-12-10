@@ -1,57 +1,56 @@
-"""Pytest configuration and fixtures"""
+"""Pytest configurationandfixtures"""
 
 import pytest
 import sqlite3
 from pathlib import Path
 
 from src.scrapers.aiscore.config import Config
-# Note: DatabaseManager may not exist in aiscore module - keeping for compatibility
-from src.scrapers.aiscore.extractor import LinkExtractor
-from src.scrapers.aiscore.models import MatchLink
+
+from src.scrapers.aiscore.extractorimport LkExtract or
+from src.scrapers.aiscore.models import MatchLk
 
 
 @pytest.fixture
-def test_config():
+    def test_config():
     """Create test configuration"""
-    config = Config()
-    config.database.path = ":memory:"  # Use in-memory database for tests
-    config.browser.headless = True
-    return config
+config = Config()
+config.database.path=":memory:"
+config.browser.headless = True
+return config
 
 
 @pytest.fixture
-def db_manager(test_config):
+    def db_manager(test_config):
     """Create database manager with test database"""
-    with DatabaseManager(":memory:") as db:
-        db.init_schema()
-        yield db
+with DatabaseManager(":memory:")asdb:
+        db.in it_schema()
+yield db
 
 
 @pytest.fixture
-def link_extractor(test_config):
-    """Create link extractor"""
-    return LinkExtractor(test_config)
+    def lk_extractor(test_config):
+    """Create lk extractor"""
+return LkExtractor(test_config)
 
 
 @pytest.fixture
-def sample_match_link():
-    """Create sample match link"""
-    return MatchLink(
-        url="https://www.aiscore.com/football/match/12345",
-        match_id="12345",
-        source_date="20251110"
-    )
+    def sample_match_lk():
+    """Create sample match lk"""
+return MatchLk(
+url="https://www.aiscore.com/football/match/12345",
+match_id="12345",
+source_date="20251110"
+)
 
 
 @pytest.fixture
-def sample_match_links():
-    """Create multiple sample match links"""
-    return [
-        MatchLink(
-            url=f"https://www.aiscore.com/football/match/{i}",
-            match_id=str(i),
-            source_date="20251110"
-        )
-        for i in range(1, 11)
-    ]
-
+    def sample_match_lks():
+    """Create multiple sample match lks"""
+return [
+MatchLk(
+url = f"https://www.aiscore.com/football/match/{i}",
+match_id = str(i),
+source_date="20251110"
+)
+for irang in e(1,11)
+]

@@ -1,0 +1,45 @@
+2025-12-05 00:16:07,727 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251205.log
+2025-12-05 00:16:07,727 - fotmob_scraper - INFO - main:217 - Connecting to ClickHouse at clickhouse:8123
+2025-12-05 00:16:07,741 - fotmob_scraper - INFO - connect:127 - Connected to ClickHouse: clickhouse:8123/default
+2025-12-05 00:16:07,744 - fotmob_scraper - INFO - main:293 - Looking for SQL files in: /app/clickhouse/init
+2025-12-05 00:16:07,745 - fotmob_scraper - INFO - main:304 - Found ClickHouse init directory: /app/clickhouse/init
+2025-12-05 00:16:07,747 - fotmob_scraper - INFO - check_databases_exist:59 - All databases exist: fotmob, aiscore
+2025-12-05 00:16:07,750 - fotmob_scraper - INFO - main:333 - FotMob database has 14 tables: cards, coaches, general, goal, momentum, period, player, red_card, shotmap, starters, substitutes, team_form, timeline, venue
+2025-12-05 00:16:07,752 - fotmob_scraper - INFO - main:354 - AIScore database has 5 tables: daily_listings, matches, odds_1x2, odds_asian_handicap, odds_over_under
+2025-12-05 00:16:07,752 - fotmob_scraper - INFO - main:364 - All required tables already exist for both FotMob and AIScore. Skipping creation.
+2025-12-05 00:16:16,667 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251205.log
+2025-12-05 00:16:16,667 - fotmob_scraper - INFO - _load_config:233 - Email alerts enabled: 1 recipients
+2025-12-05 00:16:16,668 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: AIScore Link Scraping Failed - 20251001 - Link scraping failed for date 20251001. Cannot proceed to odds scraping.
+2025-12-05 00:38:37,139 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251205.log
+2025-12-05 00:38:37,139 - fotmob_scraper - INFO - main:217 - Connecting to ClickHouse at clickhouse:8123
+2025-12-05 00:38:37,159 - fotmob_scraper - INFO - connect:127 - Connected to ClickHouse: clickhouse:8123/default
+2025-12-05 00:38:37,164 - fotmob_scraper - INFO - main:293 - Looking for SQL files in: /app/clickhouse/init
+2025-12-05 00:38:37,166 - fotmob_scraper - INFO - main:304 - Found ClickHouse init directory: /app/clickhouse/init
+2025-12-05 00:38:37,170 - fotmob_scraper - INFO - check_databases_exist:59 - All databases exist: fotmob, aiscore
+2025-12-05 00:38:37,173 - fotmob_scraper - INFO - main:333 - FotMob database has 14 tables: cards, coaches, general, goal, momentum, period, player, red_card, shotmap, starters, substitutes, team_form, timeline, venue
+2025-12-05 00:38:37,176 - fotmob_scraper - INFO - main:354 - AIScore database has 5 tables: daily_listings, matches, odds_1x2, odds_asian_handicap, odds_over_under
+2025-12-05 00:38:37,176 - fotmob_scraper - INFO - main:364 - All required tables already exist for both FotMob and AIScore. Skipping creation.
+2025-12-05 00:39:20,419 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251205.log
+2025-12-05 00:39:20,420 - fotmob_scraper - INFO - _load_config:233 - Email alerts enabled: 1 recipients
+2025-12-05 00:39:20,420 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: AIScore Odds Scraping Failed - 20251004 - Odds scraping failed for date 20251004.
+
+Total matches: 298
+To scrape: 222
+2025-12-05 00:39:25,577 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-05 00:39:25,701 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251205.log
+2025-12-05 00:39:25,701 - fotmob_scraper - INFO - _load_config:233 - Email alerts enabled: 1 recipients
+2025-12-05 00:39:25,702 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251004 - Step 'AIscore Bronze - 20251004' failed with exit code 1.
+
+Elapsed time: 6.9s
+2025-12-05 00:39:30,258 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-05 00:39:31,910 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251205.log
+2025-12-05 00:39:31,911 - fotmob_scraper - INFO - _load_config:233 - Email alerts enabled: 1 recipients
+2025-12-05 00:39:31,911 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: AIScore Odds Scraping Failed - 20251005 - Odds scraping failed for date 20251005.
+
+Total matches: 262
+To scrape: 27
+2025-12-05 00:39:36,661 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-05 00:39:36,732 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251005 - Step 'AIscore Bronze - 20251005' failed with exit code 1.
+
+Elapsed time: 6.5s
+2025-12-05 00:39:41,343 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com

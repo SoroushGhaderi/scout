@@ -1,17 +1,10 @@
 """
 Utils package - Shared utilities
 """
-
 from .logging_utils import get_logger
 from .metrics import ScraperMetrics
-
-# DataQualityChecker from validation module
 from .validation import DataQualityChecker
-
-# Data lineage tracking
 from .lineage import DataLineage, LineageTracker
-
-# Date utilities
 from .date_utils import (
     DATE_FORMAT_COMPACT,
     DATE_FORMAT_DISPLAY,
@@ -22,16 +15,12 @@ from .date_utils import (
     parse_compact_date,
     extract_year_month
 )
-
-# Health check utilities
 from .health_check import (
     health_check,
     check_clickhouse_connection,
     check_storage_access,
     check_disk_space
 )
-
-# Alerting utilities
 from .alerting import (
     AlertManager,
     AlertLevel,
@@ -41,7 +30,6 @@ from .alerting import (
     LoggingChannel,
     EmailChannel
 )
-
 __all__ = [
     'get_logger', 'ScraperMetrics', 'DataQualityChecker',
     'DataLineage', 'LineageTracker',

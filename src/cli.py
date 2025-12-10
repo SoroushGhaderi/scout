@@ -1,9 +1,13 @@
-"""
-Command-line interface for FotMob scraper.
+"""Command-line interface for FotMob scraper.
 
 SCRAPER: FotMob
 PURPOSE: Command-line interface for FotMob scraper.
 """
+
+
+
+
+
 
 import argparse
 import sys
@@ -34,49 +38,60 @@ def main():
 Examples:
   # Scrape all matches for a specific date
   python -m src.cli --date 20250101
-  
+
   # Force re-scrape already processed matches
   python -m src.cli --date 20250101 --force
-  
+
   # Configuration is read from .env file
-  
+
   # Disable parallel processing
   python -m src.cli --date 20250101 --no-parallel
-  
+
   # Note: Storage options removed - data goes directly to ClickHouse
         """
     )
-    
+
+
+
+
+
+
+
+
+
+
+
+
     parser.add_argument(
         '-date', '--date',
         type=str,
         required=True,
         help='Date in YYYYMMDD format (e.g., 20250101)'
     )
-    
+
     parser.add_argument(
         '--force',
         action='store_true',
         help='Force re-scrape of already processed matches'
     )
-    
-    # Config is read from .env file - no config file parameter needed
-    
-    # Storage argument removed - data goes directly to ClickHouse via load_clickhouse.py
-    
+
+
+
+
+
     parser.add_argument(
         '--no-parallel',
         action='store_true',
         help='Disable parallel processing'
     )
-    
+
     parser.add_argument(
         '--max-workers',
         type=int,
         default=None,
         help='Maximum number of parallel workers (default: 5)'
     )
-    
+
     parser.add_argument(
         '--log-level',
         type=str,
@@ -84,33 +99,28 @@ Examples:
         default=None,
         help='Logging level (overrides config)'
     )
-    
+
     parser.add_argument(
         '--no-metrics',
         action='store_true',
         help='Disable metrics collection'
     )
-    
+
     parser.add_argument(
         '--no-quality-checks',
         action='store_true',
         help='Disable data quality checks'
     )
-    
+
     args = parser.parse_args()
-    
-    # Validate date format
+
     if not validate_date(args.date):
         print(f"Error: Invalid date format '{args.date}'. Use YYYYMMDD format (e.g., 20250101)")
         sys.exit(1)
-    
+
     try:
-        # Load configuration from .env file
         config = load_config()
-        
-        # Override config with CLI arguments
-        if args.storage:
-            config.storage_type = args.storage
+
         if args.no_parallel:
             config.enable_parallel = False
         if args.max_workers:
@@ -121,15 +131,14 @@ Examples:
             config.enable_metrics = False
         if args.no_quality_checks:
             config.enable_data_quality_checks = False
-        
-        # Setup logging
+
         logger = setup_logging(
             name="fotmob_scraper",
             log_dir=config.log_dir,
             log_level=config.log_level,
             date_suffix=args.date
         )
-        
+
         logger.info("=" * 80)
         logger.info(f"FotMob Scraper v2.0 - Starting scrape for {args.date}")
         logger.info("=" * 80)
@@ -141,26 +150,24 @@ Examples:
         logger.info(f"  Data Quality Checks: {config.enable_data_quality_checks}")
         logger.info(f"  Metrics: {config.enable_metrics}")
         logger.info("=" * 80)
-        
-        # Create and run orchestrator
+
         with FotMobOrchestrator(config) as orchestrator:
             metrics = orchestrator.scrape_date(
                 date_str=args.date,
                 force_rescrape=args.force
             )
-        
-        # Exit with appropriate code
+
         if metrics.failed_matches > 0:
             logger.warning(f"Completed with {metrics.failed_matches} failures")
             sys.exit(1)
         else:
             logger.info("[SUCCESS] Scraping completed")
             sys.exit(0)
-    
+
     except KeyboardInterrupt:
         print("\n\nInterrupted by user. Exiting...")
         sys.exit(130)
-    
+
     except Exception as e:
         print(f"\n[ERROR] Fatal error: {e}", file=sys.stderr)
         import traceback
@@ -170,4 +177,3 @@ Examples:
 
 if __name__ == "__main__":
     main()
-

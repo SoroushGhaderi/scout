@@ -1,5 +1,4 @@
-"""
-Match Classifier - Detect unimportant matches to skip
+"""Match Classifier - Detect unimportant matches to skip.
 
 Filters out low-value matches to save scraping time and resources.
 """
@@ -15,9 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class MatchClassifier:
-    """Classifies matches as important or unimportant for scraping"""
-    
-    # Low-tier leagues/competitions (skip these)
+    """Classifies matches as important or unimportant for scraping."""
+
     UNIMPORTANT_LEAGUES = [
         'friendly', 'friendlies', 'amical', 'test match',
         'youth', 'u21', 'u19', 'u18', 'u17', 'u16',
@@ -28,8 +26,7 @@ class MatchClassifier:
         'futsal', 'beach soccer',
         'club friendly', 'international friendly'
     ]
-    
-    # Important leagues (always scrape)
+
     IMPORTANT_LEAGUES = [
         'premier league', 'la liga', 'serie a', 'bundesliga', 'ligue 1',
         'champions league', 'europa league', 'conference league',
@@ -37,8 +34,7 @@ class MatchClassifier:
         'premier liga', 'eredivisie', 'primeira liga',
         'championship', 'segunda division'
     ]
-    
-    # Keywords that indicate unimportant match
+
     UNIMPORTANT_KEYWORDS = [
         'friendly', 'test', 'exhibition', 'training',
         'youth', 'reserve', 'u21', 'u19', 'u18',
@@ -46,7 +42,7 @@ class MatchClassifier:
         'women', 'female', 'ladies',
         'virtual', 'esports', 'futsal'
     ]
-    
+
     def __init__(self, config=None):
         self.config = config
         self.stats = {
@@ -55,9 +51,9 @@ class MatchClassifier:
             'unimportant': 0,
             'reasons': {}
         }
-    
+
     def is_important_match(
-        self, 
+        self,
         match_url: str = None,
         teams: Dict[str, str] = None,
         league: str = None,
@@ -66,154 +62,135 @@ class MatchClassifier:
     ) -> tuple[bool, str]:
         """
         Determine if a match is important enough to scrape.
-        
+
         Args:
             match_url: Match URL
             teams: Dictionary with 'home' and 'away' team names
             league: League/competition name
             match_date: Match date (YYYYMMDD or date string)
             odds_count: Number of odds already available
-            
+
         Returns:
             Tuple of (is_important: bool, reason: str)
         """
         self.stats['total_checked'] += 1
-        
-        # Check 1: League importance
+
         if league:
             is_important, reason = self._check_league(league)
             if not is_important:
                 self._record_skip(reason)
                 return False, reason
-        
-        # Check 2: Team names
+
         if teams:
             is_important, reason = self._check_teams(teams)
             if not is_important:
                 self._record_skip(reason)
                 return False, reason
-        
-        # Check 3: Match age
+
         if match_date:
             is_important, reason = self._check_date(match_date)
             if not is_important:
                 self._record_skip(reason)
                 return False, reason
-        
-        # Check 4: Odds availability
+
         if odds_count is not None:
             is_important, reason = self._check_odds_count(odds_count)
             if not is_important:
                 self._record_skip(reason)
                 return False, reason
-        
-        # Check 5: URL patterns
+
         if match_url:
             is_important, reason = self._check_url(match_url)
             if not is_important:
                 self._record_skip(reason)
                 return False, reason
-        
-        # If all checks passed, match is important
+
         self.stats['important'] += 1
         return True, "Important match"
-    
+
     def _check_league(self, league: str) -> tuple[bool, str]:
         """Check if league is important"""
         league_lower = league.lower()
-        
-        # Check if it's an important league (always scrape)
+
         for important in self.IMPORTANT_LEAGUES:
             if important in league_lower:
                 return True, f"Important league: {league}"
-        
-        # Check if it's an unimportant league (skip)
+
         for unimportant in self.UNIMPORTANT_LEAGUES:
             if unimportant in league_lower:
                 return False, f"Unimportant league: {league}"
-        
-        # Unknown league - assume important (to be safe)
+
         return True, "Unknown league (assumed important)"
-    
+
     def _check_teams(self, teams: Dict[str, str]) -> tuple[bool, str]:
         """Check if team names indicate unimportant match"""
         home = teams.get('home', '').lower()
         away = teams.get('away', '').lower()
-        
-        # Check home team
+
         for keyword in self.UNIMPORTANT_KEYWORDS:
             if keyword in home:
                 return False, f"Unimportant team keyword in home: '{keyword}'"
-        
-        # Check away team
+
         for keyword in self.UNIMPORTANT_KEYWORDS:
             if keyword in away:
                 return False, f"Unimportant team keyword in away: '{keyword}'"
-        
-        # Check for pattern: "Team B", "Team II", "Team U21"
+
         pattern = r'\b(b|ii|iii|reserves?|u\d{1,2})\b'
         if re.search(pattern, home, re.IGNORECASE):
             return False, f"Reserve/Youth team detected: {teams['home']}"
         if re.search(pattern, away, re.IGNORECASE):
             return False, f"Reserve/Youth team detected: {teams['away']}"
-        
+
         return True, "Teams look important"
-    
+
     def _check_date(self, match_date: str) -> tuple[bool, str]:
-        """Check if match is too old or too far in future"""
+        """Check if match is too old or too far future"""
         try:
-            # Parse date
-            if len(match_date) == 8:  # YYYYMMDD
+            if len(match_date) == 8:
                 date = datetime.strptime(match_date, DATE_FORMAT_COMPACT)
             else:
                 date = datetime.fromisoformat(match_date)
-            
+
             now = datetime.now()
             days_diff = (now - date).days
-            
-            # Skip matches older than 30 days
+
             if days_diff > 30:
                 return False, f"Match too old: {days_diff} days ago"
-            
-            # Skip matches more than 7 days in future
+
             if days_diff < -7:
-                return False, f"Match too far in future: {abs(days_diff)} days"
-            
+                return False, f"Match too far future: {abs(days_diff)} days"
+
             return True, f"Match date acceptable: {match_date}"
-            
+
         except Exception as e:
             logger.debug(f"Could not parse date: {match_date}")
             return True, "Date check skipped (parse error)"
-    
+
     def _check_odds_count(self, odds_count: int) -> tuple[bool, str]:
         """Check if there are enough odds to make it worthwhile"""
-        
-        # If very few odds, might not be important
+
         if odds_count == 0:
             return False, "No odds available"
-        
-        # Less than 3 odds might indicate low interest
+
         if odds_count < 3:
             return False, f"Too few odds: {odds_count}"
-        
+
         return True, f"Good odds count: {odds_count}"
-    
+
     def _check_url(self, match_url: str) -> tuple[bool, str]:
         """Check URL for unimportant patterns"""
         url_lower = match_url.lower()
-        
-        # Check for keywords in URL
+
         for keyword in self.UNIMPORTANT_KEYWORDS:
             if keyword in url_lower:
                 return False, f"Unimportant keyword in URL: '{keyword}'"
-        
+
         return True, "URL looks good"
-    
+
     def _record_skip(self, reason: str):
         """Record why a match was skipped"""
         self.stats['unimportant'] += 1
-        
-        # Categorize reason
+
         if 'league' in reason.lower():
             category = 'league'
         elif 'team' in reason.lower() or 'reserve' in reason.lower() or 'youth' in reason.lower():
@@ -224,9 +201,9 @@ class MatchClassifier:
             category = 'odds'
         else:
             category = 'other'
-        
+
         self.stats['reasons'][category] = self.stats['reasons'].get(category, 0) + 1
-    
+
     def get_stats(self) -> Dict:
         """Get classification statistics"""
         return {
@@ -236,7 +213,7 @@ class MatchClassifier:
             'skip_rate': f"{(self.stats['unimportant'] / max(self.stats['total_checked'], 1)) * 100:.1f}%",
             'skip_reasons': self.stats['reasons']
         }
-    
+
     def reset_stats(self):
         """Reset statistics"""
         self.stats = {
@@ -247,7 +224,6 @@ class MatchClassifier:
         }
 
 
-# Convenience function
 def should_scrape_match(
     match_url: str = None,
     teams: Dict[str, str] = None,
@@ -257,7 +233,7 @@ def should_scrape_match(
 ) -> bool:
     """
     Quick check if match should be scraped.
-    
+
     Returns True if important, False if should skip.
     """
     classifier = MatchClassifier()
@@ -268,9 +244,8 @@ def should_scrape_match(
         match_date=match_date,
         odds_count=odds_count
     )
-    
+
     if not is_important:
         logger.info(f"⏭ Skipping match: {reason}")
-    
-    return is_important
 
+    return is_important

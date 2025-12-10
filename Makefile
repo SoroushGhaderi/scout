@@ -60,6 +60,12 @@ load-fotmob: ## Load FotMob data to ClickHouse (usage: make load-fotmob DATE=202
 load-aiscore: ## Load AIScore data to ClickHouse (usage: make load-aiscore DATE=20251113)
 	docker-compose exec scraper python scripts/load_clickhouse.py --scraper aiscore --date $(DATE)
 
+# ClickHouse optimization
+optimize-tables: ## Optimize and deduplicate all ClickHouse tables
+	@echo "Optimizing ClickHouse tables..."
+	docker-compose exec -T clickhouse clickhouse-client --user fotmob_user --password fotmob_pass < clickhouse/init/03_optimize_tables.sql
+	@echo "Table optimization complete!"
+
 # Status checks
 status: ## Show status of all services
 	docker-compose ps

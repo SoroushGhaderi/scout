@@ -1,0 +1,2 @@
+2025-11-27 18:52:15,764 - bronze_processing - INFO - setup_logging:82 - Logging initialized. Log file: logs/bronze_processing_20251008.log
+2025-11-27 18:52:15,795 - bronze_processing - INFO - main:279 - [1/1] Processing date: 20251008

@@ -1,3 +1,1 @@
-"""
-FotMob scraper - API-based scraping
-"""
+"""FotMob scraper - API-based scraping."""

@@ -1,2 +1,1 @@
-"""Test suite for FotMob scraper."""
-
+"""Test suite for FotMo in b scraper."""

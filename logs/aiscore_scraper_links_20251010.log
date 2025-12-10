@@ -1,0 +1,131 @@
+2025-12-09 20:29:40,041 - root - INFO - ================================================================================
+2025-12-09 20:29:40,042 - root - INFO - 📝 Logging initialized
+2025-12-09 20:29:40,043 - root - INFO -    Log file: /app/logs/aiscore_scraper_links_20251010.log
+2025-12-09 20:29:40,043 - root - INFO -    Console level: INFO and above
+2025-12-09 20:29:40,044 - root - INFO -    File level: INFO and above
+2025-12-09 20:29:40,044 - root - INFO -    File handler: ✓ Active
+2025-12-09 20:29:40,046 - root - INFO - ================================================================================
+2025-12-09 20:29:40,047 - root - INFO - Loading page: https://www.aiscore.com/20251010
+2025-12-09 20:29:40,047 - root - WARNING - Browser unresponsive, restarting...
+2025-12-09 20:29:40,048 - src.scrapers.aiscore.browser - INFO - Restarting browser...
+2025-12-09 20:29:42,050 - src.scrapers.aiscore.browser - INFO - Using Chrome binary: /usr/bin/chromium
+2025-12-09 20:29:42,052 - src.scrapers.aiscore.browser - INFO - Using pre-installed ChromeDriver at: /usr/bin/chromedriver
+2025-12-09 20:29:42,308 - src.scrapers.aiscore.browser - INFO - Browser created successfully
+2025-12-09 20:29:42,310 - src.scrapers.aiscore.browser - INFO - Browser restarted successfully
+2025-12-09 20:29:57,848 - root - INFO - Cloudflare challenge detected. Waiting for it to complete...
+2025-12-09 20:30:07,921 - root - INFO - Still waiting for Cloudflare... (10s / 30s)
+2025-12-09 20:30:41,138 - root - WARNING - Cloudflare challenge did not complete within 30 seconds
+2025-12-09 20:30:41,140 - root - WARNING - Cloudflare challenge may not have completed. Continuing anyway...
+2025-12-09 20:31:12,213 - root - WARNING - Timeout waiting for page to load
+2025-12-09 20:31:13,464 - root - INFO - Starting scroll to load all matches...
+2025-12-09 20:31:13,510 - root - INFO - Scroll 1 in progress...
+2025-12-09 20:31:14,035 - root - INFO - Included 3 countries with 17 matches: {'Africa': 9, 'Argentina': 4, 'Europe': 4}
+2025-12-09 20:31:14,037 - root - INFO - Scroll 1: 8 leagues, 17 matches
+2025-12-09 20:31:14,070 - root - INFO - Scroll 2 in progress...
+2025-12-09 20:31:14,731 - root - INFO - Included 4 countries with 23 matches: {'Europe': 8, 'Africa': 9, 'Argentina': 4, 'Azerbaijan': 2}
+2025-12-09 20:31:14,732 - root - INFO - Scroll 2: 11 leagues, 23 matches
+2025-12-09 20:31:14,773 - root - INFO - Scroll 3 in progress...
+2025-12-09 20:31:15,321 - root - INFO - Included 4 countries with 15 matches: {'Africa': 1, 'Argentina': 4, 'Europe': 8, 'Azerbaijan': 2}
+2025-12-09 20:31:15,322 - root - INFO - Scroll 3: 8 leagues, 15 matches
+2025-12-09 20:31:15,355 - root - INFO - Scroll 4 in progress...
+2025-12-09 20:31:15,926 - root - INFO - Included 2 countries with 10 matches: {'Europe': 8, 'Azerbaijan': 2}
+2025-12-09 20:31:15,927 - root - INFO - Scroll 4: 5 leagues, 10 matches
+2025-12-09 20:31:15,970 - root - INFO - Scroll 5 in progress...
+2025-12-09 20:31:16,558 - root - INFO - Included 1 countries with 2 matches: {'Azerbaijan': 2}
+2025-12-09 20:31:16,559 - root - INFO - Scroll 5: 1 leagues, 2 matches
+2025-12-09 20:31:16,586 - root - INFO - Scroll 6 in progress...
+2025-12-09 20:31:20,119 - root - INFO - Scroll 7 in progress...
+2025-12-09 20:31:23,628 - root - INFO - Included 1 countries with 1 matches: {'Brazil': 1}
+2025-12-09 20:31:23,630 - root - INFO - Scroll 7: 1 leagues, 1 matches
+2025-12-09 20:31:23,656 - root - INFO - Scroll 8 in progress...
+2025-12-09 20:31:27,276 - root - INFO - Included 1 countries with 1 matches: {'Brazil': 1}
+2025-12-09 20:31:27,285 - root - INFO - Scroll 8: 1 leagues, 1 matches
+2025-12-09 20:31:27,321 - root - INFO - Scroll 9 in progress...
+2025-12-09 20:31:30,973 - root - INFO - Included 3 countries with 4 matches: {'Brazil': 1, 'Belgium': 2, 'Burundi': 1}
+2025-12-09 20:31:30,997 - root - INFO - Scroll 9: 3 leagues, 4 matches
+2025-12-09 20:31:31,037 - root - INFO - Scroll 10 in progress...
+2025-12-09 20:31:31,596 - root - INFO - Included 2 countries with 3 matches: {'Belgium': 2, 'Burundi': 1}
+2025-12-09 20:31:31,597 - root - INFO - Scroll 10: 2 leagues, 3 matches
+2025-12-09 20:31:31,669 - root - INFO - Incremental save: Added 27 new matches. Total: 27 to /app/data/aiscore/daily_listings/20251010/matches.json
+2025-12-09 20:31:31,670 - root - INFO - Saved 27 matches to file (after 10 scrolls)
+2025-12-09 20:31:35,190 - root - INFO - Included 2 countries with 3 matches: {'Belgium': 2, 'Burundi': 1}
+2025-12-09 20:31:35,191 - root - INFO - Scroll 11: 2 leagues, 3 matches
+2025-12-09 20:31:43,021 - root - INFO - Included 1 countries with 1 matches: {'Congo': 1}
+2025-12-09 20:31:43,022 - root - INFO - Scroll 14: 1 leagues, 1 matches
+2025-12-09 20:31:43,023 - root - INFO - Progress: 28 matches found | Scroll 14
+2025-12-09 20:31:43,050 - root - INFO - Scroll 15 in progress...
+2025-12-09 20:31:43,608 - root - INFO - Included 1 countries with 1 matches: {'Congo': 1}
+2025-12-09 20:31:43,609 - root - INFO - Scroll 15: 1 leagues, 1 matches
+2025-12-09 20:31:44,275 - root - INFO - Included 1 countries with 1 matches: {'Congo': 1}
+2025-12-09 20:31:44,305 - root - INFO - Scroll 16: 1 leagues, 1 matches
+2025-12-09 20:31:44,948 - root - INFO - Included 1 countries with 2 matches: {'Europe': 2}
+2025-12-09 20:31:44,950 - root - INFO - Scroll 17: 1 leagues, 2 matches
+2025-12-09 20:31:45,575 - root - INFO - Included 1 countries with 10 matches: {'Europe': 10}
+2025-12-09 20:31:45,576 - root - INFO - Scroll 18: 4 leagues, 10 matches
+2025-12-09 20:31:49,144 - root - INFO - Included 1 countries with 18 matches: {'Europe': 18}
+2025-12-09 20:31:49,145 - root - INFO - Scroll 19: 8 leagues, 18 matches
+2025-12-09 20:31:49,170 - root - INFO - Scroll 20 in progress...
+2025-12-09 20:31:52,668 - root - INFO - Included 3 countries with 20 matches: {'Europe': 18, 'Ghana': 1, 'Germany': 1}
+2025-12-09 20:31:52,759 - root - INFO - Scroll 20: 10 leagues, 20 matches
+2025-12-09 20:31:52,932 - root - INFO - Incremental save: Added 21 new matches. Total: 48 to /app/data/aiscore/daily_listings/20251010/matches.json
+2025-12-09 20:31:52,935 - root - INFO - Saved 21 matches to file (after 20 scrolls)
+2025-12-09 20:31:56,504 - root - INFO - Included 3 countries with 13 matches: {'Europe': 11, 'Ghana': 1, 'Germany': 1}
+2025-12-09 20:31:56,505 - root - INFO - Scroll 21: 7 leagues, 13 matches
+2025-12-09 20:31:57,338 - root - INFO - Included 3 countries with 6 matches: {'Europe': 4, 'Ghana': 1, 'Germany': 1}
+2025-12-09 20:31:57,339 - root - INFO - Scroll 22: 4 leagues, 6 matches
+2025-12-09 20:32:01,084 - root - INFO - Included 1 countries with 1 matches: {'Germany': 1}
+2025-12-09 20:32:01,085 - root - INFO - Scroll 23: 1 leagues, 1 matches
+2025-12-09 20:32:01,804 - root - INFO - Scroll 25 in progress...
+2025-12-09 20:32:11,458 - root - INFO - Scroll 30 in progress...
+2025-12-09 20:32:12,082 - root - INFO - Included 1 countries with 11 matches: {'International': 11}
+2025-12-09 20:32:12,083 - root - INFO - Scroll 30: 1 leagues, 11 matches
+2025-12-09 20:32:12,084 - root - INFO - Progress: 59 matches found | Scroll 30
+2025-12-09 20:32:12,131 - root - INFO - Incremental save: Added 11 new matches. Total: 59 to /app/data/aiscore/daily_listings/20251010/matches.json
+2025-12-09 20:32:12,131 - root - INFO - Saved 11 matches to file (after 30 scrolls)
+2025-12-09 20:32:13,082 - root - INFO - Included 1 countries with 13 matches: {'International': 13}
+2025-12-09 20:32:13,083 - root - INFO - Scroll 31: 2 leagues, 13 matches
+2025-12-09 20:32:16,769 - root - INFO - Included 1 countries with 13 matches: {'International': 13}
+2025-12-09 20:32:16,770 - root - INFO - Scroll 32: 2 leagues, 13 matches
+2025-12-09 20:32:20,509 - root - INFO - Included 1 countries with 13 matches: {'International': 13}
+2025-12-09 20:32:20,537 - root - INFO - Scroll 33: 2 leagues, 13 matches
+2025-12-09 20:32:24,207 - root - INFO - Included 1 countries with 2 matches: {'International': 2}
+2025-12-09 20:32:24,208 - root - INFO - Scroll 34: 1 leagues, 2 matches
+2025-12-09 20:32:24,239 - root - INFO - Scroll 35 in progress...
+2025-12-09 20:32:27,896 - root - INFO - Included 1 countries with 2 matches: {'International': 2}
+2025-12-09 20:32:27,898 - root - INFO - Scroll 35: 1 leagues, 2 matches
+2025-12-09 20:32:31,474 - root - INFO - Included 1 countries with 2 matches: {'International': 2}
+2025-12-09 20:32:31,475 - root - INFO - Scroll 36: 1 leagues, 2 matches
+2025-12-09 20:32:32,966 - root - INFO - Included 1 countries with 1 matches: {'Netherlands': 1}
+2025-12-09 20:32:32,967 - root - INFO - Scroll 38: 1 leagues, 1 matches
+2025-12-09 20:32:33,680 - root - INFO - Included 1 countries with 1 matches: {'Netherlands': 1}
+2025-12-09 20:32:33,681 - root - INFO - Scroll 39: 1 leagues, 1 matches
+2025-12-09 20:32:33,724 - root - INFO - Scroll 40 in progress...
+2025-12-09 20:32:37,275 - root - INFO - Included 1 countries with 1 matches: {'Netherlands': 1}
+2025-12-09 20:32:37,276 - root - INFO - Scroll 40: 1 leagues, 1 matches
+2025-12-09 20:32:37,330 - root - INFO - Incremental save: Added 3 new matches. Total: 62 to /app/data/aiscore/daily_listings/20251010/matches.json
+2025-12-09 20:32:37,331 - root - INFO - Saved 3 matches to file (after 40 scrolls)
+2025-12-09 20:32:41,637 - root - INFO - Included 1 countries with 1 matches: {'Portugal': 1}
+2025-12-09 20:32:41,638 - root - INFO - Scroll 42: 1 leagues, 1 matches
+2025-12-09 20:32:41,639 - root - INFO - Progress: 63 matches found | Scroll 42
+2025-12-09 20:32:45,318 - root - INFO - Included 2 countries with 2 matches: {'Portugal': 1, 'Spain': 1}
+2025-12-09 20:32:45,320 - root - INFO - Scroll 43: 2 leagues, 2 matches
+2025-12-09 20:32:48,978 - root - INFO - Included 2 countries with 2 matches: {'Portugal': 1, 'Spain': 1}
+2025-12-09 20:32:48,980 - root - INFO - Scroll 44: 2 leagues, 2 matches
+2025-12-09 20:32:49,023 - root - INFO - Scroll 45 in progress...
+2025-12-09 20:32:49,752 - root - INFO - Included 2 countries with 2 matches: {'Portugal': 1, 'Spain': 1}
+2025-12-09 20:32:49,753 - root - INFO - Scroll 45: 2 leagues, 2 matches
+2025-12-09 20:32:53,249 - root - INFO - Included 1 countries with 1 matches: {'Spain': 1}
+2025-12-09 20:32:53,262 - root - INFO - Scroll 46: 1 leagues, 1 matches
+2025-12-09 20:33:01,101 - root - INFO - Scroll 50 in progress...
+2025-12-09 20:33:04,654 - root - INFO - Included 2 countries with 2 matches: {'Venezuela': 1, 'Wales': 1}
+2025-12-09 20:33:04,656 - root - INFO - Scroll 50: 2 leagues, 2 matches
+2025-12-09 20:33:04,732 - root - INFO - Incremental save: Added 4 new matches. Total: 66 to /app/data/aiscore/daily_listings/20251010/matches.json
+2025-12-09 20:33:04,734 - root - INFO - Saved 4 matches to file (after 50 scrolls)
+2025-12-09 20:33:05,439 - root - INFO - Included 2 countries with 2 matches: {'Venezuela': 1, 'Wales': 1}
+2025-12-09 20:33:05,441 - root - INFO - Scroll 51: 2 leagues, 2 matches
+2025-12-09 20:33:09,235 - root - INFO - Included 2 countries with 2 matches: {'Venezuela': 1, 'Wales': 1}
+2025-12-09 20:33:09,246 - root - INFO - Scroll 52: 2 leagues, 2 matches
+2025-12-09 20:33:16,340 - root - INFO - Scraping complete: 66 matches found after 54 scrolls
+2025-12-09 20:33:16,342 - root - INFO - Scraping complete. Total unique links found: 66
+2025-12-09 20:33:16,346 - root - INFO - File verification: 66 matches in data/aiscore/daily_listings/20251010/matches.json
+2025-12-09 20:33:16,415 - src.scrapers.aiscore.browser - INFO - Browser closed

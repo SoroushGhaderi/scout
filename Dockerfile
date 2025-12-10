@@ -33,13 +33,15 @@ ENV PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH" \
     DEBIAN_FRONTEND=noninteractive \
     CHROME_BIN=/usr/bin/chromium \
+    CHROMEDRIVER_PATH=/usr/bin/chromedriver \
     WDM_LOCAL=1 \
     WDM_LOG_LEVEL=0
 
 # Install runtime dependencies (Chrome for Selenium)
-# Note: We don't install chromium-driver from apt - ChromeDriverManager will handle it
+# Install chromium-driver from apt to avoid runtime download issues
 RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
+    chromium-driver \
     chromium-sandbox \
     wget \
     gnupg \

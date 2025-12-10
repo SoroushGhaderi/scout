@@ -1,5 +1,4 @@
-"""
-Optimized Selenium utilities for faster scraping performance.
+"""Optimized Selenium utilities for faster scraping performance.
 
 These utilities help reduce the overhead of Selenium operations, particularly
 around implicit waits and element lookups.
@@ -17,8 +16,7 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 @contextmanager
 def fast_lookup(driver: WebDriver):
-    """
-    Context manager for fast element lookups with zero implicit wait.
+    """Context manager for fast element lookups with zero implicit wait.
 
     Use this when you know an element might not exist and want to fail fast.
 
@@ -26,10 +24,9 @@ def fast_lookup(driver: WebDriver):
         with fast_lookup(driver):
             elements = driver.find_elements(By.CSS_SELECTOR, ".optional-element")
             if not elements:
-                # Failed fast - no 10s wait!
                 return None
     """
-    original_wait = 10  # Assume default
+    original_wait = 10
     try:
         driver.implicitly_wait(0)
         yield
@@ -39,15 +36,13 @@ def fast_lookup(driver: WebDriver):
 
 @contextmanager
 def temporary_wait(driver: WebDriver, seconds: float):
-    """
-    Context manager to temporarily change implicit wait.
+    """Context manager to temporarily change implicit wait.
 
     Example:
         with temporary_wait(driver, 2.0):
-            # Only wait 2s instead of default 10s
             element = driver.find_element(By.ID, "quick-check")
     """
-    original_wait = 10  # Assume default
+    original_wait = 10
     try:
         driver.implicitly_wait(seconds)
         yield
@@ -61,8 +56,7 @@ def find_with_fallbacks(
     timeout: float = 2.0,
     must_be_visible: bool = True
 ) -> Optional[WebElement]:
-    """
-    Try multiple selectors in order, returning first match.
+    """Try multiple selectors in order, returning first match.
 
     Args:
         driver: Selenium WebDriver
@@ -106,8 +100,7 @@ def find_all_with_fallbacks(
     timeout: float = 2.0,
     must_be_visible: bool = True
 ) -> List[WebElement]:
-    """
-    Try multiple selectors in order, returning all matches from first successful selector.
+    """Try multiple selectors in order, returning all matches from first successful selector.
 
     Similar to find_with_fallbacks but returns all matching elements.
     """
@@ -128,16 +121,15 @@ def find_all_with_fallbacks(
 
 
 def quick_check(driver: WebDriver, by: str, selector: str) -> bool:
-    """
-    Quickly check if element exists without waiting.
+    """Quickly check if element exists without waiting.
 
     Returns True if found, False otherwise. Never waits.
 
     Example:
         if quick_check(driver, By.CSS_SELECTOR, ".table"):
-            # Process table
+            pass
         else:
-            # Skip quickly - no wait time!
+            pass
     """
     with fast_lookup(driver):
         try:
@@ -152,8 +144,7 @@ def wait_for_any(
     selectors: List[tuple],
     timeout: float = 10.0
 ) -> Optional[WebElement]:
-    """
-    Wait for any of the given selectors to appear.
+    """Wait for any of the given selectors to appear.
 
     More efficient than multiple separate waits.
 
@@ -166,7 +157,6 @@ def wait_for_any(
         First element that appears, or None if timeout
     """
     try:
-        # Create a condition that checks all selectors
         def any_selector_present(driver):
             for by, selector in selectors:
                 try:
@@ -183,19 +173,16 @@ def wait_for_any(
 
 
 class ElementCache:
-    """
-    Cache for frequently accessed elements to avoid repeated lookups.
+    """Cache for frequently accessed elements to avoid repeated lookups.
 
     Use this when you need to access the same element multiple times.
-    Automatically invalidates stale elements.
+    Automatically validates stale elements.
 
     Example:
         cache = ElementCache(driver)
 
-        # First access - does lookup
         table = cache.get(By.CSS_SELECTOR, ".data-table")
 
-        # Second access - returns cached (unless stale)
         table = cache.get(By.CSS_SELECTOR, ".data-table")
     """
 
@@ -207,18 +194,14 @@ class ElementCache:
         """Get element, using cache if available and not stale."""
         cache_key = (by, selector)
 
-        # Check cache
         if cache_key in self._cache:
             element = self._cache[cache_key]
             try:
-                # Verify element is still valid
-                element.is_enabled()  # This throws if stale
+                element.is_enabled()
                 return element
             except Exception:
-                # Element is stale, remove from cache
                 del self._cache[cache_key]
 
-        # Not in cache or stale - do lookup
         try:
             elements = self.driver.find_elements(by, selector)
             if elements:

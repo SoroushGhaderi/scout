@@ -1,6 +1,9 @@
 -- Create tables for FotMob data warehouse
 -- This script creates all 14 tables for FotMob match data
 -- Run this AFTER creating the databases (00_create_databases_fotmob_and_aiscore.sql)
+--
+-- Table deduplication: Use OPTIMIZE TABLE <table> FINAL DEDUPLICATE to remove duplicates
+-- Example: OPTIMIZE TABLE fotmob.general FINAL DEDUPLICATE
 
 USE fotmob;
 
@@ -280,6 +283,8 @@ CREATE TABLE IF NOT EXISTS period (
     blocked_shots_away Nullable(Int32),
     shots_woodwork_home Nullable(Int32),
     shots_woodwork_away Nullable(Int32),
+    shots_sidebox_home Nullable(Int32),
+    shots_sidebox_away Nullable(Int32),
     shots_inside_box_home Nullable(Int32),
     shots_inside_box_away Nullable(Int32),
     shots_outside_box_home Nullable(Int32),
@@ -446,3 +451,21 @@ CREATE TABLE IF NOT EXISTS team_form (
 ) ENGINE = MergeTree()
 ORDER BY (match_id, team_id, form_position);
 
+-- ============================================================================
+-- OPTIMIZE TABLES (run after data loading to deduplicate)
+-- ============================================================================
+-- Example usage:
+-- OPTIMIZE TABLE fotmob.general FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.timeline FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.venue FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.player FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.shotmap FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.goal FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.cards FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.red_card FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.period FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.momentum FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.starters FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.substitutes FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.coaches FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.team_form FINAL DEDUPLICATE;

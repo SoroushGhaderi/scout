@@ -1,0 +1,220 @@
+2025-12-04 13:20:54,152 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251204.log
+2025-12-04 13:20:54,152 - fotmob_scraper - INFO - main:218 - Connecting to ClickHouse at clickhouse:8123
+2025-12-04 13:20:54,168 - fotmob_scraper - INFO - connect:151 - Connected to ClickHouse: clickhouse:8123/default
+2025-12-04 13:20:54,171 - fotmob_scraper - INFO - main:294 - Looking for SQL files in: /app/clickhouse/init
+2025-12-04 13:20:54,172 - fotmob_scraper - INFO - main:305 - Found ClickHouse init directory: /app/clickhouse/init
+2025-12-04 13:20:54,175 - fotmob_scraper - INFO - check_databases_exist:60 - All databases exist: fotmob, aiscore
+2025-12-04 13:20:54,178 - fotmob_scraper - INFO - main:334 - FotMob database has 14 tables: cards, coaches, general, goal, momentum, period, player, red_card, shotmap, starters, substitutes, team_form, timeline, venue
+2025-12-04 13:20:54,180 - fotmob_scraper - INFO - main:355 - AIScore database has 5 tables: daily_listings, matches, odds_1x2, odds_asian_handicap, odds_over_under
+2025-12-04 13:20:54,181 - fotmob_scraper - INFO - main:365 - All required tables already exist for both FotMob and AIScore. Skipping creation.
+2025-12-04 13:25:49,087 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251204.log
+2025-12-04 13:25:49,088 - fotmob_scraper - INFO - _load_config:233 - Email alerts enabled: 1 recipients
+2025-12-04 13:25:49,089 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251001 - Step 'AIscore Bronze - 20251001' failed with exit code 1.
+
+Elapsed time: 1.4s
+2025-12-04 13:25:52,264 - fotmob_scraper - ERROR - _send_impl:184 - Failed to send email alert: (250, b'smtp.gmail.com at your service, [104.255.169.121]\nSIZE 35882577\n8BITMIME\nAUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH\nENHANCEDSTATUSCODES\nPIPELINING\nCHUNKING\nSMTPUTF8')
+2025-12-04 13:25:53,770 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251002 - Step 'AIscore Bronze - 20251002' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:25:58,709 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:26:00,169 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251003 - Step 'AIscore Bronze - 20251003' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:26:04,960 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:26:06,459 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251004 - Step 'AIscore Bronze - 20251004' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:26:11,492 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:26:12,885 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251005 - Step 'AIscore Bronze - 20251005' failed with exit code 1.
+
+Elapsed time: 1.4s
+2025-12-04 13:26:18,749 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:26:20,376 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251006 - Step 'AIscore Bronze - 20251006' failed with exit code 1.
+
+Elapsed time: 1.6s
+2025-12-04 13:26:25,222 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:26:26,733 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251007 - Step 'AIscore Bronze - 20251007' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:26:31,517 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:26:32,937 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251008 - Step 'AIscore Bronze - 20251008' failed with exit code 1.
+
+Elapsed time: 1.4s
+2025-12-04 13:26:37,626 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:26:39,113 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251009 - Step 'AIscore Bronze - 20251009' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:26:44,604 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:26:45,960 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251010 - Step 'AIscore Bronze - 20251010' failed with exit code 1.
+
+Elapsed time: 1.3s
+2025-12-04 13:26:50,649 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:26:52,017 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251011 - Step 'AIscore Bronze - 20251011' failed with exit code 1.
+
+Elapsed time: 1.4s
+2025-12-04 13:26:56,705 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:26:57,982 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251012 - Step 'AIscore Bronze - 20251012' failed with exit code 1.
+
+Elapsed time: 1.3s
+2025-12-04 13:27:04,010 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:27:05,602 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251013 - Step 'AIscore Bronze - 20251013' failed with exit code 1.
+
+Elapsed time: 1.6s
+2025-12-04 13:27:11,089 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:27:12,610 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251014 - Step 'AIscore Bronze - 20251014' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:27:17,432 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:27:19,050 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251015 - Step 'AIscore Bronze - 20251015' failed with exit code 1.
+
+Elapsed time: 1.6s
+2025-12-04 13:27:23,830 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:27:25,459 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251016 - Step 'AIscore Bronze - 20251016' failed with exit code 1.
+
+Elapsed time: 1.6s
+2025-12-04 13:27:31,201 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:27:32,744 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251017 - Step 'AIscore Bronze - 20251017' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:27:37,499 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:27:38,969 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251018 - Step 'AIscore Bronze - 20251018' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:27:43,875 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:27:45,826 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251019 - Step 'AIscore Bronze - 20251019' failed with exit code 1.
+
+Elapsed time: 1.9s
+2025-12-04 13:27:50,923 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:27:52,751 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251020 - Step 'AIscore Bronze - 20251020' failed with exit code 1.
+
+Elapsed time: 1.8s
+2025-12-04 13:27:57,574 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:27:59,097 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251021 - Step 'AIscore Bronze - 20251021' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:28:03,943 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:28:05,534 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251022 - Step 'AIscore Bronze - 20251022' failed with exit code 1.
+
+Elapsed time: 1.6s
+2025-12-04 13:28:10,388 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:28:12,042 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251023 - Step 'AIscore Bronze - 20251023' failed with exit code 1.
+
+Elapsed time: 1.6s
+2025-12-04 13:28:13,515 - fotmob_scraper - ERROR - _send_impl:184 - Failed to send email alert: (220, b'2.0.0 Ready to start TLS')
+2025-12-04 13:28:20,248 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251204.log
+2025-12-04 13:28:20,248 - fotmob_scraper - INFO - _load_config:233 - Email alerts enabled: 1 recipients
+2025-12-04 13:28:20,249 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251001 - Step 'AIscore Bronze - 20251001' failed with exit code 1.
+
+Elapsed time: 1.4s
+2025-12-04 13:28:22,810 - fotmob_scraper - ERROR - _send_impl:184 - Failed to send email alert: (235, b'2.7.0 Accepted')
+2025-12-04 13:28:24,641 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251002 - Step 'AIscore Bronze - 20251002' failed with exit code 1.
+
+Elapsed time: 1.8s
+2025-12-04 13:28:32,188 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:28:33,631 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251003 - Step 'AIscore Bronze - 20251003' failed with exit code 1.
+
+Elapsed time: 1.4s
+2025-12-04 13:28:38,377 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:28:39,841 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251004 - Step 'AIscore Bronze - 20251004' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:28:44,976 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:28:46,778 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251005 - Step 'AIscore Bronze - 20251005' failed with exit code 1.
+
+Elapsed time: 1.8s
+2025-12-04 13:28:51,536 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:28:52,991 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251006 - Step 'AIscore Bronze - 20251006' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:28:57,652 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:28:59,206 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251007 - Step 'AIscore Bronze - 20251007' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:29:03,967 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:29:05,372 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251008 - Step 'AIscore Bronze - 20251008' failed with exit code 1.
+
+Elapsed time: 1.4s
+2025-12-04 13:29:10,260 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:29:11,804 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251009 - Step 'AIscore Bronze - 20251009' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:29:16,572 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:29:18,013 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251010 - Step 'AIscore Bronze - 20251010' failed with exit code 1.
+
+Elapsed time: 1.4s
+2025-12-04 13:29:23,770 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:29:25,450 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251011 - Step 'AIscore Bronze - 20251011' failed with exit code 1.
+
+Elapsed time: 1.7s
+2025-12-04 13:29:30,297 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:29:31,825 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251012 - Step 'AIscore Bronze - 20251012' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:29:36,511 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:29:38,265 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251013 - Step 'AIscore Bronze - 20251013' failed with exit code 1.
+
+Elapsed time: 1.7s
+2025-12-04 13:29:43,245 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:29:44,840 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251014 - Step 'AIscore Bronze - 20251014' failed with exit code 1.
+
+Elapsed time: 1.6s
+2025-12-04 13:29:49,823 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:29:51,442 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251015 - Step 'AIscore Bronze - 20251015' failed with exit code 1.
+
+Elapsed time: 1.6s
+2025-12-04 13:29:56,397 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:29:57,929 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251016 - Step 'AIscore Bronze - 20251016' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:30:03,495 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:30:05,296 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251017 - Step 'AIscore Bronze - 20251017' failed with exit code 1.
+
+Elapsed time: 1.8s
+2025-12-04 13:30:10,103 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:30:11,747 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251018 - Step 'AIscore Bronze - 20251018' failed with exit code 1.
+
+Elapsed time: 1.6s
+2025-12-04 13:30:16,667 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:30:18,262 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251019 - Step 'AIscore Bronze - 20251019' failed with exit code 1.
+
+Elapsed time: 1.6s
+2025-12-04 13:30:23,121 - fotmob_scraper - INFO - _send_impl:181 - Email alert sent successfully to 1 recipient(s): ghaderi.soroush1995@gmail.com
+2025-12-04 13:30:24,746 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251020 - Step 'AIscore Bronze - 20251020' failed with exit code 1.
+
+Elapsed time: 1.6s
+2025-12-04 13:30:26,942 - fotmob_scraper - ERROR - _send_impl:184 - Failed to send email alert: (250, b'smtp.gmail.com at your service, [104.255.169.121]\nSIZE 35882577\n8BITMIME\nAUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH\nENHANCEDSTATUSCODES\nPIPELINING\nCHUNKING\nSMTPUTF8')
+2025-12-04 13:30:36,571 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251204.log
+2025-12-04 13:30:36,575 - fotmob_scraper - INFO - _load_config:233 - Email alerts enabled: 1 recipients
+2025-12-04 13:30:36,578 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251001 - Step 'AIscore Bronze - 20251001' failed with exit code 1.
+
+Elapsed time: 1.4s
+2025-12-04 13:30:38,361 - fotmob_scraper - ERROR - _send_impl:184 - Failed to send email alert: (-1, b'\x02\x02F')
+2025-12-04 13:31:49,668 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251204.log
+2025-12-04 13:31:49,668 - fotmob_scraper - INFO - _load_config:233 - Email alerts enabled: 1 recipients
+2025-12-04 13:31:49,668 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251001 - Step 'AIscore Bronze - 20251001' failed with exit code 1.
+
+Elapsed time: 1.7s
+2025-12-04 13:31:51,146 - fotmob_scraper - ERROR - _send_impl:184 - Failed to send email alert: (250, b'smtp.gmail.com at your service, [104.255.169.121]\nSIZE 35882577\n8BITMIME\nSTARTTLS\nENHANCEDSTATUSCODES\nPIPELINING\nCHUNKING\nSMTPUTF8')
+2025-12-04 13:32:57,560 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251204.log
+2025-12-04 13:32:57,564 - fotmob_scraper - INFO - _load_config:233 - Email alerts enabled: 1 recipients
+2025-12-04 13:32:57,565 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251001 - Step 'AIscore Bronze - 20251001' failed with exit code 1.
+
+Elapsed time: 1.5s
+2025-12-04 13:32:59,307 - fotmob_scraper - ERROR - _send_impl:184 - Failed to send email alert: (220, b'2.0.0 Ready to start TLS')
+2025-12-04 13:33:39,003 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251204.log
+2025-12-04 13:33:39,004 - fotmob_scraper - INFO - _load_config:233 - Email alerts enabled: 1 recipients
+2025-12-04 13:33:39,005 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251001 - Step 'AIscore Bronze - 20251001' failed with exit code 1.
+
+Elapsed time: 1.7s
+2025-12-04 13:33:40,496 - fotmob_scraper - ERROR - _send_impl:184 - Failed to send email alert: (220, b'2.0.0 Ready to start TLS')
+2025-12-04 14:00:57,216 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251204.log
+2025-12-04 14:00:57,225 - fotmob_scraper - INFO - _load_config:233 - Email alerts enabled: 1 recipients
+2025-12-04 14:00:57,226 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: Pipeline Step Failed: AIscore Bronze - 20251001 - Step 'AIscore Bronze - 20251001' failed with exit code 1.
+
+Elapsed time: 1.6s
+2025-12-04 15:52:26,224 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251204.log
+2025-12-04 15:52:26,225 - fotmob_scraper - INFO - _load_config:233 - Email alerts enabled: 1 recipients
+2025-12-04 15:52:26,226 - fotmob_scraper - ERROR - _send_impl:131 - ALERT: AIScore Odds Scraping Failed - 20251004 - Odds scraping failed for date 20251004.
+
+Total matches: 298
+To scrape: 252

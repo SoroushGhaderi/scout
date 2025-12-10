@@ -7,15 +7,15 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class MatchTimeline(BaseModel):
     """Represents the timeline and status of a football match."""
-    
+
     model_config = ConfigDict(
         extra='ignore',
         validate_assignment=True,
         str_strip_whitespace=True,
     )
-    
+
     match_id: Optional[int] = Field(None, description="Unique match identifier")
-    match_time_utc: Optional[datetime] = Field(None, description="Scheduled match start time in UTC")
+    match_time_utc: Optional[datetime] = Field(None, description="Scheduled match start time UTC")
     first_half_started: Optional[str] = Field(None, description="Actual first half start time")
     first_half_ended: Optional[str] = Field(None, description="First half end time")
     second_half_started: Optional[str] = Field(None, description="Second half start time")
@@ -30,19 +30,19 @@ class MatchTimeline(BaseModel):
 
 class GeneralMatchStats(BaseModel):
     """Represents general statistics and information about a match."""
-    
+
     model_config = ConfigDict(
         extra='ignore',
         validate_assignment=True,
         str_strip_whitespace=True,
     )
-    
+
     match_id: Optional[int] = Field(None, description="Unique match identifier")
     match_round: Optional[str] = Field(None, description="Current round of the match")
-    team_color_dark_mode_home: Optional[str] = Field(None, description="Home team color in dark mode")
-    team_color_dark_mode_away: Optional[str] = Field(None, description="Away team color in dark mode")
-    team_color_light_mode_home: Optional[str] = Field(None, description="Home team color in light mode")
-    team_color_light_mode_away: Optional[str] = Field(None, description="Away team color in light mode")
+    team_color_dark_mode_home: Optional[str] = Field(None, description="Home team color dark mode")
+    team_color_dark_mode_away: Optional[str] = Field(None, description="Away team color dark mode")
+    team_color_light_mode_home: Optional[str] = Field(None, description="Home team color light mode")
+    team_color_light_mode_away: Optional[str] = Field(None, description="Away team color light mode")
     league_id: Optional[int] = Field(None, description="League ID")
     league_name: Optional[str] = Field(None, description="League name")
     league_round_name: Optional[str] = Field(None, description="Name of the league round")
@@ -56,23 +56,23 @@ class GeneralMatchStats(BaseModel):
     away_team_name: Optional[str] = Field(None, description="Away team name")
     away_team_id: Optional[int] = Field(None, description="Away team ID")
     coverage_level: Optional[str] = Field(None, description="Match coverage level")
-    match_time_utc: Optional[str] = Field(None, description="Scheduled match time in UTC")
-    match_time_utc_date: Optional[str] = Field(None, description="Match date in UTC")
+    match_time_utc: Optional[str] = Field(None, description="Scheduled match time UTC")
+    match_time_utc_date: Optional[str] = Field(None, description="Match date UTC")
     match_started: bool = Field(False, description="Whether match has started")
     match_finished: bool = Field(False, description="Whether match has finished")
 
 
 class InfoBox(BaseModel):
     """Represents general information details about the match, stadium, and referee."""
-    
+
     model_config = ConfigDict(
         extra='ignore',
         validate_assignment=True,
         str_strip_whitespace=True,
     )
-    
+
     match_id: Optional[int] = Field(None, description="Unique identifier for the match")
-    match_date_utc: Optional[datetime] = Field(None, description="Match date and time in UTC")
+    match_date_utc: Optional[datetime] = Field(None, description="Match date and time UTC")
     match_date_verified: Optional[bool] = Field(None, description="Flag indicating if date is verified")
     tournament_id: Optional[int] = Field(None, description="Tournament ID")
     parent_league_id: Optional[int] = Field(None, description="Parent league ID")
@@ -92,9 +92,9 @@ class InfoBox(BaseModel):
 
 class MomentumDataPoint(BaseModel):
     """Represents a single data point in the match momentum chart."""
-    
+
     model_config = ConfigDict(extra='ignore')
-    
+
     match_id: int = Field(..., description="Unique match identifier")
     minute: Optional[float] = Field(..., description="Match minute timestamp")
     value: Optional[int] = Field(..., description="Momentum value (-100 to 100)")
@@ -103,12 +103,12 @@ class MomentumDataPoint(BaseModel):
 
 class PeriodStats(BaseModel):
     """Represents aggregated statistics for a specific period of the match."""
-    
+
     model_config = ConfigDict(
         extra='ignore',
         validate_assignment=True,
     )
-    
+
     match_id: int = Field(..., description="Unique match identifier")
     period: str = Field(..., description="Match period")
     ball_possession_home: Optional[int] = Field(None, description="Ball possession % for home team")
@@ -145,8 +145,8 @@ class PeriodStats(BaseModel):
     blocked_shots_away: Optional[int] = Field(None, description="Blocked shots by away")
     shots_woodwork_home: Optional[int] = Field(None, description="Shots hitting woodwork by home")
     shots_woodwork_away: Optional[int] = Field(None, description="Shots hitting woodwork by away")
-    shots_inside_box_home: Optional[int] = Field(None, description="Shots from inside box by home")
-    shots_inside_box_away: Optional[int] = Field(None, description="Shots from inside box by away")
+    shots_sidebox_home: Optional[int] = Field(None, description="Shots from inside box by home")
+    shots_sidebox_away: Optional[int] = Field(None, description="Shots from inside box by away")
     shots_outside_box_home: Optional[int] = Field(None, description="Shots from outside box by home")
     shots_outside_box_away: Optional[int] = Field(None, description="Shots from outside box by away")
     big_chances_home: Optional[int] = Field(None, description="Big chances by home")
@@ -201,4 +201,3 @@ class PeriodStats(BaseModel):
     offsides_away: Optional[int] = Field(None, description="Offsides by away")
     home_color: Optional[str] = Field(None, description="Home team color for display")
     away_color: Optional[str] = Field(None, description="Away team color for display")
-

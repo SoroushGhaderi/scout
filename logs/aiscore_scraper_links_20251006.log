@@ -1,0 +1,339 @@
+2025-11-28 20:02:35,015 - root - INFO - ================================================================================
+2025-11-28 20:02:35,015 - root - INFO - 📝 Logging initialized for links scraping
+2025-11-28 20:02:35,016 - root - INFO -    Log file: /app/logs/aiscore_scraper_links_20251006.log
+2025-11-28 20:02:35,017 - root - INFO -    Console level: INFO and above
+2025-11-28 20:02:35,018 - root - INFO -    File level: INFO and above (matches console)
+2025-11-28 20:02:35,019 - root - INFO -    File handler: ✓ Active
+2025-11-28 20:02:35,020 - root - INFO - ================================================================================
+Log file test write at 2025-11-28T20:02:35.021203
+2025-11-28 20:02:35,042 - root - INFO - Loading page: https://www.aiscore.com/20251006
+2025-11-28 20:02:35,043 - root - WARNING - Browser unresponsive, restarting...
+2025-11-28 20:02:35,044 - src.scrapers.aiscore.browser - INFO - Restarting browser...
+2025-11-28 20:02:37,046 - src.scrapers.aiscore.browser - INFO - Using Chrome binary: /usr/bin/chromium
+2025-11-28 20:02:37,095 - src.scrapers.aiscore.browser - INFO - Detected Chrome version: 142.0.7444.175 (major: 142)
+2025-11-28 20:02:37,097 - WDM - INFO - ====== WebDriver manager ======
+2025-11-28 20:02:38,597 - WDM - INFO - WebDriver version 142.0.7444.175 selected
+2025-11-28 20:02:38,602 - WDM - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-11-28 20:02:38,605 - WDM - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-11-28 20:02:39,565 - WDM - INFO - Driver downloading response is 200
+2025-11-28 20:02:55,720 - WDM - INFO - Driver has been saved in cache [/app/.wdm/drivers/chromedriver/linux64/142.0.7444.175]
+2025-11-28 20:02:56,015 - src.scrapers.aiscore.browser - INFO - Browser created successfully
+2025-11-28 20:02:56,016 - src.scrapers.aiscore.browser - INFO - Browser restarted successfully
+2025-11-28 20:03:07,236 - root - INFO - Cloudflare challenge detected. Waiting for it to complete...
+2025-11-28 20:03:17,306 - root - INFO - Still waiting for Cloudflare... (10s / 30s)
+2025-11-28 20:03:50,460 - root - WARNING - Cloudflare challenge did not complete within 30 seconds
+2025-11-28 20:03:50,463 - root - WARNING - Cloudflare challenge may not have completed. Continuing anyway...
+2025-11-28 20:04:21,546 - root - WARNING - Timeout waiting for page to load
+2025-11-28 20:04:32,127 - src.scrapers.aiscore.bronze_storage - INFO - Bronze storage initialized: data/aiscore
+2025-11-28 20:04:32,132 - root - INFO - ================================================================================
+2025-11-28 20:04:32,146 - root - INFO - Starting match links scraping...
+2025-11-28 20:04:32,148 - root - INFO - ================================================================================
+2025-11-28 20:04:32,149 - root - INFO - 🔍 Filtering: LEAGUE-BASED (✓ 118 leagues configured)
+2025-11-28 20:04:32,151 - root - INFO -    Sample leagues: Premier League, English Football League Championship, FA Cup, English Football League Cup, English Football League Trophy... (+113 more)
+2025-11-28 20:04:32,153 - root - INFO - Starting scroll to load all matches...
+2025-11-28 20:04:32,166 - root - INFO - Scroll 1 in progress...
+2025-11-28 20:04:52,289 - root - INFO - Scroll 2 in progress...
+2025-11-28 20:05:12,411 - root - INFO - Scroll 3 in progress...
+2025-11-28 20:05:32,539 - root - INFO - Scroll 4 in progress...
+2025-11-28 20:05:52,621 - root - INFO - Scroll 5 in progress...
+2025-11-28 20:06:12,685 - root - INFO - Scroll 6 in progress...
+2025-11-28 20:06:32,751 - root - INFO - Scroll 7 in progress...
+2025-11-28 20:06:52,810 - root - INFO - Scroll 8 in progress...
+2025-11-28 20:07:12,911 - root - INFO - Scroll 9 in progress...
+2025-11-28 20:07:32,955 - root - INFO - Scroll 10 in progress...
+2025-11-28 20:09:13,344 - root - INFO - Scroll 15 in progress...
+2025-11-28 20:10:53,761 - root - INFO - Scroll 20 in progress...
+2025-11-28 20:11:13,847 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 20/50)...
+2025-11-28 20:11:33,960 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 21/50)...
+2025-11-28 20:11:53,997 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 22/50)...
+2025-11-28 20:12:14,077 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 23/50)...
+2025-11-28 20:12:34,121 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 24/50)...
+2025-11-28 20:12:34,131 - root - INFO - Scroll 25 in progress...
+2025-11-28 20:12:54,214 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 25/50)...
+2025-11-28 20:13:14,288 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 26/50)...
+2025-11-28 20:13:34,366 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 27/50)...
+2025-11-28 20:13:54,475 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 28/50)...
+2025-11-28 20:14:14,533 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 29/50)...
+2025-11-28 20:14:14,546 - root - INFO - Scroll 30 in progress...
+2025-11-28 20:14:34,629 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 30/50)...
+2025-11-28 20:14:54,722 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 31/50)...
+2025-11-28 20:15:14,770 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 32/50)...
+2025-11-28 20:15:34,835 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 33/50)...
+2025-11-28 20:15:54,918 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 34/50)...
+2025-11-28 20:15:54,928 - root - INFO - Scroll 35 in progress...
+2025-11-28 20:16:14,994 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 35/50)...
+2025-11-28 20:16:35,088 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 36/50)...
+2025-11-28 20:16:55,162 - root - WARNING - Only 0 matches found but stopping conditions met. Continuing for a bit longer (scroll 37/50)...
+2025-11-28 20:17:07,790 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ConnectionResetError(104, 'Connection reset by peer')': /session/65165eb2582975b6e831b02fe8609a0c
+2025-11-28 20:17:07,796 - urllib3.connectionpool - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7935b8f3b050>: Failed to establish a new connection: [Errno 111] Connection refused')': /session/65165eb2582975b6e831b02fe8609a0c
+2025-11-28 20:17:07,799 - urllib3.connectionpool - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7935b8f3bf90>: Failed to establish a new connection: [Errno 111] Connection refused')': /session/65165eb2582975b6e831b02fe8609a0c
+2025-11-28 20:17:07,803 - src.scrapers.aiscore.browser - INFO - Browser closed
+2025-12-05 00:39:43,096 - root - INFO - ================================================================================
+2025-12-05 00:39:43,097 - root - INFO - 📝 Logging initialized
+2025-12-05 00:39:43,098 - root - INFO -    Log file: /app/logs/aiscore_scraper_links_20251006.log
+2025-12-05 00:39:43,099 - root - INFO -    Console level: INFO and above
+2025-12-05 00:39:43,100 - root - INFO -    File level: INFO and above
+2025-12-05 00:39:43,100 - root - INFO -    File handler: ✓ Active
+2025-12-05 00:39:43,101 - root - INFO - ================================================================================
+2025-12-05 00:39:43,102 - root - INFO - Loading page: https://www.aiscore.com/20251006
+2025-12-05 00:39:43,102 - root - WARNING - Browser unresponsive, restarting...
+2025-12-05 00:39:43,103 - src.scrapers.aiscore.browser - INFO - Restarting browser...
+2025-12-05 00:39:45,104 - src.scrapers.aiscore.browser - INFO - Using Chrome binary: /usr/bin/chromium
+2025-12-05 00:39:45,149 - src.scrapers.aiscore.browser - INFO - Detected Chrome version: 142.0.7444.175 (major: 142)
+2025-12-05 00:39:45,151 - WDM - INFO - ====== WebDriver manager ======
+2025-12-05 00:39:47,587 - WDM - INFO - WebDriver version 142.0.7444.175 selected
+2025-12-05 00:39:47,593 - WDM - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-12-05 00:39:47,594 - WDM - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/142.0.7444.175/linux64/chromedriver-linux64.zip
+2025-12-05 00:39:51,673 - WDM - INFO - Driver downloading response is 200
+2025-12-05 00:40:05,087 - WDM - INFO - Driver has been saved in cache [/app/.wdm/drivers/chromedriver/linux64/142.0.7444.175]
+2025-12-05 00:40:05,351 - src.scrapers.aiscore.browser - INFO - Browser created successfully
+2025-12-05 00:40:05,353 - src.scrapers.aiscore.browser - INFO - Browser restarted successfully
+2025-12-05 00:40:21,575 - root - INFO - Cloudflare challenge detected. Waiting for it to complete...
+2025-12-05 00:40:31,674 - root - INFO - Still waiting for Cloudflare... (10s / 30s)
+2025-12-05 00:40:58,324 - root - WARNING - Cloudflare challenge did not complete within 30 seconds
+2025-12-05 00:40:58,327 - root - WARNING - Cloudflare challenge may not have completed. Continuing anyway...
+2025-12-05 00:40:58,330 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7eeed1b28190>: Failed to establish a new connection: [Errno 111] Connection refused')': /session/92432bf74107bc03c659c7897dac6da3/element
+2025-12-05 00:40:58,333 - urllib3.connectionpool - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7eeed1b2af10>: Failed to establish a new connection: [Errno 111] Connection refused')': /session/92432bf74107bc03c659c7897dac6da3/element
+2025-12-05 00:40:58,337 - urllib3.connectionpool - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7eeed1b2b690>: Failed to establish a new connection: [Errno 111] Connection refused')': /session/92432bf74107bc03c659c7897dac6da3/element
+2025-12-05 00:40:58,339 - root - WARNING - Timeout (attempt 1/3), retrying...
+2025-12-05 00:40:58,340 - src.scrapers.aiscore.browser - INFO - Restarting browser...
+2025-12-05 00:40:58,342 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7eeed1b348d0>: Failed to establish a new connection: [Errno 111] Connection refused')': /session/92432bf74107bc03c659c7897dac6da3
+2025-12-05 00:40:58,346 - urllib3.connectionpool - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7eeed1b34e10>: Failed to establish a new connection: [Errno 111] Connection refused')': /session/92432bf74107bc03c659c7897dac6da3
+2025-12-05 00:40:58,348 - urllib3.connectionpool - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7eeed1b34f90>: Failed to establish a new connection: [Errno 111] Connection refused')': /session/92432bf74107bc03c659c7897dac6da3
+2025-12-05 00:40:58,350 - src.scrapers.aiscore.browser - INFO - Browser closed
+2025-12-06 11:43:08,056 - root - INFO - ================================================================================
+2025-12-06 11:43:08,057 - root - INFO - 📝 Logging initialized
+2025-12-06 11:43:08,059 - root - INFO -    Log file: /app/logs/aiscore_scraper_links_20251006.log
+2025-12-06 11:43:08,059 - root - INFO -    Console level: INFO and above
+2025-12-06 11:43:08,060 - root - INFO -    File level: INFO and above
+2025-12-06 11:43:08,061 - root - INFO -    File handler: ✓ Active
+2025-12-06 11:43:08,062 - root - INFO - ================================================================================
+2025-12-06 11:43:08,063 - root - INFO - Loading page: https://www.aiscore.com/20251006
+2025-12-06 11:43:08,064 - root - WARNING - Browser unresponsive, restarting...
+2025-12-06 11:43:08,065 - src.scrapers.aiscore.browser - INFO - Restarting browser...
+2025-12-06 11:43:10,066 - src.scrapers.aiscore.browser - INFO - Using Chrome binary: /usr/bin/chromium
+2025-12-06 11:43:10,117 - src.scrapers.aiscore.browser - INFO - Detected Chrome version: 142.0.7444.175 (major: 142)
+2025-12-06 11:43:10,139 - WDM - INFO - ====== WebDriver manager ======
+2025-12-06 11:43:18,210 - __main__ - ERROR - Link scraping error: Failed to create browser: Could not reach host. Are you offline?
+Traceback (most recent call last):
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 1093, in _validate_conn
+    conn.connect()
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connection.py", line 790, in connect
+    sock_and_verified = _ssl_wrap_socket_and_match_hostname(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connection.py", line 969, in _ssl_wrap_socket_and_match_hostname
+    ssl_sock = ssl_wrap_socket(
+               ^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/util/ssl_.py", line 480, in ssl_wrap_socket
+    ssl_sock = _ssl_wrap_socket_impl(sock, context, tls_in_tls, server_hostname)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/util/ssl_.py", line 524, in _ssl_wrap_socket_impl
+    return ssl_context.wrap_socket(sock, server_hostname=server_hostname)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/ssl.py", line 517, in wrap_socket
+    return self.sslsocket_class._create(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/ssl.py", line 1104, in _create
+    self.do_handshake()
+  File "/usr/local/lib/python3.11/ssl.py", line 1382, in do_handshake
+    self._sslobj.do_handshake()
+ssl.SSLError: [SSL] record layer failure (_ssl.c:1016)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 488, in _make_request
+    raise new_e
+urllib3.exceptions.SSLError: [SSL] record layer failure (_ssl.c:1016)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/venv/lib/python3.11/site-packages/requests/adapters.py", line 644, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/urllib3/util/retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='googlechromelabs.github.io', port=443): Max retries exceeded with url: /chrome-for-testing/known-good-versions-with-downloads.json (Caused by SSLError(SSLError(1, '[SSL] record layer failure (_ssl.c:1016)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/venv/lib/python3.11/site-packages/webdriver_manager/core/http.py", line 32, in get
+    resp = requests.get(
+           ^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/requests/api.py", line 73, in get
+    return request("get", url, params=params, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/requests/adapters.py", line 675, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='googlechromelabs.github.io', port=443): Max retries exceeded with url: /chrome-for-testing/known-good-versions-with-downloads.json (Caused by SSLError(SSLError(1, '[SSL] record layer failure (_ssl.c:1016)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/src/scrapers/aiscore/browser.py", line 123, in create_driver
+    driver_path = driver_manager.install()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/webdriver_manager/chrome.py", line 40, in install
+    driver_path = self._get_driver_binary_path(self.driver)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/webdriver_manager/core/manager.py", line 40, in _get_driver_binary_path
+    file = self._download_manager.download_file(driver.get_driver_download_url(os_type))
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/webdriver_manager/drivers/chrome.py", line 45, in get_driver_download_url
+    modern_version_url = self.get_url_for_version_and_platform(driver_version_to_download, os_type)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/webdriver_manager/drivers/chrome.py", line 75, in get_url_for_version_and_platform
+    response = self._http_client.get(url)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/venv/lib/python3.11/site-packages/webdriver_manager/core/http.py", line 35, in get
+    raise exceptions.ConnectionError(f"Could not reach host. Are you offline?")
+requests.exceptions.ConnectionError: Could not reach host. Are you offline?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/scripts/scrape_aiscore.py", line 348, in run_links_scraping
+    return _execute_links_scraping(date_str, scrape_links, config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/scripts/scrape_aiscore.py", line 365, in _execute_links_scraping
+    url_list = scrape_links.scrape_match_links(date_str, browser, config)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/scripts/aiscore_scripts/scrape_links.py", line 107, in scrape_match_links
+    return _scrape_match_links_impl(date, browser, config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/scripts/aiscore_scripts/scrape_links.py", line 505, in _scrape_match_links_impl
+    browser.restart()
+  File "/app/src/scrapers/aiscore/browser.py", line 301, in restart
+    self.create_driver()
+  File "/app/src/scrapers/aiscore/browser.py", line 140, in create_driver
+    raise BrowserError(f"Failed to create browser: {e}")
+src.scrapers.aiscore.exceptions.BrowserError: Failed to create browser: Could not reach host. Are you offline?
+2025-12-06 11:45:26,325 - root - INFO - ================================================================================
+2025-12-06 11:45:26,326 - root - INFO - 📝 Logging initialized
+2025-12-06 11:45:26,327 - root - INFO -    Log file: /app/logs/aiscore_scraper_links_20251006.log
+2025-12-06 11:45:26,329 - root - INFO -    Console level: INFO and above
+2025-12-06 11:45:26,330 - root - INFO -    File level: INFO and above
+2025-12-06 11:45:26,331 - root - INFO -    File handler: ✓ Active
+2025-12-06 11:45:26,331 - root - INFO - ================================================================================
+2025-12-06 11:45:26,332 - root - INFO - Loading page: https://www.aiscore.com/20251006
+2025-12-06 11:45:26,332 - root - WARNING - Browser unresponsive, restarting...
+2025-12-06 11:45:26,333 - src.scrapers.aiscore.browser - INFO - Restarting browser...
+2025-12-06 11:45:28,334 - src.scrapers.aiscore.browser - INFO - Using Chrome binary: /usr/bin/chromium
+2025-12-06 11:45:28,378 - src.scrapers.aiscore.browser - INFO - Detected Chrome version: 142.0.7444.175 (major: 142)
+2025-12-06 11:45:28,380 - WDM - INFO - ====== WebDriver manager ======
+2025-12-09 19:34:05,768 - root - INFO - ================================================================================
+2025-12-09 19:34:05,769 - root - INFO - 📝 Logging initialized
+2025-12-09 19:34:05,770 - root - INFO -    Log file: /app/logs/aiscore_scraper_links_20251006.log
+2025-12-09 19:34:05,771 - root - INFO -    Console level: INFO and above
+2025-12-09 19:34:05,772 - root - INFO -    File level: INFO and above
+2025-12-09 19:34:05,772 - root - INFO -    File handler: ✓ Active
+2025-12-09 19:34:05,773 - root - INFO - ================================================================================
+2025-12-09 19:34:05,774 - root - INFO - Loading page: https://www.aiscore.com/20251006
+2025-12-09 19:34:05,774 - root - WARNING - Browser unresponsive, restarting...
+2025-12-09 19:34:05,776 - src.scrapers.aiscore.browser - INFO - Restarting browser...
+2025-12-09 19:34:07,777 - src.scrapers.aiscore.browser - INFO - Using Chrome binary: /usr/bin/chromium
+2025-12-09 19:34:07,781 - src.scrapers.aiscore.browser - INFO - Using pre-installed ChromeDriver at: /usr/bin/chromedriver
+2025-12-09 19:34:08,034 - src.scrapers.aiscore.browser - INFO - Browser created successfully
+2025-12-09 19:34:08,035 - src.scrapers.aiscore.browser - INFO - Browser restarted successfully
+2025-12-09 19:34:24,174 - root - INFO - Cloudflare challenge detected. Waiting for it to complete...
+2025-12-09 19:34:34,250 - root - INFO - Still waiting for Cloudflare... (10s / 30s)
+2025-12-09 19:35:07,425 - root - WARNING - Cloudflare challenge did not complete within 30 seconds
+2025-12-09 19:35:07,427 - root - WARNING - Cloudflare challenge may not have completed. Continuing anyway...
+2025-12-09 19:35:38,524 - root - WARNING - Timeout waiting for page to load
+2025-12-09 19:35:39,711 - root - INFO - Starting scroll to load all matches...
+2025-12-09 19:35:39,750 - root - INFO - Scroll 1 in progress...
+2025-12-09 19:35:40,268 - root - INFO - Included 2 countries with 6 matches: {'Africa': 3, 'Argentina': 3}
+2025-12-09 19:35:40,269 - root - INFO - Scroll 1: 4 leagues, 6 matches
+2025-12-09 19:35:40,301 - root - INFO - Scroll 2 in progress...
+2025-12-09 19:35:40,920 - root - INFO - Included 3 countries with 4 matches: {'Bhutan': 1, 'Argentina': 1, 'Africa': 2}
+2025-12-09 19:35:40,925 - root - INFO - Scroll 2: 3 leagues, 4 matches
+2025-12-09 19:35:40,959 - root - INFO - Scroll 3 in progress...
+2025-12-09 19:35:44,589 - root - INFO - Included 3 countries with 6 matches: {'Africa': 2, 'Bhutan': 1, 'Brazil': 3}
+2025-12-09 19:35:44,589 - root - INFO - Scroll 3: 4 leagues, 6 matches
+2025-12-09 19:35:44,622 - root - INFO - Scroll 4 in progress...
+2025-12-09 19:35:48,356 - root - INFO - Included 2 countries with 5 matches: {'Bhutan': 1, 'Brazil': 4}
+2025-12-09 19:35:48,357 - root - INFO - Scroll 4: 4 leagues, 5 matches
+2025-12-09 19:35:48,389 - root - INFO - Scroll 5 in progress...
+2025-12-09 19:35:49,078 - root - INFO - Included 1 countries with 4 matches: {'Brazil': 4}
+2025-12-09 19:35:49,079 - root - INFO - Scroll 5: 3 leagues, 4 matches
+2025-12-09 19:35:49,112 - root - INFO - Scroll 6 in progress...
+2025-12-09 19:35:49,830 - root - INFO - Included 2 countries with 3 matches: {'Denmark': 1, 'Brazil': 2}
+2025-12-09 19:35:49,831 - root - INFO - Scroll 6: 3 leagues, 3 matches
+2025-12-09 19:35:49,874 - root - INFO - Scroll 7 in progress...
+2025-12-09 19:35:50,574 - root - INFO - Included 1 countries with 1 matches: {'Denmark': 1}
+2025-12-09 19:35:50,575 - root - INFO - Scroll 7: 1 leagues, 1 matches
+2025-12-09 19:35:50,603 - root - INFO - Scroll 8 in progress...
+2025-12-09 19:35:54,331 - root - INFO - Included 2 countries with 2 matches: {'Denmark': 1, 'England': 1}
+2025-12-09 19:35:54,333 - root - INFO - Scroll 8: 2 leagues, 2 matches
+2025-12-09 19:35:54,363 - root - INFO - Scroll 9 in progress...
+2025-12-09 19:35:58,169 - root - INFO - Included 4 countries with 4 matches: {'Denmark': 1, 'England': 1, 'Ghana': 1, 'Germany': 1}
+2025-12-09 19:35:58,188 - root - INFO - Scroll 9: 4 leagues, 4 matches
+2025-12-09 19:35:58,224 - root - INFO - Scroll 10 in progress...
+2025-12-09 19:35:58,941 - root - INFO - Included 3 countries with 3 matches: {'England': 1, 'Ghana': 1, 'Germany': 1}
+2025-12-09 19:35:58,942 - root - INFO - Scroll 10: 3 leagues, 3 matches
+2025-12-09 19:35:59,009 - root - INFO - Incremental save: Added 15 new matches. Total: 15 to /app/data/aiscore/daily_listings/20251006/matches.json
+2025-12-09 19:35:59,010 - root - INFO - Saved 15 matches to file (after 10 scrolls)
+2025-12-09 19:35:59,831 - root - INFO - Included 2 countries with 2 matches: {'Ghana': 1, 'Germany': 1}
+2025-12-09 19:35:59,832 - root - INFO - Scroll 11: 2 leagues, 2 matches
+2025-12-09 19:36:05,456 - root - INFO - Included 2 countries with 4 matches: {'International': 3, 'Jamaica': 1}
+2025-12-09 19:36:05,458 - root - INFO - Scroll 14: 2 leagues, 4 matches
+2025-12-09 19:36:05,459 - root - INFO - Progress: 19 matches found | Scroll 14
+2025-12-09 19:36:05,505 - root - INFO - Scroll 15 in progress...
+2025-12-09 19:36:06,214 - root - INFO - Included 2 countries with 4 matches: {'International': 3, 'Jamaica': 1}
+2025-12-09 19:36:06,215 - root - INFO - Scroll 15: 2 leagues, 4 matches
+2025-12-09 19:36:06,937 - root - INFO - Included 2 countries with 4 matches: {'International': 3, 'Jamaica': 1}
+2025-12-09 19:36:06,942 - root - INFO - Scroll 16: 2 leagues, 4 matches
+2025-12-09 19:36:10,721 - root - INFO - Included 1 countries with 1 matches: {'Jamaica': 1}
+2025-12-09 19:36:10,723 - root - INFO - Scroll 17: 1 leagues, 1 matches
+2025-12-09 19:36:14,416 - root - INFO - Included 2 countries with 3 matches: {'Netherlands': 1, 'Nigeria': 2}
+2025-12-09 19:36:14,418 - root - INFO - Scroll 18: 2 leagues, 3 matches
+2025-12-09 19:36:18,038 - root - INFO - Included 2 countries with 3 matches: {'Netherlands': 1, 'Nigeria': 2}
+2025-12-09 19:36:18,040 - root - INFO - Scroll 19: 2 leagues, 3 matches
+2025-12-09 19:36:18,073 - root - INFO - Scroll 20 in progress...
+2025-12-09 19:36:18,695 - root - INFO - Included 2 countries with 3 matches: {'Netherlands': 1, 'Nigeria': 2}
+2025-12-09 19:36:18,696 - root - INFO - Scroll 20: 2 leagues, 3 matches
+2025-12-09 19:36:18,758 - root - INFO - Incremental save: Added 7 new matches. Total: 22 to /app/data/aiscore/daily_listings/20251006/matches.json
+2025-12-09 19:36:18,759 - root - INFO - Saved 7 matches to file (after 20 scrolls)
+2025-12-09 19:36:23,032 - root - INFO - Included 1 countries with 1 matches: {'Portugal': 1}
+2025-12-09 19:36:23,034 - root - INFO - Scroll 22: 1 leagues, 1 matches
+2025-12-09 19:36:26,730 - root - INFO - Included 3 countries with 4 matches: {'Portugal': 1, 'Spain': 1, 'Sweden': 2}
+2025-12-09 19:36:26,731 - root - INFO - Scroll 23: 3 leagues, 4 matches
+2025-12-09 19:36:30,596 - root - INFO - Included 3 countries with 4 matches: {'Portugal': 1, 'Spain': 1, 'Sweden': 2}
+2025-12-09 19:36:30,597 - root - INFO - Scroll 24: 3 leagues, 4 matches
+2025-12-09 19:36:30,630 - root - INFO - Scroll 25 in progress...
+2025-12-09 19:36:34,431 - root - INFO - Included 3 countries with 4 matches: {'Spain': 1, 'Sweden': 2, 'USA': 1}
+2025-12-09 19:36:34,435 - root - INFO - Scroll 25: 3 leagues, 4 matches
+2025-12-09 19:36:34,436 - root - INFO - Progress: 27 matches found | Scroll 25
+2025-12-09 19:36:35,271 - root - INFO - Included 3 countries with 4 matches: {'Uganda': 1, 'Sweden': 2, 'USA': 1}
+2025-12-09 19:36:35,272 - root - INFO - Scroll 26: 3 leagues, 4 matches
+2025-12-09 19:36:38,838 - root - INFO - Included 2 countries with 2 matches: {'USA': 1, 'Uganda': 1}
+2025-12-09 19:36:38,851 - root - INFO - Scroll 27: 2 leagues, 2 matches
+2025-12-09 19:36:42,664 - root - INFO - Included 2 countries with 2 matches: {'USA': 1, 'Uganda': 1}
+2025-12-09 19:36:42,666 - root - INFO - Scroll 28: 2 leagues, 2 matches
+2025-12-09 19:36:46,522 - root - INFO - Scroll 30 in progress...
+2025-12-09 19:36:50,287 - root - INFO - Incremental save: Added 6 new matches. Total: 28 to /app/data/aiscore/daily_listings/20251006/matches.json
+2025-12-09 19:36:50,288 - root - INFO - Saved 6 matches to file (after 30 scrolls)
+2025-12-09 19:36:50,289 - root - INFO - Scraping complete: 28 matches found after 30 scrolls
+2025-12-09 19:36:50,290 - root - INFO - Scraping complete. Total unique links found: 28
+2025-12-09 19:36:50,293 - root - INFO - File verification: 28 matches in data/aiscore/daily_listings/20251006/matches.json
+2025-12-09 19:36:50,358 - src.scrapers.aiscore.browser - INFO - Browser closed

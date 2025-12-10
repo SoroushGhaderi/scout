@@ -1,6 +1,4 @@
-"""
-Processors package - Data transformation processors
-"""
+"""Processors package - Data transformation processors."""
 
 from .match_processor import MatchProcessor
 
