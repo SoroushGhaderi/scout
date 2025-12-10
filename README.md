@@ -1,8 +1,8 @@
-# Scout
+# Scout - Sports Data Pipeline
 
-> **Football Data Pipeline** - Scraping and processing match data from FotMob (API) and AIScore (web scraping) with ClickHouse data warehouse integration.
+> Production-ready football data scraper with FotMob API and AIScore web scraping, integrated with ClickHouse data warehouse.
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # 1. Setup
@@ -20,67 +20,54 @@ docker-compose exec scraper python scripts/setup_clickhouse.py
 # 4. Run pipeline
 docker-compose exec scraper python scripts/pipeline.py 20251208
 
-# 5. Optimize tables (optional, run periodically)
+# 5. Optimize tables (run periodically)
 make optimize-tables
 ```
 
-## 📖 Documentation
-
-**Complete documentation:** [DOCUMENTATION.md](DOCUMENTATION.md)
-
-## ⚡ Common Commands
-
-```bash
-# Run full pipeline (both scrapers + ClickHouse)
-docker-compose exec scraper python scripts/pipeline.py 20251208
-
-# Date range
-docker-compose exec scraper python scripts/pipeline.py --start-date 20251201 --end-date 20251207
-
-# Monthly scraping
-docker-compose exec scraper python scripts/pipeline.py --month 202512
-
-# FotMob only
-docker-compose exec scraper python scripts/scrape_fotmob.py 20251208
-
-# AIScore only
-docker-compose exec scraper python scripts/scrape_aiscore.py 20251208
-
-# View logs
-docker-compose logs -f scraper
-tail -f logs/pipeline_20251208.log
-
-# Access ClickHouse
-docker-compose exec clickhouse clickhouse-client \
-  --user fotmob_user --password fotmob_pass
-
-# Optimize and deduplicate tables (run after data loading)
-make optimize-tables
-```
-
-## 🏗️ Architecture
+## Architecture
 
 ```
 FotMob API / AIScore Web
          ↓
-Bronze Layer (JSON)
+Bronze Layer (JSON → TAR)
          ↓
 ClickHouse (Analytics)
 ```
 
-### Data Sources
-
+**Data Sources:**
 - **FotMob**: Match details, player stats, shots, timeline (REST API)
-- **AIScore**: Betting odds, match info (web scraping)
+- **AIScore**: Betting odds, match info (web scraping with Selenium)
 
-### Storage Layers
+**Storage:**
+- **Bronze**: Raw JSON data compressed in TAR archives (`data/fotmob/`, `data/aiscore/`)
+- **ClickHouse**: Analytics tables (fotmob: 14 tables, aiscore: 5 tables)
 
-- **Bronze**: Raw JSON data in `data/{fotmob|aiscore}/`
-- **ClickHouse**: Analytics-ready tables
-  - **fotmob** database: 14 tables (general, player, shotmap, goal, etc.)
-  - **aiscore** database: 5 tables (matches, odds_1x2, odds_asian_handicap, odds_over_under)
+## Installation
 
-## ⚙️ Configuration
+### Using Docker (Recommended)
+
+```bash
+# Start all services
+docker-compose up -d
+
+# Setup ClickHouse
+docker-compose exec scraper python scripts/setup_clickhouse.py
+```
+
+### Local Installation
+
+```bash
+# Install package
+pip install -e .
+
+# Install with dev dependencies
+pip install -e ".[dev]"
+
+# Install with Cloudflare bypass
+pip install -e ".[cloudflare]"
+```
+
+## Configuration
 
 All configuration via `.env` file:
 
@@ -95,7 +82,7 @@ CLICKHOUSE_PORT=8123
 CLICKHOUSE_USER=fotmob_user
 CLICKHOUSE_PASSWORD=fotmob_pass
 
-# League Filtering (AIScore)
+# AIScore League Filtering (95 competitions)
 AISCORE_FILTER_BY_LEAGUES=true
 AISCORE_ALLOWED_LEAGUES=Premier League,La Liga,Serie A,Bundesliga,Ligue 1,...
 
@@ -103,16 +90,148 @@ AISCORE_ALLOWED_LEAGUES=Premier League,La Liga,Serie A,Bundesliga,Ligue 1,...
 LOG_LEVEL=INFO
 ```
 
-See [DOCUMENTATION.md](DOCUMENTATION.md#configuration) for all options.
+## Usage
 
-## 🔧 Troubleshooting
+### Unified Pipeline
+
+```bash
+# Single date (both scrapers + ClickHouse)
+docker-compose exec scraper python scripts/pipeline.py 20251208
+
+# Date range
+docker-compose exec scraper python scripts/pipeline.py --start-date 20251201 --end-date 20251207
+
+# Monthly
+docker-compose exec scraper python scripts/pipeline.py --month 202512
+
+# Options
+--force           # Force re-scrape/reload
+--bronze-only     # Skip ClickHouse loading
+--skip-bronze     # Skip scraping, only load to ClickHouse
+--skip-fotmob     # Skip FotMob scraper
+--skip-aiscore    # Skip AIScore scraper
+```
+
+### Individual Scrapers
+
+**FotMob:**
+```bash
+# Scrape to bronze layer
+docker-compose exec scraper python scripts/scrape_fotmob.py 20251208
+
+# Load to ClickHouse
+docker-compose exec scraper python scripts/load_clickhouse.py --scraper fotmob --date 20251208
+```
+
+**AIScore:**
+```bash
+# Full pipeline (links + odds)
+docker-compose exec scraper python scripts/scrape_aiscore.py 20251208
+
+# Links only (faster)
+docker-compose exec scraper python scripts/scrape_aiscore.py 20251208 --links-only
+
+# Odds only
+docker-compose exec scraper python scripts/scrape_aiscore.py 20251208 --odds-only
+```
+
+## ClickHouse
+
+### Access ClickHouse
+
+```bash
+# Command line
+docker-compose exec clickhouse clickhouse-client \
+  --user fotmob_user --password fotmob_pass
+
+# HTTP Interface
+# URL: http://localhost:8123
+# User: fotmob_user, Password: fotmob_pass
+```
+
+### Sample Queries
+
+```sql
+-- Top scorers
+SELECT player_name, SUM(goals) as total_goals
+FROM fotmob.player
+GROUP BY player_name
+ORDER BY total_goals DESC
+LIMIT 10;
+
+-- Matches by league
+SELECT league_name, COUNT(*) as matches
+FROM fotmob.general
+GROUP BY league_name
+ORDER BY matches DESC;
+
+-- Betting odds analysis
+SELECT bookmaker, AVG(home_odds), AVG(draw_odds), AVG(away_odds)
+FROM aiscore.odds_1x2
+GROUP BY bookmaker;
+```
+
+### Table Optimization
+
+```bash
+# Optimize all tables (run after data loading)
+make optimize-tables
+
+# Or manually
+docker-compose exec -T clickhouse clickhouse-client \
+  --user fotmob_user --password fotmob_pass \
+  < clickhouse/init/03_optimize_tables.sql
+```
+
+## Key Features
+
+- Dual scraper support (FotMob API + AIScore web scraping)
+- Bronze layer with automatic TAR compression (60-75% space savings)
+- ClickHouse data warehouse with 19 tables
+- Automated deduplication (ReplacingMergeTree)
+- League-based filtering (95 competitions)
+- Docker containerization
+- Comprehensive validation system
+- Unified logging pipeline
+- Health checks and alerting
+- Idempotent operations (safe to re-run)
+
+## Project Structure
+
+```
+scout/
+├── src/              # Source code
+│   ├── scrapers/     # FotMob & AIScore scrapers
+│   ├── storage/      # Bronze storage & ClickHouse client
+│   ├── processors/   # Data transformation
+│   ├── config/       # Configuration management
+│   └── utils/        # Utilities (validation, logging, etc.)
+├── scripts/          # Executable scripts
+├── clickhouse/       # SQL schemas
+├── data/             # Bronze layer (TAR archives)
+├── logs/             # Application logs
+├── pyproject.toml    # Modern Python project config
+└── .env              # Configuration
+```
+
+## Troubleshooting
 
 ### FotMob 404 Errors
 
-**Updated Dec 2025:** FotMob changed API endpoint
+FotMob changed API endpoint in Dec 2025:
 ```bash
 # Update .env
 FOTMOB_API_BASE_URL=https://www.fotmob.com/api/data
+```
+
+### No Matches Found (AIScore)
+
+```bash
+# Analyze league names
+python scripts/analyze_leagues.py --days 30
+
+# Test filtering
+python scripts/scrape_aiscore.py 20251208 --links-only
 ```
 
 ### Docker Issues
@@ -132,95 +251,70 @@ docker-compose build --no-cache
 docker-compose up -d
 ```
 
-### No Matches Found (AIScore)
+## Monitoring
 
 ```bash
-# Analyze league names
-python scripts/analyze_leagues.py --days 30
-
-# Test filtering
-python scripts/scrape_aiscore.py 20251208 --links-only
-```
-
-## 📊 ClickHouse Queries
-
-```sql
--- Top scorers
-SELECT player_name, SUM(goals) as total_goals
-FROM fotmob.player
-GROUP BY player_name
-ORDER BY total_goals DESC
-LIMIT 10;
-
--- Matches by league
-SELECT league_name, COUNT(*) as matches
-FROM fotmob.general
-GROUP BY league_name
-ORDER BY matches DESC;
-
--- Betting odds
-SELECT bookmaker, AVG(home_odds), AVG(draw_odds), AVG(away_odds)
-FROM aiscore.odds_1x2
-GROUP BY bookmaker;
-```
-
-## 📁 Project Structure
-
-```
-scout/
-├── src/              # Source code
-│   ├── scrapers/     # FotMob & AIScore scrapers
-│   ├── storage/      # Bronze storage & ClickHouse
-│   ├── processors/   # Data transformation
-│   ├── config/       # Configuration management
-│   └── utils/        # Utilities
-├── scripts/          # Executable scripts
-├── clickhouse/       # SQL schemas
-├── data/             # Bronze layer data
-├── logs/             # Application logs
-├── .env              # Configuration
-└── DOCUMENTATION.md  # Complete documentation
-```
-
-## 🔍 Key Features
-
-- ✅ Dual scraper support (FotMob API + AIScore web scraping)
-- ✅ Bronze layer with TAR compression
-- ✅ ClickHouse data warehouse
-- ✅ Automated deduplication (ReplacingMergeTree)
-- ✅ League-based filtering (95 competitions)
-- ✅ Docker containerization
-- ✅ Unified logging pipeline
-- ✅ Health checks and alerting
-- ✅ Idempotent operations (safe to re-run)
-
-## 📚 Documentation
-
-- **[DOCUMENTATION.md](DOCUMENTATION.md)** - Complete guide (architecture, usage, troubleshooting)
-
-## 🆘 Support
-
-**Logs:**
-```bash
-# Unified pipeline logs
+# View logs
 tail -f logs/pipeline_20251208.log
-
-# Individual scrapers
 tail -f logs/fotmob_scraper_20251208.log
 tail -f logs/aiscore_scraper_20251208.log
-```
 
-**Health Check:**
-```bash
+# Health check
 docker-compose exec scraper python scripts/health_check.py
-```
 
-**Docker Status:**
-```bash
+# Docker status
 docker-compose ps
 docker-compose logs clickhouse
 ```
 
+## Performance Optimizations
+
+**Bronze Layer:**
+- Automatic TAR compression (60-75% space reduction)
+- Atomic file writes
+- File locking for thread safety
+- Batch operations
+
+**Scraping:**
+- Browser resource blocking (images, CSS, fonts)
+- Request delays to avoid rate limiting
+- Connection pooling
+- Parallel processing (configurable)
+
+**ClickHouse:**
+- Batch inserts via DataFrames
+- Table partitioning by date
+- Manual table optimization
+- Deduplication via ReplacingMergeTree
+
+## Development
+
+See [DEVELOPMENT.md](DEVELOPMENT.md) for:
+- Validation system details
+- Adding new scrapers
+- Custom processing
+- Testing and debugging
+
+## Support
+
+**Documentation:**
+- Complete guide: [DEVELOPMENT.md](DEVELOPMENT.md)
+- Project config: [pyproject.toml](pyproject.toml)
+
+**Logs:**
+- Pipeline: `logs/pipeline_*.log`
+- FotMob: `logs/fotmob_scraper_*.log`
+- AIScore: `logs/aiscore_scraper_*.log`
+
+**Tools:**
+- Health check: `python scripts/health_check.py`
+- Validation: `python scripts/validate_fotmob_responses.py`
+- League analysis: `python scripts/analyze_leagues.py`
+
+## License
+
+MIT
+
 ---
 
-**For detailed information, see [DOCUMENTATION.md](DOCUMENTATION.md)**
+**Scout** - Comprehensive sports data scraping and analytics system
