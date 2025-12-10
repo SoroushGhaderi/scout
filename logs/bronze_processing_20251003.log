@@ -1,7 +1,0 @@
-2025-11-27 13:57:39,771 - bronze_processing - INFO - setup_logging:82 - Logging initialized. Log file: logs/bronze_processing_20251003.log
-2025-11-27 13:57:39,796 - bronze_processing - INFO - main:279 - [1/1] Processing date: 20251003
-2025-11-27 16:09:53,937 - bronze_processing - INFO - setup_logging:82 - Logging initialized. Log file: logs/bronze_processing_20251003.log
-2025-11-27 16:09:53,994 - bronze_processing - INFO - main:279 - [1/1] Processing date: 20251003
-2025-12-06 10:12:04,879 - bronze_processing - INFO - setup_logging:57 - Logging initialized. Log file: logs/bronze_processing_20251003.log
-2025-12-08 09:30:43,095 - bronze_processing - INFO - setup_logging:57 - Logging initialized. Log file: logs/bronze_processing_20251003.log
-2025-12-08 09:30:43,137 - bronze_processing - INFO - process_single_date:307 - [1/1] Processing date: 20251003

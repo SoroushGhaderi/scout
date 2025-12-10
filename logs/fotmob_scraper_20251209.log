@@ -1,9 +1,0 @@
-2025-12-09 18:40:37,807 - fotmob_scraper - INFO - setup_logging:57 - Logging initialized. Log file: logs/fotmob_scraper_20251209.log
-2025-12-09 18:40:37,808 - fotmob_scraper - INFO - main:217 - Connecting to ClickHouse at clickhouse:8123
-2025-12-09 18:40:37,824 - fotmob_scraper - INFO - connect:127 - Connected to ClickHouse: clickhouse:8123/default
-2025-12-09 18:40:37,828 - fotmob_scraper - INFO - main:293 - Looking for SQL files in: /app/clickhouse/init
-2025-12-09 18:40:37,830 - fotmob_scraper - INFO - main:304 - Found ClickHouse init directory: /app/clickhouse/init
-2025-12-09 18:40:37,833 - fotmob_scraper - INFO - check_databases_exist:59 - All databases exist: fotmob, aiscore
-2025-12-09 18:40:37,837 - fotmob_scraper - INFO - main:333 - FotMob database has 14 tables: cards, coaches, general, goal, momentum, period, player, red_card, shotmap, starters, substitutes, team_form, timeline, venue
-2025-12-09 18:40:37,840 - fotmob_scraper - INFO - main:354 - AIScore database has 5 tables: daily_listings, matches, odds_1x2, odds_asian_handicap, odds_over_under
-2025-12-09 18:40:37,840 - fotmob_scraper - INFO - main:364 - All required tables already exist for both FotMob and AIScore. Skipping creation.
