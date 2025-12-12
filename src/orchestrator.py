@@ -6,21 +6,16 @@ PURPOSE: Orchestrate the entire scraping and processing pipeline.
          Saves to Bronze layer only. Use load_clickhouse.py to load to ClickHouse.
 """
 
-
-
-
-
-
-
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import List, Dict, Any, Optional
-from datetime import datetime
+import threading
 import time
+from typing import Any, Dict, List, Optional
+
 import requests
 
 from .config import FotMobConfig
-from .scrapers import MatchScraper, DailyScraper
 from .processors import MatchProcessor
+from .scrapers import MatchScraper, DailyScraper
 from .storage import BronzeStorage
 from .utils import ScraperMetrics, DataQualityChecker, get_logger, get_alert_manager
 
@@ -33,12 +28,6 @@ class FotMobOrchestrator:
     PURPOSE: Scrapes match data and saves to Bronze layer (JSON files).
              ClickHouse loading is done separately via load_clickhouse.py
     """
-
-
-
-
-
-
 
     def __init__(self, config: Optional[FotMobConfig] = None, bronze_only: bool = True):
         """
@@ -54,10 +43,25 @@ class FotMobOrchestrator:
         self.bronze_only = bronze_only
         self.alert_manager = get_alert_manager()
 
+        # Safety: FotMob can rate-limit/ban aggressive clients. Force sequential scraping
+        # unless you intentionally re-enable parallelism in code.
+        try:
+            if getattr(self.config, "scraping", None) is not None:
+                if getattr(self.config.scraping, "enable_parallel", False):
+                    self.logger.warning(
+                        "FotMob parallel scraping is disabled for safety (rate-limit/ban risk). "
+                        "Forcing enable_parallel=False, max_workers=1."
+                    )
+                self.config.scraping.enable_parallel = False
+                self.config.scraping.max_workers = 1
+        except Exception as e:
+            # Never fail initialization due to config shape differences
+            self.logger.debug(f"Could not enforce sequential FotMob scraping: {e}")
+
         self.bronze_storage = BronzeStorage(self.config.bronze_base_dir)
         self.logger.info("Bronze layer storage initialized")
 
-        self.processor = MatchProcessor() if not bronze_only else None
+        self.processor = None if bronze_only else MatchProcessor()
 
         self.logger.info(f"FotMob Orchestrator initialized (bronze_only={bronze_only})")
         if bronze_only:
@@ -70,11 +74,11 @@ class FotMobOrchestrator:
     ) -> ScraperMetrics:
         """
         Scrape all matches for a specific date.
-        
+
         Args:
             date_str: Date in YYYYMMDD format
             force_rescrape: If True, rescrape already processed matches
-        
+
         Returns:
             ScraperMetrics object with results
         """
@@ -83,7 +87,6 @@ class FotMobOrchestrator:
         metrics.start()
 
         self.logger.info(f"Starting scrape for date: {date_str}")
-
 
         self.logger.info("Running automatic health check...")
         health_status = self.bronze_storage.health_check()
@@ -98,8 +101,7 @@ class FotMobOrchestrator:
                 self.logger.error(error_msg)
                 metrics.end()
                 raise RuntimeError(error_msg)
-            else:
-                self.logger.warning("Health check warnings detected, but continuing...")
+            self.logger.warning("Health check warnings detected, but continuing...")
         else:
             self.logger.info("[OK] Health check passed")
 
@@ -140,7 +142,6 @@ class FotMobOrchestrator:
         finally:
             metrics.end()
 
-
         if self.bronze_only and metrics.successful_matches > 0:
             try:
                 self.logger.debug(f"Starting compression for {date_str}")
@@ -157,10 +158,6 @@ class FotMobOrchestrator:
             except Exception as e:
                 self.logger.error(f"Error during compression for {date_str}: {e}")
 
-
-
-
-
         metrics.print_summary()
 
         return metrics
@@ -171,26 +168,21 @@ class FotMobOrchestrator:
         """
         Fetch match IDs for a date and save daily listing to Bronze.
         Uses daily listing to prevent duplicate API requests.
-        
+
         Args:
             date_str: Date string YYYYMMDD format
             force_refetch: If True, fetch from API even if daily listing exists
-        
+
         Returns:
             List of match IDs
         """
 
-
-
         if not force_refetch and self.bronze_storage.daily_listing_exists(date_str):
             self.logger.info(f"Daily listing exists for {date_str}, loading from storage")
-            match_ids = self.bronze_storage.get_match_ids_for_date(date_str)
-            if match_ids:
+            if match_ids := self.bronze_storage.get_match_ids_for_date(date_str):
                 self.logger.info(f"Loaded {len(match_ids)} match IDs from daily listing for {date_str}")
                 return match_ids
-            else:
-                self.logger.warning(f"Daily listing exists but is empty for {date_str}, fetching from API")
-
+            self.logger.warning(f"Daily listing exists but is empty for {date_str}, fetching from API")
 
         self.logger.info(f"Fetching daily listing from API for {date_str}")
 
@@ -203,9 +195,9 @@ class FotMobOrchestrator:
 
                 if not match_ids:
                     self.logger.warning(f"Empty match list returned for {date_str}")
-                    if attempt < max_retries-1:
-                        wait_time = 2**attempt
-                        self.logger.info(f"Retrying {wait_time}s... (attempt {attempt+1}/{max_retries})")
+                    if attempt < max_retries - 1:
+                        wait_time = 2 ** attempt
+                        self.logger.info(f"Retrying {wait_time}s... (attempt {attempt + 1}/{max_retries})")
                         time.sleep(wait_time)
                         continue
                     else:
@@ -222,10 +214,11 @@ class FotMobOrchestrator:
                 return match_ids
 
             except requests.exceptions.RequestException as network_error:
-                if attempt < max_retries-1:
-                    wait_time = 2**attempt
+                if attempt < max_retries - 1:
+                    wait_time = 2 ** attempt
                     self.logger.warning(
-                        f"Network error fetching daily listing (attempt {attempt+1}/{max_retries}): {network_error}. "
+                        f"Network error fetching daily listing "
+                        f"(attempt {attempt + 1}/{max_retries}): {network_error}. "
                         f"Retrying {wait_time}s..."
                     )
                     time.sleep(wait_time)
@@ -236,7 +229,6 @@ class FotMobOrchestrator:
             except Exception as error:
                 self.logger.error(f"Unexpected error fetching daily listing: {error}")
                 raise
-
 
         return []
 
@@ -283,77 +275,97 @@ class FotMobOrchestrator:
     ):
         """Scrape matches in parallel using thread pool."""
         self.logger.info(
-        f"Scraping {len(match_ids)} matches in parallel "
-        f"(max_workers={self.config.max_workers})"
+            f"Scraping {len(match_ids)} matches in parallel "
+            f"(max_workers={self.config.max_workers})"
         )
-
 
         match_ids_to_scrape = [m for m in match_ids if m not in scraped_match_ids]
         if len(match_ids_to_scrape) < len(match_ids):
             skipped = len(match_ids) - len(match_ids_to_scrape)
             self.logger.info(f"Skipping {skipped} matches already scraped in this session")
 
-        with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
-            future_to_match = {}
-            for match_id in match_ids_to_scrape:
-                future = executor.submit(
-                    self._process_match_with_scraper,
-                    match_id,
-                    date_str,
-                    scraped_match_ids
-                )
-                future_to_match[future] = match_id
+        # IMPORTANT: In parallel mode, reuse one MatchScraper (and its underlying
+        # requests.Session) per worker thread to avoid per-match connection/TLS overhead.
+        thread_local = threading.local()
+        created_scrapers: List[MatchScraper] = []
+        created_scrapers_lock = threading.Lock()
 
-            completed_count = 0
+        def _get_thread_scraper() -> MatchScraper:
+            scraper = getattr(thread_local, "scraper", None)
+            if scraper is None:
+                scraper = MatchScraper(self.config)
+                thread_local.scraper = scraper
+                with created_scrapers_lock:
+                    created_scrapers.append(scraper)
+            return scraper
 
-            for future in as_completed(future_to_match):
-                match_id = future_to_match[future]
+        def _worker(match_id: str) -> tuple[bool, Optional[str]]:
+            scraper = _get_thread_scraper()
+            return self._process_match_with_scraper(scraper, match_id, date_str)
+
+        try:
+            with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
+                future_to_match = {}
+                for match_id in match_ids_to_scrape:
+                    future = executor.submit(_worker, match_id)
+                    future_to_match[future] = match_id
+
+                completed_count = 0
+
+                for future in as_completed(future_to_match):
+                    match_id = future_to_match[future]
+                    try:
+                        success, error_msg = future.result()
+                        if success:
+                            scraped_match_ids.add(match_id)
+                            metrics.record_success(match_id)
+                            self.logger.info(f"[SUCCESS] Processed match {match_id}")
+                        else:
+                            metrics.record_failure(match_id, error_msg or "Unknown error")
+                            self.logger.error(f"[FAILED] Match {match_id}")
+                    except Exception as e:
+                        self.logger.exception(f"Exception for match {match_id}: {e}")
+                        metrics.record_failure(match_id, str(e), type(e).__name__)
+
+                    completed_count += 1
+                    # Log progress after EVERY match
+                    progress_pct = (completed_count / len(match_ids_to_scrape)) * 100
+                    self.logger.info(
+                        f"[PROGRESS] {completed_count}/{len(match_ids_to_scrape)} ({progress_pct:.1f}%) | "
+                        f"Success: {metrics.successful_matches} | "
+                        f"Failed: {metrics.failed_matches} | "
+                        f"Skipped: {metrics.skipped_matches}"
+                    )
+        finally:
+            # Always close any sessions created for worker threads.
+            for scraper in created_scrapers:
                 try:
-                    success, error_msg = future.result()
-                    if success:
-                        scraped_match_ids.add(match_id)
-                        metrics.record_success(match_id)
-                        self.logger.info(f"[SUCCESS] Processed match {match_id}")
-                    else:
-                        metrics.record_failure(match_id, error_msg or "Unknown error")
-                        self.logger.error(f"[FAILED] Match {match_id}")
+                    scraper.close()
                 except Exception as e:
-                    self.logger.exception(f"Exception for match {match_id}: {e}")
-                    metrics.record_failure(match_id, str(e), type(e).__name__)
-
-                completed_count += 1
-                # Log progress after EVERY match
-                progress_pct = (completed_count / len(match_ids_to_scrape)) * 100
-                self.logger.info(
-                    f"[PROGRESS] {completed_count}/{len(match_ids_to_scrape)} ({progress_pct:.1f}%) | "
-                    f"Success: {metrics.successful_matches} | "
-                    f"Failed: {metrics.failed_matches} | "
-                    f"Skipped: {metrics.skipped_matches}"
-                )
+                    self.logger.debug(f"Failed to close worker scraper session: {e}")
 
     def _process_match_with_scraper(
         self,
+        scraper: MatchScraper,
         match_id: str,
         date_str: str,
-        scraped_match_ids: set
     ) -> tuple[bool, Optional[str]]:
         """
-        Process a single match (for parallel execution).
-        
+        Process a single match using an existing scraper instance.
+
+        NOTE: This method intentionally does NOT create/close the scraper.
+        In parallel mode we reuse a scraper (and HTTP session) per worker thread.
+
         Returns:
             Tuple of (success, error_message)
         """
-
         try:
-            with MatchScraper(self.config) as scraper:
-                raw_data = scraper.fetch_match_details(match_id)
-                if not raw_data:
-                    return False, "Failed to fetch match data"
+            raw_data = scraper.fetch_match_details(match_id)
+            if not raw_data:
+                return False, "Failed to fetch match data"
 
             self.bronze_storage.save_raw_match_data(match_id, raw_data, date_str)
             self.logger.debug(f"Saved raw data to bronze layer for match {match_id}")
-
-            scraped_match_ids.add(match_id)
 
             try:
                 self.bronze_storage.mark_match_as_scraped(match_id, date_str)
@@ -459,18 +471,16 @@ class FotMobOrchestrator:
     ) -> Optional[Dict[str, Any]]:
         """
         Retrieve raw match data from Bronze layer.
-        
+
         Args:
             match_id: Match ID to retrieve
             date_str: Date string YYYYMMDD format
-        
+
         Returns:
             Raw match data (dict) or None if not found
-            
+
         Note: For processed data, use load_clickhouse.py to query ClickHouse.
         """
-
-
 
         return self.bronze_storage.load_raw_match_data(str(match_id), date_str)
 
