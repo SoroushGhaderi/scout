@@ -1,7 +1,7 @@
 # Scout - Makefile
 # Convenience commands for Docker operations
 
-.PHONY: help build up down restart logs shell clean
+.PHONY: help build up down restart logs shell clean init-dirs
 
 help: ## Show this help message
 	@echo "Scout - Docker Commands"
@@ -34,6 +34,9 @@ logs-clickhouse: ## Show ClickHouse logs
 
 shell: ## Open shell in scraper container
 	docker-compose exec scraper bash
+
+init-dirs: ## Initialize data and logs directories (optional, auto-created on first run)
+	docker-compose exec scraper python scripts/ensure_directories.py
 
 clickhouse-client: ## Open ClickHouse client
 	docker-compose exec clickhouse clickhouse-client

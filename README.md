@@ -17,7 +17,7 @@ docker-compose up -d
 # 3. Create ClickHouse tables
 docker-compose exec scraper python scripts/setup_clickhouse.py
 
-# 4. Run pipeline
+# 4. Run pipeline (data/ and logs/ folders created automatically)
 docker-compose exec scraper python scripts/pipeline.py 20251208
 
 # 5. Optimize tables (run periodically)
@@ -208,13 +208,30 @@ scout/
 │   └── utils/        # Utilities (validation, logging, etc.)
 ├── scripts/          # Executable scripts
 ├── clickhouse/       # SQL schemas
-├── data/             # Bronze layer (TAR archives)
-├── logs/             # Application logs
+├── data/             # Bronze layer (auto-created, TAR archives)
+│   ├── fotmob/       # FotMob raw data
+│   └── aiscore/      # AIScore raw data
+├── logs/             # Application logs (auto-created)
 ├── pyproject.toml    # Modern Python project config
 └── .env              # Configuration
 ```
 
+**Note**: The `data/` and `logs/` directories are automatically created when you first run the pipeline.
+
 ## Troubleshooting
+
+### Missing Data or Logs Directories
+
+**The directories are created automatically** when you run the pipeline for the first time. No manual setup needed.
+
+If you want to pre-create them:
+```bash
+# Inside Docker container
+docker-compose exec scraper python scripts/ensure_directories.py
+
+# Or manually
+mkdir -p data/fotmob data/aiscore logs
+```
 
 ### FotMob 404 Errors
 
