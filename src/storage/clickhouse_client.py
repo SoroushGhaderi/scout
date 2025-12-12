@@ -4,12 +4,13 @@ Supports both FotMob and AIScore scrapers with separate databases.
 """
 
 import logging
-from typing import Optional, Dict, Any, List
 from pathlib import Path
+from typing import Optional, Dict, Any, List
+
 import clickhouse_connect
 
-from ..utils.logging_utils import get_logger
 from ..utils.health_check import check_clickhouse_connection
+from ..utils.logging_utils import get_logger
 
 
 class ClickHouseClient:
@@ -40,40 +41,21 @@ class ClickHouseClient:
 
     def __init__(
         self,
-host:str="localhost",
-port:int=8123,
-username:str="default",
-password:str="",
-database:str="default"
-):
-        """
-
-        Initialize ClickHouse client.
-
-
+        host: str = "localhost",
+        port: int = 8123,
+        username: str = "default",
+        password: str = "",
+        database: str = "default"
+    ):
+        """Initialize ClickHouse client.
 
         Args:
-
             host: ClickHouse server host
-
             port: ClickHouse HTTP port
-
             username: ClickHouse username
-
             password: ClickHouse password
-
             database: Database name
-
         """
-
-
-
-
-
-
-
-
-
         self.host = host
         self.port = port
         self.username = username
@@ -94,17 +76,6 @@ database:str="default"
         Raises:
             ValueError: If table name not in whitelist
         """
-
-
-
-
-
-
-
-
-
-
-
         if table not in self.ALLOWED_TABLES:
             raise ValueError(
                 f"Invalid table name: '{table}'. "
@@ -124,7 +95,9 @@ database:str="default"
             )
 
             result = self.client.query("SELECT 1")
-            self.logger.info(f"Connected to ClickHouse: {self.host}:{self.port}/{self.database}")
+            self.logger.info(
+                f"Connected to ClickHouse: {self.host}:{self.port}/{self.database}"
+            )
             return True
 
         except Exception as e:
@@ -167,22 +140,8 @@ database:str="default"
         Raises:
             ValueError: If table name not in whitelist
         """
-
-
-
-
-
-
-
-
-
-
-
-
-
         if not self.client:
             raise RuntimeError("Not connected to ClickHouse. Call connect() first.")
-
 
         table = self._validate_table_name(table)
 
@@ -218,21 +177,8 @@ database:str="default"
         Raises:
             ValueError: If table name not in whitelist
         """
-
-
-
-
-
-
-
-
-
-
-
-
         if not self.client:
             raise RuntimeError("Not connected to ClickHouse. Call connect() first.")
-
 
         table = self._validate_table_name(table)
 
@@ -243,20 +189,14 @@ database:str="default"
             count_result = self.execute(f"SELECT COUNT(*) as count FROM {full_table}")
             row_count = count_result.result_rows[0][0] if count_result.result_rows else 0
 
-            size_query = f"""
-
-                SELECT
-
-                    formatReadableSize(sum(bytes)) as size,
-
-                    sum(rows) as rows
-
-                FROM system.parts
-
-                WHERE database = '{db}' AND table = '{table}' AND active
-"""
+            size_query = (
+                f"SELECT formatReadableSize(sum(bytes)) as size, sum(rows) as rows "
+                f"FROM system.parts WHERE database = '{db}' AND table = '{table}' AND active"
+            )
             size_result = self.execute(size_query)
-            size_info = size_result.result_rows[0] if size_result.result_rows else ("0 B", 0)
+            size_info = (
+                size_result.result_rows[0] if size_result.result_rows else ("0 B", 0)
+            )
 
             return {
                 "table": full_table,
@@ -277,22 +217,10 @@ database:str="default"
             database: Optional database name
 
         Raises:
-
-            ValueError: If table name notwhitelist
-
+            ValueError: If table name not in whitelist
         """
-
-
-
-
-
-
-
-
-
         if not self.client:
             raise RuntimeError("Not connected to ClickHouse. Call connect() first.")
-
 
         table = self._validate_table_name(table)
 
@@ -321,11 +249,6 @@ database:str="default"
         Returns:
             Dictionary with health check results
         """
-
-
-
-
-
         return check_clickhouse_connection(
             host=self.host,
             port=self.port,

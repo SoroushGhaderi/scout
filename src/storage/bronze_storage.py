@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import Dict, Any, Optional, Set, List
 from datetime import datetime
 
-
 try:
     from filelock import FileLock, Timeout
     FILE_LOCKING_AVAILABLE = True
@@ -21,7 +20,6 @@ except ImportError:
 from ..utils.logging_utils import get_logger
 from ..utils.lineage import LineageTracker
 from ..utils.date_utils import format_date_compact_to_display_partial
-
 
 class BronzeStorage:
     """Store raw API responses in Bronze layer (data lake).
@@ -46,27 +44,6 @@ class BronzeStorage:
     Daily listings track match IDs to prevent duplicate API requests.
     """
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def __init__(self, base_dir: str = "data/fotmob"):
         """Initialize Bronze storage.
 
@@ -74,14 +51,8 @@ class BronzeStorage:
             base_dir: Base directory for raw data (default: data/fotmob)
         """
 
-
-
-
-
         self.base_dir = Path(base_dir)
         self.logger = get_logger()
-
-
 
         self.lineage_tracker = LineageTracker(base_path=str(self.base_dir))
 
@@ -123,20 +94,9 @@ class BronzeStorage:
             Dictionary with health check results
         """
 
-
-
-
-
-
-
-
-
-
-
         issues = []
         warnings = []
         checks = []
-
 
         try:
             import shutil
@@ -168,7 +128,6 @@ class BronzeStorage:
             })
             issues.append(f"Could not check disk space: {e}")
 
-
         try:
             test_file = self.base_dir / '.health_check_write_test'
             test_file.write_text('test')
@@ -186,7 +145,6 @@ class BronzeStorage:
                 "message": f"No write permission: {e}"
             })
             issues.append(f"No write permission to {self.base_dir}: {e}")
-
 
         required_dirs=[
             self.matches_dir
@@ -209,7 +167,6 @@ class BronzeStorage:
                 "message":"All required directories exist"
             })
 
-
         try:
             import requests
             requests.get('https://www.fotmob.com',timeout=5)
@@ -227,7 +184,6 @@ class BronzeStorage:
             })
             warnings.append(f"Network may be unavailable: {e}")
 
-
         if FILE_LOCKING_AVAILABLE:
             checks.append({
                 "check":"File Locking",
@@ -241,7 +197,6 @@ class BronzeStorage:
                 "message":"File locking NOT available (install 'filelock' package)"
             })
             warnings.append("File locking not available - concurrent access may cause issues")
-
 
         error_count = sum(1 for c in checks if c["status"]=="ERROR")
         warning_count = sum(1 for c in checks if c["status"]=="WARNING")
@@ -287,17 +242,6 @@ class BronzeStorage:
             Path to saved file
         """
 
-
-
-
-
-
-
-
-
-
-
-
         try:
 
             if date_str:
@@ -314,11 +258,9 @@ class BronzeStorage:
             date_dir = self.matches_dir/date_str_normalized
             date_dir.mkdir(parents = True,exist_ok = True)
 
-
             file_path = date_dir/f"match_{match_id}.json"
             temp_path = date_dir/f".match_{match_id}.json.tmp"
             scraped_at = datetime.now().isoformat()
-
 
             data_with_metadata={
                 "match_id":match_id,
@@ -332,19 +274,14 @@ class BronzeStorage:
                 with open(temp_path,'w',encoding='utf-8') as f:
                     json.dump(data_with_metadata,f,indent=2,ensure_ascii = False)
 
-
                 with open(temp_path,'r',encoding='utf-8') as f:
                     json.load(f)
-
-
 
                 if file_path.exists():
                     file_path.unlink()
                 temp_path.rename(file_path)
 
-
                 file_size_kb = os.path.getsize(file_path)/1024
-
 
                 try:
                     self.lineage_tracker.record_scrape(
@@ -409,29 +346,6 @@ class BronzeStorage:
             paths = storage.save_matches_batch(matches, "20251126")
         """
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         if not matches:
             return []
 
@@ -453,7 +367,6 @@ class BronzeStorage:
             saved_paths=[]
             failed_matches=[]
             scraped_at = datetime.now().isoformat()
-
 
             lock_path = date_dir/".batch_write.lock"
 
@@ -480,7 +393,6 @@ class BronzeStorage:
                 saved_paths,failed_matches = self._save_matches_batch_internal(
                     matches,date_dir,date_str_normalized,scraped_at
                 )
-
 
             if failed_matches:
                 self.logger.warning(
@@ -510,10 +422,6 @@ class BronzeStorage:
             Tuple of (saved_paths, failed_matches)
         """
 
-
-
-
-
         saved_paths=[]
         failed_matches=[]
 
@@ -522,7 +430,6 @@ class BronzeStorage:
                 file_path = date_dir/f"match_{match_id}.json"
                 temp_path = date_dir/f".match_{match_id}.json.tmp"
 
-
                 data_with_metadata={
 "match_id":match_id,
 "scraped_at":scraped_at,
@@ -530,22 +437,17 @@ class BronzeStorage:
 "data":raw_data
 }
 
-
                 with open(temp_path,'w',encoding='utf-8') as f:
                     json.dump(data_with_metadata,f,indent=2,ensure_ascii = False)
 
-
                 with open(temp_path,'r',encoding='utf-8') as f:
                     json.load(f)
-
 
                 if file_path.exists():
                     file_path.unlink()
                 temp_path.rename(file_path)
 
-
                 file_size_kb = os.path.getsize(file_path)/1024
-
 
                 try:
                     self.lineage_tracker.record_scrape(
@@ -569,7 +471,6 @@ class BronzeStorage:
             except Exception as e:
                 self.logger.error(f"Error saving match {match_id} in batch: {e}")
                 failed_matches.append(match_id)
-
 
                 temp_path = date_dir/f".match_{match_id}.json.tmp"
                 if temp_path.exists():
@@ -598,15 +499,6 @@ class BronzeStorage:
             Raw API response dict, or None if not found
         """
 
-
-
-
-
-
-
-
-
-
         try:
             if date_str:
 
@@ -619,7 +511,6 @@ class BronzeStorage:
                     date_str_normalized = date_str
 
                 date_dir = self.matches_dir/date_str_normalized
-
 
                 archive_path = date_dir/f"{date_str_normalized}_matches.tar"
                 if archive_path.exists():
@@ -640,13 +531,11 @@ class BronzeStorage:
                     except Exception as e:
                         self.logger.error(f"Error reading archive {archive_path}: {e}")
 
-
                 file_path_gz = date_dir/f"match_{match_id}.json.gz"
                 if file_path_gz.exists():
                     with gzip.open(file_path_gz,'rt',encoding='utf-8') as f:
                         data = json.load(f)
                     return data.get('data',data)
-
 
                 file_path = date_dir/f"match_{match_id}.json"
                 if file_path.exists():
@@ -658,11 +547,9 @@ class BronzeStorage:
                 return None
             else:
 
-
                 for date_dir in self.matches_dir.iterdir():
                     if not date_dir.is_dir():
                         continue
-
 
                     archive_path = date_dir/f"{date_dir.name}_matches.tar"
                     if archive_path.exists():
@@ -680,7 +567,6 @@ class BronzeStorage:
                                     continue
                         except Exception:
                             continue
-
 
                 matches_gz = list(self.matches_dir.rglob(f"match_{match_id}.json.gz"))
                 matches = list(self.matches_dir.rglob(f"match_{match_id}.json"))
@@ -717,15 +603,6 @@ class BronzeStorage:
             True if raw data exists, False otherwise
         """
 
-
-
-
-
-
-
-
-
-
         if date_str:
 
             if len(date_str)==10 and '-' in date_str:
@@ -736,7 +613,6 @@ class BronzeStorage:
                 date_str_normalized = date_str
 
             date_dir = self.matches_dir/date_str_normalized
-
 
             archive_path = date_dir/f"{date_str_normalized}_matches.tar"
             if archive_path.exists():
@@ -751,7 +627,6 @@ class BronzeStorage:
                 except Exception:
                     pass
 
-
             file_path = date_dir/f"match_{match_id}.json"
             file_path_gz = date_dir/f"match_{match_id}.json.gz"
             return file_path.exists() or file_path_gz.exists()
@@ -762,7 +637,6 @@ class BronzeStorage:
 
             if matches or matches_gz:
                 return True
-
 
             for date_dir in self.matches_dir.iterdir():
                 if not date_dir.is_dir():
@@ -798,16 +672,6 @@ class BronzeStorage:
             Path to saved daily listing file
         """
 
-
-
-
-
-
-
-
-
-
-
         if len(date_str)==10 and '-' in date_str:
             date_str_normalized = date_str.replace('-','')
         elif len(date_str)==8 and date_str.isdigit():
@@ -820,7 +684,6 @@ class BronzeStorage:
 
         listing_file = date_dir/"matches.json"
 
-
         matches_date_dir = self.matches_dir/date_str_normalized
         storage_stats = self._get_storage_stats(date_str_normalized,match_ids,matches_date_dir)
 
@@ -831,7 +694,6 @@ class BronzeStorage:
             "total_matches":len(match_ids),
             "storage":storage_stats
         }
-
 
         temp_file = date_dir/".matches.json.tmp"
         try:
@@ -866,15 +728,6 @@ class BronzeStorage:
             Dictionary with storage statistics
         """
 
-
-
-
-
-
-
-
-
-
         stats={
             "files_stored":0,
             "files_missing":0,
@@ -893,14 +746,12 @@ class BronzeStorage:
             stats["missing_match_ids"]=[int(mid) for mid in match_ids]
             return stats
 
-
         archive_path = matches_date_dir/f"{date_str}_matches.tar"
         archived_match_ids = set()
         if archive_path.exists():
             try:
                 stats["archive_size_bytes"]= archive_path.stat().st_size
                 stats["archive_size_mb"]= stats["archive_size_bytes"]/(1024*1024)
-
 
                 match_ids_set={int(mid) for mid in match_ids}
 
@@ -920,7 +771,6 @@ class BronzeStorage:
                                 pass
             except Exception as e:
                 self.logger.warning(f"Error reading archive {archive_path}: {e}")
-
 
         for match_id in match_ids:
             match_id_t=int(match_id)
@@ -951,7 +801,6 @@ class BronzeStorage:
         stats["files_stored"]= stats["files_in_archive"]+stats["files_individual"]
         stats["total_size_mb"]= stats["total_size_bytes"]/(1024*1024)
 
-
         if len(match_ids)>0:
             stats["completion_percentage"]= round(
                 (stats["files_stored"]/len(match_ids))*100,2
@@ -971,14 +820,6 @@ class BronzeStorage:
         Returns:
             Dictionary with daily listing data, or None if not found
         """
-
-
-
-
-
-
-
-
 
         if len(date_str)==10 and '-' in date_str:
             date_str_normalized = date_str.replace('-','')
@@ -1011,13 +852,6 @@ class BronzeStorage:
             List of match IDs, or empty list if not found
         """
 
-
-
-
-
-
-
-
         listing = self.load_daily_listing(date_str)
         if listing:
             return listing.get('match_ids',[])
@@ -1033,14 +867,6 @@ class BronzeStorage:
         Returns:
             True if daily listing exists, False otherwise
         """
-
-
-
-
-
-
-
-
 
         if len(date_str)==10 and '-' in date_str:
             date_str_normalized = date_str.replace('-','')
@@ -1068,16 +894,6 @@ class BronzeStorage:
             True if update was successful, False otherwise
         """
 
-
-
-
-
-
-
-
-
-
-
         if len(date_str)==10 and '-' in date_str:
             date_str_normalized = date_str.replace('-','')
         elif len(date_str)==8 and date_str.isdigit():
@@ -1099,25 +915,20 @@ class BronzeStorage:
 
             match_id_t=int(match_id)
 
-
             if 'storage' not in data:
                 data['storage']={}
             storage = data['storage']
-
 
             if 'missing_match_ids' not in storage:
                 storage['missing_match_ids']=[]
             if 'scraped_match_ids' not in storage:
                 storage['scraped_match_ids']=[]
 
-
             if match_id_t in storage['missing_match_ids']:
                 storage['missing_match_ids'].remove(match_id_t)
 
-
             if match_id_t not in storage['scraped_match_ids']:
                 storage['scraped_match_ids'].append(match_id_t)
-
 
             try:
 
@@ -1133,7 +944,6 @@ class BronzeStorage:
                     matches_date_dir = self.matches_dir/date_str_normalized
                     storage_stats = self._get_storage_stats(date_str_normalized,match_ids_t,matches_date_dir)
 
-
                     storage.update({
                         'files_stored':storage_stats['files_stored'],
                         'files_missing':storage_stats['files_missing'],
@@ -1148,15 +958,12 @@ class BronzeStorage:
             except Exception as e:
                 self.logger.warning(f"Could not update storage statistics: {e}")
 
-
             temp_file = listing_file.parent/".matches.json.tmp"
             with open(temp_file,'w',encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
-
             with open(temp_file,'r',encoding='utf-8') as f:
                 json.load(f)
-
 
             if listing_file.exists():
                 listing_file.unlink()
@@ -1198,22 +1005,6 @@ class BronzeStorage:
             Dictionary with compression statistics and processing log
         """
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         if len(date_str)==10 and '-' in date_str:
             date_str_normalized = date_str.replace('-','')
         elif len(date_str)==8 and date_str.isdigit():
@@ -1225,7 +1016,6 @@ class BronzeStorage:
 
         date_dir = self.matches_dir/date_str
         archive_path = date_dir/f"{date_str}_matches.tar"
-
 
         if not force and archive_path.exists():
             archive_size_mb = archive_path.stat().st_size/(1024*1024)
@@ -1247,7 +1037,6 @@ class BronzeStorage:
         json_files = list(date_dir.glob("*.json"))
         existing_gz_files = list(date_dir.glob("*.json.gz"))
 
-
         all_files = json_files+existing_gz_files
         if not all_files:
             self.logger.debug(f"No files to compress for {date_str}")
@@ -1266,13 +1055,11 @@ class BronzeStorage:
                     with open(json_file,'r',encoding='utf-8') as f:
                         data = json.load(f)
 
-
                     gz_file = json_file.with_suffix('.json.gz')
                     with gzip.open(gz_file,'wt',encoding='utf-8') as f:
                         json.dump(data, f, ensure_ascii=False)
 
                     gz_files.append(gz_file)
-
 
                     json_file.unlink()
             else:
@@ -1280,16 +1067,13 @@ class BronzeStorage:
 
             self.logger.debug(f"Creating tar archive with {len(gz_files)} files")
 
-
             archive_path = date_dir/f"{date_str}_matches.tar"
 
             with tarfile.open(archive_path, 'w') as tar:
                 for gz_file in gz_files:
                     tar.add(gz_file, arcname=gz_file.name)
 
-
             total_after = archive_path.stat().st_size
-
 
             self.logger.debug("Verifying archive integrity")
             try:
@@ -1297,7 +1081,6 @@ class BronzeStorage:
 
                     tar_members={m.name for m in tar.getmembers()}
                     expected_files={f.name for f in gz_files}
-
 
                     if tar_members!= expected_files:
                         missing = expected_files-tar_members
@@ -1308,7 +1091,6 @@ class BronzeStorage:
                         if extra:
                             error_msg.append(f"Unexpected files in tar: {extra}")
                         raise ValueError(f"Tar archive incomplete: {'; '.join(error_msg)}")
-
 
                     import random
 
@@ -1339,7 +1121,6 @@ class BronzeStorage:
                 self.logger.info("Deleted corrupt archive, kept original files")
                 raise Exception(f"Tar archive verification failed: {verify_error}")
 
-
             self.logger.debug(f"Cleaning up {len(gz_files)} temporary gzip files")
             deleted_count = 0
             for gz_file in gz_files:
@@ -1354,7 +1135,6 @@ class BronzeStorage:
 
             if deleted_count<len(gz_files):
                 self.logger.debug(f"Deleted {deleted_count} of {len(gz_files)} files (some already missing)")
-
 
             size_before_mb = total_before/(1024*1024)
             size_after_mb = total_after/(1024*1024)
