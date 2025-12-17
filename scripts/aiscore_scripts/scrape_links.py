@@ -41,7 +41,7 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 from src.scrapers.aiscore.config import Config
 from src.scrapers.aiscore.browser import BrowserManager
-from src.scrapers.aiscore.bronze_storage import BronzeStorage
+from src.storage.aiscore_storage import BronzeStorage
 
 
 def setup_logging(config: Config, date_suffix: str = None):

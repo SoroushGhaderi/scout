@@ -103,7 +103,7 @@ def _get_bronze_storage():
     """Get or create cached bronze storage instance."""
     global _bronze_storage_module
     if _bronze_storage_module is None:
-        from src.scrapers.aiscore.bronze_storage import BronzeStorage
+        from src.storage.aiscore_storage import BronzeStorage
 
         config = _get_config()
         _bronze_storage_module = BronzeStorage(config.storage.bronze_path)

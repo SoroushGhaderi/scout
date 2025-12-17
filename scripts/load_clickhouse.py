@@ -45,7 +45,7 @@ sys.path.insert(0, str(project_root))
 import pandas as pd
 from src.storage.clickhouse_client import ClickHouseClient
 from src.storage.bronze_storage import BronzeStorage as FotMobBronzeStorage
-from src.scrapers.aiscore.bronze_storage import BronzeStorage as AIScoreBronzeStorage
+from src.storage.aiscore_storage import AIScoreBronzeStorage
 from src.processors.match_processor import MatchProcessor
 from src.config.fotmob_config import FotMobConfig
 from src.config.aiscore_config import AIScoreConfig

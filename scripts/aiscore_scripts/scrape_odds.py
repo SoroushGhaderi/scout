@@ -1,7 +1,7 @@
 """Odds scraper for football matches."""
 
 from src.scrapers.aiscore.exceptions import ScraperError
-from src.scrapers.aiscore.bronze_storage import BronzeStorage
+from src.storage.aiscore_storage import BronzeStorage
 from src.scrapers.aiscore.browser import BrowserManager
 from src.scrapers.aiscore.models import Odds1X2, OddsAsianHandicap, OddsOverUnder
 import logging
