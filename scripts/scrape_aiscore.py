@@ -93,7 +93,7 @@ def _get_config():
     """Get or create cached config instance."""
     global _config_module
     if _config_module is None:
-        from src.scrapers.aiscore.config import Config
+        from config import AIScoreConfig as Config
 
         _config_module = Config()
     return _config_module

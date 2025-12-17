@@ -47,8 +47,7 @@ from src.storage.clickhouse_client import ClickHouseClient
 from src.storage.bronze_storage import BronzeStorage as FotMobBronzeStorage
 from src.storage.aiscore_storage import AIScoreBronzeStorage
 from src.processors.match_processor import MatchProcessor
-from src.config.fotmob_config import FotMobConfig
-from src.config.aiscore_config import AIScoreConfig
+from config import FotMobConfig, AIScoreConfig
 from src.utils.logging_utils import get_logger, setup_logging
 from src.utils.lineage import LineageTracker
 from src.utils.date_utils import (

@@ -39,7 +39,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-from src.scrapers.aiscore.config import Config
+from config import AIScoreConfig as Config
 from src.scrapers.aiscore.browser import BrowserManager
 from src.storage.aiscore_storage import BronzeStorage
 

@@ -1,28 +1,36 @@
-"""Unified configuration system for scrapers.
+"""DEPRECATED: Configuration - Moved to project root config/ directory.
 
-Configuration is read from environment variables (.env file).
+This module is kept for backward compatibility only.
 
-Usage:
-    from src.config import FotMobConfig, AIScoreConfig
-
-    config = FotMobConfig()
-    config = AIScoreConfig()
+MIGRATION GUIDE:
+    OLD: from src.config import FotMobConfig, AIScoreConfig
+    NEW: from config import FotMobConfig, AIScoreConfig
 """
+import warnings
 
+# Forward imports from new location
+try:
+    from config import (
+        BaseConfig,
+        StorageConfig,
+        LoggingConfig,
+        MetricsConfig,
+        RetryConfig,
+        FotMobConfig,
+        AIScoreConfig,
+    )
+except ImportError:
+    # Fallback to old location if new location doesn't work
+    from .base import BaseConfig, StorageConfig, LoggingConfig, MetricsConfig, RetryConfig
+    from .fotmob_config import FotMobConfig
+    from .aiscore_config import AIScoreConfig
 
-
-
-
-
-
-
-
-
-
-from .base import BaseConfig, StorageConfig, LoggingConfig, MetricsConfig, RetryConfig
-from .fotmob_config import FotMobConfig
-from .aiscore_config import AIScoreConfig
-
+warnings.warn(
+    "Importing from src.config is deprecated. Configuration has been moved to project root. "
+    "Please update imports: 'from config import FotMobConfig, AIScoreConfig'",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 __all__ = [
     'BaseConfig',

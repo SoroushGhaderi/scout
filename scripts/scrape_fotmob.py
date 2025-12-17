@@ -24,7 +24,7 @@ Usage:
 from src.utils.alerting import get_alert_manager, AlertLevel
 from src.utils.logging_utils import setup_logging
 from src.orchestrator import FotMobOrchestrator
-from src.config import FotMobConfig
+from config import FotMobConfig
 from utils import (
     add_project_to_path,
     validate_date_format,
