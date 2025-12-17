@@ -26,10 +26,11 @@ except ImportError:
     FileLock = None
     Timeout = None
 
+from ..core import StorageProtocol, StorageError, StorageWriteError, StorageReadError
 from ..utils.lineage import LineageTracker
 
 
-class BaseBronzeStorage(ABC):
+class BaseBronzeStorage(StorageProtocol, ABC):
     """Base class for Bronze layer storage.
 
     Bronze layer contains unprocessed, raw data exactly as received from the API.
@@ -81,27 +82,30 @@ class BaseBronzeStorage(ABC):
 
         # Validate and create base directory
         if self.base_dir.exists() and self.base_dir.is_file():
-            raise OSError(
+            raise StorageError(
                 f"Cannot create directory '{self.base_dir}': A file with that name already exists. "
-                f"Please remove or rename the file at {self.base_dir.absolute()}"
+                f"Please remove or rename the file at {self.base_dir.absolute()}",
+                details={'path': str(self.base_dir.absolute())}
             )
         self.base_dir.mkdir(parents=True, exist_ok=True)
 
         # Create matches directory
         self.matches_dir = self.base_dir / "matches"
         if self.matches_dir.exists() and self.matches_dir.is_file():
-            raise OSError(
+            raise StorageError(
                 f"Cannot create directory '{self.matches_dir}': A file with that name already exists. "
-                f"Please remove or rename the file at {self.matches_dir.absolute()}"
+                f"Please remove or rename the file at {self.matches_dir.absolute()}",
+                details={'path': str(self.matches_dir.absolute())}
             )
         self.matches_dir.mkdir(parents=True, exist_ok=True)
 
         # Create daily listings directory
         self.daily_listings_dir = self.base_dir / "daily_listings"
         if self.daily_listings_dir.exists() and self.daily_listings_dir.is_file():
-            raise OSError(
+            raise StorageError(
                 f"Cannot create directory '{self.daily_listings_dir}': A file with that name already exists. "
-                f"Please remove or rename the file at {self.daily_listings_dir.absolute()}"
+                f"Please remove or rename the file at {self.daily_listings_dir.absolute()}",
+                details={'path': str(self.daily_listings_dir.absolute())}
             )
         self.daily_listings_dir.mkdir(parents=True, exist_ok=True)
 

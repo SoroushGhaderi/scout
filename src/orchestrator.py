@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
+from .core import OrchestratorProtocol, OrchestratorError, StorageProtocol
 from .config import FotMobConfig
 from .processors import MatchProcessor
 from .scrapers import MatchScraper, DailyScraper
@@ -20,7 +21,7 @@ from .storage import BronzeStorage
 from .utils import ScraperMetrics, DataQualityChecker, get_logger, get_alert_manager
 
 
-class FotMobOrchestrator:
+class FotMobOrchestrator(OrchestratorProtocol):
     """
     Orchestrate the entire scraping and processing pipeline.
 
@@ -100,7 +101,10 @@ class FotMobOrchestrator:
                 error_msg = f"Critical health check failures: {[c['name'] for c in critical_failures]}"
                 self.logger.error(error_msg)
                 metrics.end()
-                raise RuntimeError(error_msg)
+                raise OrchestratorError(
+                    error_msg,
+                    details={'failed_checks': [c['name'] for c in critical_failures]}
+                )
             self.logger.warning("Health check warnings detected, but continuing...")
         else:
             self.logger.info("[OK] Health check passed")

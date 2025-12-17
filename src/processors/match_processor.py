@@ -3,8 +3,9 @@ from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
 
 import pandas as pd
-from pydantic import ValidationError
+from pydantic import ValidationError as PydanticValidationError
 
+from ..core import ProcessorProtocol, ValidationError, ProcessorError
 from ..models import (
     MatchTimeline, GeneralMatchStats, GoalEventHeader, RedCardEvent,
     GoalEventMatchFacts, CardEventMatchFacts, SubstitutionEvent,
@@ -18,7 +19,7 @@ from ..utils.fotmob_validator import (
 )
 
 
-class MatchProcessor:
+class MatchProcessor(ProcessorProtocol):
     """Process raw match data to structured format."""
 
     def __init__(self, save_responses: bool = True, response_output_dir: str = "data/validated_responses"):

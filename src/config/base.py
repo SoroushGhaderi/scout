@@ -18,6 +18,8 @@ from typing import Dict, Any, Optional, List
 from pathlib import Path
 from abc import ABC
 
+from ..core import ConfigProtocol, ConfigurationError
+
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -82,7 +84,7 @@ class RetryConfig:
     )
 
 
-class BaseConfig(ABC):
+class BaseConfig(ConfigProtocol, ABC):
     """
     Base configuration class with common functionality.
 
@@ -129,16 +131,18 @@ class BaseConfig(ABC):
             if data_path.is_dir():
                 pass
             elif data_path.is_file():
-                raise OSError(
+                raise ConfigurationError(
                     f"Cannot create directory 'data': A file with that name "
                     f"already exists. Path: {data_path.absolute()}. "
-                    f"Please remove or rename the file."
+                    f"Please remove or rename the file.",
+                    details={'path': str(data_path.absolute())}
                 )
             else:
-                raise OSError(
+                raise ConfigurationError(
                     f"Cannot create directory 'data': A non-directory with "
                     f"that name already exists. Path: {data_path.absolute()}. "
-                    f"Please remove or rename it."
+                    f"Please remove or rename it.",
+                    details={'path': str(data_path.absolute())}
                 )
         else:
             try:
@@ -147,22 +151,24 @@ class BaseConfig(ABC):
                 if data_path.exists() and data_path.is_dir():
                     pass
                 else:
-                    raise OSError(
+                    raise ConfigurationError(
                         f"Cannot create directory 'data': A file or "
                         f"non-directory with that name exists. "
                         f"Path: {data_path.absolute()}. "
-                        f"Please remove or rename it."
+                        f"Please remove or rename it.",
+                        details={'path': str(data_path.absolute()), 'error': str(e)}
                     ) from e
             except OSError as e:
                 if e.errno == 17:
                     if data_path.exists() and data_path.is_dir():
                         pass
                     else:
-                        raise OSError(
+                        raise ConfigurationError(
                             f"Cannot create directory 'data': A file or "
                             f"non-directory with that name exists. "
                             f"Path: {data_path.absolute()}. "
-                            f"Please remove or rename it."
+                            f"Please remove or rename it.",
+                            details={'path': str(data_path.absolute()), 'errno': e.errno}
                         ) from e
                 else:
                     raise

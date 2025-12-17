@@ -7,11 +7,13 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from ...core import ScraperProtocol
+from ...core.constants import HttpStatus
 from ...config import FotMobConfig
 from ...utils.logging_utils import get_logger
 
 
-class BaseScraper:
+class BaseScraper(ScraperProtocol):
     """Base class for FotMob API scrapers with built-in retry logic."""
 
     def __init__(self, config: FotMobConfig):
@@ -102,14 +104,14 @@ class BaseScraper:
                 self.logger.error(f"Unsupported HTTP method: {method}")
                 return None
 
-            if response.status_code == 200:
+            if response.status_code == HttpStatus.OK:
                 self.logger.debug(f"Request successful: {url}")
                 return response.json()
-            elif response.status_code == 404:
-                self.logger.warning(f"Resource not found (404): {url}")
+            elif response.status_code == HttpStatus.NOT_FOUND:
+                self.logger.warning(f"Resource not found ({HttpStatus.NOT_FOUND}): {url}")
                 return None
-            elif response.status_code == 429:
-                self.logger.warning(f"Rate limited (429): {url}")
+            elif response.status_code == HttpStatus.RATE_LIMITED:
+                self.logger.warning(f"Rate limited ({HttpStatus.RATE_LIMITED}): {url}")
                 time.sleep(5)
                 return None
             else:
