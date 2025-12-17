@@ -12,13 +12,14 @@ cp .env.example .env
 # Edit .env and add FOTMOB_X_MAS_TOKEN
 
 # 2. Start services
-docker-compose up -d
+docker-compose -f docker/docker-compose.yml up -d
+# Or use: make up
 
 # 3. Create ClickHouse tables
-docker-compose exec scraper python scripts/setup_clickhouse.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse.py
 
 # 4. Run pipeline (data/ and logs/ folders created automatically)
-docker-compose exec scraper python scripts/pipeline.py 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208
 
 # 5. Optimize tables (run periodically)
 make optimize-tables
@@ -48,10 +49,11 @@ ClickHouse (Analytics)
 
 ```bash
 # Start all services
-docker-compose up -d
+docker-compose -f docker/docker-compose.yml up -d
+# Or use: make up
 
 # Setup ClickHouse
-docker-compose exec scraper python scripts/setup_clickhouse.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse.py
 ```
 
 ### Local Installation
@@ -96,13 +98,13 @@ LOG_LEVEL=INFO
 
 ```bash
 # Single date (both scrapers + ClickHouse)
-docker-compose exec scraper python scripts/pipeline.py 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208
 
 # Date range
-docker-compose exec scraper python scripts/pipeline.py --start-date 20251201 --end-date 20251207
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py --start-date 20251201 --end-date 20251207
 
 # Monthly
-docker-compose exec scraper python scripts/pipeline.py --month 202512
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py --month 202512
 
 # Options
 --force           # Force re-scrape/reload
@@ -117,22 +119,22 @@ docker-compose exec scraper python scripts/pipeline.py --month 202512
 **FotMob:**
 ```bash
 # Scrape to bronze layer
-docker-compose exec scraper python scripts/scrape_fotmob.py 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/scrape_fotmob.py 20251208
 
 # Load to ClickHouse
-docker-compose exec scraper python scripts/load_clickhouse.py --scraper fotmob --date 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/load_clickhouse.py --scraper fotmob --date 20251208
 ```
 
 **AIScore:**
 ```bash
 # Full pipeline (links + odds)
-docker-compose exec scraper python scripts/scrape_aiscore.py 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/scrape_aiscore.py 20251208
 
 # Links only (faster)
-docker-compose exec scraper python scripts/scrape_aiscore.py 20251208 --links-only
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/scrape_aiscore.py 20251208 --links-only
 
 # Odds only
-docker-compose exec scraper python scripts/scrape_aiscore.py 20251208 --odds-only
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/scrape_aiscore.py 20251208 --odds-only
 ```
 
 ## ClickHouse
@@ -141,7 +143,7 @@ docker-compose exec scraper python scripts/scrape_aiscore.py 20251208 --odds-onl
 
 ```bash
 # Command line
-docker-compose exec clickhouse clickhouse-client \
+docker-compose -f docker/docker-compose.yml exec clickhouse clickhouse-client \
   --user fotmob_user --password fotmob_pass
 
 # HTTP Interface
@@ -178,7 +180,7 @@ GROUP BY bookmaker;
 make optimize-tables
 
 # Or manually
-docker-compose exec -T clickhouse clickhouse-client \
+docker-compose -f docker/docker-compose.yml exec -T clickhouse clickhouse-client \
   --user fotmob_user --password fotmob_pass \
   < clickhouse/init/03_optimize_tables.sql
 ```
@@ -207,6 +209,10 @@ scout/
 │   ├── config/       # Configuration management
 │   └── utils/        # Utilities (validation, logging, etc.)
 ├── scripts/          # Executable scripts
+├── docker/           # Docker configuration
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── docker-entrypoint.sh
 ├── clickhouse/       # SQL schemas
 ├── data/             # Bronze layer (auto-created, TAR archives)
 │   ├── fotmob/       # FotMob raw data
@@ -227,7 +233,7 @@ scout/
 If you want to pre-create them:
 ```bash
 # Inside Docker container
-docker-compose exec scraper python scripts/ensure_directories.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/ensure_directories.py
 
 # Or manually
 mkdir -p data/fotmob data/aiscore logs
@@ -255,17 +261,17 @@ python scripts/scrape_aiscore.py 20251208 --links-only
 
 ```bash
 # Check status
-docker-compose ps
+docker-compose -f docker/docker-compose.yml ps
 
 # View logs
-docker-compose logs -f scraper
+docker-compose -f docker/docker-compose.yml logs -f scraper
 
 # Restart
-docker-compose restart scraper
+docker-compose -f docker/docker-compose.yml restart scraper
 
 # Rebuild
-docker-compose build --no-cache
-docker-compose up -d
+docker-compose -f docker/docker-compose.yml build --no-cache
+docker-compose -f docker/docker-compose.yml up -d
 ```
 
 ## Monitoring
@@ -277,11 +283,11 @@ tail -f logs/fotmob_scraper_20251208.log
 tail -f logs/aiscore_scraper_20251208.log
 
 # Health check
-docker-compose exec scraper python scripts/health_check.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py
 
 # Docker status
-docker-compose ps
-docker-compose logs clickhouse
+docker-compose -f docker/docker-compose.yml ps
+docker-compose -f docker/docker-compose.yml logs clickhouse
 ```
 
 ## Performance Optimizations

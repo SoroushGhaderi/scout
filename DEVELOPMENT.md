@@ -270,7 +270,7 @@ OPTIMIZE TABLE aiscore.matches FINAL DEDUPLICATE;
 **Added Makefile Target:**
 ```makefile
 optimize-tables:
-	docker-compose exec -T clickhouse clickhouse-client \
+	docker-compose -f docker/docker-compose.yml exec -T clickhouse clickhouse-client \
 	  --user fotmob_user --password fotmob_pass \
 	  < clickhouse/init/03_optimize_tables.sql
 ```
@@ -282,7 +282,7 @@ optimize-tables:
 make optimize-tables
 
 # Manual optimization
-docker-compose exec clickhouse clickhouse-client \
+docker-compose -f docker/docker-compose.yml exec clickhouse clickhouse-client \
   --user fotmob_user --password fotmob_pass \
   --query "OPTIMIZE TABLE fotmob.general FINAL DEDUPLICATE"
 ```
@@ -435,7 +435,7 @@ python scripts/validate_fotmob_responses.py data/fotmob/matches/20251208
 
 ```bash
 # System health check
-docker-compose exec scraper python scripts/health_check.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py
 ```
 
 **Checks:**
@@ -528,13 +528,13 @@ AISCORE_BROWSER_BLOCK_IMAGES=true
 
 ```bash
 # Full pipeline
-docker-compose exec scraper python scripts/pipeline.py 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208
 
 # Bronze only
-docker-compose exec scraper python scripts/pipeline.py 20251208 --bronze-only
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --bronze-only
 
 # ClickHouse only
-docker-compose exec scraper python scripts/pipeline.py 20251208 --skip-bronze
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --skip-bronze
 
 # Optimize tables
 make optimize-tables
@@ -543,7 +543,7 @@ make optimize-tables
 tail -f logs/pipeline_20251208.log
 
 # Health check
-docker-compose exec scraper python scripts/health_check.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py
 ```
 
 ### File Locations
