@@ -1,6 +1,5 @@
 """Link extraction from page elements."""
 
-import logging
 import re
 from typing import Optional, List, Callable
 from selenium.webdriver.remote.webelement import WebElement
@@ -8,8 +7,9 @@ from selenium.webdriver.common.by import By
 
 from .config import Config
 from .exceptions import ParsingError
+from ...utils.logging_utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 class LinkExtractor:

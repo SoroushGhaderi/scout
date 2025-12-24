@@ -135,39 +135,59 @@ class DataSource:
 
 class Defaults:
     """Default values for various operations."""
-    
+
     # Timeouts (seconds)
     HTTP_TIMEOUT = 30
     DATABASE_TIMEOUT = 30
     BROWSER_PAGE_LOAD_TIMEOUT = 30
     BROWSER_ELEMENT_WAIT_TIMEOUT = 10
-    
+
     # Retry configuration
     MAX_RETRIES = 3
     RETRY_BACKOFF_FACTOR = 2.0
     RETRY_INITIAL_WAIT = 2.0
     RETRY_MAX_WAIT = 10.0
-    
+
     # Rate limiting
     REQUEST_DELAY_MIN = 2.0
     REQUEST_DELAY_MAX = 4.0
     RATE_LIMIT_REQUESTS_PER_MINUTE = 30
-    
+    RATE_LIMIT_WAIT_SECONDS = 5  # Wait time when rate limited
+
     # Batch sizes
     BATCH_SIZE_MATCHES = 100
     BATCH_SIZE_DATABASE_INSERT = 1000
-    
+
     # Cache TTL (seconds)
     CACHE_TTL_SHORT = 300      # 5 minutes
     CACHE_TTL_MEDIUM = 3600    # 1 hour
     CACHE_TTL_LONG = 86400     # 24 hours
-    
+
     # File sizes
     MAX_LOG_FILE_SIZE_MB = 10
     MAX_BACKUP_COUNT = 5
-    
+
     # Compression
     COMPRESSION_LEVEL = 6  # gzip compression level (1-9)
+
+    # Orchestrator
+    MAX_FETCH_RETRIES = 5  # Max retries for fetching daily match list
+
+
+class HealthThresholds:
+    """Health check threshold values."""
+
+    # Disk space thresholds (GB)
+    DISK_CRITICAL_GB = 1.0    # Below this is critical failure
+    DISK_WARNING_GB = 5.0     # Below this is a warning
+
+    # Database connection timeouts (seconds)
+    DB_CONNECT_TIMEOUT = 10
+    DB_QUERY_TIMEOUT = 30
+
+    # Memory thresholds (percentage)
+    MEMORY_WARNING_PERCENT = 80
+    MEMORY_CRITICAL_PERCENT = 95
 
 
 # =============================================================================
@@ -299,6 +319,7 @@ __all__ = [
     'StorageLayer',
     'DataSource',
     'Defaults',
+    'HealthThresholds',
     'EnvVar',
     'Pattern',
     'TableName',

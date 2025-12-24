@@ -15,7 +15,7 @@ import tarfile
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Union
 from datetime import datetime
 
 try:
@@ -714,14 +714,14 @@ class BaseBronzeStorage(StorageProtocol, ABC):
             self.logger.error(f"Error loading daily listing for {date_str_normalized}: {e}")
             return None
 
-    def get_match_ids_for_date(self, date_str: str) -> List:
+    def get_match_ids_for_date(self, date_str: str) -> List[Union[int, str]]:
         """Get list of match IDs for a date from daily listing.
 
         Args:
             date_str: Date string YYYYMMDD format (or YYYY-MM-DD, will be converted)
 
         Returns:
-            List of match IDs, or empty list if not found
+            List of match IDs (int for FotMob, str for AIScore), or empty list if not found
         """
         listing = self.load_daily_listing(date_str)
         if listing:

@@ -19,6 +19,7 @@ from typing import Dict, List, Optional
 from pathlib import Path
 
 from .base import BaseConfig, StorageConfig, LoggingConfig, MetricsConfig, RetryConfig
+from ..core.constants import MatchStatus
 
 
 @dataclass
@@ -70,11 +71,9 @@ class ScrapingConfig:
     cache_ttl_hours: int = 24
     metrics_update_interval: int = 20
     filter_by_status: bool = True
-    allowed_match_statuses: tuple = field(default_factory=lambda: (
-        "Finished", "FullTime", "FT",
-        "After Extra Time", "AET",
-        "After Penalties", "AP"
-    ))
+    allowed_match_statuses: tuple = field(
+        default_factory=lambda: MatchStatus.COMPLETED_STATUSES
+    )
 
 
 @dataclass
@@ -162,11 +161,7 @@ class FotMobConfig(BaseConfig):
             cache_ttl_hours=24,
             metrics_update_interval=20,
             filter_by_status=True,
-            allowed_match_statuses=tuple([
-                "Finished", "FullTime", "FT",
-                "After Extra Time", "AET",
-                "After Penalties", "AP"
-            ]),
+            allowed_match_statuses=MatchStatus.COMPLETED_STATUSES,
         )
 
         self.storage = StorageConfig(

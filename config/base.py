@@ -16,7 +16,7 @@ import os
 from dataclasses import dataclass, field
 from typing import Dict, Any, Optional, List
 from pathlib import Path
-from abc import ABC
+from abc import ABC, abstractmethod
 
 try:
     from dotenv import load_dotenv
@@ -97,9 +97,20 @@ class BaseConfig(ABC):
         self._apply_env_overrides()
         self._ensure_directories()
 
-    def _load_config(self):
-        """Initialize configuration with defaults. Overridden by subclasses."""
-        pass
+    @abstractmethod
+    def _load_config(self) -> None:
+        """Initialize configuration with defaults.
+
+        Subclasses must implement this method to set up their specific
+        configuration attributes (storage, logging, retry, etc.).
+
+        This method is called before _apply_env_overrides() and
+        _ensure_directories() during __init__.
+
+        Raises:
+            NotImplementedError: If subclass does not implement this method.
+        """
+        raise NotImplementedError("Subclasses must implement _load_config()")
 
     def _apply_env_overrides(self):
         """

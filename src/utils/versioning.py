@@ -24,10 +24,10 @@ from dataclasses import dataclass, asdict, field
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-import logging
 from .date_utils import format_date_compact_to_display
+from .logging_utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 @dataclass

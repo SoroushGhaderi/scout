@@ -18,9 +18,12 @@ Usage:
             ...
 """
 
-from typing import Protocol, Dict, Any, Optional, List, runtime_checkable
+from typing import Protocol, Dict, Any, Optional, List, Union, runtime_checkable
 from pathlib import Path
 from datetime import datetime
+
+# Type alias for match IDs - can be int (FotMob) or str (AIScore)
+MatchId = Union[int, str]
 
 
 @runtime_checkable
@@ -106,15 +109,15 @@ class ScraperProtocol(Protocol):
         - AIScoreScraper
     """
     
-    def fetch_matches_for_date(self, date: str) -> List[str]:
+    def fetch_matches_for_date(self, date: str) -> List[MatchId]:
         """Fetch list of match IDs for a given date.
-        
+
         Args:
             date: Date string (YYYYMMDD or YYYY-MM-DD)
-            
+
         Returns:
-            List of match IDs
-            
+            List of match IDs (int for FotMob, str for AIScore)
+
         Raises:
             ScraperError: If fetching fails
         """

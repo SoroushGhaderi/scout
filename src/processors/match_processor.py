@@ -19,23 +19,98 @@ from ..utils.fotmob_validator import (
 )
 
 
+# Period statistics key mapping: API key -> (home_field, away_field)
+PERIOD_STAT_KEY_MAPPING: Dict[str, Tuple[str, str]] = {
+    "BallPossesion": ("ball_possession_home", "ball_possession_away"),
+    "expected_goals": ("expected_goals_home", "expected_goals_away"),
+    "total_shots": ("total_shots_home", "total_shots_away"),
+    "ShotsOnTarget": ("shots_on_target_home", "shots_on_target_away"),
+    "big_chance": ("big_chances_home", "big_chances_away"),
+    "big_chance_missed_title": ("big_chances_missed_home", "big_chances_missed_away"),
+    "accurate_passes": ("accurate_passes_home", "accurate_passes_away"),
+    "fouls": ("fouls_home", "fouls_away"),
+    "corners": ("corners_home", "corners_away"),
+    "shots": ("shots_home", "shots_away"),
+    "ShotsOffTarget": ("shots_off_target_home", "shots_off_target_away"),
+    "blocked_shots": ("blocked_shots_home", "blocked_shots_away"),
+    "shots_woodwork": ("shots_woodwork_home", "shots_woodwork_away"),
+    "shots_sidebox": ("shots_sidebox_home", "shots_sidebox_away"),
+    "shots_inside_box": ("shots_inside_box_home", "shots_inside_box_away"),
+    "shots_outside_box": ("shots_outside_box_home", "shots_outside_box_away"),
+    "expected_goals_open_play": ("expected_goals_open_play_home", "expected_goals_open_play_away"),
+    "expected_goals_set_play": ("expected_goals_set_play_home", "expected_goals_set_play_away"),
+    "expected_goals_non_penalty": ("expected_goals_non_penalty_home", "expected_goals_non_penalty_away"),
+    "expected_goals_on_target": ("expected_goals_on_target_home", "expected_goals_on_target_away"),
+    "physical_metrics_distance_covered": ("distance_covered_home", "distance_covered_away"),
+    "physical_metrics_walking": ("walking_distance_home", "walking_distance_away"),
+    "physical_metrics_running": ("running_distance_home", "running_distance_away"),
+    "physical_metrics_sprinting": ("sprinting_distance_home", "sprinting_distance_away"),
+    "physical_metrics_number_of_sprints": ("number_of_sprints_home", "number_of_sprints_away"),
+    "physical_metrics_topspeed": ("top_speed_home", "top_speed_away"),
+    "passes": ("passes_home", "passes_away"),
+    "own_half_passes": ("own_half_passes_home", "own_half_passes_away"),
+    "opposition_half_passes": ("opposition_half_passes_home", "opposition_half_passes_away"),
+    "long_balls_accurate": ("long_balls_accurate_home", "long_balls_accurate_away"),
+    "accurate_crosses": ("accurate_crosses_home", "accurate_crosses_away"),
+    "player_throws": ("player_throws_home", "player_throws_away"),
+    "touches_opp_box": ("touches_opp_box_home", "touches_opp_box_away"),
+    "Offsides": ("offsides_home", "offsides_away"),
+    "matchstats.headers.tackles": ("tackles_succeeded_home", "tackles_succeeded_away"),
+    "interceptions": ("interceptions_home", "interceptions_away"),
+    "shot_blocks": ("shot_blocks_home", "shot_blocks_away"),
+    "clearances": ("clearances_home", "clearances_away"),
+    "keeper_saves": ("keeper_saves_home", "keeper_saves_away"),
+    "duel_won": ("duels_won_home", "duels_won_away"),
+    "ground_duels_won": ("ground_duels_won_home", "ground_duels_won_away"),
+    "aerials_won": ("aerials_won_home", "aerials_won_away"),
+    "dribbles_succeeded": ("dribbles_succeeded_home", "dribbles_succeeded_away"),
+    "yellow_cards": ("yellow_cards_home", "yellow_cards_away"),
+    "red_cards": ("red_cards_home", "red_cards_away"),
+}
+
+# Fields that contain ratio values (e.g., "5/10") instead of numeric values
+RATIO_STAT_FIELDS = frozenset({
+    "accurate_passes", "long_balls_accurate", "accurate_crosses",
+    "matchstats.headers.tackles", "ground_duels_won", "aerials_won",
+    "dribbles_succeeded"
+})
+
+
 class MatchProcessor(ProcessorProtocol):
     """Process raw match data to structured format."""
 
-    def __init__(self, save_responses: bool = True, response_output_dir: str = "data/validated_responses"):
+    def __init__(
+        self,
+        validator: Optional[FotMobValidator] = None,
+        extractor: Optional[SafeFieldExtractor] = None,
+        response_saver: Optional[ResponseSaver] = None,
+        save_responses: bool = True,
+        response_output_dir: str = "data/validated_responses"
+    ):
         """
-        Initialize the match processor.
-        
+        Initialize the match processor with dependency injection.
+
         Args:
-            save_responses: If True, save validated responses to JSON
-            response_output_dir: Directory to save validated responses
+            validator: FotMobValidator instance for response validation.
+                If None, creates a default instance.
+            extractor: SafeFieldExtractor instance for safe field access.
+                If None, creates a default instance.
+            response_saver: ResponseSaver instance for saving responses.
+                If None and save_responses is True, creates a default instance.
+            save_responses: If True, save validated responses to JSON.
+                Ignored if response_saver is explicitly provided.
+            response_output_dir: Directory to save validated responses.
+                Only used if response_saver is None and save_responses is True.
         """
         self.logger = get_logger()
-        self.validator = FotMobValidator()
-        self.extractor = SafeFieldExtractor()
+        self.validator = validator or FotMobValidator()
+        self.extractor = extractor or SafeFieldExtractor()
         self.save_responses = save_responses
-        
-        if save_responses:
+
+        # Handle response_saver with backward compatibility
+        if response_saver is not None:
+            self.response_saver = response_saver
+        elif save_responses:
             self.response_saver = ResponseSaver(response_output_dir)
         else:
             self.response_saver = None
@@ -494,6 +569,35 @@ class MatchProcessor(ProcessorProtocol):
             self.logger.exception(f"Error processing momentum data: {e}")
         return processed_points
 
+    def _parse_stat_values(self, key: str, values_raw: List[Any]) -> List[Any]:
+        """Parse stat values, handling ratio fields and type conversion.
+
+        Args:
+            key: The stat key name
+            values_raw: List of raw values (typically [home_value, away_value])
+
+        Returns:
+            List of parsed values with appropriate types
+        """
+        values = []
+        for v_raw in values_raw:
+            try:
+                if v_raw is None:
+                    values.append(None)
+                elif key in RATIO_STAT_FIELDS:
+                    # Keep ratio fields as strings (e.g., "5/10")
+                    values.append(str(v_raw))
+                elif isinstance(v_raw, str) and '/' not in v_raw and v_raw.replace('.', '', 1).isdigit():
+                    # Convert numeric strings to numbers
+                    values.append(float(v_raw) if '.' in v_raw else int(v_raw))
+                elif isinstance(v_raw, (int, float)):
+                    values.append(v_raw)
+                else:
+                    values.append(str(v_raw))
+            except (ValueError, TypeError):
+                values.append(None if v_raw is None else str(v_raw))
+        return values
+
     def process_period_stats(self, response_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Process period statistics."""
         results = []
@@ -506,53 +610,7 @@ class MatchProcessor(ProcessorProtocol):
             periods_raw = stats.get("Periods")
             if not periods_raw or not isinstance(periods_raw, dict):
                 return results
-            KEY_MAPPING = {
-                "BallPossesion": ("ball_possession_home", "ball_possession_away"),
-                "expected_goals": ("expected_goals_home", "expected_goals_away"),
-                "total_shots": ("total_shots_home", "total_shots_away"),
-                "ShotsOnTarget": ("shots_on_target_home", "shots_on_target_away"),
-                "big_chance": ("big_chances_home", "big_chances_away"),
-                "big_chance_missed_title": ("big_chances_missed_home", "big_chances_missed_away"),
-                "accurate_passes": ("accurate_passes_home", "accurate_passes_away"),
-                "fouls": ("fouls_home", "fouls_away"),
-                "corners": ("corners_home", "corners_away"),
-                "shots": ("shots_home", "shots_away"),
-                "ShotsOffTarget": ("shots_off_target_home", "shots_off_target_away"),
-                "blocked_shots": ("blocked_shots_home", "blocked_shots_away"),
-                "shots_woodwork": ("shots_woodwork_home", "shots_woodwork_away"),
-                "shots_sidebox": ("shots_sidebox_home", "shots_sidebox_away"),
-                "shots_inside_box": ("shots_inside_box_home", "shots_inside_box_away"),
-                "shots_outside_box": ("shots_outside_box_home", "shots_outside_box_away"),
-                "expected_goals_open_play": ("expected_goals_open_play_home", "expected_goals_open_play_away"),
-                "expected_goals_set_play": ("expected_goals_set_play_home", "expected_goals_set_play_away"),
-                "expected_goals_non_penalty": ("expected_goals_non_penalty_home", "expected_goals_non_penalty_away"),
-                "expected_goals_on_target": ("expected_goals_on_target_home", "expected_goals_on_target_away"),
-                "physical_metrics_distance_covered": ("distance_covered_home", "distance_covered_away"),
-                "physical_metrics_walking": ("walking_distance_home", "walking_distance_away"),
-                "physical_metrics_running": ("running_distance_home", "running_distance_away"),
-                "physical_metrics_sprinting": ("sprinting_distance_home", "sprinting_distance_away"),
-                "physical_metrics_number_of_sprints": ("number_of_sprints_home", "number_of_sprints_away"),
-                "physical_metrics_topspeed": ("top_speed_home", "top_speed_away"),
-                "passes": ("passes_home", "passes_away"),
-                "own_half_passes": ("own_half_passes_home", "own_half_passes_away"),
-                "opposition_half_passes": ("opposition_half_passes_home", "opposition_half_passes_away"),
-                "long_balls_accurate": ("long_balls_accurate_home", "long_balls_accurate_away"),
-                "accurate_crosses": ("accurate_crosses_home", "accurate_crosses_away"),
-                "player_throws": ("player_throws_home", "player_throws_away"),
-                "touches_opp_box": ("touches_opp_box_home", "touches_opp_box_away"),
-                "Offsides": ("offsides_home", "offsides_away"),
-                "matchstats.headers.tackles": ("tackles_succeeded_home", "tackles_succeeded_away"),
-                "interceptions": ("interceptions_home", "interceptions_away"),
-                "shot_blocks": ("shot_blocks_home", "shot_blocks_away"),
-                "clearances": ("clearances_home", "clearances_away"),
-                "keeper_saves": ("keeper_saves_home", "keeper_saves_away"),
-                "duel_won": ("duels_won_home", "duels_won_away"),
-                "ground_duels_won": ("ground_duels_won_home", "ground_duels_won_away"),
-                "aerials_won": ("aerials_won_home", "aerials_won_away"),
-                "dribbles_succeeded": ("dribbles_succeeded_home", "dribbles_succeeded_away"),
-                "yellow_cards": ("yellow_cards_home", "yellow_cards_away"),
-                "red_cards": ("red_cards_home", "red_cards_away"),
-            }
+
             for period_name, period_data_raw in periods_raw.items():
                 if not isinstance(period_data_raw, dict):
                     continue
@@ -576,28 +634,9 @@ class MatchProcessor(ProcessorProtocol):
                         values_raw = stat_item.get("stats")
                         if not key or not isinstance(values_raw, list) or len(values_raw) != 2:
                             continue
-                        ratio_fields = {
-                            "accurate_passes", "long_balls_accurate", "accurate_crosses",
-                            "matchstats.headers.tackles", "ground_duels_won", "aerials_won",
-                            "dribbles_succeeded"
-                        }
-                        values = []
-                        for v_raw in values_raw:
-                            try:
-                                if v_raw is None:
-                                    values.append(None)
-                                elif key in ratio_fields:
-                                    values.append(str(v_raw))
-                                elif isinstance(v_raw, str) and '/' not in v_raw and v_raw.replace('.', '', 1).isdigit():
-                                    values.append(float(v_raw) if '.' in v_raw else int(v_raw))
-                                elif isinstance(v_raw, (int, float)):
-                                    values.append(v_raw)
-                                else:
-                                    values.append(str(v_raw))
-                            except (ValueError, TypeError):
-                                values.append(None if v_raw is None else str(v_raw))
-                        if key in KEY_MAPPING:
-                            home_field, away_field = KEY_MAPPING[key]
+                        values = self._parse_stat_values(key, values_raw)
+                        if key in PERIOD_STAT_KEY_MAPPING:
+                            home_field, away_field = PERIOD_STAT_KEY_MAPPING[key]
                             flat_data[home_field] = values[0]
                             flat_data[away_field] = values[1]
                 try:

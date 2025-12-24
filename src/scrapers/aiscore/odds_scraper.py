@@ -1,6 +1,5 @@
 """Odds scraper for football matches."""
 
-import logging
 import time
 import json
 from datetime import datetime
@@ -14,8 +13,9 @@ from .models import Odds1X2, OddsAsianHandicap, OddsOverUnder
 from .browser import BrowserManager
 from .bronze_storage import BronzeStorage
 from .exceptions import ScraperError
+from ...utils.logging_utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 class OddsScraper:

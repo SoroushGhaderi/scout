@@ -20,6 +20,7 @@ except ImportError:
 
 from .base_bronze_storage import BaseBronzeStorage
 from ..utils.logging_utils import get_logger
+from ..core.constants import HealthThresholds
 
 
 class BronzeStorage(BaseBronzeStorage):
@@ -91,9 +92,14 @@ class BronzeStorage(BaseBronzeStorage):
             total_gb = stat.total / (1024**3)
             used_pct = (stat.used / stat.total) * 100
 
+            disk_status = (
+                "OK" if free_gb >= HealthThresholds.DISK_WARNING_GB
+                else "WARNING" if free_gb >= HealthThresholds.DISK_CRITICAL_GB
+                else "ERROR"
+            )
             checks.append({
                 "check": "Disk Space",
-                "status": "OK" if free_gb >= 5 else "WARNING" if free_gb >= 1 else "ERROR",
+                "status": disk_status,
                 "message": f"{free_gb:.1f} GB free ({used_pct:.1f}% used)",
                 "details": {
                     "free_gb": round(free_gb, 2),
@@ -102,10 +108,16 @@ class BronzeStorage(BaseBronzeStorage):
                 }
             })
 
-            if free_gb < 1:
-                issues.append(f"Critical: Less than 1 GB free disk space ({free_gb:.1f} GB)")
-            elif free_gb < 5:
-                warnings.append(f"Low disk space: {free_gb:.1f} GB free (recommend 5+ GB)")
+            if free_gb < HealthThresholds.DISK_CRITICAL_GB:
+                issues.append(
+                    f"Critical: Less than {HealthThresholds.DISK_CRITICAL_GB} GB "
+                    f"free disk space ({free_gb:.1f} GB)"
+                )
+            elif free_gb < HealthThresholds.DISK_WARNING_GB:
+                warnings.append(
+                    f"Low disk space: {free_gb:.1f} GB free "
+                    f"(recommend {HealthThresholds.DISK_WARNING_GB}+ GB)"
+                )
         except Exception as e:
             checks.append({
                 "check": "Disk Space",

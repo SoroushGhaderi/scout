@@ -1,6 +1,5 @@
 """Tab-specific parsers for different odds types."""
 
-import logging
 import json
 from typing import List, Optional, Union
 from datetime import datetime
@@ -10,8 +9,9 @@ from .models import (
     OddsAsianHandicap,
     OddsOverUnder
 )
+from ...utils.logging_utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 class OddsParserFactory:

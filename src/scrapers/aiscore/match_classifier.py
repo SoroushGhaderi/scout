@@ -4,13 +4,13 @@ Filters out low-value matches to save scraping time and resources.
 """
 
 import re
-import logging
 from typing import Dict, List, Optional
 from datetime import datetime, timedelta
 
 from ...utils.date_utils import DATE_FORMAT_COMPACT
+from ...utils.logging_utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 class MatchClassifier:

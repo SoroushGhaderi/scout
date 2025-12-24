@@ -3,7 +3,6 @@
 Maintains a pool of warm browser instances to eliminate startup overhead.
 """
 
-import logging
 import time
 from queue import Queue, Empty
 from threading import Lock
@@ -11,8 +10,9 @@ from typing import Optional
 
 from .browser import BrowserManager
 from .config import Config
+from ...utils.logging_utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 class BrowserPool:

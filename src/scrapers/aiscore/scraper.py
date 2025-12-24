@@ -1,7 +1,6 @@
 """Main scraper orchestration."""
 
 import time
-import logging
 from typing import List, Optional
 from datetime import datetime
 from selenium.webdriver.common.by import By
@@ -16,18 +15,30 @@ from .exceptions import (
     ScraperError, NetworkError, CloudflareError,
     ElementNotFoundError, BrowserError
 )
+from ...storage.aiscore_storage import AIScoreBronzeStorage
+from ...utils.logging_utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 class FootballScraper:
     """Main scraper class with comprehensive error handling."""
 
-    def __init__(self, config: Optional[Config] = None):
+    def __init__(
+        self,
+        config: Optional[Config] = None,
+        storage: Optional[AIScoreBronzeStorage] = None
+    ):
+        """Initialize the scraper.
+
+        Args:
+            config: Scraper configuration. If None, uses default config.
+            storage: Bronze storage instance. If None, creates default storage.
+        """
         self.config = config or Config()
         self.config.ensure_directories()
 
-        self.db = None
+        self.storage = storage or AIScoreBronzeStorage()
         self.browser = BrowserManager(self.config)
         self.extractor = LinkExtractor(self.config)
 
@@ -137,7 +148,7 @@ class FootballScraper:
 
         except Exception as e:
             logger.error(f"Navigation failed: {e}")
-            raise NetworkError(f"Failed to navigate to page: {e}")
+            raise NetworkError(f"Failed to navigate to page: {e}") from e
 
     def _wait_for_cloudflare_pass(self, max_wait: int = 15) -> bool:
         """Wait for Cloudflare protection to pass."""
@@ -206,6 +217,42 @@ class FootballScraper:
             timeout=self.config.scraping.timeouts.element_wait
         )
 
+    def _save_links_to_storage(
+        self,
+        links: List[MatchLk],
+        source_date: str
+    ) -> int:
+        """Save match links to Bronze storage layer.
+
+        Args:
+            links: List of MatchLk objects to save
+            source_date: Date string YYYYMMDD format
+
+        Returns:
+            Number of links successfully saved (new, not duplicates)
+        """
+        inserted = 0
+        for link in links:
+            try:
+                # Check if match already exists
+                if self.storage.match_exists(link.match_id, source_date):
+                    continue
+
+                # Save link data as a simple match record
+                link_data = {
+                    "match_id": link.match_id,
+                    "url": link.url,
+                    "source_date": source_date,
+                    "link_scraped": True,
+                    "odds_scraped": False,
+                }
+                self.storage.save_raw_match_data(link.match_id, link_data, source_date)
+                inserted += 1
+            except Exception as e:
+                logger.debug(f"Failed to save link {link.match_id}: {e}")
+
+        return inserted
+
     def _collect_all_links(
         self,
         source_date: str,
@@ -214,15 +261,11 @@ class FootballScraper:
         """
         Collect and save links by scrolling through the page.
 
-        Saves links to database after each scroll.
+        Saves links to Bronze storage after each scroll batch.
 
         Returns:
             dict with 'total_found', 'total_inserted', 'duplicates'
         """
-
-
-
-
 
 
         logger.info("Starting link collection via scroll extraction")
@@ -278,13 +321,13 @@ class FootballScraper:
 
                 if new_links:
                     try:
-                        inserted = self.db.batch_insert_links(new_links)
+                        inserted = self._save_links_to_storage(new_links, source_date)
                         duplicates = len(new_links) - inserted
                         total_inserted += inserted
                         total_duplicates += duplicates
 
                         logger.info(
-                            f"Collected {len(new_urls)} new links (+{inserted} to DB, {duplicates} duplicates). "
+                            f"Collected {len(new_urls)} new links (+{inserted} to storage, {duplicates} duplicates). "
                             f"Total: {total_inserted}"
                         )
 
@@ -347,7 +390,7 @@ class FootballScraper:
 
             if final_links:
                 try:
-                    inserted = self.db.batch_insert_links(final_links)
+                    inserted = self._save_links_to_storage(final_links, source_date)
                     duplicates = len(final_links) - inserted
                     total_inserted += inserted
                     total_duplicates += duplicates
@@ -364,7 +407,7 @@ class FootballScraper:
 
         logger.info(
             f"Link collection complete: {len(seen_urls)} unique URLs found, "
-            f"{total_inserted} saved to database, {total_duplicates} duplicates filtered"
+            f"{total_inserted} saved to storage, {total_duplicates} duplicates filtered"
         )
 
         return {
@@ -373,41 +416,19 @@ class FootballScraper:
             'duplicates': total_duplicates
         }
 
-    def _save_links_to_database(self, links: List[MatchLk]) -> int:
-        """Save links to database batch."""
-        if not links:
-            return 0
-
-        try:
-            inserted = self.db.batch_insert_links(links)
-            logger.info(f"Saved {inserted}/{len(links)} links to database")
-            return inserted
-        except Exception as e:
-            logger.error(f"Failed to save links: {e}")
-            raise
-
     def initialize(self):
-        """Initialize scraper (database, browser)."""
+        """Initialize scraper (browser and storage)."""
         try:
-            self.db.connect()
-            self.db.init_schema()
-            self.db.remove_valid_links()
-
             self.browser.create_driver()
-
             logger.info("Scraper initialized successfully")
-
         except Exception as e:
             logger.error(f"Initialization failed: {e}")
-            raise ScraperError(f"Failed to initialize scraper: {e}")
+            raise ScraperError(f"Failed to initialize scraper: {e}") from e
 
     def cleanup(self):
         """Cleanup resources."""
         try:
             self.browser.close()
-
-            self.db.close()
-
             logger.info("Scraper cleanup completed")
         except Exception as e:
             logger.error(f"Cleanup failed: {e}")

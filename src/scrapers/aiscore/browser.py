@@ -1,6 +1,5 @@
 """Browser/WebDriver management."""
 
-import logging
 import os
 import platform
 import time
@@ -18,8 +17,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from .config import Config
 from .exceptions import BrowserError
+from ...utils.logging_utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 class BrowserManager:

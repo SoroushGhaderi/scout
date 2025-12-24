@@ -31,6 +31,7 @@ from .interfaces import (
     CacheProtocol,
     MetricsProtocol,
     LoggerProtocol,
+    MatchId,
 )
 from .exceptions import (
     ScoutError,
@@ -63,6 +64,8 @@ __all__ = [
     'CacheProtocol',
     'MetricsProtocol',
     'LoggerProtocol',
+    # Type aliases
+    'MatchId',
     # Base exceptions
     'ScoutError',
     'ConfigurationError',

@@ -5,7 +5,6 @@ storing raw data and metadata following data lakehouse patterns.
 """
 
 import json
-import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional
@@ -17,8 +16,9 @@ from .models import (
     OddsAsianHandicap,
     OddsOverUnder
 )
+from ...utils.logging_utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 @dataclass

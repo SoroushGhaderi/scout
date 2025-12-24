@@ -8,7 +8,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from ...core import ScraperProtocol
-from ...core.constants import HttpStatus
+from ...core.constants import HttpStatus, Defaults
 from ...config import FotMobConfig
 from ...utils.logging_utils import get_logger
 
@@ -112,7 +112,7 @@ class BaseScraper(ScraperProtocol):
                 return None
             elif response.status_code == HttpStatus.RATE_LIMITED:
                 self.logger.warning(f"Rate limited ({HttpStatus.RATE_LIMITED}): {url}")
-                time.sleep(5)
+                time.sleep(Defaults.RATE_LIMIT_WAIT_SECONDS)
                 return None
             else:
                 self.logger.error(

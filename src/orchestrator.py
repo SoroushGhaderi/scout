@@ -9,11 +9,12 @@ PURPOSE: Orchestrate the entire scraping and processing pipeline.
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import requests
 
 from .core import OrchestratorProtocol, OrchestratorError, StorageProtocol
+from .core.constants import Defaults
 from .config import FotMobConfig
 from .processors import MatchProcessor
 from .scrapers import MatchScraper, DailyScraper
@@ -168,7 +169,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
 
     def _fetch_match_ids(
         self, date_str: str, force_refetch: bool = False
-    ) -> List[int]:
+    ) -> List[Union[int, str]]:
         """
         Fetch match IDs for a date and save daily listing to Bronze.
         Uses daily listing to prevent duplicate API requests.
@@ -178,7 +179,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
             force_refetch: If True, fetch from API even if daily listing exists
 
         Returns:
-            List of match IDs
+            List of match IDs (int for FotMob, str for AIScore)
         """
 
         if not force_refetch and self.bronze_storage.daily_listing_exists(date_str):
@@ -190,7 +191,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
 
         self.logger.info(f"Fetching daily listing from API for {date_str}")
 
-        max_retries = 5
+        max_retries = Defaults.MAX_FETCH_RETRIES
 
         for attempt in range(max_retries):
             try:
@@ -348,6 +349,70 @@ class FotMobOrchestrator(OrchestratorProtocol):
                 except Exception as e:
                     self.logger.debug(f"Failed to close worker scraper session: {e}")
 
+    def _fetch_and_save_match(
+        self,
+        scraper: MatchScraper,
+        match_id: str,
+        date_str: str,
+    ) -> tuple[bool, Optional[str], Optional[List[str]]]:
+        """
+        Core match processing logic - fetch data and save to Bronze storage.
+
+        This method contains the shared logic used by both sequential and parallel
+        processing modes. It intentionally does NOT handle metrics or alerting,
+        allowing callers to handle those concerns appropriately.
+
+        Args:
+            scraper: MatchScraper instance to use for fetching
+            match_id: Match ID to process
+            date_str: Date string YYYYMMDD format
+
+        Returns:
+            Tuple of (success, error_message, quality_issues)
+            - success: True if match was processed successfully
+            - error_message: Error description if failed, None otherwise
+            - quality_issues: List of data quality issues, or None if not checked
+        """
+        try:
+            raw_data = scraper.fetch_match_details(match_id)
+            if not raw_data:
+                return False, "Failed to fetch match data", None
+
+            self.bronze_storage.save_raw_match_data(match_id, raw_data, date_str)
+            self.logger.debug(f"Saved raw data to bronze layer for match {match_id}")
+
+            try:
+                self.bronze_storage.mark_match_as_scraped(match_id, date_str)
+            except Exception as e:
+                self.logger.warning(f"Could not update daily listing for match {match_id}: {e}")
+
+            if self.bronze_only:
+                return True, None, None
+
+            # Run data quality checks if enabled
+            quality_issues = None
+            if self.processor and self.config.enable_data_quality_checks:
+                try:
+                    dataframes = self.processor.process_all(raw_data)
+                    validation_results = DataQualityChecker.validate_all_dataframes(dataframes)
+                    quality_issues = [
+                        issue
+                        for result in validation_results.values()
+                        if not result.get('passed', True)
+                        for issue in result.get('issues', [])
+                    ]
+
+                    if quality_issues and self.config.fail_on_quality_issues:
+                        return False, f"Data quality issues: {quality_issues}", quality_issues
+                except Exception as e:
+                    self.logger.warning(f"Data quality check failed for {match_id}: {e}")
+
+            return True, None, quality_issues
+
+        except Exception as e:
+            self.logger.exception(f"Error processing match {match_id}: {e}")
+            return False, str(e), None
+
     def _process_match_with_scraper(
         self,
         scraper: MatchScraper,
@@ -363,43 +428,8 @@ class FotMobOrchestrator(OrchestratorProtocol):
         Returns:
             Tuple of (success, error_message)
         """
-        try:
-            raw_data = scraper.fetch_match_details(match_id)
-            if not raw_data:
-                return False, "Failed to fetch match data"
-
-            self.bronze_storage.save_raw_match_data(match_id, raw_data, date_str)
-            self.logger.debug(f"Saved raw data to bronze layer for match {match_id}")
-
-            try:
-                self.bronze_storage.mark_match_as_scraped(match_id, date_str)
-            except Exception as e:
-                self.logger.warning(f"Could not update daily listing for match {match_id}: {e}")
-
-            if self.bronze_only:
-                return True, None
-
-            if self.processor and self.config.enable_data_quality_checks:
-                try:
-                    dataframes = self.processor.process_all(raw_data)
-                    validation_results = DataQualityChecker.validate_all_dataframes(dataframes)
-                    issues = [
-                        issue
-                        for result in validation_results.values()
-                        if not result.get('passed', True)
-                        for issue in result.get('issues', [])
-                    ]
-
-                    if issues and self.config.fail_on_quality_issues:
-                        return False, f"Data quality issues: {issues}"
-                except Exception as e:
-                    self.logger.warning(f"Data quality check failed for {match_id}: {e}")
-
-            return True, None
-
-        except Exception as e:
-            self.logger.exception(f"Error processing match {match_id}: {e}")
-            return False, str(e)
+        success, error_msg, _ = self._fetch_and_save_match(scraper, match_id, date_str)
+        return success, error_msg
 
     def _process_single_match(
         self,
@@ -412,61 +442,29 @@ class FotMobOrchestrator(OrchestratorProtocol):
         """Process a single match (for sequential execution)."""
         self.logger.info(f"Processing match {match_id}")
 
-        try:
-            raw_data = scraper.fetch_match_details(match_id)
-            if not raw_data:
-                metrics.record_failure(match_id, "Failed to fetch match data")
-                return
+        success, error_msg, quality_issues = self._fetch_and_save_match(
+            scraper, match_id, date_str
+        )
 
-            self.bronze_storage.save_raw_match_data(match_id, raw_data, date_str)
-            self.logger.debug(f"Saved raw data to bronze layer for match {match_id}")
-
+        if success:
             scraped_match_ids.add(match_id)
 
-            try:
-                self.bronze_storage.mark_match_as_scraped(match_id, date_str)
-            except Exception as e:
-                self.logger.warning(f"Could not update daily listing for match {match_id}: {e}")
-
-            if self.bronze_only:
-                metrics.record_success(match_id)
-                self.logger.info(f"[SUCCESS] Scraped match {match_id} to Bronze")
-                return
-
-            if self.processor and self.config.enable_data_quality_checks:
-                try:
-                    dataframes = self.processor.process_all(raw_data)
-                    validation_results = DataQualityChecker.validate_all_dataframes(dataframes)
-                    issues = []
-                    for df_name, result in validation_results.items():
-                        if not result.get('passed', True):
-                            issues.extend(result.get('issues', []))
-
-                    if issues:
-                        metrics.record_data_quality_issue(match_id, issues)
-
-                        self.alert_manager.alert_data_quality_issue(
-                            match_id=match_id,
-                            issues=issues,
-                            context={"date": date_str}
-                        )
-                        if self.config.fail_on_quality_issues:
-                            metrics.record_failure(match_id, f"Data quality issues: {issues}")
-                            return
-                except Exception as e:
-                    self.logger.warning(f"Data quality check failed for {match_id}: {e}")
+            if quality_issues:
+                metrics.record_data_quality_issue(match_id, quality_issues)
+                self.alert_manager.alert_data_quality_issue(
+                    match_id=match_id,
+                    issues=quality_issues,
+                    context={"date": date_str}
+                )
 
             metrics.record_success(match_id)
             self.logger.info(f"[SUCCESS] Scraped match {match_id} to Bronze")
-
-        except Exception as e:
-            self.logger.exception(f"Error processing match {match_id}: {e}")
-            metrics.record_failure(match_id, str(e), type(e).__name__)
-
+        else:
+            metrics.record_failure(match_id, error_msg or "Unknown error", "ProcessingError")
             self.alert_manager.alert_failed_scrape(
                 match_id=match_id,
-                error=str(e),
-                error_type=type(e).__name__,
+                error=error_msg or "Unknown error",
+                error_type="ProcessingError",
                 context={"date": date_str}
             )
 

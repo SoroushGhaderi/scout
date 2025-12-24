@@ -19,8 +19,9 @@ from dataclasses import dataclass, asdict, field
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-import logging
-logger = logging.getLogger(__name__)
+from .logging_utils import get_logger
+
+logger = get_logger()
 @dataclass
 class DataLineage:
     """

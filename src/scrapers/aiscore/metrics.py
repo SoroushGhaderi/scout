@@ -1,13 +1,14 @@
 """Metrics collection and monitoring."""
 
 import json
-import logging
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-logger = logging.getLogger(__name__)
+from ...utils.logging_utils import get_logger
+
+logger = get_logger()
 
 
 @dataclass
