@@ -21,8 +21,14 @@ Usage:
     python scripts/scrape_fotmob.py 20250108 --force --debug
 """
 
+# Load environment variables from .env file FIRST
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from src.utils.alerting import get_alert_manager, AlertLevel
 from src.utils.logging_utils import setup_logging
+from src.utils.metrics_alerts import send_daily_report
 from src.orchestrator import FotMobOrchestrator
 from config import FotMobConfig
 from utils import (
@@ -36,6 +42,7 @@ from utils import (
 )
 import argparse
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional
@@ -362,13 +369,25 @@ def run_scraping(args: argparse.Namespace) -> int:
 
     # Process each date
     for idx, date_str in enumerate(date_info.dates, 1):
+        start_time = time.time()
         metrics = process_single_date(
             date_str, orchestrator, args, logger, idx, len(date_info.dates)
         )
+        duration = time.time() - start_time
 
         if metrics:
             stats.update_from_metrics(metrics)
             print_date_metrics(metrics)
+            
+            # Send daily Telegram report
+            send_daily_report(
+                scraper='fotmob',
+                date=date_str,
+                matches_scraped=metrics.successful_matches,
+                errors=metrics.failed_matches,
+                skipped=metrics.skipped_matches,
+                duration_seconds=duration,
+            )
         else:
             stats.record_failure()
 

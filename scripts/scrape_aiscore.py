@@ -22,10 +22,16 @@ Usage:
     python scripts/scrape_aiscore.py 20251113 --odds-only
 """
 
+# Load environment variables from .env file FIRST
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 import argparse
 import sys
 import json
 import logging
+import time
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
@@ -47,6 +53,7 @@ add_project_to_path()
 
 from src.utils.date_utils import extract_year_month
 from src.utils.alerting import get_alert_manager, AlertLevel
+from src.utils.metrics_alerts import send_daily_report
 
 
 # ============================================================================
@@ -860,23 +867,53 @@ def run_pipeline(args: argparse.Namespace) -> int:
         print(f"Processing date {idx}/{len(dates)}: {date_str}")
         print(f"{'=' * 80}\n")
 
+        start_time = time.time()
         links_success, odds_success = process_single_date(args, date_str)
+        duration = time.time() - start_time
 
         if args.links_only:
             if links_success:
                 successful_dates += 1
                 links_only_count += 1
+                # Send daily report for links-only mode
+                total_matches, _, _, _ = get_match_scraping_status(date_str)
+                send_daily_report(
+                    scraper='aiscore',
+                    date=date_str,
+                    matches_scraped=total_matches,
+                    duration_seconds=duration,
+                    context={'mode': 'links-only'}
+                )
             else:
                 failed_dates += 1
         elif args.odds_only:
             if odds_success:
                 successful_dates += 1
                 odds_only_count += 1
+                # Send daily report for odds-only mode
+                total_matches, _, _, _ = get_match_scraping_status(date_str)
+                send_daily_report(
+                    scraper='aiscore',
+                    date=date_str,
+                    matches_scraped=total_matches,
+                    odds_scraped=total_matches,
+                    duration_seconds=duration,
+                    context={'mode': 'odds-only'}
+                )
             else:
                 failed_dates += 1
         else:
             if links_success and odds_success:
                 successful_dates += 1
+                # Send daily report for full pipeline
+                total_matches, _, _, _ = get_match_scraping_status(date_str)
+                send_daily_report(
+                    scraper='aiscore',
+                    date=date_str,
+                    matches_scraped=total_matches,
+                    odds_scraped=total_matches,
+                    duration_seconds=duration,
+                )
             else:
                 failed_dates += 1
                 if not links_success:
