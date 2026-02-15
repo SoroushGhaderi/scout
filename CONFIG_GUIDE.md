@@ -199,6 +199,151 @@ if os.getenv('FOTMOB_REQUEST_CUSTOM_SETTING'):
     self.request.custom_setting = int(os.getenv('FOTMOB_REQUEST_CUSTOM_SETTING'))
 ```
 
+## Telegram Daily Metrics & Alerts
+
+Scout uses **Telegram** for daily scraping reports with metrics and emojis.
+
+### Setup Instructions
+
+#### 1. Create a Telegram Bot
+```bash
+# 1. Open Telegram and message @BotFather
+# 2. Type /newbot
+# 3. Choose a name and username
+# 4. You'll get: "Use this token to access the HTTP API"
+# 5. Copy your token
+```
+
+#### 2. Get Your Chat ID
+```bash
+# 1. Forward the bot message to yourself or a group
+# 2. Visit: https://api.telegram.org/bot[YOUR_TOKEN]/getUpdates
+# 3. Replace [YOUR_TOKEN] with your actual token
+# 4. Look for "chat": {"id": 123456789}  (this is your chat_id)
+```
+
+#### 3. Configure Environment
+Add to `.env`:
+```bash
+TELEGRAM_BOT_TOKEN=8431175588:AAENww0dKW50wEgMLU9iRcyvGH4A7bHgsto
+TELEGRAM_CHAT_ID=your_chat_id_here
+```
+
+### Using Telegram Reports
+
+#### FotMob Daily Report
+```python
+from src.utils.metrics_alerts import send_daily_report
+
+send_daily_report(
+    scraper='fotmob',
+    date='20260215',
+    matches_scraped=150,
+    errors=2,
+    skipped=3,
+    duration_seconds=3600,
+    cache_hits=45
+)
+```
+
+**Sample Output:**
+```
+⚽ FotMob Daily Report - 20260215
+
+✨ Matches Scraped: 150
+📈 Success Rate: 98.7% ✅
+❌ Errors: 2
+⏭️ Skipped: 3
+⏱️ Duration: 1.0h
+💨 Cache Hits: 45
+
+✅ All matches scraped successfully!
+```
+
+#### AIScore Daily Report
+```python
+send_daily_report(
+    scraper='aiscore',
+    date='20260215',
+    matches_scraped=120,
+    odds_scraped=118,
+    errors=1,
+    skipped=1,
+    duration_seconds=5400
+)
+```
+
+**Sample Output:**
+```
+⚽ AIScore Daily Report - 20260215
+
+✨ Matches Found: 120
+💰 Odds Scraped: 118
+📈 Success Rate: 98.3% ✅
+❌ Errors: 1
+⏭️ Skipped: 1
+⏱️ Duration: 1.5h
+
+ℹ️ Status: Completed with issues
+```
+
+### Emoji Legend
+
+**Status:**
+- ✅ Success
+- ❌ Error
+- ⚠️ Warning
+- ℹ️ Info
+
+**Metrics:**
+- ⚽ Matches
+- ✨ Matches Scraped
+- 📈 Success Rate
+- ⏱️ Duration
+- 💨 Cache Hits
+- 💰 Odds
+
+### Integration in Pipeline
+
+Add to your scraping script (e.g., `scripts/pipeline.py`):
+
+```python
+import time
+from src.utils.metrics_alerts import send_daily_report
+
+# Start scraping
+start_time = time.time()
+fotmob_start = start_time
+
+# ... FotMob scraping ...
+fotmob_duration = time.time() - fotmob_start
+fotmob_matches = 150  # Your actual count
+
+# Send FotMob report
+send_daily_report(
+    scraper='fotmob',
+    matches_scraped=fotmob_matches,
+    errors=2,
+    duration_seconds=fotmob_duration
+)
+
+# ... AIScore scraping ...
+aiscore_start = time.time()
+# ... AIScore scraping logic ...
+aiscore_duration = time.time() - aiscore_start
+aiscore_matches = 120  # Your actual count
+
+# Send AIScore report
+send_daily_report(
+    scraper='aiscore',
+    matches_scraped=aiscore_matches,
+    odds_scraped=118,
+    duration_seconds=aiscore_duration
+)
+
+print("✅ Daily reports sent to Telegram!")
+```
+
 ## Configuration Validation
 
 Configuration is validated during initialization. Validation errors include:

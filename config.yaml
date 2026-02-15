@@ -19,6 +19,12 @@ metrics:
   export_path: metrics
   export_format: json
 
+alerting:
+  enabled: true
+  telegram_enabled: true
+  slack_enabled: false
+  email_enabled: false
+
 # ============================================================================
 # FOTMOB SCRAPER CONFIGURATION
 # ============================================================================

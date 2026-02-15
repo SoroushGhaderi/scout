@@ -1,7 +1,10 @@
 """
-Alerting system for monitorin in g and notifying about system issues.
+Alerting system for monitoring and notifying about system issues and daily metrics.
 
-Supports email alerts via SMTP.
+Supports alerts via:
+- Email (SMTP)
+- Telegram Bot
+- Logging
 
 Usage:
     from src.utils.alerting import AlertManager, AlertLevel
@@ -12,6 +15,15 @@ Usage:
         title="Scrape Failed",
         message="Failed to scrape match 12345",
         context={"match_id": "12345", "error": "Connection timeout"}
+    )
+    
+    # For daily metrics via Telegram:
+    from src.utils.metrics_alerts import send_daily_report
+    send_daily_report(
+        scraper='fotmob',
+        matches_scraped=150,
+        errors=2,
+        skipped=5
     )
 """
 
@@ -39,6 +51,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from enum import Enum
 from typing import Dict, Any, Optional, List
+
+try:
+    import requests
+except ImportError:
+    requests = None
 
 from .logging_utils import get_logger
 
@@ -185,6 +202,66 @@ class EmailChannel(AlertChannel):
             return False
 
 
+class TelegramChannel(AlertChannel):
+    """Alert channel that sends messages via Telegram Bot."""
+
+    def __init__(
+        self,
+        bot_token: str,
+        chat_id: str,
+        enabled: bool = True
+    ):
+        super().__init__(enabled)
+        self.bot_token = bot_token
+        self.chat_id = chat_id
+        self.api_url = f"https://api.telegram.org/bot{bot_token}"
+
+    def _send_impl(self, alert: Alert) -> bool:
+        """Send alert via Telegram."""
+        if not requests:
+            self.logger.warning("requests library not available for Telegram alerts")
+            return False
+
+        if not self.bot_token or not self.chat_id:
+            self.logger.warning("Telegram bot token or chat ID not configured")
+            return False
+
+        try:
+            # Format the message with level indicator
+            level_emoji = {
+                AlertLevel.INFO: "ℹ️",
+                AlertLevel.WARNING: "⚠️",
+                AlertLevel.ERROR: "❌",
+                AlertLevel.CRITICAL: "🚨"
+            }
+            emoji = level_emoji.get(alert.level, "📢")
+            
+            message = f"{emoji} <b>[{alert.level.value.upper()}] {alert.title}</b>\n\n{alert.message}"
+            
+            if alert.context:
+                message += f"\n\n<b>Details:</b>\n"
+                for key, value in alert.context.items():
+                    message += f"  • <b>{key}:</b> {value}\n"
+
+            payload = {
+                "chat_id": self.chat_id,
+                "text": message,
+                "parse_mode": "HTML"
+            }
+
+            response = requests.post(f"{self.api_url}/sendMessage", json=payload, timeout=10)
+            
+            if response.status_code == 200:
+                self.logger.info(f"Telegram alert sent successfully to chat {self.chat_id}")
+                return True
+            else:
+                self.logger.error(f"Telegram API error ({response.status_code}): {response.text}")
+                return False
+        except Exception as e:
+            self.logger.error(f"Failed to send Telegram alert: {e}")
+            return False
+
+
 class AlertManager:
     """Manages alert channels and sends alerts."""
 
@@ -211,6 +288,7 @@ class AlertManager:
 
     def _load_config(self):
         """Load alert configuration from environment variables."""
+        # Email configuration
         smtp_host = os.getenv('ALERT_SMTP_HOST')
         if smtp_host:
             smtp_port = int(os.getenv('ALERT_SMTP_PORT', '587'))
@@ -233,6 +311,21 @@ class AlertManager:
                 self.logger.info(f"Email alerts enabled: {len(to_emails)} recipients")
             else:
                 self.logger.warning("ALERT_SMTP_HOST is set but ALERT_TO_EMAILS is empty. Email alerts disabled.")
+
+        # Telegram configuration
+        telegram_bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
+        telegram_chat_id = os.getenv('TELEGRAM_CHAT_ID')
+        
+        if telegram_bot_token and telegram_chat_id:
+            telegram_channel = TelegramChannel(
+                bot_token=telegram_bot_token,
+                chat_id=telegram_chat_id,
+                enabled=True
+            )
+            self.channels.append(telegram_channel)
+            self.logger.info(f"Telegram alerts enabled for chat {telegram_chat_id}")
+        elif telegram_bot_token or telegram_chat_id:
+            self.logger.warning("Partial Telegram configuration: both TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID required")
 
     def send_alert(
         self,
