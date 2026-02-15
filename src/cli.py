@@ -3,12 +3,6 @@
 SCRAPER: FotMob
 PURPOSE: Command-line interface for FotMob scraper.
 """
-
-
-
-
-
-
 import argparse
 import sys
 from datetime import datetime
@@ -42,7 +36,7 @@ Examples:
   # Force re-scrape already processed matches
   python -m src.cli --date 20250101 --force
 
-  # Configuration is read from .env file
+  # Configuration is loaded from config.yaml (primary source) and .env (overrides)
 
   # Disable parallel processing
   python -m src.cli --date 20250101 --no-parallel
@@ -50,17 +44,6 @@ Examples:
   # Note: Storage options removed - data goes directly to ClickHouse
         """
     )
-
-
-
-
-
-
-
-
-
-
-
 
     parser.add_argument(
         '-date', '--date',
@@ -74,10 +57,6 @@ Examples:
         action='store_true',
         help='Force re-scrape of already processed matches'
     )
-
-
-
-
 
     parser.add_argument(
         '--no-parallel',

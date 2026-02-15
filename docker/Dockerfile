@@ -18,7 +18,7 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy and install Python dependencies
-COPY ../requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
@@ -83,18 +83,14 @@ RUN useradd --create-home --shell /bin/bash appuser && \
 WORKDIR /app
 
 # Copy application files
-COPY --chown=appuser:appuser ../src/ ./src/
-COPY --chown=appuser:appuser ../scripts/ ./scripts/
-COPY --chown=appuser:appuser ../config/ ./config/
-COPY --chown=appuser:appuser ../setup.py ./
-COPY --chown=appuser:appuser ../pytest.ini ./
+COPY --chown=appuser:appuser src/ ./src/
+COPY --chown=appuser:appuser scripts/ ./scripts/
+COPY --chown=appuser:appuser config/ ./config/
+COPY --chown=appuser:appuser pytest.ini ./
 
 # Copy entrypoint script (as root, then fix permissions)
-COPY docker-entrypoint.sh /usr/local/bin/
+COPY docker/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-# Install the package in development mode
-RUN pip install --no-cache-dir -e .
 
 # Switch to non-root user
 USER appuser

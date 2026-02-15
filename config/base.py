@@ -1,13 +1,15 @@
 ﻿"""
 Base configuration classes for unified scraper configuration system.
 
-Configuration is read ONLY from environment variables (.env file).
+Configuration is loaded from:
+1. config.yaml - Application settings (required)
+2. .env file - Environment-specific & sensitive data (optional overrides)
 
 This follows industry best practices for configuration management.
 
 Features:
 - Type-safe data classes
-- Environment variable based configuration
+- YAML-based configuration with .env overrides
 - Hierarchical configuration structure
 - Validation and defaults
 """
@@ -23,6 +25,11 @@ try:
     load_dotenv()
 except ImportError:
     pass
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
 
 
 @dataclass
@@ -88,14 +95,41 @@ class BaseConfig(ABC):
 
     All scraper configs should inherit from this class to ensure consistency.
 
-    Configuration is read ONLY from environment variables (.env file).
+    Configuration is loaded from:
+    1. config.yaml - Application settings (primary source)
+    2. .env file - Environment-specific & sensitive data (overrides)
     """
 
     def __init__(self):
-        """Initialize configuration from environment variables."""
+        """Initialize configuration from YAML and environment variables."""
+        self._yaml_config = self._load_yaml_config()
         self._load_config()
         self._apply_env_overrides()
         self._ensure_directories()
+
+    @staticmethod
+    def _load_yaml_config() -> Dict[str, Any]:
+        """Load configuration from config.yaml file.
+        
+        Returns:
+            Dictionary with configuration from YAML, or empty dict if file not found
+        """
+        config_path = os.getenv('CONFIG_FILE_PATH', 'config.yaml')
+        if not Path(config_path).exists():
+            # Try relative to this config directory
+            config_path = Path(__file__).parent.parent / 'config.yaml'
+        
+        if not Path(config_path).exists():
+            return {}
+        
+        try:
+            if yaml is None:
+                return {}
+            with open(config_path, 'r') as f:
+                return yaml.safe_load(f) or {}
+        except Exception as e:
+            print(f"Warning: Could not load config.yaml: {e}")
+            return {}
 
     @abstractmethod
     def _load_config(self) -> None:

@@ -542,7 +542,7 @@ def _scrape_match_links_impl(
     bronze_storage = BronzeStorage(config.storage.bronze_path)
     
     # Log paths for debugging
-    logging.debug(f"Bronze storage base: {bronze_storage.base_path.absolute()}")
+    logging.debug(f"Bronze storage base: {bronze_storage.base_dir.absolute()}")
     logging.debug(f"Daily listings dir: {bronze_storage.daily_listings_dir.absolute()}")
 
     # Use bronze_storage daily_listings directory structure
@@ -2024,7 +2024,7 @@ def save_to_json(
     
     # Log the exact path being used
     logging.info(f"Saving to: {daily_file.absolute()}")
-    logging.info(f"Bronze storage base: {bronze_storage.base_path.absolute()}")
+    logging.info(f"Bronze storage base: {bronze_storage.base_dir.absolute()}")
     logging.info(f"Daily listings dir: {bronze_storage.daily_listings_dir.absolute()}")
 
     # Load existing data if file exists (from incremental saves)

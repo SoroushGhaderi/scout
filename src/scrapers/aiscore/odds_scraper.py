@@ -1162,7 +1162,7 @@ class OddsScraper:
             if bronze_storage.match_exists(match_id, scrape_date):
                 successful += 1
                 try:
-                    bronze_storage.update_match_status__daily_list(
+                    bronze_storage.update_match_status_in_daily_list(
                         scrape_date, match_id, "success"
                     )
                 except Exception as e:
@@ -1170,7 +1170,7 @@ class OddsScraper:
                 continue
 
             if current_status in ["n/a", "pending"]:
-                bronze_storage.update_match_status__daily_list(
+                bronze_storage.update_match_status_in_daily_list(
                     scrape_date, match_id, "pending"
                 )
 
@@ -1184,7 +1184,7 @@ class OddsScraper:
                 if error_status:
                     if error_status == "no_odds_available":
                         try:
-                            bronze_storage.update_match_status__daily_list(
+                            bronze_storage.update_match_status_in_daily_list(
                                 scrape_date, match_id, "no_odds_available"
                             )
                         except Exception as e:
@@ -1193,13 +1193,13 @@ class OddsScraper:
                             )
                         failed += 1
                 elif odds_list:
-                    bronze_storage.update_match_status__daily_list(
+                    bronze_storage.update_match_status_in_daily_list(
                         scrape_date, match_id, "success"
                     )
                     total_odds_scraped += len(odds_list)
                     successful += 1
                 else:
-                    bronze_storage.update_match_status__daily_list(
+                    bronze_storage.update_match_status_in_daily_list(
                         scrape_date, match_id, "failed"
                     )
                     failed += 1
@@ -1232,7 +1232,7 @@ class OddsScraper:
                 )
 
                 status = "failed_by_timeout" if is_timeout else "failed"
-                bronze_storage.update_match_status__daily_list(
+                bronze_storage.update_match_status_in_daily_list(
                     scrape_date, match_id, status
                 )
                 failed += 1

@@ -657,23 +657,23 @@ class BaseBronzeStorage(StorageProtocol, ABC):
             found = False
             if match_id_str in archived_match_ids:
                 found = True
-                stats["scraped_match_ids"].append(match_id_str)
+                stats["scraped_match_ids"].append(int(match_id) if isinstance(match_id, str) and match_id.isdigit() else match_id)
             elif file_path.exists():
                 found = True
                 stats["files_individual"] += 1
                 file_size = file_path.stat().st_size
                 stats["total_size_bytes"] += file_size
-                stats["scraped_match_ids"].append(match_id_str)
+                stats["scraped_match_ids"].append(int(match_id) if isinstance(match_id, str) and match_id.isdigit() else match_id)
             elif file_path_gz.exists():
                 found = True
                 stats["files_individual"] += 1
                 file_size = file_path_gz.stat().st_size
                 stats["total_size_bytes"] += file_size
-                stats["scraped_match_ids"].append(match_id_str)
+                stats["scraped_match_ids"].append(int(match_id) if isinstance(match_id, str) and match_id.isdigit() else match_id)
 
             if not found:
                 stats["files_missing"] += 1
-                stats["missing_match_ids"].append(match_id_str)
+                stats["missing_match_ids"].append(int(match_id) if isinstance(match_id, str) and match_id.isdigit() else match_id)
 
         stats["files_stored"] = stats["files_in_archive"] + stats["files_individual"]
         stats["total_size_mb"] = stats["total_size_bytes"] / (1024 * 1024)

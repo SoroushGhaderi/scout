@@ -2,9 +2,9 @@
 
 FotMob scraper configuration.
 
-
-
-Configuration is read ONLY from environment variables (.env file).
+Configuration is loaded from:
+1. config.yaml - Application settings (primary source)
+2. .env file - Environment-specific & sensitive data (overrides)
 
 """
 
@@ -128,7 +128,11 @@ class FotMobConfig(BaseConfig):
         self._ensure_directories()
 
     def _load_config(self):
-        """Initialize configuration with defaults. YAML files are ignored."""
+        """Initialize configuration from config.yaml with defaults as fallback."""
+        # Get FOTMOB config from YAML or use defaults
+        yaml_fotmob = self._yaml_config.get('fotmob', {}) if hasattr(self, '_yaml_config') else {}
+        
+        # Initialize with defaults first
         default_user_agents = [
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
@@ -142,65 +146,73 @@ class FotMobConfig(BaseConfig):
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
         ]
 
+        api_config = yaml_fotmob.get('api', {})
         self.api = ApiConfig(
-            base_url="https://www.fotmob.com/api/data",
-            user_agent=ApiConfig.user_agent,
-            x_mas_token="",
-            user_agents=default_user_agents,
+            base_url=api_config.get('base_url', "https://www.fotmob.com/api/data"),
+            user_agent=api_config.get('user_agent', ApiConfig.user_agent),
+            x_mas_token="",  # Will be loaded from .env
+            user_agents=api_config.get('user_agents', default_user_agents),
         )
 
+        request_config = yaml_fotmob.get('request', {})
         self.request = RequestConfig(
-            timeout=30,
-            delay_min=2.0,
-            delay_max=4.0,
+            timeout=request_config.get('timeout', 30),
+            delay_min=request_config.get('delay_min', 2.0),
+            delay_max=request_config.get('delay_max', 4.0),
         )
 
+        scraping_config = yaml_fotmob.get('scraping', {})
         self.scraping = ScrapingConfig(
-            max_workers=1,
-            enable_parallel=False,
-            enable_caching=True,
-            cache_ttl_hours=24,
-            metrics_update_interval=20,
-            filter_by_status=True,
-            allowed_match_statuses=tuple([
+            max_workers=scraping_config.get('max_workers', 1),
+            enable_parallel=scraping_config.get('enable_parallel', False),
+            enable_caching=scraping_config.get('enable_caching', True),
+            cache_ttl_hours=scraping_config.get('cache_ttl_hours', 24),
+            metrics_update_interval=scraping_config.get('metrics_update_interval', 20),
+            filter_by_status=scraping_config.get('filter_by_status', True),
+            allowed_match_statuses=tuple(scraping_config.get('allowed_match_statuses', [
                 "Finished", "FullTime", "FT",
                 "After Extra Time", "AET",
                 "After Penalties", "AP"
-            ]),
+            ])),
         )
 
+        storage_config = yaml_fotmob.get('storage', {})
         self.storage = StorageConfig(
-            bronze_path="data/fotmob",
-            enabled=True,
+            bronze_path=storage_config.get('bronze_path', "data/fotmob"),
+            enabled=storage_config.get('enabled', True),
         )
 
+        retry_config = yaml_fotmob.get('retry', {})
         self.retry = RetryConfig(
-            max_attempts=3,
-            initial_wait=2.0,
-            max_wait=10.0,
-            exponential_base=2.0,
-            backoff_factor=2.0,
-            status_codes=tuple([429, 500, 502, 503, 504]),
+            max_attempts=retry_config.get('max_attempts', 3),
+            initial_wait=retry_config.get('initial_wait', 2.0),
+            max_wait=retry_config.get('max_wait', 10.0),
+            exponential_base=retry_config.get('exponential_base', 2.0),
+            backoff_factor=retry_config.get('backoff_factor', 2.0),
+            status_codes=tuple(retry_config.get('status_codes', [429, 500, 502, 503, 504])),
         )
 
+        fotmob_logging = yaml_fotmob.get('logging', {})
         self.logging = LoggingConfig(
-            level="INFO",
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            file="logs/fotmob_scraper.log",
-            max_bytes=10485760,
-            backup_count=5,
-            dir="logs",
+            level=fotmob_logging.get('level', "INFO"),
+            format=fotmob_logging.get('format', "%(asctime)s - %(name)s - %(levelname)s - %(message)s"),
+            file=fotmob_logging.get('file', "logs/fotmob_scraper.log"),
+            max_bytes=fotmob_logging.get('max_bytes', 10485760),
+            backup_count=fotmob_logging.get('backup_count', 5),
+            dir=fotmob_logging.get('dir', "logs"),
         )
 
+        fotmob_metrics = yaml_fotmob.get('metrics', {})
         self.metrics = MetricsConfig(
-            enabled=True,
-            export_path="metrics",
-            export_format="json",
+            enabled=fotmob_metrics.get('enabled', True),
+            export_path=fotmob_metrics.get('export_path', "metrics"),
+            export_format=fotmob_metrics.get('export_format', "json"),
         )
 
+        data_quality_config = yaml_fotmob.get('data_quality', {})
         self.data_quality = DataQualityConfig(
-            enabled=True,
-            fail_on_issues=False,
+            enabled=data_quality_config.get('enabled', True),
+            fail_on_issues=data_quality_config.get('fail_on_issues', False),
         )
 
     def _apply_env_overrides(self):

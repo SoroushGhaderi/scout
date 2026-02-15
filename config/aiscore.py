@@ -2,7 +2,9 @@
 
 AIScore scraper configuration.
 
-Configuration is read ONLY from environment variables (.env file).
+Configuration is loaded from:
+1. config.yaml - Application settings (primary source)
+2. .env file - Environment-specific & sensitive data (overrides)
 
 """
 
@@ -145,7 +147,9 @@ class AIScoreConfig(BaseConfig):
     """
     AIScore scraper configuration.
 
-    Configuration is read ONLY from environment variables (.env file).
+    Configuration is loaded from:
+    1. config.yaml - Application settings (primary source)
+    2. .env file - Environment-specific & sensitive data (overrides)
 
     Usage:
 
@@ -155,7 +159,7 @@ class AIScoreConfig(BaseConfig):
 
         print(config.storage.bronze_path)
 
-    See .env.example for all available configuration options.
+    See config.yaml for all available configuration options.
     """
 
 
@@ -166,81 +170,114 @@ class AIScoreConfig(BaseConfig):
 
 
     def __init__(self):
-        """Initialize AIScore configuration from environment variables."""
+        """Initialize AIScore configuration from YAML and environment variables."""
         self._load_config()
         self._apply_env_overrides()
         self._ensure_directories()
 
     def _load_config(self):
-        """Initialize configuration with defaults."""
+        """Initialize configuration from config.yaml with defaults as fallback."""
+        # Get AISCORE config from YAML or use defaults
+        yaml_aiscore = self._yaml_config.get('aiscore', {}) if hasattr(self, '_yaml_config') else {}
+        
+        storage_config = yaml_aiscore.get('storage', {})
         self.storage = StorageConfig(
-            bronze_path="data/aiscore",
-            enabled=True,
+            bronze_path=storage_config.get('bronze_path', "data/aiscore"),
+            enabled=storage_config.get('enabled', True),
         )
 
+        scraping_config = yaml_aiscore.get('scraping', {})
+        scroll_config = scraping_config.get('scroll', {})
+        timeouts_config = scraping_config.get('timeouts', {})
+        navigation_config = scraping_config.get('navigation', {})
+        delays_config = scraping_config.get('delays', {})
+        
         self.scraping = ScrapingConfig(
-            base_url="https://www.aiscore.com",
-            filter_by_importance=False,
-            filter_by_countries=True,
-            allowed_countries=[
-                'England', 'Spain', 'Germany', 'Italy', 'France',
-                'Portugal', 'Netherlands', 'Belgium', 'Turkey', 'Poland',
-                'Austria', 'Switzerland', 'Scotland', 'Denmark', 'Sweden',
-                'Norway', 'Brazil', 'Argentina', 'Japan', 'Saudi Arabia',
-                'International', 'World Cup', 'Euro',
-                'UEFA Champions League', 'UEFA Europa League',
-                'UEFA Europa Conference League',
-                'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania'
-            ],
-            extract_team_names_during_link_scraping=False,
-            scroll=ScrollConfig(),
-            timeouts=TimeoutConfig(),
-            navigation=NavigationConfig(),
-            delays=DelayConfig(),
+            base_url=scraping_config.get('base_url', "https://www.aiscore.com"),
+            filter_by_importance=scraping_config.get('filter_by_importance', False),
+            filter_by_countries=scraping_config.get('filter_by_countries', False),
+            filter_by_leagues=scraping_config.get('filter_by_leagues', True),
+            allowed_countries=scraping_config.get('allowed_countries', []),
+            allowed_leagues=scraping_config.get('allowed_leagues', []),
+            extract_team_names_during_link_scraping=scraping_config.get('extract_team_names_during_link_scraping', False),
+            scroll=ScrollConfig(
+                increment=scroll_config.get('increment', 500),
+                pause=scroll_config.get('pause', 0.3),
+                max_no_change=scroll_config.get('max_no_change', 8),
+                smart_wait_interval=scroll_config.get('smart_wait_interval', 0.2),
+                smart_wait_timeout=scroll_config.get('smart_wait_timeout', 3.0),
+            ),
+            timeouts=TimeoutConfig(
+                page_load=timeouts_config.get('page_load', 30),
+                element_wait=timeouts_config.get('element_wait', 10),
+                cloudflare_max=timeouts_config.get('cloudflare_max', 15),
+                script_timeout=timeouts_config.get('script_timeout', 30),
+            ),
+            navigation=NavigationConfig(
+                homepage_load=navigation_config.get('homepage_load', 0.5),
+                date_page_load=navigation_config.get('date_page_load', 0.5),
+                tab_click=navigation_config.get('tab_click', 0.5),
+            ),
+            delays=DelayConfig(
+                between_dates=delays_config.get('between_dates', 1.0),
+                between_matches=delays_config.get('between_matches', 0.5),
+                initial_load=delays_config.get('initial_load', 0.5),
+                after_click=delays_config.get('after_click', 0.3),
+                tab_scroll=delays_config.get('tab_scroll', 0.3),
+                content_check_interval=delays_config.get('content_check_interval', 0.1),
+                content_fallback=delays_config.get('content_fallback', 0.5),
+            ),
         )
 
+        browser_config = yaml_aiscore.get('browser', {})
         self.browser = BrowserConfig(
-            headless=True,
-            window_size="1920x1080",
-            block_images=True,
-            block_css=True,
-            block_fonts=True,
-            block_media=True,
-            user_agent=BrowserConfig.user_agent,
+            headless=browser_config.get('headless', True),
+            window_size=browser_config.get('window_size', "1920x1080"),
+            block_images=browser_config.get('block_images', True),
+            block_css=browser_config.get('block_css', True),
+            block_fonts=browser_config.get('block_fonts', True),
+            block_media=browser_config.get('block_media', True),
+            user_agent=browser_config.get('user_agent', BrowserConfig.user_agent),
         )
 
+        selectors_config = yaml_aiscore.get('selectors', {})
         self.selectors = SelectorsConfig(
-            match_container=".match-container",
-            all_tab=".changeTabBox .changeItem",
-            match_link="a[href*='/match']",
+            match_container=selectors_config.get('match_container', ".match-container"),
+            all_tab=selectors_config.get('all_tab', ".changeTabBox .changeItem"),
+            match_link=selectors_config.get('match_link', "a[href*='/match']"),
         )
 
+        validation_config = yaml_aiscore.get('validation', {})
         self.validation = ValidationConfig(
-            excluded_paths=["/h2h", "/statistics", "/odds", "/predictions", "/lineups"],
-            required_pattern="/match",
+            excluded_paths=validation_config.get('excluded_paths', ["/h2h", "/statistics", "/odds", "/predictions", "/lineups"]),
+            required_pattern=validation_config.get('required_pattern', "/match"),
         )
 
+        retry_config = yaml_aiscore.get('retry', {})
         self.retry = RetryConfig(
-            max_attempts=3,
-            initial_wait=2.0,
-            max_wait=10.0,
-            exponential_base=2.0,
-            backoff_factor=2.0,
+            max_attempts=retry_config.get('max_attempts', 3),
+            initial_wait=retry_config.get('initial_wait', 2.0),
+            max_wait=retry_config.get('max_wait', 10.0),
+            exponential_base=retry_config.get('exponential_base', 2.0),
+            backoff_factor=retry_config.get('backoff_factor', 2.0),
+            status_codes=tuple(retry_config.get('status_codes', [429, 500, 502, 503, 504])),
         )
 
+        aiscore_logging = yaml_aiscore.get('logging', {})
         self.logging = LoggingConfig(
-            level="INFO",
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            file="logs/aiscore_scraper.log",
-            max_bytes=10485760,
-            backup_count=5,
-            dir="logs",
+            level=aiscore_logging.get('level', "INFO"),
+            format=aiscore_logging.get('format', "%(asctime)s - %(name)s - %(levelname)s - %(message)s"),
+            file=aiscore_logging.get('file', "logs/aiscore_scraper.log"),
+            max_bytes=aiscore_logging.get('max_bytes', 10485760),
+            backup_count=aiscore_logging.get('backup_count', 5),
+            dir=aiscore_logging.get('dir', "logs"),
         )
 
+        aiscore_metrics = yaml_aiscore.get('metrics', {})
         self.metrics = MetricsConfig(
-            enabled=True,
-            export_path="metrics",
-            export_format="json",
+            enabled=aiscore_metrics.get('enabled', True),
+            export_path=aiscore_metrics.get('export_path', "metrics"),
+            export_format=aiscore_metrics.get('export_format', "json"),
         )
 
     def _apply_env_overrides(self):

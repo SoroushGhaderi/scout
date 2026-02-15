@@ -500,22 +500,65 @@ python scripts/analyze_leagues.py --min-matches 50
 - Path validation
 
 **Credentials Management:**
-- Environment variables (.env file)
+- Sensitive data in `.env` file (not tracked in git)
+- Application settings in `config.yaml` (tracked in git)
 - No hardcoded secrets
 - Docker secrets support
 
 ---
 
+## Configuration
+
+Scout uses a **two-layer configuration system**:
+
+1. **config.yaml** - All application settings (timeouts, delays, selectors, etc.)
+2. **.env** - Only secrets and environment-specific values
+
+See [CONFIG_GUIDE.md](CONFIG_GUIDE.md) for detailed documentation.
+
+### Quick Reference
+
+**Edit Application Behavior:**
+- Modify `config.yaml` to change timeouts, delays, filtering, etc.
+
+**Override via .env:**
+```bash
+FOTMOB_MAX_WORKERS=4
+AISCORE_HEADLESS=false
+```
+
+---
+
 ## Quick Reference
 
-### Environment Variables
+### Configuration Files
+
+**config.yaml:**
+```yaml
+fotmob:
+  request:
+    timeout: 30
+  scraping:
+    max_workers: 2
+
+aiscore:
+  browser:
+    headless: true
+```
+
+**.env:**
+```bash
+FOTMOB_X_MAS_TOKEN=<token>
+CLICKHOUSE_PASSWORD=<password>
+```
+
+### Sensiti Data
 
 ```bash
 # Essential
 FOTMOB_X_MAS_TOKEN=<token>
-FOTMOB_API_BASE_URL=https://www.fotmob.com/api/data
 CLICKHOUSE_HOST=clickhouse
-LOG_LEVEL=INFO
+CLICKHOUSE_PASSWORD=<password>
 
 # AIScore
 AISCORE_FILTER_BY_LEAGUES=true

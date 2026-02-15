@@ -71,26 +71,64 @@ pip install -e ".[cloudflare]"
 
 ## Configuration
 
-All configuration via `.env` file:
+Scout uses a **two-layer configuration system**:
+
+### 1. config.yaml (Primary - Application Settings)
+Contains all application-specific configuration:
+- Scraper behavior (timeouts, delays, max workers)
+- Filtering and validation rules
+- Storage paths and settings
+- Logging and metrics configuration
+- Browser and request settings
+
+**Location:** `config.yaml` in project root
+
+### 2. .env (Environment-Specific - Secrets Only)
+Contains **only sensitive data**:
+- Database credentials
+- API tokens
+- Email credentials
+- Environment-specific overrides
+
+**Location:** `.env` in project root (not tracked in git)
+
+### Setup
 
 ```bash
-# Required
+# 1. Copy and edit config
+cp config.yaml config.example.yaml  # Backup (optional)
+# Edit config.yaml to customize behavior
+
+# 2. Configure secrets
+cp .env.example .env  # Or create new .env
+# Edit .env and add:
 FOTMOB_X_MAS_TOKEN=your_token_here
-FOTMOB_API_BASE_URL=https://www.fotmob.com/api/data
-
-# ClickHouse
-CLICKHOUSE_HOST=clickhouse
-CLICKHOUSE_PORT=8123
-CLICKHOUSE_USER=fotmob_user
-CLICKHOUSE_PASSWORD=fotmob_pass
-
-# AIScore League Filtering (95 competitions)
-AISCORE_FILTER_BY_LEAGUES=true
-AISCORE_ALLOWED_LEAGUES=Premier League,La Liga,Serie A,Bundesliga,Ligue 1,...
-
-# Logging
-LOG_LEVEL=INFO
+CLICKHOUSE_PASSWORD=your_password_here
 ```
+
+### Quick Reference
+
+**config.yaml** - Build once, use everywhere:
+```yaml
+fotmob:
+  scraping:
+    max_workers: 2
+    enable_parallel: true
+  request:
+    timeout: 30
+
+aiscore:
+  browser:
+    headless: true
+```
+
+**.env** - Never commit to git:
+```bash
+FOTMOB_X_MAS_TOKEN=eyJib2R5Ijp7...
+CLICKHOUSE_PASSWORD=secure_password
+```
+
+See [CONFIG_GUIDE.md](CONFIG_GUIDE.md) for detailed configuration documentation.
 
 ## Usage
 

@@ -293,6 +293,8 @@ class BronzeStorage(BaseBronzeStorage):
                         'files_individual': storage_stats['files_individual'],
                         'archive_size_bytes': storage_stats['archive_size_bytes'],
                         'archive_size_mb': storage_stats['archive_size_mb'],
+                        'scraped_match_ids': storage_stats['scraped_match_ids'],
+                        'missing_match_ids': storage_stats['missing_match_ids'],
                         'completion_percentage': storage_stats.get('completion_percentage', 0.0)
                     })
             except Exception as e:

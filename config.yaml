@@ -1,0 +1,295 @@
+# Application Configuration
+# This file contains all application-specific settings
+# Sensitive data (credentials, tokens) should be in .env file
+
+# ============================================================================
+# COMMON CONFIGURATION
+# ============================================================================
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s"
+  file: logs/scraper.log
+  max_bytes: 10485760
+  backup_count: 5
+  dir: logs
+
+metrics:
+  enabled: true
+  export_path: metrics
+  export_format: json
+
+# ============================================================================
+# FOTMOB SCRAPER CONFIGURATION
+# ============================================================================
+
+fotmob:
+  api:
+    base_url: https://www.fotmob.com/api/data
+    user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+    # x_mas_token is loaded from .env FOTMOB_X_MAS_TOKEN (sensitive data)
+    user_agents:
+      - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+      - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+      - "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+      - "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+      - "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0"
+      - "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0"
+      - "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:122.0) Gecko/20100101 Firefox/122.0"
+      - "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15"
+      - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0"
+      - "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+
+  request:
+    timeout: 30
+    delay_min: 2.0
+    delay_max: 4.0
+
+  scraping:
+    max_workers: 2
+    enable_parallel: true
+    enable_caching: true
+    cache_ttl_hours: 24
+    metrics_update_interval: 20
+    filter_by_status: true
+    allowed_match_statuses:
+      - Finished
+      - FullTime
+      - FT
+      - After Extra Time
+      - AET
+      - After Penalties
+      - AP
+
+  storage:
+    bronze_path: data/fotmob
+    enabled: true
+
+  retry:
+    max_attempts: 3
+    initial_wait: 2.0
+    max_wait: 10.0
+    exponential_base: 2.0
+    backoff_factor: 2.0
+    status_codes:
+      - 429
+      - 500
+      - 502
+      - 503
+      - 504
+
+  logging:
+    level: INFO
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    file: logs/fotmob_scraper.log
+    max_bytes: 10485760
+    backup_count: 5
+    dir: logs
+
+  metrics:
+    enabled: true
+    export_path: metrics
+    export_format: json
+
+  data_quality:
+    enabled: true
+    fail_on_issues: false
+
+# ============================================================================
+# AISCORE SCRAPER CONFIGURATION
+# ============================================================================
+
+aiscore:
+  scraping:
+    base_url: https://www.aiscore.com
+    filter_by_importance: false
+    filter_by_countries: false
+    filter_by_leagues: true
+    allowed_leagues:
+      - Premier League
+      - English Football League Championship
+      - FA Cup
+      - English Football League Cup
+      - English Football League Trophy
+      - Spanish La Liga
+      - Segunda Division
+      - Copa del Rey
+      - Spanish Copa Federacion
+      - Italian Serie A
+      - Italian Serie B
+      - Italian Women's Cup
+      - Italian Primavera Cup
+      - Bundesliga
+      - Bundesliga 2
+      - DFB Pokal
+      - French Ligue 1
+      - Ligue 2
+      - Coupe de France
+      - Eredivisie
+      - Eerste Divisie
+      - KNVB Cup
+      - Pro League
+      - Belgian Second Division
+      - Belgian Cup
+      - Portuguese Primera Liga
+      - Portuguese Liga 3
+      - Portuguese Women's Cup
+      - Turkish Super League
+      - Turkish First League
+      - Turkish Cup
+      - Scottish Premiership
+      - Scottish Championship
+      - Danish Superliga
+      - Danish 1st Division
+      - Danish Cup
+      - Allsvenskan
+      - Superettan
+      - Elitedivisionen
+      - Brazilian Serie A
+      - Brazilian Serie B
+      - Brazilian Women's Cup
+      - Copa Maria Bonita
+      - Brazilian U20 Cup
+      - Argentine Division 1
+      - ARG Primera Nacional
+      - Copa Argentina
+      - Argentine Youth League
+      - J1 League
+      - J2 League
+      - Japanese Football League
+      - Saudi Professional League
+      - Kings Cup
+      - Champions League
+      - UEFA Europa League
+      - UEFA Europa Conference League
+      - UEFA Youth League
+      - CAF Champions League
+      - CAF Confederation Cup
+      - CAF U17 Championship
+      - CAF U20 Women's African Nations Championship
+      - CAF Women's African Cup of Nations
+      - FIFA World Cup qualification (UEFA)
+      - FIFA World Cup qualification (CAF)
+      - FIFA World Cup qualification (AFC)
+      - UEFA European U21 Championship qualification
+      - UEFA European U19 Football Championship
+      - UEFA European U17 Football Championship
+      - UEFA European U19 Women's Championship
+      - UEFA European U17 Women's Championship
+      - FIFA U20 World Cup
+      - FIFA U17 Women's World Cup
+      - English FA Women's Super League
+      - English FA Women's Super League 2
+      - English FA Women's Cup
+      - FA Women's League Cup
+      - English FA Women's League Cup
+      - French Division 1 Feminine
+      - German Frauen Bundesliga
+      - German Women's Bundesliga II
+      - Spanish Primera Division de la Liga de Futbol Femenino
+      - Spanish Segunda Futfem
+      - Copa de la Reina Women
+      - Italian Women's Serie A
+      - Damallsvenskan
+      - Elitettan
+      - Eredivisie Vrouwen
+      - Belgian Women's Super League
+      - Belgian Women's First Division
+      - Danish Women's Divison 1
+      - Danish Women's Cup
+      - Turkish Women's Super League
+      - Scottish Women's Premier League
+      - Japanese Nadeshiko League 1
+      - Japanese Nadeshiko League 2
+      - Japanese Nadeshiko League Cup
+      - Brazilian Paulista Women's League
+      - Women Empowerment League
+      - UEFA Women's Champions League
+      - English U21 Premier League
+      - Spanish U19 League
+      - Danish U19 Youth League
+      - Belgian U21 Youth League
+      - Portuguese U23 League
+      - Canadian Premier League
+      - Club Friendly
+      - United States Major League Soccer
+      - AFC Challenge League
+      - AFC Cup
+      - Super Cup
+      - CONCACAF Central American Cup
+      - CONMEBOL Copa Libertadores
+      - CONMEBOL Copa Sudamericana
+      - CAF African Nations Championship
+      - Coppa Italia
+      - Austrian Bundesliga
+      - Cup
+
+    allowed_countries: []
+    extract_team_names_during_link_scraping: false
+
+  scroll:
+    increment: 500
+    pause: 0.3
+    max_no_change: 8
+    smart_wait_interval: 0.2
+    smart_wait_timeout: 3.0
+
+  timeouts:
+    page_load: 30
+    element_wait: 10
+    cloudflare_max: 15
+    script_timeout: 30
+
+  navigation:
+    homepage_load: 0.5
+    date_page_load: 0.5
+    tab_click: 0.5
+
+  delays:
+    between_dates: 1.0
+    between_matches: 0.5
+    initial_load: 0.5
+    after_click: 0.3
+    tab_scroll: 0.3
+    content_check_interval: 0.1
+    content_fallback: 0.5
+
+  browser:
+    headless: true
+    window_size: "1920x1080"
+    block_images: true
+    block_css: true
+    block_fonts: true
+    block_media: true
+    user_agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+
+  selectors:
+    match_container: .match-container
+    all_tab: .changeTabBox .changeItem
+    match_link: "a[href*='/match']"
+
+  validation:
+    excluded_paths:
+      - /h2h
+      - /statistics
+      - /odds
+      - /predictions
+      - /lineups
+    required_pattern: /match
+
+  retry:
+    max_attempts: 3
+    initial_wait: 2.0
+    max_wait: 10.0
+    exponential_base: 2.0
+    backoff_factor: 2.0
+    status_codes:
+      - 429
+      - 500
+      - 502
+      - 503
+      - 504
+
+  storage:
+    bronze_path: data/aiscore
+    enabled: true

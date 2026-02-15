@@ -1,6 +1,8 @@
 # Scout - Docker Compose Configuration
 # Project name: scout (set via COMPOSE_PROJECT_NAME or directory name)
 
+name: scout
+
 services:
   # ClickHouse Database - Stores data for both FotMob and AIScore
   # NOTE: Table creation is handled by the Python script (setup_clickhouse.py)

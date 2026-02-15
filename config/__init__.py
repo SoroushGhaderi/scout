@@ -1,6 +1,8 @@
 """Unified configuration system for Scout scrapers.
 
-Configuration is read from environment variables (.env file).
+Configuration is loaded from two sources (in order of precedence):
+1. config.yaml - Primary application settings (required)
+2. .env file - Environment-specific & sensitive data (optional overrides)
 
 Usage:
     from config import FotMobConfig, AIScoreConfig
@@ -8,8 +10,8 @@ Usage:
     fotmob_config = FotMobConfig()
     aiscore_config = AIScoreConfig()
 
-All configuration classes provide sensible defaults and can be overridden
-via environment variables. See .env.example for available options.
+All configuration classes load defaults from config.yaml and can be overridden
+via environment variables in .env. See config.yaml for all available options.
 """
 
 from .base import (

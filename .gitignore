@@ -155,12 +155,14 @@ data/
 
 # Environment files - EXPLICIT IGNORE
 .env
+!.env.example
 .env.*
 .env.local
 .env.production
 .env.development
 .env.test
 *.env
+!*.example
 
 # Database
 *.db
