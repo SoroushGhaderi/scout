@@ -728,6 +728,21 @@ class BaseBronzeStorage(StorageProtocol, ABC):
             return listing.get('match_ids', [])
         return []
 
+    def get_completion_percentage(self, date_str: str) -> Optional[float]:
+        """Get completion percentage for a date from daily listing.
+
+        Args:
+            date_str: Date string YYYYMMDD format (or YYYY-MM-DD, will be converted)
+
+        Returns:
+            Completion percentage (0-100), or None if not available
+        """
+        listing = self.load_daily_listing(date_str)
+        if listing:
+            storage = listing.get('storage', {})
+            return storage.get('completion_percentage')
+        return None
+
     def daily_listing_exists(self, date_str: str) -> bool:
         """Check if daily listing exists for a date.
 

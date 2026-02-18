@@ -123,6 +123,13 @@ class FotMobOrchestrator(OrchestratorProtocol):
                 metrics.end()
                 return metrics
 
+            completion_pct = self.bronze_storage.get_completion_percentage(date_str)
+            if completion_pct is not None and completion_pct >= 100.0:
+                self.logger.info(f"Date {date_str} already complete ({completion_pct:.0f}%), skipping scrape")
+                metrics.skipped_matches = metrics.total_matches
+                metrics.end()
+                return metrics
+
             if not force_rescrape:
                 match_ids_to_scrape = [
                     str(m) for m in match_ids
