@@ -458,6 +458,61 @@ class TelegramMetricsReporter:
         else:
             message += f"{EMOJI_MAP['warning']} <b>Review required</b> - Success rate: {success_rate:.1f}%"
 
+    def report_fotmob_monthly(self, month: str, **kwargs) -> bool:
+        """Send enriched FotMob monthly scraping report."""
+        
+        dates_processed = kwargs.get('dates_processed', 0)
+        dates_total = kwargs.get('dates_total', 0)
+        total_matches = kwargs.get('total_matches', 0)
+        matches_scraped = kwargs.get('matches_scraped', 0)
+        errors = kwargs.get('errors', 0)
+        skipped = kwargs.get('skipped', 0)
+        duration_seconds = kwargs.get('duration_seconds', 0)
+        
+        bronze_files = kwargs.get('bronze_files', 0)
+        bronze_size_mb = kwargs.get('bronze_size_mb', 0)
+        
+        context = kwargs.get('context', {})
+
+        success_rate = (matches_scraped / total_matches * 100) if total_matches > 0 else 0
+
+        formatted_month = f"{month[:4]}-{month[4:]}"
+
+        message = f"<b>{EMOJI_MAP['matches']} FotMob Monthly Report - {formatted_month}</b>\n"
+        message += f"<i>Environment: {self.environment} | Server: {self.server_name}</i>\n\n"
+
+        message += f"<b>📊 MONTH SUMMARY</b>\n"
+        message += f"{'─' * 40}\n"
+        message += f"{EMOJI_MAP['matches_found']} Dates: <b>{dates_processed}/{dates_total}</b> processed\n"
+        message += f"{EMOJI_MAP['matches_scraped']} Matches: <b>{matches_scraped}/{total_matches}</b> scraped {self._build_progress_bar(matches_scraped, total_matches)}\n"
+        
+        error_details = []
+        if errors > 0:
+            error_details.append(f"{errors} errors")
+        if skipped > 0:
+            error_details.append(f"{skipped} skipped")
+        
+        if error_details:
+            message += f"{EMOJI_MAP['warning']} Issues: {', '.join(error_details)}\n"
+        
+        message += f"{EMOJI_MAP['duration']} Total Duration: <b>{self._format_duration(duration_seconds)}</b>\n\n"
+
+        message += f"<b>💾 STORAGE</b>\n"
+        message += f"{'─' * 40}\n"
+        
+        storage_parts = []
+        if bronze_files > 0:
+            storage_parts.append(f"{EMOJI_MAP['bronze']} Bronze: <b>{bronze_files}</b> files ({self._format_size(bronze_size_mb)})")
+        
+        message += "\n".join(storage_parts) + "\n\n"
+
+        if success_rate >= 95 and errors == 0:
+            message += f"{EMOJI_MAP['success']} <b>Excellent month! All matches scraped successfully!</b>"
+        elif success_rate >= 90:
+            message += f"{EMOJI_MAP['info']} Good month with minor issues"
+        else:
+            message += f"{EMOJI_MAP['warning']} <b>Review required</b> - Success rate: {success_rate:.1f}%"
+
         if context:
             message += f"\n\n<b>📋 CONTEXT</b>\n"
             message += f"{'─' * 40}\n"
@@ -551,6 +606,47 @@ def send_daily_report(
         return reporter.report_fotmob_daily(date=date, **kwargs)
     elif scraper.lower() == 'aiscore':
         return reporter.report_aiscore_daily(date=date, **kwargs)
+    else:
+        reporter.logger.warning(f"Unknown scraper: {scraper}")
+        return False
+
+
+def send_monthly_report(
+    scraper: str,
+    month: Optional[str] = None,
+    dates_processed: int = 0,
+    dates_total: int = 0,
+    total_matches: int = 0,
+    matches_scraped: int = 0,
+    errors: int = 0,
+    skipped: int = 0,
+    duration_seconds: float = 0,
+    bronze_files: int = 0,
+    bronze_size_mb: float = 0,
+    context: Optional[Dict[str, Any]] = None
+) -> bool:
+    """Send an enriched monthly scraping report via Telegram."""
+    
+    if not month:
+        month = datetime.now().strftime('%Y%m')
+    
+    reporter = get_metrics_reporter()
+    
+    kwargs = {
+        'dates_processed': dates_processed,
+        'dates_total': dates_total,
+        'total_matches': total_matches,
+        'matches_scraped': matches_scraped,
+        'errors': errors,
+        'skipped': skipped,
+        'duration_seconds': duration_seconds,
+        'bronze_files': bronze_files,
+        'bronze_size_mb': bronze_size_mb,
+        'context': context or {},
+    }
+    
+    if scraper.lower() == 'fotmob':
+        return reporter.report_fotmob_monthly(month=month, **kwargs)
     else:
         reporter.logger.warning(f"Unknown scraper: {scraper}")
         return False

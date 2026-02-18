@@ -28,7 +28,7 @@ load_dotenv()
 
 from src.utils.alerting import get_alert_manager, AlertLevel
 from src.utils.logging_utils import setup_logging
-from src.utils.metrics_alerts import send_daily_report
+from src.utils.metrics_alerts import send_daily_report, send_monthly_report
 from src.orchestrator import FotMobOrchestrator
 from config import FotMobConfig
 from utils import (
@@ -68,6 +68,7 @@ class ScrapingStats:
     total_successful: int = 0
     total_failed: int = 0
     total_skipped: int = 0
+    total_duration_seconds: float = 0
 
     def update_from_metrics(self, metrics) -> None:
         """Update stats from orchestrator metrics."""
@@ -76,6 +77,10 @@ class ScrapingStats:
         self.total_successful += metrics.successful_matches
         self.total_failed += metrics.failed_matches
         self.total_skipped += metrics.skipped_matches
+
+    def add_duration(self, duration: float) -> None:
+        """Add duration for a date."""
+        self.total_duration_seconds += duration
 
     def record_failure(self) -> None:
         """Record a date processing failure."""
@@ -377,6 +382,7 @@ def run_scraping(args: argparse.Namespace) -> int:
 
         if metrics:
             stats.update_from_metrics(metrics)
+            stats.add_duration(duration)
             print_date_metrics(metrics)
             
             # Send daily Telegram report
@@ -390,6 +396,22 @@ def run_scraping(args: argparse.Namespace) -> int:
             )
         else:
             stats.record_failure()
+
+    # Send monthly report if scraping multiple dates
+    if len(date_info.dates) > 1:
+        # Get month from first date (format: YYYYMMDD)
+        month = date_info.dates[0][:6] if date_info.dates else None
+        send_monthly_report(
+            scraper='fotmob',
+            month=month,
+            dates_processed=stats.dates_processed,
+            dates_total=len(date_info.dates),
+            total_matches=stats.total_matches,
+            matches_scraped=stats.total_successful,
+            errors=stats.total_failed,
+            skipped=stats.total_skipped,
+            duration_seconds=stats.total_duration_seconds,
+        )
 
     # Print summary
     print_final_summary(stats, len(date_info.dates))
