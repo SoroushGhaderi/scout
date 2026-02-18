@@ -565,15 +565,13 @@ If `src/cli.py` is no longer the intended entry point (replaced by `scripts/scra
 
 **File:** `src/utils/metrics_alerts.py`, line 45
 
-```python
-from src.storage import get_s3_uploader   # ← absolute import inside src/
-```
-
-This will break if the package is installed or run from a different working directory. It should be a relative import:
+**Status:** ✅ FIXED
 
 ```python
-from ..storage import get_s3_uploader
+from ..storage import get_s3_uploader   # ← now uses relative import
 ```
+
+Changed from absolute to relative import to ensure compatibility when installed as a package.
 
 ---
 

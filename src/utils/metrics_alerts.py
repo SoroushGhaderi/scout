@@ -42,7 +42,7 @@ except ImportError:
     requests = None
 
 from .logging_utils import get_logger
-from src.storage import get_s3_uploader
+from ..storage import get_s3_uploader
 
 
 EMOJI_MAP = {
