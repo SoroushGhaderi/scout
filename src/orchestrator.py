@@ -179,11 +179,16 @@ class FotMobOrchestrator(OrchestratorProtocol):
                     
                     if files:
                         try:
-                            self.logger.info(f"Uploading {date_str} to S3...")
-                            if s3_uploader.upload_bronze_backup(bronze_dir, date_str, "fotmob"):
-                                self.logger.info(f"Successfully uploaded {date_str} to S3")
+                            year_month = date_str[:6]
+                            existing_dates = s3_uploader.list_existing_dates("fotmob", year_month)
+                            if date_str in existing_dates:
+                                self.logger.info(f"{date_str} already exists in S3, skipping upload")
                             else:
-                                self.logger.error(f"Failed to upload {date_str} to S3")
+                                self.logger.info(f"Uploading {date_str} to S3...")
+                                if s3_uploader.upload_bronze_backup(bronze_dir, date_str, "fotmob"):
+                                    self.logger.info(f"Successfully uploaded {date_str} to S3")
+                                else:
+                                    self.logger.error(f"Failed to upload {date_str} to S3")
                         except Exception as e:
                             self.logger.error(f"Error uploading to S3 for {date_str}: {e}")
                     else:
