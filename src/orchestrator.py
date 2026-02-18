@@ -164,22 +164,34 @@ class FotMobOrchestrator(OrchestratorProtocol):
             except Exception as e:
                 self.logger.error(f"Error during compression for {date_str}: {e}")
 
+        if self.bronze_only:
+            self.logger.info("Checking S3 backup...")
             s3_uploader = get_s3_uploader()
             if s3_uploader:
                 bronze_dir = f"{self.config.bronze_base_dir}/{date_str}"
                 bronze_path = Path(bronze_dir)
                 
-                if bronze_path.exists() and any(bronze_path.iterdir()):
-                    try:
-                        self.logger.info(f"Uploading {date_str} to S3...")
-                        if s3_uploader.upload_bronze_backup(bronze_dir, date_str, "fotmob"):
-                            self.logger.info(f"Successfully uploaded {date_str} to S3")
-                        else:
-                            self.logger.error(f"Failed to upload {date_str} to S3")
-                    except Exception as e:
-                        self.logger.error(f"Error uploading to S3 for {date_str}: {e}")
+                self.logger.info(f"Checking bronze directory: {bronze_dir}")
+                
+                if bronze_path.exists():
+                    files = list(bronze_path.iterdir())
+                    self.logger.info(f"Bronze directory has {len(files)} files")
+                    
+                    if files:
+                        try:
+                            self.logger.info(f"Uploading {date_str} to S3...")
+                            if s3_uploader.upload_bronze_backup(bronze_dir, date_str, "fotmob"):
+                                self.logger.info(f"Successfully uploaded {date_str} to S3")
+                            else:
+                                self.logger.error(f"Failed to upload {date_str} to S3")
+                        except Exception as e:
+                            self.logger.error(f"Error uploading to S3 for {date_str}: {e}")
+                    else:
+                        self.logger.warning(f"Bronze directory {bronze_dir} is empty, skipping S3 upload")
                 else:
-                    self.logger.warning(f"Bronze directory {bronze_dir} does not exist or is empty, skipping S3 upload")
+                    self.logger.warning(f"Bronze directory {bronze_dir} does not exist, skipping S3 upload")
+            else:
+                self.logger.info("S3 uploader not available (not configured or boto3 not installed)")
 
         metrics.print_summary()
 
