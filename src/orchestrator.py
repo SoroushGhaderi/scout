@@ -168,7 +168,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
             self.logger.info("Checking S3 backup...")
             s3_uploader = get_s3_uploader()
             if s3_uploader:
-                bronze_dir = f"{self.config.bronze_base_dir}/{date_str}"
+                bronze_dir = f"{self.config.bronze_base_dir}/matches/{date_str}"
                 bronze_path = Path(bronze_dir)
                 
                 self.logger.info(f"Checking bronze directory: {bronze_dir}")
