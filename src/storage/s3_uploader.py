@@ -78,21 +78,35 @@ class S3Uploader:
         
         return []
 
-    def create_tar_archive(
+    def create_tar_and_upload(
         self,
         source_dir: str,
         date_str: str,
         scraper_name: str
-    ) -> Optional[str]:
-        """Create a tar archive of bronze layer data for a specific date."""
+    ) -> bool:
+        """Create tar archive and upload to S3 in one operation.
+        
+        Args:
+            source_dir: Source directory containing bronze data
+            date_str: Date string (YYYYMMDD)
+            scraper_name: Name of scraper (fotmob or aiscore)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        if not self.s3_client:
+            self.logger.error("S3 client not initialized")
+            return False
+            
         try:
             year_month = date_str[:6]
             tar_filename = f"{date_str}.tar.gz"
+            s3_key = f"bronze/{scraper_name}/{year_month}/{date_str}.tar.gz"
             
             source_path = Path(source_dir)
             if not source_path.exists():
                 self.logger.warning(f"Source directory does not exist: {source_dir}")
-                return None
+                return False
 
             with tempfile.TemporaryDirectory() as temp_dir:
                 temp_path = Path(temp_dir)
@@ -103,37 +117,21 @@ class S3Uploader:
                 with tarfile.open(tar_path, "w:gz") as tar:
                     tar.add(source_path, arcname=date_str)
                 
-                self.logger.info(f"Tar archive created: {tar_path}")
-                return str(tar_path)
+                self.logger.info(f"Tar archive created, uploading to S3...")
+                
+                self.s3_client.upload_file(
+                    str(tar_path),
+                    self.bucket_name,
+                    s3_key,
+                    ExtraArgs={
+                        'ContentType': 'application/gzip'
+                    }
+                )
+                self.logger.info(f"Uploaded to S3: {s3_key}")
+                return True
 
         except Exception as e:
-            self.logger.error(f"Failed to create tar archive: {e}")
-            return None
-
-    def upload_to_s3(
-        self,
-        local_file: str,
-        s3_key: str
-    ) -> bool:
-        """Upload file to S3."""
-        if not self.s3_client:
-            self.logger.error("S3 client not initialized")
-            return False
-
-        try:
-            self.s3_client.upload_file(
-                local_file,
-                self.bucket_name,
-                s3_key,
-                ExtraArgs={
-                    'ContentType': 'application/gzip'
-                }
-            )
-            self.logger.info(f"Uploaded to S3: {s3_key}")
-            return True
-
-        except Exception as e:
-            self.logger.error(f"Failed to upload to S3: {e}")
+            self.logger.error(f"Failed to create and upload tar archive: {e}")
             return False
 
     def upload_bronze_backup(
@@ -147,31 +145,15 @@ class S3Uploader:
         Saves as: bronze/{scraper}/YYYYMM/YYYYMMDD.tar.gz
 
         Args:
-            bronze_dir: Bronze layer directory path (e.g., data/fotmob/20250901)
+            bronze_dir: Bronze layer directory path (e.g., data/fotmob/matches/20250901)
             date_str: Date string (YYYYMMDD)
             scraper_name: Name of scraper (fotmob or aiscore)
 
         Returns:
             True if successful, False otherwise
         """
-        year_month = date_str[:6]
-        s3_key = f"bronze/{scraper_name}/{year_month}/{date_str}.tar.gz"
-        
         self.logger.info(f"Starting bronze backup upload for {scraper_name} on {date_str}")
-        
-        tar_path = self.create_tar_archive(bronze_dir, date_str, scraper_name)
-        if not tar_path:
-            self.logger.error("Failed to create tar archive")
-            return False
-        
-        success = self.upload_to_s3(tar_path, s3_key)
-        
-        try:
-            os.remove(tar_path)
-        except:
-            pass
-        
-        return success
+        return self.create_tar_and_upload(bronze_dir, date_str, scraper_name)
 
 
 def get_s3_uploader() -> Optional[S3Uploader]:
