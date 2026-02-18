@@ -1,16 +1,14 @@
-﻿"""
+"""
 
 AIScore scraper configuration.
 
 Configuration is loaded from:
-1. config.yaml - Application settings (primary source)
-2. .env file - Environment-specific & sensitive data (overrides)
+1. config.yaml - Application settings (required)
+2. .env file - Sensitive data overrides (tokens, secrets)
+
+All non-sensitive settings must be defined in config.yaml.
 
 """
-
-
-
-
 
 import os
 from dataclasses import dataclass, field
@@ -23,133 +21,91 @@ from .base import BaseConfig, StorageConfig, LoggingConfig, MetricsConfig, Retry
 @dataclass
 class ScrollConfig:
     """Scrolling configuration for link scraping."""
-    increment: int = 500
-    pause: float = 0.3
-    max_no_change: int = 8
-    smart_wait_interval: float = 0.2
-    smart_wait_timeout: float = 3.0
+    increment: int
+    pause: float
+    max_no_change: int
+    smart_wait_interval: float
+    smart_wait_timeout: float
 
 
 @dataclass
 class TimeoutConfig:
     """Timeout configuration."""
-    page_load: int = 30
-    element_wait: int = 10
-    cloudflare_max: int = 15
-    script_timeout: int = 30
+    page_load: int
+    element_wait: int
+    cloudflare_max: int
+    script_timeout: int
 
 
 @dataclass
 class NavigationConfig:
     """Navigation delay configuration."""
-    homepage_load: float = 0.5
-    date_page_load: float = 0.5
-    tab_click: float = 0.5
+    homepage_load: float
+    date_page_load: float
+    tab_click: float
 
 
 @dataclass
 class DelayConfig:
     """Delay configuration for odds scraping."""
-    between_dates: float = 1.0
-    between_matches: float = 0.5
-    initial_load: float = 0.5
-    after_click: float = 0.3
-    tab_scroll: float = 0.3
-    content_check_interval: float = 0.1
-    content_fallback: float = 0.5
+    between_dates: float
+    between_matches: float
+    initial_load: float
+    after_click: float
+    tab_scroll: float
+    content_check_interval: float
+    content_fallback: float
 
 
 @dataclass
 class ScrapingConfig:
     """Scraping behavior configuration."""
-    base_url: str = "https://www.aiscore.com"
-    filter_by_importance: bool = False
-    filter_by_countries: bool = True
-    filter_by_leagues: bool = False
-    allowed_countries: List[str] = field(
-        default_factory=lambda: [
-            "England",
-            "Spain",
-            "Germany",
-            "Italy",
-            "France",
-            "Portugal",
-            "Netherlands",
-            "Belgium",
-            "Turkey",
-            "Poland",
-            "Austria",
-            "Switzerland",
-            "Scotland",
-            "Denmark",
-            "Sweden",
-            "Norway",
-            "Brazil",
-            "Argentina",
-            "Japan",
-            "Saudi Arabia",
-            "International",
-            "World Cup",
-            "Euro",
-            "UEFA Champions League",
-            "UEFA Europa League",
-            "UEFA Europa Conference League",
-            "Europe",
-            "Africa",
-            "Asia",
-            "North America",
-            "South America",
-            "Oceania",
-        ]
-    )
-    allowed_leagues: List[str] = field(default_factory=list)
-    extract_team_names_during_link_scraping: bool = False
-    scroll: ScrollConfig = field(default_factory=ScrollConfig)
-    timeouts: TimeoutConfig = field(default_factory=TimeoutConfig)
-    navigation: NavigationConfig = field(default_factory=NavigationConfig)
-    delays: DelayConfig = field(default_factory=DelayConfig)
+    base_url: str
+    filter_by_importance: bool
+    filter_by_countries: bool
+    filter_by_leagues: bool
+    allowed_countries: List[str]
+    allowed_leagues: List[str]
+    extract_team_names_during_link_scraping: bool
+    scroll: ScrollConfig
+    timeouts: TimeoutConfig
+    navigation: NavigationConfig
+    delays: DelayConfig
 
 
 @dataclass
 class BrowserConfig:
     """Browser configuration for Selenium."""
-    headless: bool = True
-    window_size: str = "1920x1080"
-    block_images: bool = True
-    block_css: bool = True
-    block_fonts: bool = True
-    block_media: bool = True
-    user_agent: str = (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/120.0.0.0 Safari/537.36"
-    )
+    headless: bool
+    window_size: str
+    block_images: bool
+    block_css: bool
+    block_fonts: bool
+    block_media: bool
+    user_agent: str
 
 
 @dataclass
 class SelectorsConfig:
     """CSS selectors configuration."""
-    match_container: str = ".match-container"
-    all_tab: str = ".changeTabBox .changeItem"
-    match_link: str = "a[href*='/match']"
+    match_container: str
+    all_tab: str
+    match_link: str
 
 
 @dataclass
 class ValidationConfig:
     """URL validation configuration."""
-    excluded_paths: List[str] = field(default_factory=lambda: [
-        "/h2h", "/statistics", "/odds", "/predictions", "/lineups"
-    ])
-    required_pattern: str = "/match"
+    excluded_paths: List[str]
+    required_pattern: str
 
 
 class AIScoreConfig(BaseConfig):
     """
+
     AIScore scraper configuration.
 
-    Configuration is loaded from:
-    1. config.yaml - Application settings (primary source)
-    2. .env file - Environment-specific & sensitive data (overrides)
+    Configuration is loaded from config.yaml (required) with .env overrides.
 
     Usage:
 
@@ -160,43 +116,39 @@ class AIScoreConfig(BaseConfig):
         print(config.storage.bronze_path)
 
     See config.yaml for all available configuration options.
+
     """
 
-
-
-
-
-
-
-
     def __init__(self):
-        """Initialize AIScore configuration from YAML and environment variables."""
+        """Initialize AIScore configuration from config.yaml."""
+        self._yaml_config = self._load_yaml_config(required_keys=['aiscore'])
         self._load_config()
         self._apply_env_overrides()
         self._ensure_directories()
 
     def _load_config(self):
-        """Initialize configuration from config.yaml with defaults as fallback."""
-        # Get AISCORE config from YAML or use defaults
-        yaml_aiscore = self._yaml_config.get('aiscore', {}) if hasattr(self, '_yaml_config') else {}
+        """Initialize configuration from config.yaml (no defaults)."""
+        yaml_aiscore = self._yaml_config.get('aiscore', {})
         
         storage_config = yaml_aiscore.get('storage', {})
+        if not storage_config.get('bronze_path'):
+            raise ValueError("aiscore.storage.bronze_path is required in config.yaml")
+            
         self.storage = StorageConfig(
-            bronze_path=storage_config.get('bronze_path', "data/aiscore"),
+            bronze_path=storage_config['bronze_path'],
             enabled=storage_config.get('enabled', True),
         )
 
         scraping_config = yaml_aiscore.get('scraping', {})
+        if not scraping_config.get('base_url'):
+            raise ValueError("aiscore.scraping.base_url is required in config.yaml")
+            
         scroll_config = scraping_config.get('scroll', {})
-        timeouts_config = scraping_config.get('timeouts', {})
-        navigation_config = scraping_config.get('navigation', {})
-        delays_config = scraping_config.get('delays', {})
-        
         self.scraping = ScrapingConfig(
-            base_url=scraping_config.get('base_url', "https://www.aiscore.com"),
+            base_url=scraping_config['base_url'],
             filter_by_importance=scraping_config.get('filter_by_importance', False),
             filter_by_countries=scraping_config.get('filter_by_countries', False),
-            filter_by_leagues=scraping_config.get('filter_by_leagues', True),
+            filter_by_leagues=scraping_config.get('filter_by_leagues', False),
             allowed_countries=scraping_config.get('allowed_countries', []),
             allowed_leagues=scraping_config.get('allowed_leagues', []),
             extract_team_names_during_link_scraping=scraping_config.get('extract_team_names_during_link_scraping', False),
@@ -208,49 +160,49 @@ class AIScoreConfig(BaseConfig):
                 smart_wait_timeout=scroll_config.get('smart_wait_timeout', 3.0),
             ),
             timeouts=TimeoutConfig(
-                page_load=timeouts_config.get('page_load', 30),
-                element_wait=timeouts_config.get('element_wait', 10),
-                cloudflare_max=timeouts_config.get('cloudflare_max', 15),
-                script_timeout=timeouts_config.get('script_timeout', 30),
+                page_load=scraping_config.get('page_load', 30),
+                element_wait=scraping_config.get('element_wait', 10),
+                cloudflare_max=scraping_config.get('cloudflare_max', 15),
+                script_timeout=scraping_config.get('script_timeout', 30),
             ),
             navigation=NavigationConfig(
-                homepage_load=navigation_config.get('homepage_load', 0.5),
-                date_page_load=navigation_config.get('date_page_load', 0.5),
-                tab_click=navigation_config.get('tab_click', 0.5),
+                homepage_load=scraping_config.get('homepage_load', 0.5),
+                date_page_load=scraping_config.get('date_page_load', 0.5),
+                tab_click=scraping_config.get('tab_click', 0.5),
             ),
             delays=DelayConfig(
-                between_dates=delays_config.get('between_dates', 1.0),
-                between_matches=delays_config.get('between_matches', 0.5),
-                initial_load=delays_config.get('initial_load', 0.5),
-                after_click=delays_config.get('after_click', 0.3),
-                tab_scroll=delays_config.get('tab_scroll', 0.3),
-                content_check_interval=delays_config.get('content_check_interval', 0.1),
-                content_fallback=delays_config.get('content_fallback', 0.5),
+                between_dates=scraping_config.get('between_dates', 1.0),
+                between_matches=scraping_config.get('between_matches', 0.5),
+                initial_load=scraping_config.get('initial_load', 0.5),
+                after_click=scraping_config.get('after_click', 0.3),
+                tab_scroll=scraping_config.get('tab_scroll', 0.3),
+                content_check_interval=scraping_config.get('content_check_interval', 0.1),
+                content_fallback=scraping_config.get('content_fallback', 0.5),
             ),
         )
 
         browser_config = yaml_aiscore.get('browser', {})
         self.browser = BrowserConfig(
             headless=browser_config.get('headless', True),
-            window_size=browser_config.get('window_size', "1920x1080"),
+            window_size=browser_config.get('window_size', '1920x1080'),
             block_images=browser_config.get('block_images', True),
             block_css=browser_config.get('block_css', True),
             block_fonts=browser_config.get('block_fonts', True),
             block_media=browser_config.get('block_media', True),
-            user_agent=browser_config.get('user_agent', BrowserConfig.user_agent),
+            user_agent=browser_config.get('user_agent', ''),
         )
 
         selectors_config = yaml_aiscore.get('selectors', {})
         self.selectors = SelectorsConfig(
-            match_container=selectors_config.get('match_container', ".match-container"),
-            all_tab=selectors_config.get('all_tab', ".changeTabBox .changeItem"),
+            match_container=selectors_config.get('match_container', '.match-container'),
+            all_tab=selectors_config.get('all_tab', '.changeTabBox .changeItem'),
             match_link=selectors_config.get('match_link', "a[href*='/match']"),
         )
 
         validation_config = yaml_aiscore.get('validation', {})
         self.validation = ValidationConfig(
-            excluded_paths=validation_config.get('excluded_paths', ["/h2h", "/statistics", "/odds", "/predictions", "/lineups"]),
-            required_pattern=validation_config.get('required_pattern', "/match"),
+            excluded_paths=validation_config.get('excluded_paths', ['/h2h', '/statistics', '/odds', '/predictions', '/lineups']),
+            required_pattern=validation_config.get('required_pattern', '/match'),
         )
 
         retry_config = yaml_aiscore.get('retry', {})
@@ -265,23 +217,23 @@ class AIScoreConfig(BaseConfig):
 
         aiscore_logging = yaml_aiscore.get('logging', {})
         self.logging = LoggingConfig(
-            level=aiscore_logging.get('level', "INFO"),
-            format=aiscore_logging.get('format', "%(asctime)s - %(name)s - %(levelname)s - %(message)s"),
-            file=aiscore_logging.get('file', "logs/aiscore_scraper.log"),
+            level=aiscore_logging.get('level', 'INFO'),
+            format=aiscore_logging.get('format', '%(asctime)s - %(name)s - %(levelname)s - %(message)s'),
+            file=aiscore_logging.get('file', 'logs/aiscore_scraper.log'),
             max_bytes=aiscore_logging.get('max_bytes', 10485760),
             backup_count=aiscore_logging.get('backup_count', 5),
-            dir=aiscore_logging.get('dir', "logs"),
+            dir=aiscore_logging.get('dir', 'logs'),
         )
 
         aiscore_metrics = yaml_aiscore.get('metrics', {})
         self.metrics = MetricsConfig(
             enabled=aiscore_metrics.get('enabled', True),
-            export_path=aiscore_metrics.get('export_path', "metrics"),
-            export_format=aiscore_metrics.get('export_format', "json"),
+            export_path=aiscore_metrics.get('export_path', 'metrics'),
+            export_format=aiscore_metrics.get('export_format', 'json'),
         )
 
     def _apply_env_overrides(self):
-        """Load configuration from environment variables (.env file)."""
+        """Apply environment variable overrides for sensitive data."""
         super()._apply_env_overrides()
 
         if os.getenv('AISCORE_BRONZE_PATH'):
@@ -380,7 +332,6 @@ class AIScoreConfig(BaseConfig):
         if os.getenv('AISCORE_RETRY_MAX_WAIT'):
             self.retry.max_wait = float(os.getenv('AISCORE_RETRY_MAX_WAIT'))
 
-
     @property
     def bronze_layer(self):
         """Backward compatibility: access storage as bronze_layer."""
@@ -402,4 +353,3 @@ class AIScoreConfig(BaseConfig):
     def ensure_directories(self):
         """Ensure all required directories exist."""
         super().ensure_directories()
-

@@ -1,4 +1,4 @@
-﻿"""
+"""
 Base configuration classes for unified scraper configuration system.
 
 Configuration is loaded from:
@@ -108,28 +108,44 @@ class BaseConfig(ABC):
         self._ensure_directories()
 
     @staticmethod
-    def _load_yaml_config() -> Dict[str, Any]:
+    def _load_yaml_config(required_keys: Optional[List[str]] = None) -> Dict[str, Any]:
         """Load configuration from config.yaml file.
         
+        Args:
+            required_keys: List of required top-level keys. If missing, raises error.
+            
         Returns:
-            Dictionary with configuration from YAML, or empty dict if file not found
+            Dictionary with configuration from YAML
+            
+        Raises:
+            FileNotFoundError: If config.yaml doesn't exist
+            ValueError: If required keys are missing from config.yaml
         """
         config_path = os.getenv('CONFIG_FILE_PATH', 'config.yaml')
         if not Path(config_path).exists():
-            # Try relative to this config directory
             config_path = Path(__file__).parent.parent / 'config.yaml'
         
         if not Path(config_path).exists():
-            return {}
+            raise FileNotFoundError(
+                f"config.yaml not found at {config_path}. "
+                f"Please create config.yaml with required settings."
+            )
         
-        try:
-            if yaml is None:
-                return {}
-            with open(config_path, 'r') as f:
-                return yaml.safe_load(f) or {}
-        except Exception as e:
-            print(f"Warning: Could not load config.yaml: {e}")
-            return {}
+        if yaml is None:
+            raise ImportError("PyYAML is required. Install with: pip install pyyaml")
+        
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f) or {}
+        
+        if required_keys:
+            missing = [k for k in required_keys if k not in config]
+            if missing:
+                raise ValueError(
+                    f"Missing required sections in config.yaml: {missing}. "
+                    f"Please add these sections to config.yaml."
+                )
+        
+        return config
 
     @abstractmethod
     def _load_config(self) -> None:

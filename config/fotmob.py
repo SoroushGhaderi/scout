@@ -3,14 +3,12 @@
 FotMob scraper configuration.
 
 Configuration is loaded from:
-1. config.yaml - Application settings (primary source)
-2. .env file - Environment-specific & sensitive data (overrides)
+1. config.yaml - Application settings (required)
+2. .env file - Sensitive data overrides (tokens, secrets)
+
+All non-sensitive settings must be defined in config.yaml.
 
 """
-
-
-
-
 
 import os
 import json
@@ -25,26 +23,15 @@ from .base import BaseConfig, StorageConfig, LoggingConfig, MetricsConfig, Retry
 @dataclass
 class ApiConfig:
     """FotMob API configuration."""
-    base_url: str = "https://www.fotmob.com/api/data"
-    user_agent: str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+    base_url: str
+    user_agent: str
     x_mas_token: str = ""
     cookies: str = ""
-    user_agents: List[str] = field(default_factory=lambda: [
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:122.0) Gecko/20100101 Firefox/122.0",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0",
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
-    ])
+    user_agents: List[str] = field(default_factory=list)
 
     def get_headers(self, referer: str = "https://www.fotmob.com/") -> Dict[str, str]:
         """Get HTTP headers for API requests with random User-Agent."""
-        user_agent = random.choice(self.user_agents)
+        user_agent = random.choice(self.user_agents) if self.user_agents else self.user_agent
         headers = {
             "accept": "*/*",
             "accept-language": "en-US,en;q=0.9,fa;q=0.8",
@@ -75,36 +62,34 @@ class ApiConfig:
 @dataclass
 class RequestConfig:
     """HTTP request configuration."""
-    timeout: int = 30
-    delay_min: float = 2.0
-    delay_max: float = 4.0
+    timeout: int
+    delay_min: float
+    delay_max: float
 
 
 @dataclass
 class ScrapingConfig:
     """Scraping behavior configuration."""
-    max_workers: int = 1
-    enable_parallel: bool = False
-    metrics_update_interval: int = 20
-    filter_by_status: bool = True
-    allowed_match_statuses: tuple = field(default_factory=lambda: (
-        "Finished", "FullTime", "FT",
-        "After Extra Time", "AET",
-        "After Penalties", "AP"
-    ))
+    max_workers: int
+    enable_parallel: bool
+    enable_caching: bool = True
+    cache_ttl_hours: int = 24
+    metrics_update_interval: int
+    filter_by_status: bool
+    allowed_match_statuses: tuple
 
 
 @dataclass
 class DataQualityConfig:
     """Data quality checking configuration."""
-    enabled: bool = True
-    fail_on_issues: bool = False
+    enabled: bool
+    fail_on_issues: bool
 
 
 @dataclass
 class ProxyConfig:
     """Proxy configuration."""
-    enabled: bool = False
+    enabled: bool
     http: str = ""
     https: str = ""
 
@@ -114,7 +99,7 @@ class FotMobConfig(BaseConfig):
 
     FotMob scraper configuration.
 
-    Configuration is read ONLY from environment variables (.env file).
+    Configuration is loaded from config.yaml (required) with .env overrides.
 
     Usage:
 
@@ -124,92 +109,64 @@ class FotMobConfig(BaseConfig):
 
         print(config.storage.bronze_path)
 
-    Required Environment Variables:
-
+    Sensitive data (tokens) should be in .env file:
         FOTMOB_X_MAS_TOKEN: API authentication token
-
-    See .env.example for all available configuration options.
 
     """
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def __init__(self):
-        """Initialize FotMob configuration from environment variables."""
+        """Initialize FotMob configuration from config.yaml."""
+        self._yaml_config = self._load_yaml_config(required_keys=['fotmob'])
         self._load_config()
         self._apply_env_overrides()
         self._ensure_directories()
 
     def _load_config(self):
-        """Initialize configuration from config.yaml with defaults as fallback."""
-        # Get FOTMOB config from YAML or use defaults
-        yaml_fotmob = self._yaml_config.get('fotmob', {}) if hasattr(self, '_yaml_config') else {}
+        """Initialize configuration from config.yaml (no defaults)."""
+        yaml_fotmob = self._yaml_config.get('fotmob', {})
         
-        # Initialize with defaults first
-        default_user_agents = [
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:122.0) Gecko/20100101 Firefox/122.0",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-        ]
-
         api_config = yaml_fotmob.get('api', {})
+        if not api_config.get('base_url'):
+            raise ValueError("fotmob.api.base_url is required in config.yaml")
+        if not api_config.get('user_agents'):
+            raise ValueError("fotmob.api.user_agents is required in config.yaml")
+            
         self.api = ApiConfig(
-            base_url=api_config.get('base_url', "https://www.fotmob.com/api/data"),
-            user_agent=api_config.get('user_agent', ApiConfig.user_agent),
-            x_mas_token="",  # Will be loaded from .env
-            user_agents=api_config.get('user_agents', default_user_agents),
+            base_url=api_config['base_url'],
+            user_agent=api_config.get('user_agent', ''),
+            x_mas_token="",
+            user_agents=api_config['user_agents'],
         )
 
         request_config = yaml_fotmob.get('request', {})
         self.request = RequestConfig(
-            timeout=request_config.get('timeout', 30),
-            delay_min=request_config.get('delay_min', 2.0),
-            delay_max=request_config.get('delay_max', 4.0),
+            timeout=request_config['timeout'],
+            delay_min=request_config['delay_min'],
+            delay_max=request_config['delay_max'],
         )
 
         scraping_config = yaml_fotmob.get('scraping', {})
         self.scraping = ScrapingConfig(
-            max_workers=scraping_config.get('max_workers', 1),
-            enable_parallel=scraping_config.get('enable_parallel', False),
-            metrics_update_interval=scraping_config.get('metrics_update_interval', 20),
-            filter_by_status=scraping_config.get('filter_by_status', True),
-            allowed_match_statuses=tuple(scraping_config.get('allowed_match_statuses', [
-                "Finished", "FullTime", "FT",
-                "After Extra Time", "AET",
-                "After Penalties", "AP"
-            ])),
+            max_workers=scraping_config['max_workers'],
+            enable_parallel=scraping_config['enable_parallel'],
+            enable_caching=scraping_config.get('enable_caching', True),
+            cache_ttl_hours=scraping_config.get('cache_ttl_hours', 24),
+            metrics_update_interval=scraping_config['metrics_update_interval'],
+            filter_by_status=scraping_config['filter_by_status'],
+            allowed_match_statuses=tuple(scraping_config['allowed_match_statuses']),
         )
 
         storage_config = yaml_fotmob.get('storage', {})
         self.storage = StorageConfig(
-            bronze_path=storage_config.get('bronze_path', "data/fotmob"),
+            bronze_path=storage_config['bronze_path'],
             enabled=storage_config.get('enabled', True),
         )
 
         retry_config = yaml_fotmob.get('retry', {})
         self.retry = RetryConfig(
-            max_attempts=retry_config.get('max_attempts', 3),
-            initial_wait=retry_config.get('initial_wait', 2.0),
-            max_wait=retry_config.get('max_wait', 10.0),
+            max_attempts=retry_config['max_attempts'],
+            initial_wait=retry_config['initial_wait'],
+            max_wait=retry_config['max_wait'],
             exponential_base=retry_config.get('exponential_base', 2.0),
             backoff_factor=retry_config.get('backoff_factor', 2.0),
             status_codes=tuple(retry_config.get('status_codes', [429, 500, 502, 503, 504])),
@@ -217,19 +174,19 @@ class FotMobConfig(BaseConfig):
 
         fotmob_logging = yaml_fotmob.get('logging', {})
         self.logging = LoggingConfig(
-            level=fotmob_logging.get('level', "INFO"),
-            format=fotmob_logging.get('format', "%(asctime)s - %(name)s - %(levelname)s - %(message)s"),
-            file=fotmob_logging.get('file', "logs/fotmob_scraper.log"),
+            level=fotmob_logging.get('level', 'INFO'),
+            format=fotmob_logging.get('format', '%(asctime)s - %(name)s - %(levelname)s - %(message)s'),
+            file=fotmob_logging.get('file', 'logs/fotmob_scraper.log'),
             max_bytes=fotmob_logging.get('max_bytes', 10485760),
             backup_count=fotmob_logging.get('backup_count', 5),
-            dir=fotmob_logging.get('dir', "logs"),
+            dir=fotmob_logging.get('dir', 'logs'),
         )
 
         fotmob_metrics = yaml_fotmob.get('metrics', {})
         self.metrics = MetricsConfig(
             enabled=fotmob_metrics.get('enabled', True),
-            export_path=fotmob_metrics.get('export_path', "metrics"),
-            export_format=fotmob_metrics.get('export_format', "json"),
+            export_path=fotmob_metrics.get('export_path', 'metrics'),
+            export_format=fotmob_metrics.get('export_format', 'json'),
         )
 
         data_quality_config = yaml_fotmob.get('data_quality', {})
@@ -244,15 +201,18 @@ class FotMobConfig(BaseConfig):
         )
 
     def _apply_env_overrides(self):
-        """Load configuration from environment variables (.env file)."""
+        """Apply environment variable overrides for sensitive data."""
         super()._apply_env_overrides()
 
         if os.getenv('FOTMOB_X_MAS_TOKEN'):
             self.api.x_mas_token = os.getenv('FOTMOB_X_MAS_TOKEN')
+        if os.getenv('FOTMOB_COOKIES'):
+            self.api.cookies = os.getenv('FOTMOB_COOKIES')
         if os.getenv('FOTMOB_USER_AGENT'):
             self.api.user_agent = os.getenv('FOTMOB_USER_AGENT')
         if os.getenv('FOTMOB_API_BASE_URL'):
             self.api.base_url = os.getenv('FOTMOB_API_BASE_URL')
+
         if os.getenv('FOTMOB_REQUEST_TIMEOUT'):
             self.request.timeout = int(os.getenv('FOTMOB_REQUEST_TIMEOUT'))
         if os.getenv('FOTMOB_DELAY_MIN'):
@@ -299,7 +259,6 @@ class FotMobConfig(BaseConfig):
             self.proxy.http = os.getenv('FOTMOB_PROXY_HTTP')
         if os.getenv('FOTMOB_PROXY_HTTPS'):
             self.proxy.https = os.getenv('FOTMOB_PROXY_HTTPS')
-
 
     @property
     def api_base_url(self) -> str:
@@ -441,4 +400,3 @@ class FotMobConfig(BaseConfig):
     def get_headers(self) -> Dict[str, str]:
         """Get HTTP headers for API requests."""
         return self.api.get_headers()
-
