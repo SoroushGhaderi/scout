@@ -11,6 +11,7 @@ import json
 import sys
 import time
 from pathlib import Path
+from typing import Optional, Tuple
 
 ROOT = Path(__file__).parent.parent
 
@@ -28,18 +29,46 @@ def get_chrome_turnstile() -> str:
     return ""
 
 
-def check_age(tv: str) -> str:
-    parts = tv.split(".")
+def get_turnstile_age_seconds(turnstile_value: str) -> Optional[int]:
+    """Get age of turnstile token in seconds. Returns None if format is invalid."""
+    parts = turnstile_value.split(".")
     if len(parts) == 3:
         try:
-            age = int(time.time()) - int(parts[1])
-            remaining = 3600 - age
-            if remaining > 0:
-                return f"VALID (~{remaining // 60}m {remaining % 60}s remaining)"
-            return f"EXPIRED ({-remaining // 60}m ago)"
+            created_time = int(parts[1])
+            age = int(time.time()) - created_time
+            return age
         except ValueError:
             pass
-    return "unknown format"
+    return None
+
+
+def get_turnstile_age_info(turnstile_value: str) -> Tuple[Optional[int], str]:
+    """Get turnstile age in seconds and human-readable status.
+    
+    Returns:
+        Tuple of (age_seconds, status_string)
+    """
+    age_seconds = get_turnstile_age_seconds(turnstile_value)
+    
+    if age_seconds is None:
+        return None, "unknown format"
+    
+    if age_seconds < 0:
+        return age_seconds, f"future ({-age_seconds}s ahead)"
+    
+    remaining = 3600 - age_seconds
+    if remaining > 0:
+        minutes = remaining // 60
+        seconds = remaining % 60
+        return age_seconds, f"valid ({minutes}m {seconds}s remaining)"
+    else:
+        minutes_ago = (-remaining) // 60
+        return age_seconds, f"expired ({minutes_ago}m ago)"
+
+
+def check_age(tv: str) -> str:
+    _, status = get_turnstile_age_info(tv)
+    return status
 
 
 def update_credentials_json(tv: str) -> bool:
@@ -65,6 +94,49 @@ def update_credentials_json(tv: str) -> bool:
     except Exception as e:
         print(f"Error updating credentials.json: {e}")
         return False
+
+
+def refresh_if_needed(max_age_seconds: int = 1800) -> Tuple[bool, Optional[str]]:
+    """Check turnstile age and refresh if needed.
+    
+    Args:
+        max_age_seconds: Maximum age before refresh (default 30 minutes = 1800 seconds)
+        
+    Returns:
+        Tuple of (was_refreshed, message)
+    """
+    creds_path = ROOT / "credentials.json"
+    if not creds_path.exists():
+        return False, "credentials.json not found"
+    
+    try:
+        with open(creds_path, "r") as f:
+            data = json.load(f)
+        
+        current_tv = data.get("cookies", {}).get("turnstile_verified", "")
+        if not current_tv:
+            # No turnstile, try to get from Chrome
+            new_tv = get_chrome_turnstile()
+            if new_tv and update_credentials_json(new_tv):
+                age, status = get_turnstile_age_info(new_tv)
+                return True, f"Refreshed (no existing token), age: {status}"
+            return False, "No turnstile token found"
+        
+        age_seconds, status = get_turnstile_age_info(current_tv)
+        
+        if age_seconds is not None and age_seconds >= max_age_seconds:
+            # Token is too old, refresh from Chrome
+            new_tv = get_chrome_turnstile()
+            if new_tv:
+                if update_credentials_json(new_tv):
+                    new_age, new_status = get_turnstile_age_info(new_tv)
+                    return True, f"Refreshed (age was {status}), new age: {new_status}"
+            return False, f"Token expired ({status}), refresh failed"
+        
+        return False, f"Token valid, age: {status}"
+        
+    except Exception as e:
+        return False, f"Error: {str(e)}"
 
 
 def main():

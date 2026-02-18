@@ -29,6 +29,7 @@ load_dotenv()
 from src.utils.alerting import get_alert_manager, AlertLevel
 from src.utils.logging_utils import setup_logging
 from src.utils.metrics_alerts import send_daily_report, send_monthly_report
+from scripts.refresh_turnstile import refresh_if_needed
 from src.orchestrator import FotMobOrchestrator
 from config import FotMobConfig
 from utils import (
@@ -394,6 +395,13 @@ def run_scraping(args: argparse.Namespace) -> int:
                 skipped=metrics.skipped_matches,
                 duration_seconds=duration,
             )
+            
+            # Check and refresh turnstile if needed (every 30 minutes)
+            was_refreshed, turnstile_status = refresh_if_needed(max_age_seconds=1800)
+            if was_refreshed:
+                logger.info(f"Turnstile refreshed: {turnstile_status}")
+            else:
+                logger.debug(f"Turnstile status: {turnstile_status}")
         else:
             stats.record_failure()
 
