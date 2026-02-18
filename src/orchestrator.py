@@ -129,7 +129,6 @@ class FotMobOrchestrator(OrchestratorProtocol):
             if already_complete:
                 self.logger.info(f"Date {date_str} already complete ({completion_pct:.0f}%), skipping scrape, proceeding with compression/S3")
                 metrics.skipped_matches = metrics.total_matches
-                metrics.successful_matches = metrics.total_matches
                 self.logger.info(f"Set metrics: total={metrics.total_matches}, successful={metrics.successful_matches}, skipped={metrics.skipped_matches}")
 
             if already_complete:
