@@ -9,11 +9,11 @@ How FotMob authentication works:
      The signing constants (foo hash and lyrics) are embedded in FotMob's webpack
      bundle and extracted on first use via a short-lived Playwright session.
 
-  2. The `matchDetails` endpoint also requires a valid `turnstile_verified` cookie
+     2. The `matchDetails` endpoint also requires a valid `turnstile_verified` cookie
      (Cloudflare Turnstile, expires every hour).  This is read automatically from
      the user's Chrome browser cookie store via `browser-cookie3`.  When Chrome
      cookies are unavailable (e.g. in Docker), the class falls back to credentials
-     stored in `fotmob_credentials.py`.
+     stored in `credentials.json` (mounted via Docker volume).
 
 All HTTP requests are made with `curl_cffi` which impersonates Chrome's TLS
 fingerprint, bypassing Cloudflare's TLS-based bot detection.
@@ -318,7 +318,7 @@ class PlaywrightFetcher:
           (b) any other session cookies.
         - Chrome cookies (via browser-cookie3) are the freshest source for
           both, but turnstile_verified expires every hour and may be absent.
-        - Stored credentials (fotmob_credentials.py) are the fallback for
+        - Stored credentials (credentials.json) are the fallback for
           turnstile_verified when Chrome doesn't have a valid one.
         - Final result = Chrome cookies (if available) with the best available
           turnstile_verified injected on top.
@@ -357,7 +357,7 @@ class PlaywrightFetcher:
         else:
             self.logger.warning(
                 "No valid turnstile_verified found in Chrome or stored credentials. "
-                "Visit fotmob.com in Chrome to refresh it, then update fotmob_credentials.py."
+                "Visit fotmob.com in Chrome to refresh it, then run refresh_turnstile.py."
             )
 
         return base
@@ -423,10 +423,7 @@ class PlaywrightFetcher:
 
             creds_path = Path(__file__).parent.parent.parent.parent / "credentials.json"
             if not creds_path.exists():
-                # Fallback to fotmob_credentials.py for backward compatibility
-                creds_path = Path(__file__).parent.parent.parent.parent / "fotmob_credentials.py"
-            
-            if not creds_path.exists():
+                self.logger.warning(f"credentials.json not found at {creds_path}")
                 return None
 
             with open(creds_path, "r") as f:
