@@ -143,6 +143,7 @@ class FotMobConfig(BaseConfig):
         """Initialize FotMob configuration from environment variables."""
         self._load_config()
         self._apply_env_overrides()
+        self._load_credentials_from_json()
         self._ensure_directories()
 
     def _load_config(self):
@@ -216,6 +217,36 @@ class FotMobConfig(BaseConfig):
             enabled=True,
             fail_on_issues=False,
         )
+
+    def _load_credentials_from_json(self):
+        """Load x_mas_token and cookies from fotmob_credentials.json."""
+        import json
+        from pathlib import Path
+        from ..utils.logging_utils import get_logger
+        
+        logger = get_logger()
+        json_path = Path(__file__).parent.parent.parent / 'fotmob_credentials.json'
+        
+        if not json_path.exists():
+            logger.warning(f"Credentials file not found: {json_path}")
+            return
+        
+        try:
+            with open(json_path, 'r') as f:
+                creds = json.load(f)
+            
+            if creds.get('x_mas_token'):
+                self.api.x_mas_token = creds['x_mas_token']
+                logger.info("Loaded x_mas_token from credentials file")
+            
+            if creds.get('cookies'):
+                cookies = creds['cookies']
+                cookies_json = json.dumps(cookies, separators=(',', ': '))
+                self.api.cookies = cookies_json
+                logger.info(f"Loaded {len(cookies)} cookies from credentials file")
+                
+        except Exception as e:
+            logger.warning(f"Failed to load credentials from JSON: {e}")
 
     def _apply_env_overrides(self):
         """Load configuration from environment variables (.env file)."""

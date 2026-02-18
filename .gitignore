@@ -187,3 +187,4 @@ temp/
 # Backup files
 *.bak
 *.backup
+fotmob_credentials.json
