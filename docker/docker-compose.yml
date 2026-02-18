@@ -54,6 +54,8 @@ services:
       - ../scripts:/app/scripts
       # Source code (for development - allows live code changes)
       - ../src:/app/src
+      # Credentials — hot-reloaded by the scraper, no restart needed after refresh_turnstile.py
+      - ../fotmob_credentials.py:/app/fotmob_credentials.py:ro
       # ClickHouse init scripts (for table creation via Python script)
       - ../clickhouse:/app/clickhouse:ro
     environment:

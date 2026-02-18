@@ -411,30 +411,9 @@ class PlaywrightFetcher:
         return None
 
     def _get_stored_credentials_cookies(self) -> Dict[str, str]:
-        """Read the latest cookies from fotmob_credentials.py.
-
-        Re-reads the file on every call so that updating fotmob_credentials.py
-        while the scraper is running takes effect immediately — no restart needed.
-        Falls back to the value cached in self.config.api.cookies if the file
-        cannot be read.
-        """
+        """Read cookies from fotmob_credentials.py (hot-reloaded on every call)."""
         cookies = self._read_credentials_file_cookies()
-        if cookies:
-            return cookies
-
-        # Fallback: value loaded at startup by FotMobConfig
-        if not self.config.api.cookies:
-            return {}
-        try:
-            cookies = json.loads(self.config.api.cookies)
-            self.logger.debug(
-                f"Stored credentials (config cache): {len(cookies)} cookie(s) "
-                f"(turnstile_verified={'yes' if 'turnstile_verified' in cookies else 'no'})"
-            )
-            return cookies
-        except Exception as exc:
-            self.logger.warning(f"Could not parse stored cookies: {exc}")
-            return {}
+        return cookies if cookies else {}
 
     def _read_credentials_file_cookies(self) -> Optional[Dict[str, str]]:
         """Directly read fotmob_credentials.py from disk (bypasses startup cache)."""

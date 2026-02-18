@@ -67,16 +67,40 @@ class S3Uploader:
                 Bucket=self.bucket_name,
                 Prefix=prefix
             )
-            
             if response.get('Contents'):
                 return [
                     obj['Key'].split('/')[-1].replace('.tar.gz', '')
                     for obj in response['Contents']
                 ]
         except Exception as e:
+            # Arvan Cloud returns NoSuchKey (instead of an empty response) when no
+            # objects exist under the prefix yet. Treat it as "nothing uploaded".
+            try:
+                from botocore.exceptions import ClientError
+                if isinstance(e, ClientError) and e.response['Error']['Code'] == 'NoSuchKey':
+                    return []
+            except Exception:
+                pass
             self.logger.warning(f"Failed to list existing objects: {e}")
-        
+
         return []
+
+    def object_exists(self, s3_key: str) -> bool:
+        """Return True if the object already exists in the bucket."""
+        if not self.s3_client:
+            return False
+        try:
+            self.s3_client.head_object(Bucket=self.bucket_name, Key=s3_key)
+            return True
+        except Exception as e:
+            try:
+                from botocore.exceptions import ClientError
+                if isinstance(e, ClientError) and e.response['Error']['Code'] in ('404', 'NoSuchKey'):
+                    return False
+            except Exception:
+                pass
+            self.logger.warning(f"Could not check object existence for {s3_key}: {e}")
+            return False
 
     def create_tar_and_upload(
         self,
@@ -152,6 +176,13 @@ class S3Uploader:
         Returns:
             True if successful, False otherwise
         """
+        year_month = date_str[:6]
+        s3_key = f"bronze/{scraper_name}/{year_month}/{date_str}.tar.gz"
+
+        if self.object_exists(s3_key):
+            self.logger.info(f"S3 backup already exists, skipping: {s3_key}")
+            return True
+
         self.logger.info(f"Starting bronze backup upload for {scraper_name} on {date_str}")
         return self.create_tar_and_upload(bronze_dir, date_str, scraper_name)
 

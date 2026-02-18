@@ -42,6 +42,7 @@ except ImportError:
     requests = None
 
 from .logging_utils import get_logger
+from src.storage import get_s3_uploader
 
 
 EMOJI_MAP = {
@@ -164,6 +165,21 @@ class TelegramMetricsReporter:
         if size_mb >= 1024:
             return f"{size_mb / 1024:.1f} GB"
         return f"{size_mb:.1f} MB"
+
+    def _check_s3_backup(self, scraper: str, date: str) -> str:
+        """Check if backup exists in S3 and return meaningful status message."""
+        s3_uploader = get_s3_uploader()
+        
+        if not s3_uploader:
+            return "S3: ⚠️ Not configured"
+        
+        year_month = date[:6] if len(date) >= 6 else date
+        s3_key = f"bronze/{scraper}/{year_month}/{date}.tar.gz"
+        
+        if s3_uploader.object_exists(s3_key):
+            return f"S3: ✅ {date}.tar.gz"
+        
+        return f"S3: ⚠️ Missing ({date}.tar.gz)"
 
     def _build_progress_bar(self, value: int, total: int, width: int = 10) -> str:
         """Build a text-based progress bar."""
