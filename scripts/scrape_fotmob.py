@@ -401,7 +401,7 @@ def run_scraping(args: argparse.Namespace) -> int:
             if was_refreshed:
                 logger.info(f"Turnstile refreshed: {turnstile_status}")
             else:
-                logger.debug(f"Turnstile status: {turnstile_status}")
+                logger.info(f"Turnstile status: {turnstile_status}")
         else:
             stats.record_failure()
 
