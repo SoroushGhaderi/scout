@@ -130,6 +130,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
                 self.logger.info(f"Date {date_str} already complete ({completion_pct:.0f}%), skipping scrape, proceeding with compression/S3")
                 metrics.skipped_matches = metrics.total_matches
                 metrics.successful_matches = metrics.total_matches
+                self.logger.info(f"Set metrics: total={metrics.total_matches}, successful={metrics.successful_matches}, skipped={metrics.skipped_matches}")
 
             if already_complete:
                 match_ids_to_scrape = []
@@ -164,8 +165,11 @@ class FotMobOrchestrator(OrchestratorProtocol):
             metrics.successful_matches == metrics.total_matches and 
             metrics.failed_matches == 0
         )
+        
+        self.logger.info(f"Post-scrape: bronze_only={self.bronze_only}, successful={metrics.successful_matches}, total={metrics.total_matches}, failed={metrics.failed_matches}, all_scraped={all_matches_scraped}")
 
         if self.bronze_only and metrics.successful_matches > 0:
+            self.logger.info(f"Compression check: all_matches_scraped={all_matches_scraped}")
             if not all_matches_scraped:
                 missing_count = metrics.total_matches - metrics.successful_matches
                 missing_reason = f"Missing {missing_count} of {metrics.total_matches} matches (failed: {metrics.failed_matches}, skipped: {metrics.skipped_matches})"
