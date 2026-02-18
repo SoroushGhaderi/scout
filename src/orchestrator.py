@@ -18,7 +18,7 @@ from .core.constants import Defaults
 from .config import FotMobConfig
 from .processors import MatchProcessor
 from .scrapers import MatchScraper, DailyScraper
-from .storage import BronzeStorage
+from .storage import BronzeStorage, get_s3_uploader
 from .utils import ScraperMetrics, DataQualityChecker, get_logger, get_alert_manager
 
 
@@ -89,6 +89,26 @@ class FotMobOrchestrator(OrchestratorProtocol):
         metrics.start()
 
         self.logger.info(f"Starting scrape for date: {date_str}")
+
+        self.s3_uploader = get_s3_uploader()
+        
+        if self.s3_uploader:
+            year_month = date_str[:6]
+            s3_key = f"bronze/fotmob/{year_month}/{date_str}.tar.gz"
+            try:
+                response = self.s3_uploader.s3_client.head_object(
+                    Bucket=self.s3_uploader.bucket_name,
+                    Key=s3_key
+                )
+                self.logger.info(f"Date {date_str} already uploaded to S3, skipping...")
+                metrics.skipped_matches = metrics.total_matches = 0
+                metrics.end()
+                metrics.print_summary()
+                return metrics
+            except Exception:
+                self.logger.info(f"Date {date_str} not found in S3, proceeding with scrape...")
+        else:
+            self.logger.warning("S3 not configured, skipping S3 check")
 
         self.logger.info("Running automatic health check...")
         health_status = self.bronze_storage.health_check()
@@ -162,6 +182,16 @@ class FotMobOrchestrator(OrchestratorProtocol):
                     )
             except Exception as e:
                 self.logger.error(f"Error during compression for {date_str}: {e}")
+
+            if self.s3_uploader and metrics.successful_matches > 0:
+                try:
+                    bronze_dir = f"{self.config.bronze_base_dir}/{date_str}"
+                    if self.s3_uploader.upload_bronze_backup(bronze_dir, date_str, "fotmob"):
+                        self.logger.info(f"Successfully uploaded {date_str} to S3")
+                    else:
+                        self.logger.error(f"Failed to upload {date_str} to S3")
+                except Exception as e:
+                    self.logger.error(f"Error uploading to S3 for {date_str}: {e}")
 
         metrics.print_summary()
 
