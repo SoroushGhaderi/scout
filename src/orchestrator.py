@@ -315,6 +315,8 @@ class FotMobOrchestrator(OrchestratorProtocol):
         self.logger.info(f"Scraping {len(match_ids)} matches sequentially")
 
         completed_count = 0
+        consecutive_errors = 0
+        MAX_CONSECUTIVE_ERRORS = 3
 
         with MatchScraper(self.config) as scraper:
             for match_id in match_ids:
@@ -324,9 +326,29 @@ class FotMobOrchestrator(OrchestratorProtocol):
 
                 try:
                     self._process_single_match(scraper, match_id, metrics, date_str, scraped_match_ids)
+                    consecutive_errors = 0
                 except Exception as e:
                     self.logger.error(f"Error processing match {match_id}: {e}")
                     metrics.record_failure(match_id, str(e), type(e).__name__)
+                    consecutive_errors += 1
+                    
+                    if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
+                        error_msg = f"CRITICAL: {MAX_CONSECUTIVE_ERRORS} consecutive errors detected. Interrupting scrape."
+                        self.logger.error(error_msg)
+                        self.alert_manager.send_alert(
+                            level=AlertLevel.CRITICAL,
+                            title=f"FotMob Scraping Interrupted - {date_str}",
+                            message=f"{error_msg}\n\nLast error: {e}\nLast match ID: {match_id}\nCompleted: {completed_count}/{len(match_ids)}",
+                            context={
+                                "date": date_str,
+                                "consecutive_errors": consecutive_errors,
+                                "last_error": str(e),
+                                "last_match_id": match_id,
+                                "completed": completed_count,
+                                "total": len(match_ids),
+                            }
+                        )
+                        raise OrchestratorError(error_msg)
 
                 completed_count += 1
                 # Log progress after EVERY match
