@@ -6,11 +6,13 @@ FROM python:3.11-slim as builder
 # Set build arguments
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Install build dependencies
+# Install build dependencies (libssl-dev needed to compile curl_cffi)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     python3-dev \
+    libssl-dev \
+    libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Create virtual environment
@@ -35,7 +37,8 @@ ENV PYTHONUNBUFFERED=1 \
     CHROME_BIN=/usr/bin/chromium \
     CHROMEDRIVER_PATH=/usr/bin/chromedriver \
     WDM_LOCAL=1 \
-    WDM_LOG_LEVEL=0
+    WDM_LOG_LEVEL=0 \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 # Install runtime dependencies (Chrome for Selenium)
 # Install chromium-driver from apt to avoid runtime download issues
@@ -73,6 +76,11 @@ RUN echo 'CHROMIUM_FLAGS="$CHROMIUM_FLAGS --no-sandbox --headless --disable-gpu 
 
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
+
+# Download Playwright's Chromium into a system-wide directory so that the
+# non-root appuser can access it at runtime.
+RUN /opt/venv/bin/playwright install chromium && \
+    chmod -R o+rx /ms-playwright
 
 # Create app user (non-root for security)
 RUN useradd --create-home --shell /bin/bash appuser && \

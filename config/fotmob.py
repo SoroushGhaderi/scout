@@ -253,9 +253,6 @@ class FotMobConfig(BaseConfig):
             self.api.user_agent = os.getenv('FOTMOB_USER_AGENT')
         if os.getenv('FOTMOB_API_BASE_URL'):
             self.api.base_url = os.getenv('FOTMOB_API_BASE_URL')
-        if os.getenv('FOTMOB_COOKIES'):
-            self.api.cookies = os.getenv('FOTMOB_COOKIES')
-
         if os.getenv('FOTMOB_REQUEST_TIMEOUT'):
             self.request.timeout = int(os.getenv('FOTMOB_REQUEST_TIMEOUT'))
         if os.getenv('FOTMOB_DELAY_MIN'):

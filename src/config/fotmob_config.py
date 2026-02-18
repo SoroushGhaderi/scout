@@ -13,7 +13,6 @@ Configuration is read ONLY from environment variables (.env file).
 
 
 import os
-import json
 import random
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
@@ -29,8 +28,6 @@ class ApiConfig:
     base_url: str = "https://www.fotmob.com/api/data"
     user_agent: str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
     x_mas_token: str = ""
-    cookies: str = ""
-    custom_headers: Dict[str, str] = field(default_factory=dict)
     user_agents: List[str] = field(default_factory=lambda: [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
@@ -45,44 +42,22 @@ class ApiConfig:
     ])
 
     def get_headers(self, referer: str = "https://www.fotmob.com/") -> Dict[str, str]:
-        """Get HTTP headers for API requests.
-        
-        If custom_headers is provided in credentials JSON, use those.
-        Otherwise, use default headers with random User-Agent.
-        """
-        if self.custom_headers:
-            headers = dict(self.custom_headers)
-            headers["x-mas"] = self.x_mas_token
-            headers["User-Agent"] = self.user_agent or random.choice(self.user_agents)
-            headers["Referer"] = referer
-        else:
-            user_agent = random.choice(self.user_agents)
-            headers = {
-                "accept": "*/*",
-                "accept-language": "en-US,en;q=0.9,fa;q=0.8",
-                "priority": "u=1, i",
-                "sec-ch-ua-platform": '"macOS"',
-                "Referer": referer,
-                "User-Agent": user_agent,
-                "x-mas": self.x_mas_token,
-                "sec-ch-ua": '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
-                "sec-ch-ua-mobile": "?0",
-                "sec-fetch-dest": "empty",
-                "sec-fetch-mode": "cors",
-                "sec-fetch-site": "same-origin",
-            }
-        
-        if self.cookies:
-            headers["Cookie"] = self._format_cookies(self.cookies)
-        return headers
-
-    def _format_cookies(self, cookies_input: str) -> str:
-        """Convert JSON cookies to cookie header format."""
-        try:
-            cookies_dict = json.loads(cookies_input)
-            return "; ".join(f"{k}={v}" for k, v in cookies_dict.items())
-        except (json.JSONDecodeError, AttributeError):
-            return cookies_input
+        """Get HTTP headers for API requests."""
+        user_agent = random.choice(self.user_agents)
+        return {
+            "accept": "*/*",
+            "accept-language": "en-US,en;q=0.9,fa;q=0.8",
+            "priority": "u=1, i",
+            "sec-ch-ua-platform": '"macOS"',
+            "Referer": referer,
+            "User-Agent": user_agent,
+            "x-mas": self.x_mas_token,
+            "sec-ch-ua": '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+        }
 
 
 @dataclass
@@ -155,7 +130,6 @@ class FotMobConfig(BaseConfig):
         """Initialize FotMob configuration from environment variables."""
         self._load_config()
         self._apply_env_overrides()
-        self._load_credentials_from_json()
         self._ensure_directories()
 
     def _load_config(self):
@@ -230,57 +204,6 @@ class FotMobConfig(BaseConfig):
             fail_on_issues=False,
         )
 
-    def _load_credentials_from_json(self):
-        """Load all scraping configs from fotmob_credentials.py.
-        
-        This is the PRIMARY source for all FotMob scraping configurations.
-        - x_mas_token: API authentication
-        - user_agent: Browser User-Agent
-        - headers: Additional HTTP headers
-        - cookies: Browser cookies for Cloudflare bypass
-        """
-        from pathlib import Path
-        from ..utils.logging_utils import get_logger
-        
-        logger = get_logger()
-        
-        # Try .py first, then .json
-        py_path = Path(__file__).parent.parent.parent / 'fotmob_credentials.py'
-        json_path = Path(__file__).parent.parent.parent / 'fotmob_credentials.json'
-        
-        if py_path.exists():
-            try:
-                import importlib.util
-                spec = importlib.util.spec_from_file_location("fotmob_credentials", py_path)
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                
-                if hasattr(module, 'headers'):
-                    self.api.custom_headers = dict(module.headers)
-                    # Get x-mas from headers if available
-                    if module.headers.get('x-mas'):
-                        self.api.x_mas_token = module.headers.get('x-mas')
-                    logger.info("Loaded headers from credentials file")
-                
-                if hasattr(module, 'cookies'):
-                    cookies = module.cookies
-                    cookies_json = json.dumps(cookies, separators=(',', ': '))
-                    self.api.cookies = cookies_json
-                    logger.info(f"Loaded {len(cookies)} cookies from credentials file")
-                
-                if hasattr(module, 'user_agent'):
-                    self.api.user_agent = module.user_agent
-                    logger.info("Loaded user_agent from credentials file")
-                    
-                return
-            except Exception as e:
-                logger.warning(f"Failed to load from .py, trying .json: {e}")
-        
-        # Fallback to JSON
-        if not json_path.exists():
-            logger.error(f"Credentials file not found: {py_path} or {json_path}")
-            return
-
     def _apply_env_overrides(self):
         """Load configuration from environment variables (.env file)."""
         super()._apply_env_overrides()
@@ -291,8 +214,6 @@ class FotMobConfig(BaseConfig):
             self.api.user_agent = os.getenv('FOTMOB_USER_AGENT')
         if os.getenv('FOTMOB_API_BASE_URL'):
             self.api.base_url = os.getenv('FOTMOB_API_BASE_URL')
-        if os.getenv('FOTMOB_COOKIES'):
-            self.api.cookies = os.getenv('FOTMOB_COOKIES')
 
         if os.getenv('FOTMOB_REQUEST_TIMEOUT'):
             self.request.timeout = int(os.getenv('FOTMOB_REQUEST_TIMEOUT'))
