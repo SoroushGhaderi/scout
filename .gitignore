@@ -187,3 +187,4 @@ temp/
 # Backup files
 *.bak
 *.backup
+src/scrapers/fotmob/browser_scraper.py
