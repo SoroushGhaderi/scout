@@ -31,8 +31,8 @@ def get_chrome_turnstile() -> str:
             tv = {c.name: c.value for c in cj}.get("turnstile_verified", "")
             if tv:
                 return tv
-    except Exception as exc:
-        logger.warning(f"browser-cookie3 error: {exc}")
+    except Exception:
+        pass
     return ""
 
 
