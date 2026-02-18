@@ -227,6 +227,8 @@ class TelegramMetricsReporter:
         success_rate = (matches_scraped / matches_found * 100) if matches_found > 0 else 0
         cache_rate = (cache_hits / matches_found * 100) if matches_found > 0 else 0
         failed_permanent = errors - retries if errors > retries else 0
+        
+        no_matches = matches_found == 0 and skipped > 0
 
         formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
 
@@ -235,7 +237,12 @@ class TelegramMetricsReporter:
 
         message += f"<b>📊 SCAN SUMMARY</b>\n"
         message += f"{'─' * 40}\n"
-        message += f"{EMOJI_MAP['matches_found']} Matches: <b>{matches_scraped}/{matches_found}</b> scraped {self._build_progress_bar(matches_scraped, matches_found)}\n"
+        
+        if no_matches:
+            message += f"{EMOJI_MAP['info']} Matches: No matches scheduled for this date\n"
+            message += f"{EMOJI_MAP['skipped']} Checked: <b>{skipped}</b> dates (already scraped)\n"
+        else:
+            message += f"{EMOJI_MAP['matches_found']} Matches: <b>{matches_scraped}/{matches_found}</b> scraped {self._build_progress_bar(matches_scraped, matches_found)}\n"
         
         if cache_hits > 0:
             message += f"{EMOJI_MAP['cache_hit']} Cache: <b>{cache_hits}</b> hits ({cache_rate:.1f}%)\n"
@@ -297,10 +304,7 @@ class TelegramMetricsReporter:
             if bronze_size_mb > 0:
                 storage_parts[-1] += f" ({self._format_size(bronze_size_mb)})"
         
-        if s3_backup:
-            storage_parts.append(f"{EMOJI_MAP['s3']} S3: ✅ Backup")
-        else:
-            storage_parts.append(f"{EMOJI_MAP['s3']} S3: ⚠️ Failed")
+        storage_parts.append(f"{EMOJI_MAP['s3']} {self._check_s3_backup('fotmob', date)}")
         
         if clickhouse_rows > 0:
             storage_parts.append(f"{EMOJI_MAP['clickhouse']} ClickHouse: <b>{clickhouse_rows}</b> rows")
@@ -322,7 +326,9 @@ class TelegramMetricsReporter:
                 message += f"  • {issue}\n"
             message += "\n"
 
-        if success_rate >= 95 and errors == 0:
+        if no_matches:
+            message += f"{EMOJI_MAP['info']} No matches to scrape - already processed previously"
+        elif success_rate >= 95 and errors == 0:
             message += f"{EMOJI_MAP['success']} <b>All matches scraped successfully!</b>"
         elif success_rate >= 90:
             message += f"{EMOJI_MAP['info']} Completed with minor issues"
@@ -362,6 +368,7 @@ class TelegramMetricsReporter:
 
         success_rate = (odds_scraped / matches_found * 100) if matches_found > 0 else 0
         odds_coverage = (odds_sources / odds_sources_total * 100) if odds_sources_total > 0 else 0
+        no_matches = matches_found == 0
 
         formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
 
@@ -370,8 +377,13 @@ class TelegramMetricsReporter:
 
         message += f"<b>📊 SCAN SUMMARY</b>\n"
         message += f"{'─' * 40}\n"
-        message += f"{EMOJI_MAP['matches_found']} Matches: <b>{matches_found}</b> found\n"
-        message += f"{EMOJI_MAP['odds']} Odds: <b>{odds_scraped}</b> scraped\n"
+        
+        if no_matches:
+            message += f"{EMOJI_MAP['info']} Matches: No matches scheduled for this date\n"
+            message += f"{EMOJI_MAP['odds']} Odds: <b>{odds_scraped}</b> scraped\n"
+        else:
+            message += f"{EMOJI_MAP['matches_found']} Matches: <b>{matches_found}</b> found\n"
+            message += f"{EMOJI_MAP['odds']} Odds: <b>{odds_scraped}</b> scraped\n"
         
         if odds_sources_total > 0:
             message += f"{EMOJI_MAP['odds_sources']} Sources: <b>{odds_sources}/{odds_sources_total}</b> ({odds_coverage:.0f}%)\n"
@@ -410,10 +422,7 @@ class TelegramMetricsReporter:
             if bronze_size_mb > 0:
                 storage_parts[-1] += f" ({self._format_size(bronze_size_mb)})"
         
-        if s3_backup:
-            storage_parts.append(f"{EMOJI_MAP['s3']} S3: ✅ Backup")
-        else:
-            storage_parts.append(f"{EMOJI_MAP['s3']} S3: ⚠️ Failed")
+        storage_parts.append(f"{EMOJI_MAP['s3']} {self._check_s3_backup('aiscore', date)}")
         
         if clickhouse_rows > 0:
             storage_parts.append(f"{EMOJI_MAP['clickhouse']} ClickHouse: <b>{clickhouse_rows}</b> rows")
@@ -435,7 +444,9 @@ class TelegramMetricsReporter:
                 message += f"  • {issue}\n"
             message += "\n"
 
-        if success_rate >= 95 and errors == 0:
+        if no_matches:
+            message += f"{EMOJI_MAP['info']} No matches to scrape - already processed previously"
+        elif success_rate >= 95 and errors == 0:
             message += f"{EMOJI_MAP['success']} <b>All odds scraped successfully!</b>"
         elif success_rate >= 80:
             message += f"{EMOJI_MAP['info']} Completed with minor issues"

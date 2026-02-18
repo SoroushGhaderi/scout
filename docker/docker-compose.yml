@@ -49,6 +49,7 @@ services:
       - ../data:/app/data
       - ../logs:/app/logs
       # Configuration files
+      - ../config.yaml:/app/config.yaml:ro
       - ../config:/app/config:ro
       # Allow scripts to be modified if needed
       - ../scripts:/app/scripts

@@ -72,11 +72,11 @@ class ScrapingConfig:
     """Scraping behavior configuration."""
     max_workers: int
     enable_parallel: bool
-    enable_caching: bool = True
-    cache_ttl_hours: int = 24
     metrics_update_interval: int
     filter_by_status: bool
     allowed_match_statuses: tuple
+    enable_caching: bool = True
+    cache_ttl_hours: int = 24
 
 
 @dataclass
