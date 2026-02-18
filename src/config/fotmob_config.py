@@ -30,6 +30,7 @@ class ApiConfig:
     user_agent: str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
     x_mas_token: str = ""
     cookies: str = ""
+    custom_headers: Dict[str, str] = field(default_factory=dict)
     user_agents: List[str] = field(default_factory=lambda: [
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
@@ -44,22 +45,33 @@ class ApiConfig:
     ])
 
     def get_headers(self, referer: str = "https://www.fotmob.com/") -> Dict[str, str]:
-        """Get HTTP headers for API requests with random User-Agent."""
-        user_agent = random.choice(self.user_agents)
-        headers = {
-            "accept": "*/*",
-            "accept-language": "en-US,en;q=0.9,fa;q=0.8",
-            "priority": "u=1, i",
-            "sec-ch-ua-platform": '"macOS"',
-            "Referer": referer,
-            "User-Agent": user_agent,
-            "x-mas": self.x_mas_token,
-            "sec-ch-ua": '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-origin",
-        }
+        """Get HTTP headers for API requests.
+        
+        If custom_headers is provided in credentials JSON, use those.
+        Otherwise, use default headers with random User-Agent.
+        """
+        if self.custom_headers:
+            headers = dict(self.custom_headers)
+            headers["x-mas"] = self.x_mas_token
+            headers["User-Agent"] = self.user_agent or random.choice(self.user_agents)
+            headers["Referer"] = referer
+        else:
+            user_agent = random.choice(self.user_agents)
+            headers = {
+                "accept": "*/*",
+                "accept-language": "en-US,en;q=0.9,fa;q=0.8",
+                "priority": "u=1, i",
+                "sec-ch-ua-platform": '"macOS"',
+                "Referer": referer,
+                "User-Agent": user_agent,
+                "x-mas": self.x_mas_token,
+                "sec-ch-ua": '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
+                "sec-ch-ua-mobile": "?0",
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "same-origin",
+            }
+        
         if self.cookies:
             headers["Cookie"] = self._format_cookies(self.cookies)
         return headers
@@ -219,7 +231,14 @@ class FotMobConfig(BaseConfig):
         )
 
     def _load_credentials_from_json(self):
-        """Load x_mas_token and cookies from fotmob_credentials.json."""
+        """Load all scraping configs from fotmob_credentials.json.
+        
+        This is the PRIMARY source for all FotMob scraping configurations.
+        - x_mas_token: API authentication
+        - user_agent: Browser User-Agent
+        - headers: Additional HTTP headers
+        - cookies: Browser cookies for Cloudflare bypass
+        """
         import json
         from pathlib import Path
         from ..utils.logging_utils import get_logger
@@ -228,7 +247,7 @@ class FotMobConfig(BaseConfig):
         json_path = Path(__file__).parent.parent.parent / 'fotmob_credentials.json'
         
         if not json_path.exists():
-            logger.warning(f"Credentials file not found: {json_path}")
+            logger.error(f"Credentials file not found: {json_path}")
             return
         
         try:
@@ -239,14 +258,23 @@ class FotMobConfig(BaseConfig):
                 self.api.x_mas_token = creds['x_mas_token']
                 logger.info("Loaded x_mas_token from credentials file")
             
+            if creds.get('user_agent'):
+                self.api.user_agent = creds['user_agent']
+                logger.info("Loaded user_agent from credentials file")
+            
             if creds.get('cookies'):
                 cookies = creds['cookies']
                 cookies_json = json.dumps(cookies, separators=(',', ': '))
                 self.api.cookies = cookies_json
                 logger.info(f"Loaded {len(cookies)} cookies from credentials file")
+            
+            if creds.get('headers'):
+                self.api.custom_headers = creds['headers']
+                logger.info(f"Loaded {len(creds['headers'])} custom headers from credentials file")
                 
         except Exception as e:
-            logger.warning(f"Failed to load credentials from JSON: {e}")
+            logger.error(f"Failed to load credentials from JSON: {e}")
+            raise
 
     def _apply_env_overrides(self):
         """Load configuration from environment variables (.env file)."""
