@@ -8,12 +8,19 @@ Requirements: Chrome must be open and you must have visited fotmob.com recently.
 The scraper hot-reloads credentials.json on every request — no restart needed.
 """
 import json
+import logging
 import sys
 import time
 from pathlib import Path
 from typing import Optional, Tuple
 
 ROOT = Path(__file__).parent.parent
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 def get_chrome_turnstile() -> str:
@@ -25,7 +32,7 @@ def get_chrome_turnstile() -> str:
             if tv:
                 return tv
     except Exception as exc:
-        print(f"browser-cookie3 error: {exc}")
+        logger.warning(f"browser-cookie3 error: {exc}")
     return ""
 
 
@@ -74,7 +81,7 @@ def check_age(tv: str) -> str:
 def update_credentials_json(tv: str) -> bool:
     path = ROOT / "credentials.json"
     if not path.exists():
-        print(f"Not found: {path}")
+        logger.error(f"credentials.json not found: {path}")
         return False
     
     try:
@@ -89,10 +96,10 @@ def update_credentials_json(tv: str) -> bool:
         with open(path, "w") as f:
             json.dump(data, f, indent=2)
         
-        print(f"Updated credentials.json")
+        logger.info("Updated credentials.json with new turnstile token")
         return True
     except Exception as e:
-        print(f"Error updating credentials.json: {e}")
+        logger.error(f"Error updating credentials.json: {e}")
         return False
 
 
@@ -115,7 +122,6 @@ def refresh_if_needed(max_age_seconds: int = 1800) -> Tuple[bool, Optional[str]]
         
         current_tv = data.get("cookies", {}).get("turnstile_verified", "")
         if not current_tv:
-            # No turnstile, try to get from Chrome
             new_tv = get_chrome_turnstile()
             if new_tv and update_credentials_json(new_tv):
                 age, status = get_turnstile_age_info(new_tv)
@@ -125,7 +131,6 @@ def refresh_if_needed(max_age_seconds: int = 1800) -> Tuple[bool, Optional[str]]
         age_seconds, status = get_turnstile_age_info(current_tv)
         
         if age_seconds is not None and age_seconds >= max_age_seconds:
-            # Token is too old, refresh from Chrome
             new_tv = get_chrome_turnstile()
             if new_tv:
                 if update_credentials_json(new_tv):
@@ -140,35 +145,31 @@ def refresh_if_needed(max_age_seconds: int = 1800) -> Tuple[bool, Optional[str]]
 
 
 def main():
-    print("Reading turnstile_verified from Chrome...")
+    logger.info("Reading turnstile_verified from Chrome...")
     tv = get_chrome_turnstile()
 
     if not tv:
-        print(
-            "\nERROR: Could not read turnstile_verified from Chrome.\n"
-            "  1. Open Chrome and visit https://www.fotmob.com\n"
-            "  2. Wait for the page to fully load\n"
-            "  3. Run this script again\n"
+        logger.error(
+            "Could not read turnstile_verified from Chrome. "
+            "1. Open Chrome and visit https://www.fotmob.com, "
+            "2. Wait for the page to fully load, "
+            "3. Run this script again"
         )
         sys.exit(1)
 
     status = check_age(tv)
-    print(f"Found: {tv[:60]}...")
-    print(f"Status: {status}")
+    logger.info(f"Found turnstile: {tv[:60]}...")
+    logger.info(f"Status: {status}")
 
     if "EXPIRED" in status:
-        print(
-            "\nWARNING: Cookie is expired. Visit https://www.fotmob.com in Chrome,\n"
-            "wait for the page to load, then run this script again.\n"
+        logger.warning(
+            "Cookie is expired. Visit https://www.fotmob.com in Chrome, "
+            "wait for the page to load, then run this script again"
         )
         sys.exit(1)
 
-    print()
     update_credentials_json(tv)
-    print(
-        "\nDone. The running scraper will pick up the change automatically.\n"
-        "No restart needed.\n"
-    )
+    logger.info("Done. The running scraper will pick up the change automatically.")
 
 
 if __name__ == "__main__":
