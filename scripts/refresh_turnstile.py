@@ -135,10 +135,10 @@ def refresh_if_needed(max_age_seconds: int = 1800) -> Tuple[bool, Optional[str]]
             if new_tv:
                 if update_credentials_json(new_tv):
                     new_age, new_status = get_turnstile_age_info(new_tv)
-                    return True, f"Refreshed (age was {status}), new age: {new_status}"
+                    return True, f"Refreshed (age={age_seconds}s>{max_age_seconds}s), new age: {new_status}"
             return False, f"Token expired ({status}), refresh failed"
         
-        return False, f"Token valid, age: {status}"
+        return False, f"Token valid (age={age_seconds}s<{max_age_seconds}s), {status}"
         
     except Exception as e:
         return False, f"Error: {str(e)}"
