@@ -118,7 +118,7 @@ class TelegramMetricsReporter:
         self.logger = get_logger()
         self.api_url = f"https://api.telegram.org/bot{self.bot_token}" if self.bot_token else None
 
-    def _send_message(self, text: str) -> bool:
+    def _send_message(self, text: str, silent: bool = False) -> bool:
         """Send a message to Telegram."""
         if not requests:
             self.logger.warning("requests library not available for Telegram")
@@ -132,7 +132,8 @@ class TelegramMetricsReporter:
             payload = {
                 "chat_id": self.chat_id,
                 "text": text,
-                "parse_mode": "HTML"
+                "parse_mode": "HTML",
+                "disable_notification": silent
             }
             
             response = requests.post(f"{self.api_url}/sendMessage", json=payload, timeout=10)
@@ -347,7 +348,7 @@ class TelegramMetricsReporter:
                 emoji = EMOJI_MAP.get(key, '•')
                 message += f"{emoji} <b>{key}:</b> {value}\n"
 
-        return self._send_message(message)
+        return self._send_message(message, silent=no_matches)
 
     def report_aiscore_daily(self, date: str, **kwargs) -> bool:
         """Send enriched AIScore daily scraping report."""
