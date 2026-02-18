@@ -231,7 +231,7 @@ class FotMobConfig(BaseConfig):
         )
 
     def _load_credentials_from_json(self):
-        """Load all scraping configs from fotmob_credentials.json.
+        """Load all scraping configs from fotmob_credentials.py.
         
         This is the PRIMARY source for all FotMob scraping configurations.
         - x_mas_token: API authentication
@@ -239,42 +239,47 @@ class FotMobConfig(BaseConfig):
         - headers: Additional HTTP headers
         - cookies: Browser cookies for Cloudflare bypass
         """
-        import json
         from pathlib import Path
         from ..utils.logging_utils import get_logger
         
         logger = get_logger()
+        
+        # Try .py first, then .json
+        py_path = Path(__file__).parent.parent.parent / 'fotmob_credentials.py'
         json_path = Path(__file__).parent.parent.parent / 'fotmob_credentials.json'
         
-        if not json_path.exists():
-            logger.error(f"Credentials file not found: {json_path}")
-            return
-        
-        try:
-            with open(json_path, 'r') as f:
-                creds = json.load(f)
-            
-            if creds.get('x_mas_token'):
-                self.api.x_mas_token = creds['x_mas_token']
-                logger.info("Loaded x_mas_token from credentials file")
-            
-            if creds.get('user_agent'):
-                self.api.user_agent = creds['user_agent']
-                logger.info("Loaded user_agent from credentials file")
-            
-            if creds.get('cookies'):
-                cookies = creds['cookies']
-                cookies_json = json.dumps(cookies, separators=(',', ': '))
-                self.api.cookies = cookies_json
-                logger.info(f"Loaded {len(cookies)} cookies from credentials file")
-            
-            if creds.get('headers'):
-                self.api.custom_headers = creds['headers']
-                logger.info(f"Loaded {len(creds['headers'])} custom headers from credentials file")
+        if py_path.exists():
+            try:
+                import importlib.util
+                spec = importlib.util.spec_from_file_location("fotmob_credentials", py_path)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
                 
-        except Exception as e:
-            logger.error(f"Failed to load credentials from JSON: {e}")
-            raise
+                if hasattr(module, 'headers'):
+                    self.api.custom_headers = dict(module.headers)
+                    # Get x-mas from headers if available
+                    if module.headers.get('x-mas'):
+                        self.api.x_mas_token = module.headers.get('x-mas')
+                    logger.info("Loaded headers from credentials file")
+                
+                if hasattr(module, 'cookies'):
+                    cookies = module.cookies
+                    cookies_json = json.dumps(cookies, separators=(',', ': '))
+                    self.api.cookies = cookies_json
+                    logger.info(f"Loaded {len(cookies)} cookies from credentials file")
+                
+                if hasattr(module, 'user_agent'):
+                    self.api.user_agent = module.user_agent
+                    logger.info("Loaded user_agent from credentials file")
+                    
+                return
+            except Exception as e:
+                logger.warning(f"Failed to load from .py, trying .json: {e}")
+        
+        # Fallback to JSON
+        if not json_path.exists():
+            logger.error(f"Credentials file not found: {py_path} or {json_path}")
+            return
 
     def _apply_env_overrides(self):
         """Load configuration from environment variables (.env file)."""
