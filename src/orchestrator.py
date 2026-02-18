@@ -161,8 +161,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
             metrics.end()
 
         all_matches_scraped = (
-            metrics.total_matches > 0 and 
-            metrics.successful_matches == metrics.total_matches and 
+            metrics.successful_matches + metrics.skipped_matches == metrics.total_matches and 
             metrics.failed_matches == 0
         )
         
@@ -171,7 +170,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
         if self.bronze_only and metrics.successful_matches > 0:
             self.logger.info(f"Compression check: all_matches_scraped={all_matches_scraped}")
             if not all_matches_scraped:
-                missing_count = metrics.total_matches - metrics.successful_matches
+                missing_count = metrics.total_matches - metrics.successful_matches - metrics.skipped_matches
                 missing_reason = f"Missing {missing_count} of {metrics.total_matches} matches (failed: {metrics.failed_matches}, skipped: {metrics.skipped_matches})"
                 self.logger.warning(f"Skipping compression for {date_str}: {missing_reason}")
                 
