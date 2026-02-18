@@ -1,4 +1,4 @@
-﻿"""
+"""
 
 FotMob scraper configuration.
 
@@ -13,6 +13,7 @@ Configuration is loaded from:
 
 
 import os
+import json
 import random
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
@@ -25,32 +26,50 @@ from .base import BaseConfig, StorageConfig, LoggingConfig, MetricsConfig, Retry
 class ApiConfig:
     """FotMob API configuration."""
     base_url: str = "https://www.fotmob.com/api/data"
-    user_agent: str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
+    user_agent: str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
     x_mas_token: str = ""
+    cookies: str = ""
     user_agents: List[str] = field(default_factory=lambda: [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:122.0) Gecko/20100101 Firefox/122.0",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0",
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 Edg/144.0.0.0",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36",
     ])
 
-    def get_headers(self) -> Dict[str, str]:
+    def get_headers(self, referer: str = "https://www.fotmob.com/") -> Dict[str, str]:
         """Get HTTP headers for API requests with random User-Agent."""
         user_agent = random.choice(self.user_agents)
-        return {
+        headers = {
+            "accept": "*/*",
+            "accept-language": "en-US,en;q=0.9,fa;q=0.8",
+            "priority": "u=1, i",
             "sec-ch-ua-platform": '"macOS"',
-            "Referer": "https://www.fotmob.com/",
+            "Referer": referer,
             "User-Agent": user_agent,
             "x-mas": self.x_mas_token,
-            "sec-ch-ua": '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
+            "sec-ch-ua": '"Not(A:Brand";v="8", "Chromium";v="144", "Google Chrome";v="144"',
             "sec-ch-ua-mobile": "?0",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
         }
+        if self.cookies:
+            headers["Cookie"] = self._format_cookies(self.cookies)
+        return headers
+
+    def _format_cookies(self, cookies_input: str) -> str:
+        """Convert JSON cookies to cookie header format."""
+        try:
+            cookies_dict = json.loads(cookies_input)
+            return "; ".join(f"{k}={v}" for k, v in cookies_dict.items())
+        except (json.JSONDecodeError, AttributeError):
+            return cookies_input
 
 
 @dataclass
@@ -66,8 +85,6 @@ class ScrapingConfig:
     """Scraping behavior configuration."""
     max_workers: int = 1
     enable_parallel: bool = False
-    enable_caching: bool = True
-    cache_ttl_hours: int = 24
     metrics_update_interval: int = 20
     filter_by_status: bool = True
     allowed_match_statuses: tuple = field(default_factory=lambda: (
@@ -82,6 +99,14 @@ class DataQualityConfig:
     """Data quality checking configuration."""
     enabled: bool = True
     fail_on_issues: bool = False
+
+
+@dataclass
+class ProxyConfig:
+    """Proxy configuration."""
+    enabled: bool = False
+    http: str = ""
+    https: str = ""
 
 
 class FotMobConfig(BaseConfig):
@@ -165,8 +190,6 @@ class FotMobConfig(BaseConfig):
         self.scraping = ScrapingConfig(
             max_workers=scraping_config.get('max_workers', 1),
             enable_parallel=scraping_config.get('enable_parallel', False),
-            enable_caching=scraping_config.get('enable_caching', True),
-            cache_ttl_hours=scraping_config.get('cache_ttl_hours', 24),
             metrics_update_interval=scraping_config.get('metrics_update_interval', 20),
             filter_by_status=scraping_config.get('filter_by_status', True),
             allowed_match_statuses=tuple(scraping_config.get('allowed_match_statuses', [
@@ -215,6 +238,11 @@ class FotMobConfig(BaseConfig):
             fail_on_issues=data_quality_config.get('fail_on_issues', False),
         )
 
+        proxy_config = yaml_fotmob.get('proxy', {})
+        self.proxy = ProxyConfig(
+            enabled=proxy_config.get('enabled', False),
+        )
+
     def _apply_env_overrides(self):
         """Load configuration from environment variables (.env file)."""
         super()._apply_env_overrides()
@@ -225,6 +253,8 @@ class FotMobConfig(BaseConfig):
             self.api.user_agent = os.getenv('FOTMOB_USER_AGENT')
         if os.getenv('FOTMOB_API_BASE_URL'):
             self.api.base_url = os.getenv('FOTMOB_API_BASE_URL')
+        if os.getenv('FOTMOB_COOKIES'):
+            self.api.cookies = os.getenv('FOTMOB_COOKIES')
 
         if os.getenv('FOTMOB_REQUEST_TIMEOUT'):
             self.request.timeout = int(os.getenv('FOTMOB_REQUEST_TIMEOUT'))
@@ -265,6 +295,13 @@ class FotMobConfig(BaseConfig):
             self.data_quality.enabled = os.getenv('FOTMOB_DATA_QUALITY_ENABLED').lower() == 'true'
         if os.getenv('FOTMOB_DATA_QUALITY_FAIL_ON_ISSUES'):
             self.data_quality.fail_on_issues = os.getenv('FOTMOB_DATA_QUALITY_FAIL_ON_ISSUES').lower() == 'true'
+
+        if os.getenv('FOTMOB_PROXY_ENABLED'):
+            self.proxy.enabled = os.getenv('FOTMOB_PROXY_ENABLED').lower() == 'true'
+        if os.getenv('FOTMOB_PROXY_HTTP'):
+            self.proxy.http = os.getenv('FOTMOB_PROXY_HTTP')
+        if os.getenv('FOTMOB_PROXY_HTTPS'):
+            self.proxy.https = os.getenv('FOTMOB_PROXY_HTTPS')
 
 
     @property
