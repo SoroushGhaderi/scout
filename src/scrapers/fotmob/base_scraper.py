@@ -6,7 +6,7 @@ from typing import Optional, Dict, Any
 
 from ...core import ScraperProtocol
 from ...core.constants import Defaults
-from ...config import FotMobConfig
+from config import FotMobConfig
 from ...utils.logging_utils import get_logger
 from .playwright_fetcher import PlaywrightFetcher
 

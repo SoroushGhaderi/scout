@@ -16,7 +16,7 @@ import requests
 
 from .core import OrchestratorProtocol, OrchestratorError, StorageProtocol
 from .core.constants import Defaults
-from .config import FotMobConfig
+from config import FotMobConfig
 from .processors import MatchProcessor
 from .scrapers import MatchScraper, DailyScraper
 from .storage import BronzeStorage, get_s3_uploader
