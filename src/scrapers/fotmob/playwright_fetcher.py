@@ -416,28 +416,29 @@ class PlaywrightFetcher:
         return cookies if cookies else {}
 
     def _read_credentials_file_cookies(self) -> Optional[Dict[str, str]]:
-        """Directly read fotmob_credentials.py from disk (bypasses startup cache)."""
+        """Directly read credentials.json from disk (bypasses startup cache)."""
         try:
+            import json
             from pathlib import Path
-            import importlib.util
 
-            creds_path = Path(__file__).parent.parent.parent.parent / "fotmob_credentials.py"
+            creds_path = Path(__file__).parent.parent.parent.parent / "credentials.json"
+            if not creds_path.exists():
+                # Fallback to fotmob_credentials.py for backward compatibility
+                creds_path = Path(__file__).parent.parent.parent.parent / "fotmob_credentials.py"
+            
             if not creds_path.exists():
                 return None
 
-            spec = importlib.util.spec_from_file_location("_fotmob_creds_live", creds_path)
-            mod = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(mod)
-
-            if hasattr(mod, "cookies") and isinstance(mod.cookies, dict):
-                cookies = dict(mod.cookies)
+            with open(creds_path, "r") as f:
+                data = json.load(f)
+                cookies = data.get("cookies", {})
                 self.logger.debug(
-                    f"fotmob_credentials.py (live): {len(cookies)} cookie(s) "
+                    f"credentials.json (live): {len(cookies)} cookie(s) "
                     f"(turnstile_verified={'yes' if 'turnstile_verified' in cookies else 'no'})"
                 )
                 return cookies
         except Exception as exc:
-            self.logger.debug(f"Could not reload fotmob_credentials.py: {exc}")
+            self.logger.debug(f"Could not reload credentials.json: {exc}")
         return None
 
     # ------------------------------------------------------------------

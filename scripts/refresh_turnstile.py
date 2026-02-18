@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Refresh the turnstile_verified cookie in fotmob_credentials.py.
+"""Refresh the turnstile_verified cookie in credentials.json.
 
 Run this whenever the scraper reports TURNSTILE_REQUIRED:
     python3 scripts/refresh_turnstile.py
 
 Requirements: Chrome must be open and you must have visited fotmob.com recently.
-The scraper hot-reloads fotmob_credentials.py on every request — no restart needed.
+The scraper hot-reloads credentials.json on every request — no restart needed.
 """
+import json
 import sys
-import re
 import time
 from pathlib import Path
 
@@ -42,23 +42,29 @@ def check_age(tv: str) -> str:
     return "unknown format"
 
 
-def update_credentials_py(tv: str) -> bool:
-    path = ROOT / "fotmob_credentials.py"
+def update_credentials_json(tv: str) -> bool:
+    path = ROOT / "credentials.json"
     if not path.exists():
         print(f"Not found: {path}")
         return False
-    text = path.read_text()
-    updated = re.sub(
-        r"('turnstile_verified'\s*:\s*')[^']+(')",
-        rf"\g<1>{tv}\g<2>",
-        text,
-    )
-    if updated == text:
-        print("fotmob_credentials.py: turnstile_verified key not found — adding it")
-        updated = text.rstrip().rstrip("}") + f"\n    'turnstile_verified': '{tv}',\n}}\n"
-    path.write_text(updated)
-    print(f"Updated fotmob_credentials.py")
-    return True
+    
+    try:
+        with open(path, "r") as f:
+            data = json.load(f)
+        
+        if "cookies" not in data:
+            data["cookies"] = {}
+        
+        data["cookies"]["turnstile_verified"] = tv
+        
+        with open(path, "w") as f:
+            json.dump(data, f, indent=2)
+        
+        print(f"Updated credentials.json")
+        return True
+    except Exception as e:
+        print(f"Error updating credentials.json: {e}")
+        return False
 
 
 def main():
@@ -86,7 +92,7 @@ def main():
         sys.exit(1)
 
     print()
-    update_credentials_py(tv)
+    update_credentials_json(tv)
     print(
         "\nDone. The running scraper will pick up the change automatically.\n"
         "No restart needed.\n"
