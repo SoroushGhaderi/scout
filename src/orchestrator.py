@@ -21,6 +21,7 @@ from .processors import MatchProcessor
 from .scrapers import MatchScraper, DailyScraper
 from .storage import BronzeStorage, get_s3_uploader
 from .utils import ScraperMetrics, DataQualityChecker, get_logger, get_alert_manager
+from .utils.alerting import AlertLevel
 
 
 class FotMobOrchestrator(OrchestratorProtocol):
@@ -148,23 +149,48 @@ class FotMobOrchestrator(OrchestratorProtocol):
         finally:
             metrics.end()
 
+        all_matches_scraped = (
+            metrics.total_matches > 0 and 
+            metrics.successful_matches == metrics.total_matches and 
+            metrics.failed_matches == 0
+        )
+
         if self.bronze_only and metrics.successful_matches > 0:
-            try:
-                self.logger.debug(f"Starting compression for {date_str}")
-                compression_stats = self.bronze_storage.compress_date_files(date_str)
+            if not all_matches_scraped:
+                missing_count = metrics.total_matches - metrics.successful_matches
+                missing_reason = f"Missing {missing_count} of {metrics.total_matches} matches (failed: {metrics.failed_matches}, skipped: {metrics.skipped_matches})"
+                self.logger.warning(f"Skipping compression for {date_str}: {missing_reason}")
+                
+                alert_manager = get_alert_manager()
+                alert_manager.send_alert(
+                    level=AlertLevel.WARNING,
+                    title=f"FotMob Partial Scraping - {date_str}",
+                    message=f"Only {metrics.successful_matches}/{metrics.total_matches} matches scraped. Compression and S3 backup skipped.\n\nReason: {missing_reason}",
+                    context={
+                        "date": date_str,
+                        "total_matches": metrics.total_matches,
+                        "successful": metrics.successful_matches,
+                        "failed": metrics.failed_matches,
+                        "skipped": metrics.skipped_matches,
+                    }
+                )
+            else:
+                try:
+                    self.logger.debug(f"Starting compression for {date_str}")
+                    compression_stats = self.bronze_storage.compress_date_files(date_str)
 
-                if compression_stats.get('status') == 'success' and compression_stats['compressed'] > 0:
-                    saved_mb = compression_stats.get('saved_mb', 0)
-                    saved_pct = compression_stats.get('saved_pct', 0)
-                    compressed = compression_stats.get('compressed', 0)
-                    self.logger.info(
-                        f"Compressed {compressed} files for {date_str}: "
-                        f"saved {saved_mb:.2f} MB ({saved_pct:.0f}% reduction)"
-                    )
-            except Exception as e:
-                self.logger.error(f"Error during compression for {date_str}: {e}")
+                    if compression_stats.get('status') == 'success' and compression_stats['compressed'] > 0:
+                        saved_mb = compression_stats.get('saved_mb', 0)
+                        saved_pct = compression_stats.get('saved_pct', 0)
+                        compressed = compression_stats.get('compressed', 0)
+                        self.logger.info(
+                            f"Compressed {compressed} files for {date_str}: "
+                            f"saved {saved_mb:.2f} MB ({saved_pct:.0f}% reduction)"
+                        )
+                except Exception as e:
+                    self.logger.error(f"Error during compression for {date_str}: {e}")
 
-        if self.bronze_only:
+        if self.bronze_only and all_matches_scraped:
             self.logger.info("Checking S3 backup...")
             s3_uploader = get_s3_uploader()
             if s3_uploader:

@@ -177,6 +177,11 @@ class TelegramMetricsReporter:
         s3_key = f"bronze/{scraper}/{year_month}/{date}.tar.gz"
         
         if s3_uploader.object_exists(s3_key):
+            size_bytes = s3_uploader.get_object_size(s3_key)
+            if size_bytes:
+                size_mb = size_bytes / (1024 * 1024)
+                size_str = f" ({size_mb:.1f} MB)" if size_mb < 1024 else f" ({size_mb / 1024:.2f} GB)"
+                return f"S3: ✅ {date}.tar.gz{size_str}"
             return f"S3: ✅ {date}.tar.gz"
         
         return f"S3: ⚠️ Missing ({date}.tar.gz)"

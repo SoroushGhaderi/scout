@@ -102,6 +102,23 @@ class S3Uploader:
             self.logger.warning(f"Could not check object existence for {s3_key}: {e}")
             return False
 
+    def get_object_size(self, s3_key: str) -> Optional[int]:
+        """Return the size of the object in bytes, or None if not found."""
+        if not self.s3_client:
+            return None
+        try:
+            response = self.s3_client.head_object(Bucket=self.bucket_name, Key=s3_key)
+            return response.get('ContentLength', 0)
+        except Exception as e:
+            try:
+                from botocore.exceptions import ClientError
+                if isinstance(e, ClientError) and e.response['Error']['Code'] in ('404', 'NoSuchKey'):
+                    return None
+            except Exception:
+                pass
+            self.logger.warning(f"Could not get object size for {s3_key}: {e}")
+            return None
+
     def create_tar_and_upload(
         self,
         source_dir: str,
