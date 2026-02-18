@@ -38,11 +38,8 @@ class OddsScraper:
         processed_matches: Set of processed match IDs
     """
 
-    def __init__(self, config, db, browser: BrowserManager):
-        """Initialize odds scraper.
-
-        Note: db parameter is kept for backward compatibility but ignored.
-        """
+    def __init__(self, config, browser: BrowserManager):
+        """Initialize odds scraper."""
         self.config = config
         self.browser = browser
 

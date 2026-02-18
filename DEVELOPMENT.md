@@ -577,14 +577,16 @@ Changed from absolute to relative import to ensure compatibility when installed 
 
 ### 4. `OddsScraper` carries a dead `db` parameter
 
-**File:** `scripts/aiscore_scripts/scrape_odds.py`
+**File:** `scripts/aiscore_scripts/scrape_odds.py`, `src/scrapers/aiscore/odds_scraper.py`
+
+**Status:** ✅ FIXED
 
 ```python
-def __init__(self, config, db, browser: BrowserManager):
-    """Note: db parameter is kept for backward compatibility but ignored."""
+def __init__(self, config, browser: BrowserManager):
+    """Initialize odds scraper."""
 ```
 
-Dead parameters silently accept wrong arguments without raising errors. Remove `db` from the signature and update all call sites. "Backward compatibility" is not a valid reason to keep a parameter that has no callers outside this repo.
+Removed dead `db` parameter from both `OddsScraper` classes and updated call site in `scrape_aiscore.py`.
 
 ---
 

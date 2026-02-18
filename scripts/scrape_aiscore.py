@@ -445,7 +445,7 @@ def _execute_odds_scraping(date_str: str, config) -> int:
         browser = BrowserManager(config)
         bronze_storage = _get_bronze_storage()
 
-        scraper = OddsScraper(config, db=None, browser=browser)
+        scraper = OddsScraper(config, browser=browser)
 
         with PerformanceTimer(f"Odds scraping for {date_str}", logger):
             results = scraper.scrape_from_daily_matches(date_str, bronze_storage)
