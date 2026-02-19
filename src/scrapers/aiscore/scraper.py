@@ -253,6 +253,60 @@ class FootballScraper:
 
         return inserted
 
+    def _process_visible_containers(
+        self,
+        seen_urls: set,
+        source_date: str,
+        metrics: Optional[ScrapingMetrics] = None
+    ) -> tuple[int, int]:
+        """Extract, deduplicate, and save links from currently visible containers.
+
+        Returns:
+            (inserted, duplicates)
+        """
+        containers = self.browser.driver.find_elements(
+            By.CSS_SELECTOR, self.config.selectors.match_container
+        )
+
+        new_urls = []
+        for container in containers:
+            try:
+                url = self.extractor.extract_link(container)
+                if url and url not in seen_urls:
+                    new_urls.append(url)
+                    seen_urls.add(url)
+            except Exception as e:
+                logger.debug(f"Failed to extract link: {e}")
+
+        if not new_urls:
+            return 0, 0
+
+        new_links = []
+        for url in new_urls:
+            try:
+                match_id = self.extractor.extract_match_id(url)
+                link = MatchLk(
+                    url=url,
+                    match_id=match_id,
+                    source_date=source_date
+                )
+                new_links.append(link)
+            except Exception as e:
+                logger.debug(f"Failed to create MatchLk for {url}: {e}")
+
+        if not new_links:
+            return 0, 0
+
+        inserted = self._save_links_to_storage(new_links, source_date)
+        duplicates = len(new_links) - inserted
+
+        if metrics:
+            metrics.links_found += len(new_urls)
+            metrics.links_inserted += inserted
+            metrics.duplicates_prevented += duplicates
+
+        return inserted, duplicates
+
     def _collect_all_links(
         self,
         source_date: str,
@@ -291,54 +345,22 @@ class FootballScraper:
                 f"Scroll #{scroll_iteration}: {len(containers)} containers at {position}px"
             )
 
-            new_urls = []
             extraction_start = time.time()
-
-            for container in containers:
-                try:
-                    url = self.extractor.extract_link(container)
-                    if url and url not in seen_urls:
-                        new_urls.append(url)
-                        seen_urls.add(url)
-                except Exception as e:
-                    logger.debug(f"Failed to extract link: {e}")
-
+            inserted, duplicates = self._process_visible_containers(
+                seen_urls, source_date, metrics
+            )
             extraction_time = time.time() - extraction_start
 
-            if new_urls:
-                new_links = []
-                for url in new_urls:
-                    try:
-                        match_id = self.extractor.extract_match_id(url)
-                        link = MatchLk(
-                            url=url,
-                            match_id=match_id,
-                            source_date=source_date
-                        )
-                        new_links.append(link)
-                    except Exception as e:
-                        logger.debug(f"Failed to create MatchLk for {url}: {e}")
+            if inserted > 0:
+                total_inserted += inserted
+                total_duplicates += duplicates
 
-                if new_links:
-                    try:
-                        inserted = self._save_links_to_storage(new_links, source_date)
-                        duplicates = len(new_links) - inserted
-                        total_inserted += inserted
-                        total_duplicates += duplicates
+                logger.info(
+                    f"Collected {inserted} new links (+{inserted} to storage, {duplicates} duplicates). "
+                    f"Total: {total_inserted}"
+                )
 
-                        logger.info(
-                            f"Collected {len(new_urls)} new links (+{inserted} to storage, {duplicates} duplicates). "
-                            f"Total: {total_inserted}"
-                        )
-
-                        if metrics:
-                            metrics.links_found += len(new_urls)
-                            metrics.links_inserted += inserted
-                            metrics.duplicates_prevented += duplicates
-
-                        no_change_count = 0
-                    except Exception as e:
-                        logger.error(f"Failed to save links: {e}")
+                no_change_count = 0
             else:
                 no_change_count += 1
                 logger.debug(
@@ -359,51 +381,14 @@ class FootballScraper:
                 break
 
         logger.debug("Performing final collection pass")
-        containers = self.browser.driver.find_elements(
-            By.CSS_SELECTOR,
-            self.config.selectors.match_container
+        inserted, duplicates = self._process_visible_containers(
+            seen_urls, source_date, metrics
         )
 
-        final_urls = []
-        for container in containers:
-            try:
-                url = self.extractor.extract_link(container)
-                if url and url not in seen_urls:
-                    final_urls.append(url)
-                    seen_urls.add(url)
-            except Exception:
-                pass
-
-        if final_urls:
-            final_links = []
-            for url in final_urls:
-                try:
-                    match_id = self.extractor.extract_match_id(url)
-                    link = MatchLk(
-                        url=url,
-                        match_id=match_id,
-                        source_date=source_date
-                    )
-                    final_links.append(link)
-                except Exception as e:
-                    logger.debug(f"Failed to create MatchLk for {url}: {e}")
-
-            if final_links:
-                try:
-                    inserted = self._save_links_to_storage(final_links, source_date)
-                    duplicates = len(final_links) - inserted
-                    total_inserted += inserted
-                    total_duplicates += duplicates
-
-                    if inserted > 0:
-                        logger.info(f"Final pass collected {inserted} additional links")
-
-                    if metrics:
-                        metrics.links_found += len(final_urls)
-                        metrics.links_inserted += inserted
-                        metrics.duplicates_prevented += duplicates
-                except Exception as e:
-                    logger.error(f"Failed to save final batch: {e}")
+        if inserted > 0:
+            total_inserted += inserted
+            total_duplicates += duplicates
+            logger.info(f"Final pass collected {inserted} additional links")
 
         logger.info(
             f"Link collection complete: {len(seen_urls)} unique URLs found, "
