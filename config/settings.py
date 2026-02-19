@@ -1,7 +1,7 @@
 """Environment-based settings management for Scout project.
 
 This module provides centralized environment configuration management.
-All environment variables are loaded from .env file using python-dotenv.
+All environment variables are loaded from .env file using pydantic-settings.
 
 Usage:
     from config.settings import settings, Environment
@@ -12,19 +12,12 @@ Usage:
     print(f"Log level: {settings.log_level}")
 """
 
-import os
 from enum import Enum
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-try:
-    from dotenv import load_dotenv
-    # Load .env file from project root
-    env_path = Path(__file__).parent.parent / '.env'
-    load_dotenv(dotenv_path=env_path)
-except ImportError:
-    pass
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Environment(str, Enum):
@@ -33,23 +26,13 @@ class Environment(str, Enum):
     STAGING = "staging"
     PRODUCTION = "production"
     TESTING = "testing"
-    
-    @classmethod
-    def from_string(cls, value: str) -> 'Environment':
-        """Convert string to Environment enum."""
-        value = value.lower()
-        for env in cls:
-            if env.value == value:
-                return env
-        return cls.DEVELOPMENT
 
 
-@dataclass
-class Settings:
+class Settings(BaseSettings):
     """Global application settings loaded from environment variables.
     
-    This provides a centralized place for application-wide configuration
-    that isn't specific to a particular scraper.
+    Uses pydantic-settings for automatic env var parsing, type coercion,
+    and validation.
     
     Environment Variables:
         ENVIRONMENT: Application environment (development/staging/production)
@@ -61,54 +44,44 @@ class Settings:
         CLICKHOUSE_PASSWORD: ClickHouse database password
     """
     
-    # Application environment
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="allow",
+    )
+    
     environment: Environment = Environment.DEVELOPMENT
     
-    # Logging
     log_level: str = "INFO"
     log_dir: str = "logs"
     
-    # Data storage
     data_dir: str = "data"
     
-    # ClickHouse database
     clickhouse_host: str = "localhost"
     clickhouse_port: int = 8123
     clickhouse_user: str = "default"
     clickhouse_password: str = ""
     clickhouse_database: str = "default"
+    clickhouse_db_fotmob: str = "fotmob"
+    clickhouse_db_aiscore: str = "aiscore"
     
-    # Feature flags
     enable_metrics: bool = True
     enable_health_checks: bool = True
     
-    def __init__(self):
-        """Initialize settings from environment variables."""
-        self._load_from_env()
+    telegram_bot_token: Optional[str] = None
+    telegram_chat_id: Optional[str] = None
     
-    def _load_from_env(self):
-        """Load configuration from environment variables."""
-        # Environment
-        env_str = os.getenv('ENVIRONMENT', 'development')
-        self.environment = Environment.from_string(env_str)
-        
-        # Logging
-        self.log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
-        self.log_dir = os.getenv('LOG_DIR', 'logs')
-        
-        # Data storage
-        self.data_dir = os.getenv('DATA_DIR', 'data')
-        
-        # ClickHouse
-        self.clickhouse_host = os.getenv('CLICKHOUSE_HOST', 'localhost')
-        self.clickhouse_port = int(os.getenv('CLICKHOUSE_PORT', '8123'))
-        self.clickhouse_user = os.getenv('CLICKHOUSE_USER', 'default')
-        self.clickhouse_password = os.getenv('CLICKHOUSE_PASSWORD', '')
-        self.clickhouse_database = os.getenv('CLICKHOUSE_DATABASE', 'default')
-        
-        # Feature flags
-        self.enable_metrics = os.getenv('ENABLE_METRICS', 'true').lower() == 'true'
-        self.enable_health_checks = os.getenv('ENABLE_HEALTH_CHECKS', 'true').lower() == 'true'
+    config_file_path: str = "config.yaml"
+    
+    fotmob_browser_enabled: bool = False
+    fotmob_proxy_enabled: bool = False
+    fotmob_proxy_http: Optional[str] = None
+    fotmob_proxy_https: Optional[str] = None
+    
+    s3_endpoint: Optional[str] = None
+    s3_access_key: Optional[str] = None
+    s3_secret_key: Optional[str] = None
     
     @property
     def is_development(self) -> bool:
@@ -140,15 +113,15 @@ class Settings:
             'clickhouse_host': self.clickhouse_host,
             'clickhouse_port': self.clickhouse_port,
             'clickhouse_database': self.clickhouse_database,
+            'clickhouse_db_fotmob': self.clickhouse_db_fotmob,
+            'clickhouse_db_aiscore': self.clickhouse_db_aiscore,
             'enable_metrics': self.enable_metrics,
             'enable_health_checks': self.enable_health_checks,
         }
 
 
-# Global settings instance
 settings = Settings()
 
-# Ensure directories exist on import
 settings.ensure_directories()
 
 
