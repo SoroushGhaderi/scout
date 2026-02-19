@@ -38,15 +38,8 @@ class BaseScraper(ScraperProtocol):
         self,
         url: str,
         params: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-        method: str = "GET",
     ) -> Optional[Dict[str, Any]]:
-        """
-        Make a browser-based GET request with automatic x-mas token injection.
-
-        The *headers* and *method* parameters are accepted for API compatibility
-        but are not used – the browser handles all headers internally.
-        """
+        """Make a browser-based GET request with automatic x-mas token injection."""
         self._delay_request()
         self.logger.debug(f"Browser request → {url}")
 
