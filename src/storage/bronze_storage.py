@@ -63,9 +63,8 @@ class BronzeStorage(BaseBronzeStorage):
         Args:
             base_dir: Base directory for raw data (default: data/fotmob)
         """
-        # Use custom logger from logging_utils
-        self.logger = get_logger()
         super().__init__(base_dir)
+        self.logger = get_logger()
         self.logger.info(f"Bronze storage initialized: {base_dir}")
 
     def health_check(self) -> Dict[str, Any]:
