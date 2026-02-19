@@ -70,6 +70,8 @@ class ScrapingStats:
     total_failed: int = 0
     total_skipped: int = 0
     total_duration_seconds: float = 0
+    bronze_files: int = 0
+    bronze_size_mb: float = 0
 
     def update_from_metrics(self, metrics) -> None:
         """Update stats from orchestrator metrics."""
@@ -86,6 +88,27 @@ class ScrapingStats:
     def record_failure(self) -> None:
         """Record a date processing failure."""
         self.dates_failed += 1
+
+    def add_bronze_storage(self, files: int, size_mb: float) -> None:
+        """Add bronze storage stats."""
+        self.bronze_files += files
+        self.bronze_size_mb += size_mb
+
+
+def get_bronze_storage_stats(bronze_base_dir: str, date_str: str) -> tuple:
+    """Get bronze storage stats for a specific date."""
+    date_dir = Path(bronze_base_dir) / "matches" / date_str
+    if not date_dir.exists():
+        return 0, 0.0
+    
+    json_files = list(date_dir.glob("match_*.json"))
+    gz_files = list(date_dir.glob("match_*.json.gz"))
+    all_files = json_files + gz_files
+    
+    total_size = sum(f.stat().st_size for f in all_files)
+    size_mb = total_size / (1024 * 1024)
+    
+    return len(all_files), size_mb
 
 
 # ============================================================================
@@ -384,6 +407,10 @@ def run_scraping(args: argparse.Namespace) -> int:
         if metrics:
             stats.update_from_metrics(metrics)
             stats.add_duration(duration)
+            
+            bronze_files, bronze_size_mb = get_bronze_storage_stats(config.bronze_base_dir, date_str)
+            stats.add_bronze_storage(bronze_files, bronze_size_mb)
+            
             print_date_metrics(metrics)
             
             # Send daily Telegram report
@@ -394,6 +421,8 @@ def run_scraping(args: argparse.Namespace) -> int:
                 errors=metrics.failed_matches,
                 skipped=metrics.skipped_matches,
                 duration_seconds=duration,
+                bronze_files=bronze_files,
+                bronze_size_mb=bronze_size_mb,
             )
             
             # Check and refresh turnstile if needed (every 30 minutes)
@@ -419,6 +448,8 @@ def run_scraping(args: argparse.Namespace) -> int:
             errors=stats.total_failed,
             skipped=stats.total_skipped,
             duration_seconds=stats.total_duration_seconds,
+            bronze_files=stats.bronze_files,
+            bronze_size_mb=stats.bronze_size_mb,
         )
 
     # Print summary

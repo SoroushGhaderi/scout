@@ -136,7 +136,9 @@ def refresh_if_needed(max_age_seconds: int = 1800) -> Tuple[bool, Optional[str]]
                 if update_credentials_json(new_tv):
                     new_age, new_status = get_turnstile_age_info(new_tv)
                     return True, f"Refreshed (age={age_seconds}s>{max_age_seconds}s), new age: {new_status}"
-            return False, f"Token expired ({status}), refresh failed"
+            # Auto-refresh via Chrome cookies failed (e.g. no D-Bus in Docker).
+            # The existing token may still be usable — report its actual validity.
+            return False, f"Token stale (age={age_seconds}s>={max_age_seconds}s, {status}), auto-refresh unavailable (run refresh_turnstile.py manually)"
         
         return False, f"Token valid (age={age_seconds}s<{max_age_seconds}s), {status}"
         
