@@ -102,7 +102,7 @@ class Alert:
 
 
 class AlertChannel:
-    """Base class for aler in t channels."""
+    """Base class for alert channels."""
 
     def __init__(self, enabled: bool = True):
         self.enabled = enabled
@@ -413,7 +413,7 @@ class AlertManager:
         issues: List[str],
         context: Optional[Dict[str, Any]] = None
     ):
-        """Send alert for dat in a quality issues."""
+        """Send alert for data quality issues."""
         full_context = {
             "match_id": match_id,
             "issues": issues,
@@ -426,7 +426,7 @@ class AlertManager:
         return self.send_alert(
             level=AlertLevel.WARNING,
             title=f"Data Quality Issue: Match {match_id}",
-            message=f"Data quality issues detected for matc in h {match_id}: {', '.join(issues[:3])}" +
+            message=f"Data quality issues detected for match {match_id}: {', '.join(issues[:3])}" +
                     (f" (and {len(issues) - 3} more)" if len(issues) > 3 else ""),
             context=full_context
         )
@@ -437,7 +437,7 @@ class AlertManager:
         error: str,
         context: Optional[Dict[str, Any]] = None
     ):
-        """Send alert for syste in m failure."""
+        """Send alert for system failure."""
         full_context = {
             "component": component,
             "error": error,
@@ -460,7 +460,7 @@ class AlertManager:
         message: str,
         context: Optional[Dict[str, Any]] = None
     ):
-        """Send alert for healt in h check failure."""
+        """Send alert for health check failure."""
         level = AlertLevel.CRITICAL if status in ["error", "critical"] else AlertLevel.WARNING
 
         full_context = {
