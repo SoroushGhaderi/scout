@@ -45,6 +45,7 @@ Usage:
 import json
 import os
 import smtplib
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from email.mime.text import MIMEText
@@ -101,7 +102,7 @@ class Alert:
         return f"[{level_str}] {self.title}\n{self.message}{context_str}"
 
 
-class AlertChannel:
+class AlertChannel(ABC):
     """Base class for alert channels."""
 
     def __init__(self, enabled: bool = True):
@@ -127,9 +128,10 @@ class AlertChannel:
             self.logger.error(f"Failed to send alert through {self.__class__.__name__}: {e}")
             return False
 
+    @abstractmethod
     def _send_impl(self, alert: Alert) -> bool:
         """Implementation-specific send logic. Override in subclasses."""
-        raise NotImplementedError
+        ...
 
 
 class LoggingChannel(AlertChannel):
