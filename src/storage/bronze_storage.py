@@ -6,6 +6,7 @@ the base bronze storage with FotMob-specific functionality like health checks.
 
 import json
 import os
+import contextlib
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from datetime import datetime
@@ -249,79 +250,87 @@ class BronzeStorage(BaseBronzeStorage):
             self.logger.debug(f"Daily listing file not found: {listing_file}")
             return False
 
-        try:
-            with open(listing_file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
+        lock_file = listing_file.parent / ".matches.json.lock"
+        
+        if FILE_LOCKING_AVAILABLE:
+            lock = FileLock(lock_file, timeout=30)
+        else:
+            lock = contextlib.nullcontext()
 
-            match_id_int = int(match_id)
-
-            if 'storage' not in data:
-                data['storage'] = {}
-            storage = data['storage']
-
-            if 'missing_match_ids' not in storage:
-                storage['missing_match_ids'] = []
-            if 'scraped_match_ids' not in storage:
-                storage['scraped_match_ids'] = []
-
-            # Move from missing to scraped
-            if match_id_int in storage['missing_match_ids']:
-                storage['missing_match_ids'].remove(match_id_int)
-
-            if match_id_int not in storage['scraped_match_ids']:
-                storage['scraped_match_ids'].append(match_id_int)
-
-            # Update storage statistics
+        with lock:
             try:
-                all_match_ids = data.get('match_ids', [])
-                if not all_match_ids:
-                    matches = data.get('matches', [])
-                    all_match_ids = [m.get('match_id') for m in matches if m.get('match_id')]
+                with open(listing_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
 
-                if all_match_ids:
-                    match_ids_int = [int(mid) for mid in all_match_ids]
-                    matches_date_dir = self.matches_dir / date_str_normalized
-                    storage_stats = self._get_storage_stats(date_str_normalized, match_ids_int, matches_date_dir)
+                match_id_int = int(match_id)
 
-                    storage.update({
-                        'files_stored': storage_stats['files_stored'],
-                        'files_missing': storage_stats['files_missing'],
-                        'total_size_bytes': storage_stats['total_size_bytes'],
-                        'total_size_mb': storage_stats['total_size_mb'],
-                        'files_in_archive': storage_stats['files_in_archive'],
-                        'files_individual': storage_stats['files_individual'],
-                        'archive_size_bytes': storage_stats['archive_size_bytes'],
-                        'archive_size_mb': storage_stats['archive_size_mb'],
-                        'scraped_match_ids': storage_stats['scraped_match_ids'],
-                        'missing_match_ids': storage_stats['missing_match_ids'],
-                        'completion_percentage': storage_stats.get('completion_percentage', 0.0)
-                    })
-            except Exception as e:
-                self.logger.warning(f"Could not update storage statistics: {e}")
+                if 'storage' not in data:
+                    data['storage'] = {}
+                storage = data['storage']
 
-            # Atomic write
-            temp_file = listing_file.parent / ".matches.json.tmp"
-            with open(temp_file, 'w', encoding='utf-8') as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
+                if 'missing_match_ids' not in storage:
+                    storage['missing_match_ids'] = []
+                if 'scraped_match_ids' not in storage:
+                    storage['scraped_match_ids'] = []
 
-            # Verify
-            with open(temp_file, 'r', encoding='utf-8') as f:
-                json.load(f)
+                # Move from missing to scraped
+                if match_id_int in storage['missing_match_ids']:
+                    storage['missing_match_ids'].remove(match_id_int)
 
-            if listing_file.exists():
-                listing_file.unlink()
-            temp_file.rename(listing_file)
+                if match_id_int not in storage['scraped_match_ids']:
+                    storage['scraped_match_ids'].append(match_id_int)
 
-            self.logger.debug(f"Updated daily listing: match {match_id} marked as scraped")
-            return True
-
-        except Exception as e:
-            self.logger.error(f"Error updating daily listing for match {match_id}: {e}")
-
-            temp_file = listing_file.parent / ".matches.json.tmp"
-            if temp_file.exists():
+                # Update storage statistics
                 try:
-                    temp_file.unlink()
-                except Exception:
-                    pass
-            return False
+                    all_match_ids = data.get('match_ids', [])
+                    if not all_match_ids:
+                        matches = data.get('matches', [])
+                        all_match_ids = [m.get('match_id') for m in matches if m.get('match_id')]
+
+                    if all_match_ids:
+                        match_ids_int = [int(mid) for mid in all_match_ids]
+                        matches_date_dir = self.matches_dir / date_str_normalized
+                        storage_stats = self._get_storage_stats(date_str_normalized, match_ids_int, matches_date_dir)
+
+                        storage.update({
+                            'files_stored': storage_stats['files_stored'],
+                            'files_missing': storage_stats['files_missing'],
+                            'total_size_bytes': storage_stats['total_size_bytes'],
+                            'total_size_mb': storage_stats['total_size_mb'],
+                            'files_in_archive': storage_stats['files_in_archive'],
+                            'files_individual': storage_stats['files_individual'],
+                            'archive_size_bytes': storage_stats['archive_size_bytes'],
+                            'archive_size_mb': storage_stats['archive_size_mb'],
+                            'scraped_match_ids': storage_stats['scraped_match_ids'],
+                            'missing_match_ids': storage_stats['missing_match_ids'],
+                            'completion_percentage': storage_stats.get('completion_percentage', 0.0)
+                        })
+                except Exception as e:
+                    self.logger.warning(f"Could not update storage statistics: {e}")
+
+                # Atomic write
+                temp_file = listing_file.parent / ".matches.json.tmp"
+                with open(temp_file, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+
+                # Verify
+                with open(temp_file, 'r', encoding='utf-8') as f:
+                    json.load(f)
+
+                if listing_file.exists():
+                    listing_file.unlink()
+                temp_file.rename(listing_file)
+
+                self.logger.debug(f"Updated daily listing: match {match_id} marked as scraped")
+                return True
+
+            except Exception as e:
+                self.logger.error(f"Error updating daily listing for match {match_id}: {e}")
+
+                temp_file = listing_file.parent / ".matches.json.tmp"
+                if temp_file.exists():
+                    try:
+                        temp_file.unlink()
+                    except Exception:
+                        pass
+                return False
