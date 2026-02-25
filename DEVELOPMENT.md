@@ -1024,7 +1024,7 @@ class BronzeStorage:
 2. **Declare `AlertChannel` as `ABC`** — Add `@abstractmethod` decorator
 3. **Remove dead parameters** — ✅ DONE (removed unused `headers` and `method` from `BaseScraper.make_request()`)
 4. **Adopt `logging.getLogger(__name__)` uniformly** — ✅ DONE (replaced singleton pattern in main source files)
-5. **Fix repeated imports inside methods** — `json` and `Path` imported at module top
+5. **Fix repeated imports inside methods** — ✅ DONE (removed redundant `json` and `Path` imports)
 
 ---
 
