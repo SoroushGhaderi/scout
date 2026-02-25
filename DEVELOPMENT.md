@@ -1021,7 +1021,7 @@ class BronzeStorage:
 ### Configuration & Code Quality
 
 1. **Move `settings.ensure_directories()` out of module-level import** — Currently creates directories on disk at import time, breaks tests
-2. **Declare `AlertChannel` as `ABC`** — Add `@abstractmethod` decorator
+2. **Declare `AlertChannel` as `ABC`** — ✅ DONE (already has `from abc import ABC, abstractmethod` and proper decorators)
 3. **Remove dead parameters** — ✅ DONE (removed unused `headers` and `method` from `BaseScraper.make_request()`)
 4. **Adopt `logging.getLogger(__name__)` uniformly** — ✅ DONE (replaced singleton pattern in main source files)
 5. **Fix repeated imports inside methods** — ✅ DONE (removed redundant `json` and `Path` imports)
