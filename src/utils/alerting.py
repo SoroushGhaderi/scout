@@ -45,6 +45,7 @@ Usage:
 import json
 import os
 import smtplib
+import threading
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
@@ -483,13 +484,16 @@ class AlertManager:
 
 
 _global_alert_manager: Optional[AlertManager] = None
+_alert_manager_lock = threading.Lock()
 
 
 def get_alert_manager() -> AlertManager:
-    """Get or create the global alert manager instance."""
+    """Get or create the global alert manager instance (thread-safe)."""
     global _global_alert_manager
     if _global_alert_manager is None:
-        _global_alert_manager = AlertManager()
+        with _alert_manager_lock:
+            if _global_alert_manager is None:
+                _global_alert_manager = AlertManager()
     return _global_alert_manager
 
 
