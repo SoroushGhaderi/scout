@@ -4,6 +4,7 @@ Supports both FotMob and AIScore scrapers with separate databases.
 """
 
 import logging
+import re
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 
@@ -82,6 +83,25 @@ class ClickHouseClient:
                 f"Allowed tables: {', '.join(sorted(self.ALLOWED_TABLES))}"
             )
         return table
+
+    _SAFE_IDENT = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
+
+    def _validate_identifier(self, value: str, kind: str = "identifier") -> str:
+        """Validate database/table identifier to prevent SQL injection.
+
+        Args:
+            value: Identifier to validate
+            kind: Description of identifier type for error messages
+
+        Returns:
+            Validated identifier
+
+        Raises:
+            ValueError: If identifier contains unsafe characters
+        """
+        if not self._SAFE_IDENT.match(value):
+            raise ValueError(f"Unsafe {kind}: '{value}'")
+        return value
 
     def connect(self) -> bool:
         """Connect to ClickHouse server."""
@@ -183,6 +203,7 @@ class ClickHouseClient:
         table = self._validate_table_name(table)
 
         db = database or self.database
+        db = self._validate_identifier(db, "database")
         full_table = f"{db}.{table}" if db else table
 
         try:
@@ -225,6 +246,7 @@ class ClickHouseClient:
         table = self._validate_table_name(table)
 
         db = database or self.database
+        db = self._validate_identifier(db, "database")
         full_table = f"{db}.{table}" if db else table
 
         try:
