@@ -1,5 +1,6 @@
 """Base scraper – uses a headless browser so x-mas tokens are auto-generated."""
 
+import logging
 import time
 import random
 from typing import Optional, Dict, Any
@@ -7,8 +8,9 @@ from typing import Optional, Dict, Any
 from ...core import ScraperProtocol
 from ...core.constants import Defaults
 from config import FotMobConfig
-from ...utils.logging_utils import get_logger
 from .playwright_fetcher import PlaywrightFetcher
+
+logger = logging.getLogger(__name__)
 
 
 class BaseScraper(ScraperProtocol):
@@ -22,7 +24,7 @@ class BaseScraper(ScraperProtocol):
 
     def __init__(self, config: FotMobConfig):
         self.config = config
-        self.logger = get_logger()
+        self.logger = logger
         self._fetcher = PlaywrightFetcher(config)
 
     def _delay_request(self):

@@ -5,6 +5,7 @@ the base bronze storage with FotMob-specific functionality like health checks.
 """
 
 import json
+import logging
 import os
 import contextlib
 from pathlib import Path
@@ -20,8 +21,9 @@ except ImportError:
     Timeout = None
 
 from .base_bronze_storage import BaseBronzeStorage
-from ..utils.logging_utils import get_logger
 from ..core.constants import HealthThresholds
+
+logger = logging.getLogger(__name__)
 
 
 class BronzeStorage(BaseBronzeStorage):
@@ -65,8 +67,7 @@ class BronzeStorage(BaseBronzeStorage):
             base_dir: Base directory for raw data (default: data/fotmob)
         """
         super().__init__(base_dir)
-        self.logger = get_logger()
-        self.logger.info(f"Bronze storage initialized: {base_dir}")
+        logger.info(f"Bronze storage initialized: {base_dir}")
 
     def health_check(self) -> Dict[str, Any]:
         """Perform pre-flight health checks before operations.

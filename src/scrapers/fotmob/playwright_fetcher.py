@@ -20,13 +20,14 @@ fingerprint, bypassing Cloudflare's TLS-based bot detection.
 """
 
 import json
+import logging
 import time
 import hashlib
 import base64
 import asyncio
 from typing import Optional, Dict, Any
 
-from ...utils.logging_utils import get_logger
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -131,7 +132,7 @@ class PlaywrightFetcher:
 
     def __init__(self, config):
         self.config = config
-        self.logger = get_logger()
+        self.logger = logger
 
         self._foo_hash: Optional[str] = None
         self._h_lyrics: Optional[str] = None

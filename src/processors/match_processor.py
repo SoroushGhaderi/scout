@@ -1,4 +1,5 @@
 """Match data processor: converts raw API data to structured format."""
+import logging
 from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
 
@@ -13,10 +14,11 @@ from ..models import (
     FlatPlayerStats, ShotEvent, LineupPlayer, SubstitutePlayer, TeamCoach,
     MatchVenue, TeamFormMatch
 )
-from ..utils.logging_utils import get_logger
 from ..utils.fotmob_validator import (
     FotMobValidator, SafeFieldExtractor, ResponseSaver
 )
+
+logger = logging.getLogger(__name__)
 
 
 # Period statistics key mapping: API key -> (home_field, away_field)
@@ -102,7 +104,7 @@ class MatchProcessor(ProcessorProtocol):
             response_output_dir: Directory to save validated responses.
                 Only used if response_saver is None and save_responses is True.
         """
-        self.logger = get_logger()
+        self.logger = logger
         self.validator = validator or FotMobValidator()
         self.extractor = extractor or SafeFieldExtractor()
         self.save_responses = save_responses

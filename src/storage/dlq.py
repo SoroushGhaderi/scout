@@ -10,7 +10,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 
-from ..utils.logging_utils import get_logger
+logger = logging.getLogger(__name__)
 
 
 class DeadLetterQueue:
@@ -25,7 +25,7 @@ class DeadLetterQueue:
         """
         self.dlq_path = Path(dlq_path)
         self.dlq_path.mkdir(parents=True, exist_ok=True)
-        self.logger = get_logger()
+        self.logger = logger
 
     def send_to_dlq(
         self,

@@ -6,6 +6,7 @@ PURPOSE: Orchestrate the entire scraping and processing pipeline.
          Saves to Bronze layer only. Use load_clickhouse.py to load to ClickHouse.
 """
 
+import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 import time
@@ -20,8 +21,10 @@ from config import FotMobConfig
 from .processors import MatchProcessor
 from .scrapers import MatchScraper, DailyScraper
 from .storage import BronzeStorage, get_s3_uploader
-from .utils import ScraperMetrics, DataQualityChecker, get_logger, get_alert_manager
+from .utils import ScraperMetrics, DataQualityChecker, get_alert_manager
 from .utils.alerting import AlertLevel
+
+logger = logging.getLogger(__name__)
 
 
 class FotMobOrchestrator(OrchestratorProtocol):
@@ -43,7 +46,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
                         Default is True. Processing to ClickHouse is done separately.
         """
         self.config = config or FotMobConfig()
-        self.logger = get_logger()
+        self.logger = logger
         self.bronze_only = bronze_only
         self.alert_manager = get_alert_manager()
 

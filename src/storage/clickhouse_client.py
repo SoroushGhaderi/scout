@@ -11,7 +11,8 @@ from typing import Optional, Dict, Any, List
 import clickhouse_connect
 
 from ..utils.health_check import check_clickhouse_connection
-from ..utils.logging_utils import get_logger
+
+logger = logging.getLogger(__name__)
 
 
 class ClickHouseClient:
@@ -62,7 +63,7 @@ class ClickHouseClient:
         self.username = username
         self.password = password
         self.database = database
-        self.logger = get_logger()
+        self.logger = logger
         self.client: Optional[clickhouse_connect.driver.Client] = None
 
     def _validate_table_name(self, table: str) -> str:

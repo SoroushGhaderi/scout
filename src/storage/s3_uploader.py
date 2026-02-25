@@ -9,6 +9,7 @@ Example: fotmob/202509/20250901.tar.gz, aiscore/202509/20250915.tar.gz
 """
 
 import os
+import logging
 import tarfile
 import tempfile
 from pathlib import Path
@@ -21,7 +22,7 @@ try:
 except ImportError:
     BOTO3_AVAILABLE = False
 
-from ..utils.logging_utils import get_logger
+logger = logging.getLogger(__name__)
 
 
 class S3Uploader:
@@ -35,7 +36,7 @@ class S3Uploader:
         bucket_name: str = "scout-sport"
     ):
         """Initialize S3 uploader."""
-        self.logger = get_logger()
+        self.logger = logger
         self.endpoint = endpoint
         self.access_key = access_key
         self.secret_key = secret_key
@@ -211,11 +212,11 @@ def get_s3_uploader() -> Optional[S3Uploader]:
     secret_key = os.getenv('S3_SECRET_KEY')
     
     if not all([endpoint, access_key, secret_key]):
-        get_logger().warning("S3 not fully configured, skipping upload")
+        logger.warning("S3 not fully configured, skipping upload")
         return None
     
     if access_key == 'your_access_key_here':
-        get_logger().warning("S3 credentials not configured, skipping upload")
+        logger.warning("S3 credentials not configured, skipping upload")
         return None
     
     return S3Uploader(
