@@ -12,6 +12,7 @@ import os
 import io
 import gzip
 import tarfile
+import shutil
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -830,16 +831,13 @@ class BaseBronzeStorage(StorageProtocol, ABC):
         try:
             gz_files = list(existing_gz_files)
 
-            # Step 1: Compress JSON files to gzip
+            # Step 1: Compress JSON files to gzip (byte-copy method - faster)
             if json_files:
                 self.logger.debug(f"Compressing {len(json_files)} JSON files to gzip")
                 for json_file in json_files:
-                    with open(json_file, 'r', encoding='utf-8') as f:
-                        data = json.load(f)
-
                     gz_file = json_file.with_suffix('.json.gz')
-                    with gzip.open(gz_file, 'wt', encoding='utf-8') as f:
-                        json.dump(data, f, ensure_ascii=False)
+                    with open(json_file, 'rb') as f_in, gzip.open(gz_file, 'wb', compresslevel=6) as f_out:
+                        shutil.copyfileobj(f_in, f_out)
 
                     gz_files.append(gz_file)
                     json_file.unlink()
