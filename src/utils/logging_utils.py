@@ -1,4 +1,5 @@
 """Logging utilities for FotMob scraper."""
+import json
 import logging
 import sys
 from pathlib import Path
@@ -124,7 +125,6 @@ class JsonFormatter(logging.Formatter):
         Returns:
             JSON string representation of log record
         """
-        import json
         from datetime import datetime
         log_data = {
             "timestamp": datetime.fromtimestamp(record.created).isoformat() + 'Z',

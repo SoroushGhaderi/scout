@@ -25,6 +25,7 @@ import time
 import hashlib
 import base64
 import asyncio
+from pathlib import Path
 from typing import Optional, Dict, Any
 
 logger = logging.getLogger(__name__)
@@ -419,9 +420,6 @@ class PlaywrightFetcher:
     def _read_credentials_file_cookies(self) -> Optional[Dict[str, str]]:
         """Directly read credentials.json from disk (bypasses startup cache)."""
         try:
-            import json
-            from pathlib import Path
-
             creds_path = Path(__file__).parent.parent.parent.parent / "credentials.json"
             if not creds_path.exists():
                 self.logger.warning(f"credentials.json not found at {creds_path}")

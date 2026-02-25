@@ -974,10 +974,6 @@ def save_new_links_incremental_with_leagues(
         daily_file: Path to the daily listings JSON file
         league_info_map: Dictionary mapping URL to league info dict {'league_name': str, 'is_important': bool}
     """
-    import json
-    from datetime import datetime
-    from pathlib import Path
-
     scrape_timestamp = datetime.now().isoformat()
 
     # Ensure date folder exists
@@ -1149,10 +1145,6 @@ def save_new_links_incremental(
         daily_file: Path to the daily listings JSON file
         league_info: Optional dict with 'league_name' and 'is_important'
     """
-    import json
-    from datetime import datetime
-    from pathlib import Path
-
     scrape_timestamp = datetime.now().isoformat()
 
     # Ensure date folder exists
