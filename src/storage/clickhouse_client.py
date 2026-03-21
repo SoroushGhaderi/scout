@@ -1,6 +1,6 @@
 """ClickHouse client for loading data from silver layer to ClickHouse data warehouse.
 
-Supports both FotMob and AIScore scrapers with separate databases.
+Supports FotMob scraper data loading.
 """
 
 import logging
@@ -33,12 +33,6 @@ class ClickHouseClient:
         'substitutes',
         'coaches',
         'team_form',
-
-        'matches',
-        'odds_1x2',
-        'odds_asian_handicap',
-        'odds_over_under',
-        'daily_listings'
     }
 
     def __init__(

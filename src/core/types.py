@@ -20,7 +20,7 @@ from datetime import datetime
 # =============================================================================
 
 # String types
-MatchID = str  # Unique match identifier (numeric for FotMob, alphanumeric for AIScore)
+MatchID = str  # Unique match identifier (numeric for FotMob)
 DateStr = str  # Date string (YYYYMMDD or YYYY-MM-DD format)
 URL = str  # URL string
 FilePath = Union[str, Path]  # File path (string or Path object)

@@ -47,16 +47,6 @@ Loading priority:
 2. Apply .env overrides using `FOTMOB_*` variables
 3. Initialize directories and validate
 
-### AIScoreConfig
-```python
-config = AIScoreConfig()
-```
-
-Loading priority:
-1. Load defaults from `config.yaml` under `aiscore:` section
-2. Apply .env overrides using `AISCORE_*` variables
-3. Initialize directories and validate
-
 ## Configuration File Structure
 
 ### config.yaml
@@ -80,20 +70,6 @@ fotmob:
     bronze_path: data/fotmob
     enabled: true
   # ... more settings
-
-# AIScore scraper configuration
-aiscore:
-  scraping:
-    base_url: https://www.aiscore.com
-    filter_by_leagues: true
-    allowed_leagues:
-      - Premier League
-      - La Liga
-      # ... more leagues
-  browser:
-    headless: true
-    window_size: "1920x1080"
-  # ... more settings
 ```
 
 ### .env
@@ -106,10 +82,6 @@ CLICKHOUSE_PASSWORD=secure_password
 # API tokens (sensitive)
 FOTMOB_X_MAS_TOKEN=your_token_here
 
-# SMTP credentials
-ALERT_SMTP_USER=email@example.com
-ALERT_SMTP_PASSWORD=email_app_password
-
 # Configuration file path (optional)
 CONFIG_FILE_PATH=config.yaml
 ```
@@ -119,18 +91,15 @@ CONFIG_FILE_PATH=config.yaml
 ### Via .env Variables
 Override any config.yaml setting using environment variables:
 
-**Format:** `{SCRAPER}_{CONFIG_PATH_UPPERCASE}`
+**Format:** `FOTMOB_{CONFIG_PATH_UPPERCASE}`
 
 **Examples:**
 ```bash
 # Override FotMob request timeout
 FOTMOB_REQUEST_TIMEOUT=60
 
-# Override AIScore headless mode
-AISCORE_HEADLESS=false
-
-# Override AIScore allowed leagues (comma-separated)
-AISCORE_ALLOWED_LEAGUES=Premier League,La Liga,Bundesliga
+# Override FotMob storage path
+FOTMOB_STORAGE_BRONZE_PATH=/custom/path/fotmob
 ```
 
 ### Via Code
@@ -145,7 +114,7 @@ config.request.timeout = 60  # Override after loading
 
 For any setting:
 1. **Highest:** Code-level overrides (set after config instantiation)
-2. **Medium:** .env file variables (FOTMOB_*, AISCORE_*)
+2. **Medium:** .env file variables (FOTMOB_*)
 3. **Lowest:** config.yaml defaults
 
 ## Best Practices
@@ -260,33 +229,6 @@ send_daily_report(
 ✅ All matches scraped successfully!
 ```
 
-#### AIScore Daily Report
-```python
-send_daily_report(
-    scraper='aiscore',
-    date='20260215',
-    matches_scraped=120,
-    odds_scraped=118,
-    errors=1,
-    skipped=1,
-    duration_seconds=5400
-)
-```
-
-**Sample Output:**
-```
-⚽ AIScore Daily Report - 20260215
-
-✨ Matches Found: 120
-💰 Odds Scraped: 118
-📈 Success Rate: 98.3% ✅
-❌ Errors: 1
-⏭️ Skipped: 1
-⏱️ Duration: 1.5h
-
-ℹ️ Status: Completed with issues
-```
-
 ### Emoji Legend
 
 **Status:**
@@ -327,21 +269,7 @@ send_daily_report(
     duration_seconds=fotmob_duration
 )
 
-# ... AIScore scraping ...
-aiscore_start = time.time()
-# ... AIScore scraping logic ...
-aiscore_duration = time.time() - aiscore_start
-aiscore_matches = 120  # Your actual count
-
-# Send AIScore report
-send_daily_report(
-    scraper='aiscore',
-    matches_scraped=aiscore_matches,
-    odds_scraped=118,
-    duration_seconds=aiscore_duration
-)
-
-print("✅ Daily reports sent to Telegram!")
+print("✅ Daily report sent to Telegram!")
 ```
 
 ## Configuration Validation

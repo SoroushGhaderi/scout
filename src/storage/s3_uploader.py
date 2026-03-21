@@ -5,7 +5,7 @@ This module provides functionality to:
 2. Upload to S3 (Arvan Cloud) with proper naming convention
 
 Naming convention: {scraper}/YYYYMM/YYYYMMDD.tar.gz
-Example: fotmob/202509/20250901.tar.gz, aiscore/202509/20250915.tar.gz
+Example: fotmob/202509/20250901.tar.gz
 """
 
 import os
@@ -131,7 +131,7 @@ class S3Uploader:
         Args:
             source_dir: Source directory containing bronze data
             date_str: Date string (YYYYMMDD)
-            scraper_name: Name of scraper (fotmob or aiscore)
+            scraper_name: Name of scraper (fotmob)
 
         Returns:
             True if successful, False otherwise
@@ -189,7 +189,7 @@ class S3Uploader:
         Args:
             bronze_dir: Bronze layer directory path (e.g., data/fotmob/matches/20250901)
             date_str: Date string (YYYYMMDD)
-            scraper_name: Name of scraper (fotmob or aiscore)
+            scraper_name: Name of scraper (fotmob)
 
         Returns:
             True if successful, False otherwise

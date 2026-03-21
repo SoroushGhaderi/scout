@@ -249,7 +249,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
             force_refetch: If True, fetch from API even if daily listing exists
 
         Returns:
-            List of match IDs (int for FotMob, str for AIScore)
+            List of match IDs (int for FotMob)
         """
 
         if not force_refetch and self.bronze_storage.daily_listing_exists(date_str):

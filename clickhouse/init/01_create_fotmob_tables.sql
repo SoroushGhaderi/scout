@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS general (
     match_time_utc_date Nullable(String),
     match_started UInt8,
     match_finished UInt8,
+    full_score Nullable(String),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = MergeTree()
 ORDER BY (match_id)

@@ -1,7 +1,7 @@
 """
 Daily metrics reporting via Telegram with enriched emoji indicators.
 
-Sends end-of-day summaries for FotMob and AIScore scraping with comprehensive metrics and status.
+Sends end-of-day summaries for FotMob scraping with comprehensive metrics and status.
 
 Usage:
     from src.utils.metrics_alerts import send_daily_report
@@ -350,115 +350,6 @@ class TelegramMetricsReporter:
 
         return self._send_message(message, silent=no_matches)
 
-    def report_aiscore_daily(self, date: str, **kwargs) -> bool:
-        """Send enriched AIScore daily scraping report."""
-        
-        matches_found = kwargs.get('matches_found', 0)
-        matches_scraped = kwargs.get('matches_scraped', 0)
-        odds_scraped = kwargs.get('odds_scraped', 0)
-        odds_sources = kwargs.get('odds_sources', 0)
-        odds_sources_total = kwargs.get('odds_sources_total', 0)
-        errors = kwargs.get('errors', 0)
-        skipped = kwargs.get('skipped', 0)
-        rate_limited = kwargs.get('rate_limited', 0)
-        links_scraped = kwargs.get('links_scraped', 0)
-        bookmarks = kwargs.get('bookmarks', 0)
-        duration_seconds = kwargs.get('duration_seconds', 0)
-        
-        bronze_files = kwargs.get('bronze_files', 0)
-        bronze_size_mb = kwargs.get('bronze_size_mb', 0)
-        s3_backup = kwargs.get('s3_backup', False)
-        clickhouse_rows = kwargs.get('clickhouse_rows', 0)
-        
-        context = kwargs.get('context', {})
-
-        success_rate = (odds_scraped / matches_found * 100) if matches_found > 0 else 0
-        odds_coverage = (odds_sources / odds_sources_total * 100) if odds_sources_total > 0 else 0
-        no_matches = matches_found == 0
-
-        formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
-
-        message = f"<b>{EMOJI_MAP['odds']} AIScore Daily Report - {formatted_date}</b>\n"
-        message += f"<i>Environment: {self.environment} | Server: {self.server_name}</i>\n\n"
-
-        message += f"<b>📊 SCAN SUMMARY</b>\n"
-        message += f"{'─' * 40}\n"
-        
-        if no_matches:
-            message += f"{EMOJI_MAP['info']} Matches: No matches scheduled for this date\n"
-            message += f"{EMOJI_MAP['odds']} Odds: <b>{odds_scraped}</b> scraped\n"
-        else:
-            message += f"{EMOJI_MAP['matches_found']} Matches: <b>{matches_found}</b> found\n"
-            message += f"{EMOJI_MAP['odds']} Odds: <b>{odds_scraped}</b> scraped\n"
-        
-        if odds_sources_total > 0:
-            message += f"{EMOJI_MAP['odds_sources']} Sources: <b>{odds_sources}/{odds_sources_total}</b> ({odds_coverage:.0f}%)\n"
-        
-        error_details = []
-        if errors > 0:
-            error_details.append(f"{errors} errors")
-        if rate_limited > 0:
-            error_details.append(f"{rate_limited} rate limited")
-        if skipped > 0:
-            error_details.append(f"{skipped} skipped")
-        
-        if error_details:
-            message += f"{EMOJI_MAP['warning']} Issues: {', '.join(error_details)}\n"
-        
-        message += f"{EMOJI_MAP['duration']} Duration: <b>{self._format_duration(duration_seconds)}</b>\n\n"
-
-        data_parts = []
-        if links_scraped > 0:
-            data_parts.append(f"{EMOJI_MAP['links_scraped']} {links_scraped:,} links")
-        if bookmarks > 0:
-            data_parts.append(f"{EMOJI_MAP['bookmarks']} {bookmarks:,} bookmarks")
-        
-        if data_parts:
-            message += f"<b>📦 DATA COLLECTED</b>\n"
-            message += f"{'─' * 40}\n"
-            message += " | ".join(data_parts) + "\n\n"
-
-        message += f"<b>💾 STORAGE</b>\n"
-        message += f"{'─' * 40}\n"
-        
-        storage_parts = []
-        if bronze_files > 0:
-            size_str = self._format_size(bronze_size_mb) if bronze_size_mb > 0 else ""
-            storage_parts.append(f"{EMOJI_MAP['bronze']} Bronze: <b>{bronze_files}</b> files")
-            if bronze_size_mb > 0:
-                storage_parts[-1] += f" ({self._format_size(bronze_size_mb)})"
-        
-        storage_parts.append(f"{EMOJI_MAP['s3']} {self._check_s3_backup('aiscore', date)}")
-        
-        if clickhouse_rows > 0:
-            storage_parts.append(f"{EMOJI_MAP['clickhouse']} ClickHouse: <b>{clickhouse_rows}</b> rows")
-        
-        message += "\n".join(storage_parts) + "\n\n"
-
-        issues_list = []
-        if rate_limited > 0:
-            issues_list.append(f"API rate limited ({rate_limited} times)")
-        if errors > 0:
-            issues_list.append(f"{errors} scraping errors")
-        if odds_coverage < 50:
-            issues_list.append(f"Low odds coverage ({odds_coverage:.0f}%)")
-        
-        if issues_list:
-            message += f"<b>🔴 ISSUES</b>\n"
-            message += f"{'─' * 40}\n"
-            for issue in issues_list:
-                message += f"  • {issue}\n"
-            message += "\n"
-
-        if no_matches:
-            message += f"{EMOJI_MAP['info']} No matches to scrape - already processed previously"
-        elif success_rate >= 95 and errors == 0:
-            message += f"{EMOJI_MAP['success']} <b>All odds scraped successfully!</b>"
-        elif success_rate >= 80:
-            message += f"{EMOJI_MAP['info']} Completed with minor issues"
-        else:
-            message += f"{EMOJI_MAP['warning']} <b>Review required</b> - Success rate: {success_rate:.1f}%"
-
     def report_fotmob_monthly(self, month: str, **kwargs) -> bool:
         """Send enriched FotMob monthly scraping report."""
         
@@ -605,8 +496,6 @@ def send_daily_report(
     
     if scraper.lower() == 'fotmob':
         return reporter.report_fotmob_daily(date=date, **kwargs)
-    elif scraper.lower() == 'aiscore':
-        return reporter.report_aiscore_daily(date=date, **kwargs)
     else:
         reporter.logger.warning(f"Unknown scraper: {scraper}")
         return False

@@ -60,6 +60,7 @@ class GeneralMatchStats(BaseModel):
     match_time_utc_date: Optional[str] = Field(None, description="Match date UTC")
     match_started: bool = Field(False, description="Whether match has started")
     match_finished: bool = Field(False, description="Whether match has finished")
+    full_score: Optional[str] = Field(None, description="Full match score as string (e.g., '2-1')")
 
 
 class InfoBox(BaseModel):

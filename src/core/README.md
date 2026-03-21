@@ -14,7 +14,7 @@ Protocol definitions for all major components using Python's `Protocol` typing.
 
 **Protocols Defined:**
 - `StorageProtocol` - Interface for storage implementations (Bronze/Silver/Gold)
-- `ScraperProtocol` - Interface for scraper implementations (FotMob/AIScore)
+- `ScraperProtocol` - Interface for scraper implementations (FotMob)
 - `ProcessorProtocol` - Interface for data processors
 - `OrchestratorProtocol` - Interface for orchestration logic
 - `ConfigProtocol` - Interface for configuration classes

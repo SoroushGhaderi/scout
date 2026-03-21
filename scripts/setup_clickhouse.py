@@ -1,7 +1,7 @@
-"""Create ClickHouse tables for FotMob and AIScore databases.
+"""Create ClickHouse tables for FotMob database.
 
-SCRAPER: Both FotMob and AIScore
-PURPOSE: Initialize ClickHouse databases and tables from SQL scripts
+SCRAPER: FotMob
+PURPOSE: Initialize ClickHouse database and tables from SQL scripts
 
 Usage:
     python scripts/setup_clickhouse.py
@@ -188,7 +188,6 @@ def create_user_if_not_exists(client: ClickHouseClient, username: str, password:
         logger.info(f"Granting permissions to '{username}'...")
         grant_queries = [
             f"GRANT ALL ON fotmob.* TO {username}",
-            f"GRANT ALL ON aiscore.* TO {username}",
             f"GRANT CREATE DATABASE ON *.* TO {username}",
         ]
 
@@ -306,12 +305,10 @@ def main():
         required_fotmob_tables = ['general', 'timeline', 'venue', 'player', 'shotmap', 'goal',
                                   'cards', 'red_card', 'period', 'momentum', 'starters',
                                   'substitutes', 'coaches', 'team_form']
-        required_aiscore_tables = ['matches', 'odds_1x2', 'odds_asian_handicap', 'odds_over_under', 'daily_listings']
 
         fotmob_tables_exist = False
-        aiscore_tables_exist = False
 
-        databases_to_check = ["fotmob", "aiscore"]
+        databases_to_check = ["fotmob"]
         databases_exist = check_databases_exist(client, databases_to_check)
 
         if databases_exist:
@@ -336,57 +333,32 @@ def main():
             except Exception as e:
                 logger.debug(f"Could not check tables in fotmob database: {e}")
 
-            try:
-                result = client.execute("SHOW TABLES FROM aiscore")
-                tables = []
-
-                if hasattr(result, 'result_rows'):
-                    tables = [row[0] for row in result.result_rows]
-                elif hasattr(result, 'result_columns'):
-                    if result.result_columns and len(result.result_columns) > 0:
-                        tables = list(result.result_columns[0])
-                elif isinstance(result, (list, tuple)):
-                    tables = [row[0] if isinstance(row, (list, tuple)) else str(row) for row in result]
-
-                missing_aiscore = [t for t in required_aiscore_tables if t not in tables]
-                aiscore_tables_exist = len(missing_aiscore) == 0
-                if tables:
-                    logger.info(f"AIScore database has {len(tables)} tables: {', '.join(tables)}")
-                    if missing_aiscore:
-                        logger.info(f"Missing AIScore tables: {', '.join(missing_aiscore)}")
-            except Exception as e:
-                logger.debug(f"Could not check tables in aiscore database: {e}")
-
             finally:
                 client.database = "default"
 
-            if fotmob_tables_exist and aiscore_tables_exist:
-                logger.info("All required tables already exist for both FotMob and AIScore. Skipping creation.")
+            if fotmob_tables_exist:
+                logger.info("All required tables already exist for FotMob. Skipping creation.")
                 return
-            elif fotmob_tables_exist and not aiscore_tables_exist:
-                logger.info("FotMob tables complete but AIScore tables are missing. Creating AIScore tables...")
-            elif aiscore_tables_exist and not fotmob_tables_exist:
-                logger.info("AIScore tables complete but FotMob tables are missing. Creating FotMob tables...")
             else:
                 logger.info("Some tables are missing. Proceeding with table creation...")
         else:
             logger.info("Databases do not exist. Proceeding with database and table creation...")
 
-        db_file = init_dir / "00_create_databases_fotmob_and_aiscore.sql"
+        db_file = init_dir / "00_create_databases_fotmob.sql"
         if not db_file.exists():
             db_file = init_dir / "01_create_database.sql"
 
         if db_file.exists():
             logger.info("=" * 60)
-            logger.info("STEP 1: Creating databases (fotmob and aiscore)...")
+            logger.info("STEP 1: Creating database (fotmob)...")
             logger.info("=" * 60)
             if not execute_sql_file(client, db_file):
-                logger.error("Failed to create databases!")
+                logger.error("Failed to create database!")
                 sys.exit(1)
-            logger.info("[SUCCESS] Databases created\n")
+            logger.info("[SUCCESS] Database created\n")
         else:
             logger.error(f"Database creation script not found. Tried:")
-            logger.error(f"  - {init_dir / '00_create_databases_fotmob_and_aiscore.sql'}")
+            logger.error(f"  - {init_dir / '00_create_databases_fotmob.sql'}")
             logger.error(f"  - {init_dir / '01_create_database.sql'}")
             sys.exit(1)
 
@@ -443,16 +415,6 @@ def main():
                 logger.info("FotMob tables created (unable to verify count)")
         except Exception as e:
             logger.warning(f"Could not verify FotMob tables: {e}")
-
-        try:
-            result = client.execute("SHOW TABLES FROM aiscore")
-            if hasattr(result, 'result_rows'):
-                tables = [row[0] for row in result.result_rows]
-                logger.info(f"AIScore database has {len(tables)} tables: {', '.join(tables)}")
-            else:
-                logger.info("AIScore tables created (unable to verify count)")
-        except Exception as e:
-            logger.warning(f"Could not verify AIScore tables: {e}")
 
         logger.info("\n[SUCCESS] ClickHouse tables created")
 

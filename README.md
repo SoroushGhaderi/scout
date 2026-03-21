@@ -1,6 +1,6 @@
 # Scout - Sports Data Pipeline
 
-> Production-ready football data scraper with FotMob API and AIScore web scraping, integrated with ClickHouse data warehouse.
+> Production-ready football data scraper with FotMob API integration, connected with ClickHouse data warehouse.
 
 ## Quick Start
 
@@ -28,20 +28,19 @@ make optimize-tables
 ## Architecture
 
 ```
-FotMob API / AIScore Web
-         ↓
+FotMob API
+     ↓
 Bronze Layer (JSON → TAR)
-         ↓
+     ↓
 ClickHouse (Analytics)
 ```
 
 **Data Sources:**
 - **FotMob**: Match details, player stats, shots, timeline (REST API)
-- **AIScore**: Betting odds, match info (web scraping with Selenium)
 
 **Storage:**
-- **Bronze**: Raw JSON data compressed in TAR archives (`data/fotmob/`, `data/aiscore/`)
-- **ClickHouse**: Analytics tables (fotmob: 14 tables, aiscore: 5 tables)
+- **Bronze**: Raw JSON data compressed in TAR archives (`data/fotmob/`)
+- **ClickHouse**: Analytics tables (fotmob: 14 tables)
 
 ## Installation
 
@@ -117,9 +116,6 @@ fotmob:
   request:
     timeout: 30
 
-aiscore:
-  browser:
-    headless: true
 ```
 
 **.env** - Never commit to git:
@@ -149,7 +145,6 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline
 --bronze-only     # Skip ClickHouse loading
 --skip-bronze     # Skip scraping, only load to ClickHouse
 --skip-fotmob     # Skip FotMob scraper
---skip-aiscore    # Skip AIScore scraper
 ```
 
 ### Individual Scrapers
@@ -161,18 +156,6 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/scrape_f
 
 # Load to ClickHouse
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/load_clickhouse.py --scraper fotmob --date 20251208
-```
-
-**AIScore:**
-```bash
-# Full pipeline (links + odds)
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/scrape_aiscore.py 20251208
-
-# Links only (faster)
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/scrape_aiscore.py 20251208 --links-only
-
-# Odds only
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/scrape_aiscore.py 20251208 --odds-only
 ```
 
 ## ClickHouse
@@ -204,11 +187,6 @@ SELECT league_name, COUNT(*) as matches
 FROM fotmob.general
 GROUP BY league_name
 ORDER BY matches DESC;
-
--- Betting odds analysis
-SELECT bookmaker, AVG(home_odds), AVG(draw_odds), AVG(away_odds)
-FROM aiscore.odds_1x2
-GROUP BY bookmaker;
 ```
 
 ### Table Optimization
@@ -225,9 +203,9 @@ docker-compose -f docker/docker-compose.yml exec -T clickhouse clickhouse-client
 
 ## Key Features
 
-- Dual scraper support (FotMob API + AIScore web scraping)
+- FotMob API scraping support
 - Bronze layer with automatic TAR compression (60-75% space savings)
-- ClickHouse data warehouse with 19 tables
+- ClickHouse data warehouse with 14 tables
 - Automated deduplication (ReplacingMergeTree)
 - League-based filtering (95 competitions)
 - Docker containerization
@@ -241,7 +219,7 @@ docker-compose -f docker/docker-compose.yml exec -T clickhouse clickhouse-client
 ```
 scout/
 ├── src/              # Source code
-│   ├── scrapers/     # FotMob & AIScore scrapers
+│   ├── scrapers/     # FotMob scraper
 │   ├── storage/      # Bronze storage & ClickHouse client
 │   ├── processors/   # Data transformation
 │   ├── config/       # Configuration management
@@ -253,8 +231,7 @@ scout/
 │   └── docker-entrypoint.sh
 ├── clickhouse/       # SQL schemas
 ├── data/             # Bronze layer (auto-created, TAR archives)
-│   ├── fotmob/       # FotMob raw data
-│   └── aiscore/      # AIScore raw data
+│   └── fotmob/       # FotMob raw data
 ├── logs/             # Application logs (auto-created)
 ├── pyproject.toml    # Modern Python project config
 └── .env              # Configuration
@@ -274,7 +251,7 @@ If you want to pre-create them:
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/ensure_directories.py
 
 # Or manually
-mkdir -p data/fotmob data/aiscore logs
+mkdir -p data/fotmob logs
 ```
 
 ### FotMob 404 Errors
@@ -283,16 +260,6 @@ FotMob changed API endpoint in Dec 2025:
 ```bash
 # Update .env
 FOTMOB_API_BASE_URL=https://www.fotmob.com/api/data
-```
-
-### No Matches Found (AIScore)
-
-```bash
-# Analyze league names
-python scripts/analyze_leagues.py --days 30
-
-# Test filtering
-python scripts/scrape_aiscore.py 20251208 --links-only
 ```
 
 ### Docker Issues
@@ -318,7 +285,6 @@ docker-compose -f docker/docker-compose.yml up -d
 # View logs
 tail -f logs/pipeline_20251208.log
 tail -f logs/fotmob_scraper_20251208.log
-tail -f logs/aiscore_scraper_20251208.log
 
 # Health check
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py
@@ -365,7 +331,6 @@ See [DEVELOPMENT.md](DEVELOPMENT.md) for:
 **Logs:**
 - Pipeline: `logs/pipeline_*.log`
 - FotMob: `logs/fotmob_scraper_*.log`
-- AIScore: `logs/aiscore_scraper_*.log`
 
 **Tools:**
 - Health check: `python scripts/health_check.py`

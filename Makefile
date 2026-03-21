@@ -57,14 +57,8 @@ clean-all: ## Remove containers, volumes, and images
 scrape-fotmob: ## Scrape FotMob data (usage: make scrape-fotmob DATE=20251113)
 	docker-compose $(COMPOSE_FILE) exec scraper python scripts/scrape_fotmob.py $(DATE)
 
-scrape-aiscore: ## Scrape AIScore data (usage: make scrape-aiscore DATE=20251113)
-	docker-compose $(COMPOSE_FILE) exec scraper python scripts/scrape_aiscore.py $(DATE)
-
 load-fotmob: ## Load FotMob data to ClickHouse (usage: make load-fotmob DATE=20251113)
 	docker-compose $(COMPOSE_FILE) exec scraper python scripts/load_clickhouse.py --scraper fotmob --date $(DATE)
-
-load-aiscore: ## Load AIScore data to ClickHouse (usage: make load-aiscore DATE=20251113)
-	docker-compose $(COMPOSE_FILE) exec scraper python scripts/load_clickhouse.py --scraper aiscore --date $(DATE)
 
 # ClickHouse optimization
 optimize-tables: ## Optimize and deduplicate all ClickHouse tables

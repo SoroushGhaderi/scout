@@ -1,14 +1,13 @@
-"""Unified configuration system for Scout scrapers.
+"""FotMob configuration system for Scout.
 
 Configuration is loaded from two sources (in order of precedence):
 1. config.yaml - Primary application settings (required)
 2. .env file - Environment-specific & sensitive data (optional overrides)
 
 Usage:
-    from config import FotMobConfig, AIScoreConfig
+    from config import FotMobConfig
     
     fotmob_config = FotMobConfig()
-    aiscore_config = AIScoreConfig()
 
 All configuration classes load defaults from config.yaml and can be overridden
 via environment variables in .env. See config.yaml for all available options.
@@ -22,7 +21,6 @@ from .base import (
     RetryConfig,
 )
 from .fotmob import FotMobConfig
-from .aiscore import AIScoreConfig
 
 __all__ = [
     # Base classes
@@ -33,7 +31,6 @@ __all__ = [
     'RetryConfig',
     # Scraper configs
     'FotMobConfig',
-    'AIScoreConfig',
 ]
 
 __version__ = '1.0.0'

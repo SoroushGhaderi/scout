@@ -105,7 +105,6 @@ class MatchStatus:
 class Scraper:
     """Scraper identifiers."""
     FOTMOB = "fotmob"
-    AISCORE = "aiscore"
 
 
 # =============================================================================
@@ -126,7 +125,6 @@ class StorageLayer:
 class DataSource:
     """Data source identifiers."""
     FOTMOB_API = "fotmob_api"
-    AISCORE_WEB = "aiscore_web"
 
 
 # =============================================================================
@@ -207,10 +205,6 @@ class EnvVar:
     FOTMOB_USER_AGENT = "FOTMOB_USER_AGENT"
     FOTMOB_BRONZE_PATH = "FOTMOB_BRONZE_PATH"
     
-    # AIScore
-    AISCORE_BRONZE_PATH = "AISCORE_BRONZE_PATH"
-    AISCORE_HEADLESS = "AISCORE_HEADLESS"
-    
     # ClickHouse
     CLICKHOUSE_HOST = "CLICKHOUSE_HOST"
     CLICKHOUSE_PORT = "CLICKHOUSE_PORT"
@@ -236,7 +230,6 @@ class Pattern:
     
     # Match ID patterns
     FOTMOB_MATCH_ID = r"^\d+$"  # Numeric only
-    AISCORE_MATCH_ID = r"^[a-z0-9]+$"  # Alphanumeric lowercase
     
     # URL patterns
     URL_HTTPS = r"^https?://[^\s<>\"]+|www\.[^\s<>\"]+$"
@@ -264,13 +257,6 @@ class TableName:
     FOTMOB_SUBSTITUTES = "substitutes"
     FOTMOB_COACHES = "coaches"
     FOTMOB_TEAM_FORM = "team_form"
-    
-    # AIScore tables
-    AISCORE_MATCHES = "matches"
-    AISCORE_ODDS_1X2 = "odds_1x2"
-    AISCORE_ODDS_ASIAN_HANDICAP = "odds_asian_handicap"
-    AISCORE_ODDS_OVER_UNDER = "odds_over_under"
-    AISCORE_DAILY_LISTINGS = "daily_listings"
 
 
 # =============================================================================

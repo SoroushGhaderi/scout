@@ -1,14 +1,11 @@
 """Load data from bronze layer JSON files into ClickHouse data warehouse.
 
-SCRAPER: Both FotMob and AIScore
+SCRAPER: FotMob
 PURPOSE: Load processed data from bronze layer (JSON/JSON.gz) directly to ClickHouse
 
 Usage:
     # Load FotMob data for a date
     python scripts/load_clickhouse.py --scraper fotmob --date 20251113
-
-    # Load AIScore data for a date
-    python scripts/load_clickhouse.py --scraper aiscore --date 20251113
 
     # Load date range
     python scripts/load_clickhouse.py --scraper fotmob --start-date 20251101 --end-date 20251107
@@ -45,9 +42,8 @@ sys.path.insert(0, str(project_root))
 import pandas as pd
 from src.storage.clickhouse_client import ClickHouseClient
 from src.storage.bronze_storage import BronzeStorage as FotMobBronzeStorage
-from src.storage.aiscore_storage import AIScoreBronzeStorage
 from src.processors.match_processor import MatchProcessor
-from config import FotMobConfig, AIScoreConfig
+from config import FotMobConfig
 from src.utils.logging_utils import get_logger, setup_logging
 from src.utils.lineage import LineageTracker
 from src.utils.date_utils import (
@@ -78,14 +74,6 @@ FOTMOB_TABLES = [
     "substitutes",
     "coaches",
     "team_form",
-]
-
-AISCORE_TABLES = [
-    "matches",
-    "odds_1x2",
-    "odds_asian_handicap",
-    "odds_over_under",
-    "daily_listings",
 ]
 
 TABLES_HANDLED_SEPARATELY = ["starters", "substitutes", "coaches"]
@@ -169,7 +157,12 @@ class LoadingStats:
 
 def get_unique_key_columns(table_name: str) -> List[str]:
     """Get unique key columns for a table (used for deduplication)."""
-    return UNIQUE_KEY_COLUMNS.get(table_name, ["match_id"])
+    # Remove AIScore entries from UNIQUE_KEY_COLUMNS
+    fotmob_keys = {
+        k: v for k, v in UNIQUE_KEY_COLUMNS.items()
+        if k in FOTMOB_TABLES
+    }
+    return fotmob_keys.get(table_name, ["match_id"])
 
 
 def table_exists(
@@ -203,6 +196,19 @@ def prepare_int64_columns(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
             df[col_name] = pd.to_numeric(df[col_name], errors="coerce")
             df[col_name] = df[col_name].astype("Int64")
 
+    return df
+
+
+def prepare_nullable_numeric_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Convert all float columns that contain only integers to Int64."""
+    for col in df.columns:
+        if df[col].dtype in ["float64", "float32"]:
+            try:
+                non_null_values = df[col].dropna()
+                if len(non_null_values) > 0 and (non_null_values == non_null_values.astype(int)).all():
+                    df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
+            except (ValueError, TypeError):
+                pass
     return df
 
 
@@ -276,6 +282,7 @@ def validate_and_fix_schema(
 
         non_nullable_int32_cols = []
         non_nullable_string_cols = []
+        nullable_int_cols = []
 
         for row in rows:
             if not row or len(row) < 2:
@@ -283,7 +290,13 @@ def validate_and_fix_schema(
             col_name = row[0] if isinstance(row, (list, tuple)) else str(row)
             col_type = str(row[1] if isinstance(row, (list, tuple)) else row)
 
-            if "Nullable" not in col_type and col_name in df.columns:
+            if col_name not in df.columns:
+                continue
+                
+            # Track nullable integer columns
+            if "Nullable" in col_type and "Int" in col_type:
+                nullable_int_cols.append(col_name)
+            elif "Nullable" not in col_type and col_name in df.columns:
                 if "Int32" in col_type:
                     non_nullable_int32_cols.append(col_name)
                 elif "String" in col_type:
@@ -291,6 +304,7 @@ def validate_and_fix_schema(
 
         int32_max, int32_min = INT32_RANGE
 
+        # Handle non-nullable columns
         for col in non_nullable_int32_cols + non_nullable_string_cols:
             null_mask = df[col].isna()
             if null_mask.any():
@@ -308,6 +322,17 @@ def validate_and_fix_schema(
                 )
                 df.loc[overflow_mask & (df[col] > int32_max), col] = int32_max
                 df.loc[overflow_mask & (df[col] < int32_min), col] = int32_min
+
+        # Handle nullable integer columns - convert all types to Int64 to properly handle NaN/None
+        for col in nullable_int_cols:
+            try:
+                # Convert to numeric (handles strings, floats, ints, None)
+                # This will turn unparseable values and None into NaN
+                numeric_col = pd.to_numeric(df[col], errors="coerce")
+                # Convert to nullable Int64 type, which properly preserves NaN as <NA>
+                df[col] = numeric_col.astype("Int64")
+            except Exception as col_err:
+                logger.debug(f"Could not convert nullable int column {col}: {col_err}")
 
     except Exception as e:
         logger.debug(f"Schema validation skipped for {table_name}: {e}")
@@ -546,6 +571,7 @@ def process_fotmob_table(
     # Process dataframe
     combined_df = rename_columns_for_table(combined_df, clickhouse_table, logger)
     combined_df = prepare_int64_columns(combined_df, clickhouse_table)
+    combined_df = prepare_nullable_numeric_columns(combined_df)
 
     table_has_inserted_at = check_table_has_inserted_at(
         client, clickhouse_table, "fotmob"
@@ -698,6 +724,10 @@ def _process_special_fotmob_table(
         combined_df = pd.concat(non_empty_dfs, ignore_index=True, sort=False)
 
     combined_df = prepare_int64_columns(combined_df, table_name)
+    combined_df = prepare_nullable_numeric_columns(combined_df)
+    combined_df = validate_and_fix_schema(
+        combined_df, client, table_name, "fotmob", logger
+    )
 
     # Add inserted_at only for tables that have it
     if (
@@ -730,565 +760,10 @@ def _process_special_fotmob_table(
         return 0
 
 
-# ============================================================================
-# AIScore Data Loading
-# ============================================================================
 
 
-def verify_aiscore_tables(client: ClickHouseClient, logger: logging.Logger) -> None:
-    """Verify all required AIScore tables exist."""
-    missing_tables = []
 
-    for table in AISCORE_TABLES:
-        try:
-            client.execute(f"SELECT 1 FROM aiscore.{table} LIMIT 1")
-        except Exception as e:
-            error_str = str(e).lower()
-            if any(
-                keyword in error_str
-                for keyword in [
-                    "doesn't exist",
-                    "does not exist",
-                    "unknown table",
-                    "table not found",
-                ]
-            ):
-                missing_tables.append(table)
 
-    if missing_tables:
-        logger.error(f"AIScore tables are missing: {', '.join(missing_tables)}")
-        logger.error("Please run the table creation script first:")
-        logger.error("  docker-compose exec scraper python scripts/setup_clickhouse.py")
-        raise RuntimeError(
-            f"Missing AIScore tables: {', '.join(missing_tables)}. Run setup_clickhouse.py first."
-        )
-
-
-def parse_game_date(game_date: Any, default_date: str) -> date:
-    """Parse game date from various formats."""
-    if isinstance(game_date, str):
-        if len(game_date) == 8 and game_date.isdigit():
-            return datetime.strptime(game_date, DATE_FORMAT_COMPACT).date()
-        elif len(game_date) == 10 and "-" in game_date:
-            return date.fromisoformat(game_date)
-        else:
-            return datetime.strptime(game_date, DATE_FORMAT_COMPACT).date()
-    return game_date
-
-
-def load_aiscore_matches_data(
-    matches_list: List[Dict],
-    date_str: str,
-    bronze_storage: AIScoreBronzeStorage,
-    logger: logging.Logger,
-) -> tuple[List[Dict], List[Dict], List[Dict], List[Dict], Dict[str, Path]]:
-    """Load match data and extract odds information."""
-    scrape_date_obj = datetime.strptime(date_str, DATE_FORMAT_COMPACT).date()
-
-    matches_data = []
-    odds_1x2_data = []
-    odds_asian_handicap_data = []
-    odds_over_under_data = []
-    match_file_paths = {}
-
-    for match in matches_list:
-        match_id = match.get("match_id")
-        if not match_id:
-            continue
-
-        game_date = match.get("game_date", date_str)
-        match_data = bronze_storage.load_raw_match_data(match_id, date_str)
-
-        if not match_data:
-            match_data = _create_minimal_match_data(match, game_date, date_str)
-            if not match_data:
-                logger.debug(f"Match data not found for {match_id}, skipping")
-                continue
-
-        data = match_data.get("data", {})
-
-        # Track source file path
-        odds_path = bronze_storage.matches_dir / date_str / f"match_{match_id}.json"
-        if odds_path.exists():
-            match_file_paths[match_id] = odds_path
-
-        game_date_obj = parse_game_date(game_date, date_str)
-
-        # Create match record
-        match_record = _create_match_record(
-            match, match_data, data, game_date_obj, scrape_date_obj
-        )
-        matches_data.append(match_record)
-
-        # Extract odds data
-        odds_1x2_list = data.get("odds_1x2", [])
-        odds_ah_list = data.get("odds_asian_handicap", [])
-        odds_ou_list = data.get("odds_over_under", [])
-
-        logger.debug(
-            f"Match {match_id}: odds_1x2={len(odds_1x2_list)}, odds_asian_handicap={len(odds_ah_list)}, odds_over_under={len(odds_ou_list)}"
-        )
-
-        if odds_1x2_list or odds_ah_list or odds_ou_list:
-            logger.info(
-                f"Found odds for match {match_id}: {len(odds_1x2_list)} 1X2, {len(odds_ah_list)} AH, {len(odds_ou_list)} OU"
-            )
-
-            _extract_odds_records(
-                match_id,
-                data,
-                game_date_obj,
-                scrape_date_obj,
-                odds_1x2_list,
-                odds_ah_list,
-                odds_ou_list,
-                odds_1x2_data,
-                odds_asian_handicap_data,
-                odds_over_under_data,
-            )
-        else:
-            logger.debug(f"No odds data found for match {match_id}")
-
-    return (
-        matches_data,
-        odds_1x2_data,
-        odds_asian_handicap_data,
-        odds_over_under_data,
-        match_file_paths,
-    )
-
-
-def _create_minimal_match_data(
-    match: Dict, game_date: str, date_str: str
-) -> Optional[Dict]:
-    """Create minimal match data from daily listing."""
-    if "match_url" not in match and "teams" not in match:
-        return None
-
-    data = {
-        "match_id": match.get("match_id"),
-        "match_url": match.get("match_url", ""),
-        "game_date": game_date,
-        "scrape_status": match.get("scrape_status", "links_only"),
-        "teams": match.get("teams", {}),
-        "league": match.get("league", {}),
-        "odds_1x2": [],
-        "odds_asian_handicap": [],
-        "odds_over_under": [],
-    }
-    return {
-        "data": data,
-        "scraped_at": match.get("scrape_timestamp") or datetime.now().isoformat(),
-    }
-
-
-def _create_match_record(
-    match: Dict,
-    match_data: Dict,
-    data: Dict,
-    game_date_obj: date,
-    scrape_date_obj: date,
-) -> Dict:
-    """Create a match record for insertion."""
-    odds_counts = data.get("odds_counts", {})
-
-    return {
-        "match_id": match.get("match_id"),
-        "match_url": data.get("match_url", match.get("match_url", "")),
-        "game_date": game_date_obj,
-        "scrape_date": scrape_date_obj,
-        "scrape_timestamp": (
-            datetime.fromisoformat(match_data.get("scraped_at"))
-            if match_data.get("scraped_at")
-            else datetime.now()
-        ),
-        "scrape_status": data.get(
-            "scrape_status", match.get("scrape_status", "unknown")
-        ),
-        "scrape_duration": data.get("scrape_duration"),
-        "home_team": data.get("teams", match.get("teams", {})).get("home", ""),
-        "away_team": data.get("teams", match.get("teams", {})).get("away", ""),
-        "match_result": data.get("match_result"),
-        "league": data.get("league") or match.get("league"),
-        "country": match.get("country"),
-        "odds_1x2_count": odds_counts.get("odds_1x2", 0),
-        "odds_asian_handicap_count": odds_counts.get("odds_asian_handicap", 0),
-        "odds_over_under_goals_count": odds_counts.get("odds_over_under_goals", 0),
-        "odds_over_under_corners_count": odds_counts.get("odds_over_under_corners", 0),
-        "total_odds_count": odds_counts.get("total_odds", 0),
-        "links_scraping_complete": 0,
-        "links_scraping_completed_at": None,
-        "odds_scraping_complete": 0,
-        "odds_scraping_completed_at": None,
-    }
-
-
-def _extract_odds_records(
-    match_id: str,
-    data: Dict,
-    game_date_obj: date,
-    scrape_date_obj: date,
-    odds_1x2_list: List,
-    odds_ah_list: List,
-    odds_ou_list: List,
-    odds_1x2_data: List,
-    odds_asian_handicap_data: List,
-    odds_over_under_data: List,
-) -> None:
-    """Extract odds records from odds lists."""
-    match_url = data.get("match_url", "")
-
-    for odds in odds_1x2_list:
-        odds_1x2_data.append(
-            {
-                "match_id": match_id,
-                "match_url": odds.get("match_url", match_url),
-                "game_date": game_date_obj,
-                "scrape_date": scrape_date_obj,
-                "bookmaker": odds.get("bookmaker"),
-                "home_odds": odds.get("home_odds"),
-                "draw_odds": odds.get("draw_odds"),
-                "away_odds": odds.get("away_odds"),
-                "scraped_at": (
-                    datetime.fromisoformat(odds.get("scraped_at"))
-                    if odds.get("scraped_at")
-                    else datetime.now()
-                ),
-            }
-        )
-
-    for odds in odds_ah_list:
-        odds_asian_handicap_data.append(
-            {
-                "match_id": match_id,
-                "match_url": odds.get("match_url", match_url),
-                "game_date": game_date_obj,
-                "scrape_date": scrape_date_obj,
-                "match_time": odds.get("match_time"),
-                "moment_result": odds.get("moment_result"),
-                "home_handicap": odds.get("home_handicap"),
-                "home_odds": odds.get("home_odds"),
-                "away_handicap": odds.get("away_handicap"),
-                "away_odds": odds.get("away_odds"),
-                "scraped_at": (
-                    datetime.fromisoformat(odds.get("scraped_at"))
-                    if odds.get("scraped_at")
-                    else datetime.now()
-                ),
-            }
-        )
-
-    for odds in odds_ou_list:
-        odds_over_under_data.append(
-            {
-                "match_id": match_id,
-                "match_url": odds.get("match_url", match_url),
-                "game_date": game_date_obj,
-                "scrape_date": scrape_date_obj,
-                "bookmaker": odds.get("bookmaker"),
-                "total_line": odds.get("total_line"),
-                "over_odds": odds.get("over_odds"),
-                "under_odds": odds.get("under_odds"),
-                "market_type": odds.get("market_type", "goals"),
-                "scraped_at": (
-                    datetime.fromisoformat(odds.get("scraped_at"))
-                    if odds.get("scraped_at")
-                    else datetime.now()
-                ),
-            }
-        )
-
-
-def insert_aiscore_table(
-    client: ClickHouseClient,
-    data_list: List[Dict],
-    table_name: str,
-    date_str: str,
-    lineage_tracker: LineageTracker,
-    match_file_paths: Dict[str, Path],
-    logger: logging.Logger,
-    timestamp_column: str = "scraped_at",
-) -> int:
-    """Insert data into an AIScore table."""
-    if not data_list:
-        logger.info(f"No {table_name} data to insert")
-        return 0
-
-    df = pd.DataFrame(data_list)
-
-    # Add inserted_at column
-    if "inserted_at" not in df.columns:
-        if timestamp_column in df.columns:
-            df["inserted_at"] = pd.to_datetime(df[timestamp_column])
-        else:
-            df["inserted_at"] = datetime.now()
-
-    if df.empty:
-        logger.info(f"No new {table_name} to insert")
-        return 0
-
-    try:
-        rows_inserted = insert_dataframe_with_dlq(
-            client, df, table_name, "aiscore", date_str, logger
-        )
-
-        # Record lineage
-        _record_aiscore_lineage(
-            data_list, table_name, date_str, lineage_tracker, match_file_paths, logger
-        )
-
-        return rows_inserted
-    except Exception:
-        return 0
-
-
-def _record_aiscore_lineage(
-    data_list: List[Dict],
-    table_name: str,
-    date_str: str,
-    lineage_tracker: LineageTracker,
-    match_file_paths: Dict[str, Path],
-    logger: logging.Logger,
-) -> None:
-    """Record lineage for AIScore data."""
-    processed_matches: Set[str] = set()
-
-    for record in data_list:
-        match_id = record.get("match_id")
-        if match_id and match_id not in processed_matches:
-            processed_matches.add(match_id)
-            source_path = match_file_paths.get(match_id)
-            try:
-                scrape_lineage = lineage_tracker.get_lineage(
-                    "aiscore", date_str, match_id
-                )
-                parent_ids = [
-                    l.lineage_id for l in scrape_lineage if l.transformation == "scrape"
-                ]
-
-                lineage_tracker.record_load(
-                    scraper="aiscore",
-                    source_id=match_id,
-                    date=date_str,
-                    destination_table=table_name,
-                    destination_id=match_id,
-                    source_path=source_path,
-                    parent_lineage_ids=parent_ids,
-                    metadata={"table": table_name},
-                )
-            except Exception as e:
-                logger.warning(
-                    f"Could not record lineage for {table_name} match {match_id}: {e}"
-                )
-
-
-def load_aiscore_data(
-    client: ClickHouseClient,
-    date_str: str,
-    force: bool = False,
-    logger: Optional[logging.Logger] = None,
-) -> Dict[str, int]:
-    """Load AIScore data from Bronze JSON.gz files to ClickHouse."""
-    if logger is None:
-        logger = get_logger()
-
-    stats = {}
-    lineage_tracker = LineageTracker()
-
-    try:
-        verify_aiscore_tables(client, logger)
-
-        config = AIScoreConfig()
-        bronze_storage = AIScoreBronzeStorage(config.storage.bronze_path)
-
-        # Load daily listings
-        matches_list = _load_aiscore_daily_listings(bronze_storage, date_str, logger)
-        if not matches_list:
-            return stats
-
-        logger.info(f"Found {len(matches_list)} matches for {date_str}")
-
-        # Load match data
-        matches_data, odds_1x2_data, odds_ah_data, odds_ou_data, match_file_paths = (
-            load_aiscore_matches_data(matches_list, date_str, bronze_storage, logger)
-        )
-
-        # Insert matches
-        if matches_data:
-            stats["matches"] = insert_aiscore_table(
-                client,
-                matches_data,
-                "matches",
-                date_str,
-                lineage_tracker,
-                match_file_paths,
-                logger,
-                "scrape_timestamp",
-            )
-        else:
-            logger.warning("No matches data to insert")
-
-        # Insert odds tables
-        stats["odds_1x2"] = insert_aiscore_table(
-            client,
-            odds_1x2_data,
-            "odds_1x2",
-            date_str,
-            lineage_tracker,
-            match_file_paths,
-            logger,
-        )
-        stats["odds_asian_handicap"] = insert_aiscore_table(
-            client,
-            odds_ah_data,
-            "odds_asian_handicap",
-            date_str,
-            lineage_tracker,
-            match_file_paths,
-            logger,
-        )
-        stats["odds_over_under"] = insert_aiscore_table(
-            client,
-            odds_ou_data,
-            "odds_over_under",
-            date_str,
-            lineage_tracker,
-            match_file_paths,
-            logger,
-        )
-
-        # Insert daily listings
-        stats["daily_listings"] = _insert_daily_listings(
-            client, date_str, matches_list, bronze_storage, logger
-        )
-
-    except Exception as e:
-        logger.error(f"Error loading AIScore data: {e}", exc_info=True)
-
-    return stats
-
-
-def _load_aiscore_daily_listings(
-    bronze_storage: AIScoreBronzeStorage, date_str: str, logger: logging.Logger
-) -> List[Dict]:
-    """Load daily listings from bronze storage."""
-    daily_listing = bronze_storage.load_daily_listing(date_str)
-
-    if not daily_listing:
-        daily_data = bronze_storage.read_daily_list(date_str)
-        if not daily_data:
-            logger.warning(f"No daily listings found for {date_str}")
-            return []
-        return daily_data.get("matches", [])
-
-    if "matches" in daily_listing:
-        matches = daily_listing.get("matches", [])
-        logger.info(f"Using matches array from daily listing ({len(matches)} matches)")
-        return matches
-
-    if "match_ids" in daily_listing:
-        match_ids = daily_listing.get("match_ids", [])
-        if not match_ids:
-            logger.warning(f"No match IDs found in daily listings for {date_str}")
-            return []
-
-        matches_list = []
-        for match_id in match_ids:
-            match_data = bronze_storage.load_raw_match_data(str(match_id), date_str)
-            if match_data:
-                data = match_data.get("data", {})
-                matches_list.append(
-                    {
-                        "match_id": str(match_id),
-                        "match_url": data.get("match_url", ""),
-                        "game_date": data.get("game_date", date_str),
-                        "scrape_timestamp": match_data.get("scraped_at"),
-                        "scrape_status": data.get("scrape_status", "unknown"),
-                        "teams": data.get("teams", {}),
-                        "league": data.get("league"),
-                    }
-                )
-            else:
-                matches_list.append(
-                    {
-                        "match_id": str(match_id),
-                        "game_date": date_str,
-                        "scrape_status": "unknown",
-                    }
-                )
-        return matches_list
-
-    logger.warning(f"Daily listing for {date_str} has unexpected format")
-    return []
-
-
-def _insert_daily_listings(
-    client: ClickHouseClient,
-    date_str: str,
-    matches_list: List[Dict],
-    bronze_storage: AIScoreBronzeStorage,
-    logger: logging.Logger,
-) -> int:
-    """Insert daily listings record."""
-    scrape_date_obj = datetime.strptime(date_str, DATE_FORMAT_COMPACT).date()
-    daily_listing_meta = bronze_storage.load_daily_listing(date_str)
-
-    if not daily_listing_meta:
-        daily_listing_meta = bronze_storage.read_daily_list(date_str) or {}
-
-    daily_listings_record = {
-        "scrape_date": scrape_date_obj,
-        "total_matches": len(matches_list),
-        "links_scraping_complete": (
-            1 if daily_listing_meta.get("links_scraping_complete", False) else 0
-        ),
-        "links_scraping_completed_at": (
-            datetime.fromisoformat(daily_listing_meta["links_scraping_completed_at"])
-            if daily_listing_meta.get("links_scraping_completed_at")
-            else None
-        ),
-        "odds_scraping_complete": (
-            1 if daily_listing_meta.get("odds_scraping_complete", False) else 0
-        ),
-        "odds_scraping_completed_at": (
-            datetime.fromisoformat(daily_listing_meta["odds_scraping_completed_at"])
-            if daily_listing_meta.get("odds_scraping_completed_at")
-            else None
-        ),
-    }
-
-    daily_df = pd.DataFrame([daily_listings_record])
-
-    if "inserted_at" not in daily_df.columns:
-        if (
-            "links_scraping_completed_at" in daily_df.columns
-            and daily_df["links_scraping_completed_at"].notna().any()
-        ):
-            daily_df["inserted_at"] = pd.to_datetime(
-                daily_df["links_scraping_completed_at"]
-            )
-        elif (
-            "odds_scraping_completed_at" in daily_df.columns
-            and daily_df["odds_scraping_completed_at"].notna().any()
-        ):
-            daily_df["inserted_at"] = pd.to_datetime(
-                daily_df["odds_scraping_completed_at"]
-            )
-        else:
-            daily_df["inserted_at"] = datetime.now()
-
-    if daily_df.empty:
-        logger.info("No new daily listings to insert")
-        return 0
-
-    try:
-        rows_inserted = insert_dataframe_with_dlq(
-            client, daily_df, "daily_listings", "aiscore", date_str, logger
-        )
-
-        return rows_inserted
-    except Exception:
-        return 0
 
 
 # ============================================================================
@@ -1365,9 +840,9 @@ def _add_scraper_argument(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--scraper",
         type=str,
-        choices=["fotmob", "aiscore"],
+        choices=["fotmob"],
         required=True,
-        help="Scraper to load data for (fotmob or aiscore)",
+        help="Scraper to load data for (fotmob)",
     )
 
 
@@ -1454,7 +929,7 @@ def show_statistics(
 ) -> None:
     """Show table statistics."""
     logger.info(f"\n=== {database.upper()} Database Statistics ===\n")
-    tables = FOTMOB_TABLES if database == "fotmob" else AISCORE_TABLES
+    tables = FOTMOB_TABLES
 
     for table in tables:
         stats = client.get_table_stats(table, database=database)
@@ -1553,7 +1028,7 @@ def main():
         # Truncate if requested
         if args.truncate:
             logger.warning("Truncating tables before loading...")
-            tables = FOTMOB_TABLES if database == "fotmob" else AISCORE_TABLES
+            tables = FOTMOB_TABLES
             for table in tables:
                 try:
                     client.truncate_table(table, database=database)
@@ -1571,7 +1046,8 @@ def main():
                 if database == "fotmob":
                     stats = load_fotmob_data(client, date_str, args.force, logger)
                 else:
-                    stats = load_aiscore_data(client, date_str, args.force, logger)
+                    logger.error(f"Unknown scraper: {database}")
+                    continue
 
                 for table, count in stats.items():
                     total_stats[table] = total_stats.get(table, 0) + count

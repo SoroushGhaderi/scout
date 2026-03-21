@@ -19,12 +19,6 @@ Usage:
 
     python scripts/health_check.py --storage-only
 
-    
-
-    # Custom storage paths
-
-    python scripts/health_check.py --storage data/fotmob data/aiscore
-
 """
 
 
@@ -88,7 +82,7 @@ Examples:
 
   # Custom storage paths
 
-  python scripts/health_check.py --storage data/fotmob data/aiscore
+  python scripts/health_check.py --storage data/fotmob
 
   
 
@@ -299,11 +293,8 @@ if storage_pathsisNone:
         storage_paths=["data"]
 
 fotmob_bronze = Path("data/fotmob")
-aiscore_bronze = Path("data/aiscore")
 if fotmob_bronze.exists():
             storage_paths.append(str(fotmob_bronze))
-if aiscore_bronze.exists():
-            storage_paths.append(str(aiscore_bronze))
 
 
 if args.storage_only:

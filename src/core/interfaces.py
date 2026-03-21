@@ -22,7 +22,7 @@ from typing import Protocol, Dict, Any, Optional, List, Union, runtime_checkable
 from pathlib import Path
 from datetime import datetime
 
-# Type alias for match IDs - can be int (FotMob) or str (AIScore)
+# Type alias for match IDs - int (FotMob)
 MatchId = Union[int, str]
 
 
@@ -35,7 +35,6 @@ class StorageProtocol(Protocol):
     
     Example implementations:
         - BronzeStorage (FotMob)
-        - AIScoreBronzeStorage
         - ClickHouseStorage
     """
     
@@ -106,7 +105,6 @@ class ScraperProtocol(Protocol):
     Example implementations:
         - FotMobMatchScraper
         - FotMobDailyScraper
-        - AIScoreScraper
     """
     
     def fetch_matches_for_date(self, date: str) -> List[MatchId]:
@@ -116,7 +114,7 @@ class ScraperProtocol(Protocol):
             date: Date string (YYYYMMDD or YYYY-MM-DD)
 
         Returns:
-            List of match IDs (int for FotMob, str for AIScore)
+            List of match IDs (int for FotMob)
 
         Raises:
             ScraperError: If fetching fails
@@ -199,7 +197,6 @@ class OrchestratorProtocol(Protocol):
     
     Example implementations:
         - FotMobOrchestrator
-        - AIScoreOrchestrator
     """
     
     def scrape_date(
@@ -251,7 +248,6 @@ class ConfigProtocol(Protocol):
     
     Example implementations:
         - FotMobConfig
-        - AIScoreConfig
     """
     
     def validate(self) -> List[str]:

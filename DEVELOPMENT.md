@@ -32,22 +32,20 @@
 ### System Diagram
 
 ```
-FotMob REST API          AIScore Web (Selenium)
-       │                         │
-       ▼                         ▼
- playwright_fetcher      browser.py / browser_pool.py
- daily_scraper.py       scraper.py / odds_scraper.py
- match_scraper.py       extractor.py
-       │                         │
-       └──────────┬──────────────┘
-                  ▼
+FotMob REST API
+       │
+       ▼
+ playwright_fetcher
+ daily_scraper.py
+ match_scraper.py
+       │
+       ▼
           Bronze Layer (JSON → GZIP → TAR)
-          data/{fotmob|aiscore}/matches/YYYYMMDD/
+          data/fotmob/matches/YYYYMMDD/
                   │
                   ▼
         ClickHouse (Analytics DB)
         fotmob.*  (14 tables)
-        aiscore.* (5 tables)
                   │
                   ▼
               S3 Backup (Arvan Cloud)
@@ -75,14 +73,7 @@ FotMob REST API          AIScore Web (Selenium)
 **Bronze Layer:**
 ```
 data/
-├── fotmob/
-│   ├── matches/YYYYMMDD/
-│   │   └── YYYYMMDD_matches.tar        (compressed archive)
-│   ├── lineage/YYYYMMDD/
-│   │   └── lineage.json
-│   └── daily_listings/YYYYMMDD/
-│       └── matches.json
-└── aiscore/
+└── fotmob/
     ├── matches/YYYYMMDD/
     │   └── YYYYMMDD_matches.tar        (compressed archive)
     ├── lineage/YYYYMMDD/
@@ -93,7 +84,6 @@ data/
 
 **ClickHouse Schema:**
 - **fotmob** database: 14 tables (general, player, shotmap, goal, cards, red_card, venue, timeline, period, momentum, starters, substitutes, coaches, team_form)
-- **aiscore** database: 5 tables (matches, odds_1x2, odds_asian_handicap, odds_over_under, daily_listings)
 
 ---
 
@@ -208,7 +198,6 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_c
 | Operation | Time | Notes |
 |-----------|------|-------|
 | FotMob API scrape | ~0.5-1 sec/match | |
-| AIScore scrape (with odds) | ~2-5 sec/match | |
 | Compression (100 matches) | ~1-2 sec | Byte-copy method |
 | ClickHouse batch insert | 1000-5000 rows/batch | |
 | Table optimization | 5-30 sec/table | |
@@ -301,7 +290,7 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_c
 
 | Item | Impact |
 |------|--------|
-| `scripts/aiscore_scripts/scrape_links.py` is 2,400 lines | Maintainability |
+| Code clarity issue | Maintainability |
 | No pytest test suite | Reliability |
 | `fotmob_credentials.py` hardcoded secrets | Security risk |
 | Duplicate BronzeStorage classes | Confusion |

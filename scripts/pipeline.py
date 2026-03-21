@@ -2,9 +2,7 @@
 
 PURPOSE: Orchestrates the complete data pipeline:
     1. FotMob Bronze Layer (scraping)
-    2. AIScore Bronze Layer (scraping)
-    3. Load FotMob to ClickHouse
-    4. Load AIScore to ClickHouse
+    2. Load FotMob to ClickHouse
 
 This script runs all steps sequentially, handling errors gracefully
 and providing a comprehensive summary at the end.
@@ -43,26 +41,21 @@ from src.utils.alerting import get_alert_manager, AlertLevel
 from src.utils.logging_utils import setup_logging
 SCRIPT_NAMES = {
     "fotmob_bronze": "scrape_fotmob.py",
-    "aiscore_bronze": "scrape_aiscore.py",
     "clickhouse_load": "load_clickhouse.py",
 }
 
 RESULT_CATEGORIES = {
     "fotmob_bronze": "FotMob Bronze",
-    "aiscore_bronze": "AIScore Bronze",
     "fotmob_clickhouse": "FotMob ClickHouse",
-    "aiscore_clickhouse": "AIScore ClickHouse",
 }
 @dataclass
 class PipelineConfig:
     """Configuration for pipeline execution."""
     skip_fotmob: bool = False
-    skip_aiscore: bool = False
     skip_bronze: bool = False
     skip_clickhouse: bool = False
     bronze_only: bool = False
     force: bool = False
-    visible: bool = False
     debug: bool = False
 
 
@@ -70,9 +63,7 @@ class PipelineConfig:
 class PipelineResults:
     """Results tracking for pipeline execution."""
     fotmob_bronze: List[StepResult] = field(default_factory=list)
-    aiscore_bronze: List[StepResult] = field(default_factory=list)
     fotmob_clickhouse: List[StepResult] = field(default_factory=list)
-    aiscore_clickhouse: List[StepResult] = field(default_factory=list)
 
     def add_result(self, category: str, result: StepResult) -> None:
         """Add a result to the appropriate category."""
@@ -82,9 +73,7 @@ class PipelineResults:
         """Check if all steps were successful."""
         categories = [
             "fotmob_bronze",
-            "aiscore_bronze",
-            "fotmob_clickhouse",
-            "aiscore_clickhouse"
+            "fotmob_clickhouse"
         ]
         for category in categories:
             results = getattr(self, category)
@@ -97,9 +86,7 @@ class PipelineResults:
         summary = {}
         categories = [
             "fotmob_bronze",
-            "aiscore_bronze",
-            "fotmob_clickhouse",
-            "aiscore_clickhouse"
+            "fotmob_clickhouse"
         ]
         for category in categories:
             results = getattr(self, category)
@@ -139,10 +126,8 @@ Examples:
     python scripts/pipeline.py 20251113 --bronze-only
     python scripts/pipeline.py 20251113 --skip-bronze
     python scripts/pipeline.py 20251113 --skip-fotmob
-    python scripts/pipeline.py 20251113 --skip-aiscore
   Options:
     python scripts/pipeline.py 20251113 --force
-    python scripts/pipeline.py 20251113 --visible
         """
     )
     _add_date_arguments(parser)
@@ -201,11 +186,6 @@ def _add_pipeline_control_arguments(parser: argparse.ArgumentParser) -> None:
         help='Skip FotMob processing (bronze + ClickHouse)'
     )
     parser.add_argument(
-        '--skip-aiscore',
-        action='store_true',
-        help='Skip AIscore processing (bronze + ClickHouse)'
-    )
-    parser.add_argument(
         '--skip-clickhouse',
         action='store_true',
         help='Skip ClickHouse loading (run bronze scraping only)'
@@ -218,11 +198,6 @@ def _add_option_arguments(parser: argparse.ArgumentParser) -> None:
         '--force',
         action='store_true',
         help='Force re-scrape/reload even if data exists'
-    )
-    parser.add_argument(
-        '--visible',
-        action='store_true',
-        help='Run AIscore browser visible mode (not headless)'
     )
     parser.add_argument(
         '--debug',
@@ -465,29 +440,6 @@ def run_fotmob_bronze(
     )
 
 
-def run_aiscore_bronze(
-    date_str: str,
-    config: PipelineConfig,
-    project_root: Path,
-    log_file: Optional[Path] = None
-) -> StepResult:
-    """Run AIscore bronze scraping for a date."""
-    script_path = project_root / 'scripts' / SCRIPT_NAMES["aiscore_bronze"]
-    cmd = [sys.executable, str(script_path), date_str]
-    if config.visible:
-        cmd.append('--visible')
-    if config.force:
-        cmd.append('--force')
-    return run_step(
-        f"AIscore Bronze - {date_str}",
-        cmd,
-        project_root,
-        continue_on_error=True,
-        date_str=date_str,
-        log_file=log_file
-    )
-
-
 def run_clickhouse_load(
     scraper: str,
     date_str: str,
@@ -588,7 +540,6 @@ def log_pipeline_header(
     logger.info(f"Mode:             {date_info.display_text}")
     logger.info(f"Total dates:      {len(date_info.dates)}")
     logger.info(f"Skip FotMob:      {config.skip_fotmob}")
-    logger.info(f"Skip AIscore:     {config.skip_aiscore}")
     logger.info(f"Skip Bronze:      {config.skip_bronze}")
     logger.info(
         f"Skip ClickHouse:  "
@@ -612,11 +563,6 @@ def process_bronze_scraping(
             date_str, config, project_root, log_file=log_file
         )
         results.add_result("fotmob_bronze", result)
-    if not config.skip_aiscore and not config.skip_bronze:
-        result = run_aiscore_bronze(
-            date_str, config, project_root, log_file=log_file
-        )
-        results.add_result("aiscore_bronze", result)
 
 
 def process_clickhouse_loading_per_date(
@@ -632,11 +578,6 @@ def process_clickhouse_loading_per_date(
             'fotmob', date_str, config, project_root, log_file=log_file
         )
         results.add_result("fotmob_clickhouse", result)
-    if not config.skip_aiscore:
-        result = run_clickhouse_load(
-            'aiscore', date_str, config, project_root, log_file=log_file
-        )
-        results.add_result("aiscore_clickhouse", result)
 
 
 def process_clickhouse_loading_monthly(
@@ -656,11 +597,6 @@ def process_clickhouse_loading_monthly(
             'fotmob', month_str, config, project_root, log_file=log_file
         )
         results.add_result("fotmob_clickhouse", result)
-    if not config.skip_aiscore:
-        result = run_clickhouse_load_month(
-            'aiscore', month_str, config, project_root, log_file=log_file
-        )
-        results.add_result("aiscore_clickhouse", result)
 
 
 def log_pipeline_summary(

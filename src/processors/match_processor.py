@@ -309,7 +309,10 @@ class MatchProcessor(ProcessorProtocol):
                 "match_time_utc": general_data.get("matchTimeUTC"),
                 "match_time_utc_date": general_data.get("matchTimeUTCDate"),
                 "match_started": general_data.get("started", False),
-                "match_finished": general_data.get("finished", False)
+                "match_finished": general_data.get("finished", False),
+                "full_score": self.extractor.safe_get_nested(
+                    response_data, "header", "status", "scoreStr"
+                )
             }
             validated_stats = GeneralMatchStats(**processed_data)
             return validated_stats.model_dump()

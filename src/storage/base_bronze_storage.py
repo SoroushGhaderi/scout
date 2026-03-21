@@ -54,20 +54,20 @@ class BaseBronzeStorage(StorageProtocol, ABC):
     Daily listings track match IDs to prevent duplicate API requests.
 
     Subclasses must implement:
-        - scraper_name: Name of the scraper (e.g., 'fotmob', 'aiscore')
-        - source_name: Name of the data source (e.g., 'fotmob_api', 'aiscore_web')
+        - scraper_name: Name of the scraper (e.g., 'fotmob')
+        - source_name: Name of the data source (e.g., 'fotmob_api')
     """
 
     @property
     @abstractmethod
     def scraper_name(self) -> str:
-        """Return the name of the scraper (e.g., 'fotmob', 'aiscore')."""
+        """Return the name of the scraper (e.g., 'fotmob')."""
         pass
 
     @property
     @abstractmethod
     def source_name(self) -> str:
-        """Return the name of the data source (e.g., 'fotmob_api', 'aiscore_web')."""
+        """Return the name of the data source (e.g., 'fotmob_api')."""
         pass
 
     def __init__(self, base_dir: str):
@@ -722,7 +722,7 @@ class BaseBronzeStorage(StorageProtocol, ABC):
             date_str: Date string YYYYMMDD format (or YYYY-MM-DD, will be converted)
 
         Returns:
-            List of match IDs (int for FotMob, str for AIScore), or empty list if not found
+            List of match IDs (numeric integers for FotMob), or empty list if not found
         """
         listing = self.load_daily_listing(date_str)
         if listing:

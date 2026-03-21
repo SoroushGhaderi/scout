@@ -46,7 +46,6 @@ class DateRangeInfo:
 class ScraperType(Enum):
     """Types of scrapers supported."""
     FOTMOB = "fotmob"
-    AISCORE = "aiscore"
 class PipelineMode(Enum):
     """Pipeline execution modes."""
     SINGLE_DATE = "single_date"

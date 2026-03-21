@@ -1,5 +1,5 @@
-# Scout - Merged Requirements
-# Combines dependencies from both aiscore and fotmob scrapers
+# Scout - Project Requirements
+# Dependencies for FotMob scraper and data processing
 
 # Core dependencies
 selenium>=4.15.0

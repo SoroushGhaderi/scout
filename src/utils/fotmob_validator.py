@@ -305,7 +305,7 @@ class ResponseSaver:
             data: Response data to save
             match_id: Match ID
             validation_summary: Optional validation summary to include
-            source: Data source name (e.g., 'fotmob', 'aiscore')
+            source: Data source name (e.g., 'fotmob')
         
         Returns:
             Path to saved file

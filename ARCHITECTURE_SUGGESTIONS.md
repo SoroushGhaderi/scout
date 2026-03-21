@@ -2,16 +2,15 @@
 
 > Reviewed: 2026-02-19  
 > Reviewer: Senior Engineering Review  
-> Codebase: Python 3.11 · FotMob + AIScore scrapers · Bronze → ClickHouse pipeline
+> Codebase: Python 3.11 · FotMob scraper · Bronze → ClickHouse pipeline
 
 ---
 
 ## 1. Code Analysis
 
-**Scout** is a Python 3.11 data pipeline that scrapes football match data from two sources:
+**Scout** is a Python 3.11 data pipeline that scrapes football match data from FotMob.
 
 - **FotMob** — REST API with custom x-mas token generation (Playwright + curl_cffi + TLS impersonation)
-- **AIScore** — Selenium browser automation with Cloudflare bypass
 
 Data flows: Bronze layer (raw JSON/tar on disk, optional S3) → ClickHouse analytical warehouse. The project uses Pydantic models, pandas DataFrames, a custom exception hierarchy, DLQ, lineage tracking, SCD Type 2 versioning, Telegram/email alerting, and Docker for deployment.
 
@@ -190,15 +189,7 @@ Fixed all 5 garbled text strings in docstrings and messages:
 
 ---
 
-### Bug 7 — `_collect_all_links` Duplicates 60+ Lines in a "Final Pass"
-
-**File:** `src/scrapers/aiscore/scraper.py` lines 361–406
-
-**Status:** ✅ FIXED (commit e377af2)
-
-Extracted `_process_visible_containers()` helper method that handles:
-- Finding visible containers via CSS selector
-- Extracting URLs with deduplication
+### Bug 7 — Removed (AIScore deprecated)
 - Building MatchLk objects
 - Saving to storage
 
@@ -308,7 +299,7 @@ This means:
 
 ```python
 from src.scrapers.fotmob.daily_scraper import run_scraping as run_fotmob_scraping
-from src.scrapers.aiscore.odds_scraper import run_scraping as run_aiscore_scraping
+
 from src.storage.clickhouse_client import ClickHouseClient
 
 def run_fotmob_bronze(date_str: str, config: PipelineConfig) -> StepResult:
@@ -512,28 +503,11 @@ Some files marked deprecated have been removed:
 |------|--------|
 | `src/config.py` | ✅ Deleted (commit 8b2b0b6) |
 | `src/__main__.py` | ✅ Deleted (commit 8b2b0b6) |
-| `src/scrapers/aiscore/config.py` | Still in use — DO NOT remove |
-| `src/scrapers/aiscore/bronze_storage.py` | ✅ Moved to `src/storage/aiscore_storage.py` |
 
-The deprecated `src/scrapers/aiscore/config.py` uses relative imports and is still actively imported by AIScore scraper modules.
-
-### `load_raw_match_data` Without `date_str` Is Expensive
-
-```python
-# src/storage/base_bronze_storage.py lines 462–463
-matches_gz = list(self.matches_dir.rglob(f"match_{match_id}.json.gz"))
-matches    = list(self.matches_dir.rglob(f"match_{match_id}.json"))
-```
 
 A recursive glob over 30 date subdirectories × 300 files each is a linear scan of ~9,000
 inodes. In practice, `date_str` is always known at call sites. Make it required and
 remove the no-date code path, or build a match-ID-to-date in-memory index on first use.
-
-### Configuration Duplication: `config/` vs `src/scrapers/aiscore/config.py`
-
-There is a `config/` package at the project root (canonical) and a `config.py` inside the
-AIScore scraper (deprecated). Any new code should import only from `config/`. Delete the
-deprecated file once confirmed unused.
 
 ---
 

@@ -1,4 +1,4 @@
-"""Scrapers package - contains both aiscore and fotmob scrapers."""
+"""Scrapers package - FotMob scraper."""
 from .fotmob.match_scraper import MatchScraper
 from .fotmob.daily_scraper import DailyScraper
 

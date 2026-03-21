@@ -28,7 +28,7 @@ class DataLineage:
     Data lineage record tracking data flow.
     Attributes:
         lineage_id: Unique identifier for this lineage record
-        source: Data source (e.g., "fotmob_api", "aiscore_web")
+        source: Data source (e.g., "fotmob_api")
         source_id: Source-specific identifier (e.g., match_id)
         source_path: Path to source data file
         transformation: Transformation applied (e.g., "bronze_to_clickhouse")
@@ -156,8 +156,8 @@ class LineageTracker:
         """
         Record data lineage for a scrape operation.
         Args:
-            scraper: Scraper name (fotmob, aiscore)
-            source: Source system (e.g., "fotmob_api", "aiscore_web")
+            scraper: Scraper name (fotmob)
+            source: Source system (e.g., "fotmob_api")
             source_id: Source identifier (e.g., match_id)
             date: Date in YYYYMMDD format
             file_path: Path to scraped data file
@@ -200,7 +200,7 @@ class LineageTracker:
         """
         Record data lineage for a load operation (bronze to ClickHouse).
         Args:
-            scraper: Scraper name (fotmob, aiscore)
+            scraper: Scraper name (fotmob)
             source_id: Source identifier (e.g., match_id)
             date: Date in YYYYMMDD format
             destination_table: ClickHouse table name

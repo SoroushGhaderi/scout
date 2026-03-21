@@ -24,9 +24,6 @@ def ensure_directories() -> None:
         project_root / "data" / "fotmob",
         project_root / "data" / "fotmob" / "daily",
         project_root / "data" / "fotmob" / "matches",
-        project_root / "data" / "aiscore",
-        project_root / "data" / "aiscore" / "daily_listings",
-        project_root / "data" / "aiscore" / "matches",
         project_root / "logs",
     ]
     
