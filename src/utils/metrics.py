@@ -1,10 +1,13 @@
 """Metrics tracking for scraper performance."""
 import json
+import logging
 import os
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -98,27 +101,27 @@ class ScraperMetrics:
         return filepath
 
     def print_summary(self):
-        """Print a summary of the metrics."""
+        """Log a summary of the metrics."""
         duration = self.get_duration_seconds()
         duration_str = f"{duration:.2f}s" if duration else "N/A"
-        print("\n" + "=" * 60)
-        print(f"SCRAPER METRICS SUMMARY - {self.date}")
-        print("=" * 60)
-        print(f"Total Matches:      {self.total_matches}")
-        print(f"Successful:         {self.successful_matches}")
-        print(f"Failed:             {self.failed_matches}")
-        print(f"Skipped:            {self.skipped_matches}")
-        print(f"Success Rate:       {self.get_success_rate()}%")
-        print(f"Duration:           {duration_str}")
+        logger.info("%s", "\n" + "=" * 60)
+        logger.info("SCRAPER METRICS SUMMARY - %s", self.date)
+        logger.info("%s", "=" * 60)
+        logger.info("Total Matches:      %s", self.total_matches)
+        logger.info("Successful:         %s", self.successful_matches)
+        logger.info("Failed:             %s", self.failed_matches)
+        logger.info("Skipped:            %s", self.skipped_matches)
+        logger.info("Success Rate:       %s%%", self.get_success_rate())
+        logger.info("Duration:           %s", duration_str)
         if self.errors:
-            print(f"\nErrors:             {len(self.errors)}")
+            logger.info("Errors:             %s", len(self.errors))
             for error in self.errors[:3]:
-                print(f"  - Match {error['match_id']}: {error['error'][:80]}")
+                logger.info("  - Match %s: %s", error["match_id"], error["error"][:80])
             if len(self.errors) > 3:
-                print(f"  ...and {len(self.errors) - 3} more")
+                logger.info("  ...and %s more", len(self.errors) - 3)
         if self.data_quality_issues:
-            print(f"\nData Quality Issues: {len(self.data_quality_issues)}")
-        print("=" * 60 + "\n")
+            logger.info("Data Quality Issues: %s", len(self.data_quality_issues))
+        logger.info("%s", "=" * 60 + "\n")
 
 
 @dataclass

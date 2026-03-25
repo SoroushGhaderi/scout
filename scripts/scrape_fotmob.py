@@ -29,6 +29,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import argparse
+import logging
 import sys
 import time
 from dataclasses import dataclass, field
@@ -55,6 +56,8 @@ from utils import (
 sys.path.insert(0, str(Path(__file__).parent))
 
 add_project_to_path()
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================================
@@ -279,47 +282,47 @@ def create_config(args: argparse.Namespace) -> FotMobConfig:
 
 
 def print_scraping_header(date_info: DateRangeInfo, args: argparse.Namespace) -> None:
-    """Print scraping header."""
+    """Log scraping header."""
     print_header("Bronze Layer Processing")
-    print(f"Mode:             {date_info.mode_text}")
-    print(f"Date(s):          {date_info.display_text}")
-    print(f"Total dates:      {len(date_info.dates)}")
-    print(f"Mode:             Single-threaded (sequential)")
-    print(f"Force re-scrape:  {args.force}")
-    print(f"Auto-compress:    {args.compress}")
-    print("=" * 80 + "\n")
+    logger.info("Mode:             %s", date_info.mode_text)
+    logger.info("Date(s):          %s", date_info.display_text)
+    logger.info("Total dates:      %s", len(date_info.dates))
+    logger.info("Mode:             Single-threaded (sequential)")
+    logger.info("Force re-scrape:  %s", args.force)
+    logger.info("Auto-compress:    %s", args.compress)
+    logger.info("%s", "=" * 80 + "\n")
 
 
 def print_date_metrics(metrics) -> None:
-    """Print metrics for a single date."""
-    print(f"  Matches:   {metrics.total_matches}")
-    print(f"  Success:   {metrics.successful_matches}")
-    print(f"  Failed:    {metrics.failed_matches}")
-    print(f"  Skipped:   {metrics.skipped_matches}")
+    """Log metrics for a single date."""
+    logger.info("  Matches:   %s", metrics.total_matches)
+    logger.info("  Success:   %s", metrics.successful_matches)
+    logger.info("  Failed:    %s", metrics.failed_matches)
+    logger.info("  Skipped:   %s", metrics.skipped_matches)
 
 
 def print_final_summary(stats: ScrapingStats, total_dates: int) -> None:
-    """Print final scraping summary."""
+    """Log final scraping summary."""
     print_header("BRONZE LAYER COMPLETE")
-    print(f"Dates processed:  {stats.dates_processed}/{total_dates}")
-    print(f"Dates failed:     {stats.dates_failed}")
+    logger.info("Dates processed:  %s/%s", stats.dates_processed, total_dates)
+    logger.info("Dates failed:     %s", stats.dates_failed)
     print_separator()
-    print(f"Total matches:    {stats.total_matches}")
-    print(f"Successful:       {stats.total_successful}")
-    print(f"Failed:           {stats.total_failed}")
-    print(f"Skipped:          {stats.total_skipped}")
-    print("=" * 80)
+    logger.info("Total matches:    %s", stats.total_matches)
+    logger.info("Successful:       %s", stats.total_successful)
+    logger.info("Failed:           %s", stats.total_failed)
+    logger.info("Skipped:          %s", stats.total_skipped)
+    logger.info("%s", "=" * 80)
 
 
 def print_next_steps(stats: ScrapingStats) -> None:
-    """Print next steps if applicable."""
+    """Log next steps if applicable."""
     if stats.total_successful > 0:
-        print("\nNext steps:")
-        print(
+        logger.info("Next steps:")
+        logger.info(
             "  Load to ClickHouse:  "
             "python scripts/load_clickhouse.py --scraper fotmob --date <date>"
         )
-        print("  View profiling:  python manage.py bronze view-profiling")
+        logger.info("  View profiling:  python manage.py bronze view-profiling")
 
 
 # ============================================================================
@@ -342,14 +345,14 @@ def process_single_date(
         Metrics object if successful, None if failed
     """
     logger.info(f"[{idx}/{total}] Processing date: {date_str}")
-    print(f"\n[{idx}/{total}] Scraping {date_str}...")
+    logger.info("[%s/%s] Scraping %s...", idx, total, date_str)
 
     try:
         metrics = orchestrator.scrape_date(date_str=date_str, force_rescrape=args.force)
         return metrics
     except Exception as e:
         logger.error(f"Failed to process date {date_str}: {e}")
-        print(f"  ERROR: {e}")
+        logger.error("Date processing error: %s", e)
         _send_failure_alert(date_str, e)
         return None
 
@@ -472,14 +475,13 @@ def main() -> int:
     args = parse_arguments()
     return run_scraping(args)
 
-
 if __name__ == "__main__":
     try:
         exit_code = main()
         sys.exit(exit_code)
     except KeyboardInterrupt:
-        print("\n\nScraping interrupted by user. Exiting...")
+        logger.warning("Scraping interrupted by user. Exiting...")
         sys.exit(130)
     except Exception as e:
-        print(f"\nFatal error: {e}")
+        logger.error("Fatal error: %s", e)
         sys.exit(1)

@@ -7,9 +7,9 @@ Usage:
     from config.settings import settings, Environment
     
     if settings.environment == Environment.PROD:
-        print("Running in production")
+        logger.info("Running in production")
     
-    print(f"Log level: {settings.log_level}")
+    logger.info(f"Log level: {settings.log_level}")
 """
 
 from enum import Enum

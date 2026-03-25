@@ -97,11 +97,11 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 If None, creates a default instance.
             extractor: SafeFieldExtractor instance for safe field access.
                 If None, creates a default instance.
-            response_saver: ResponseSaver instance for saving responses.
+            response_saver: ResponseSaver instance for saving invalid responses.
                 If None and save_responses is True, creates a default instance.
-            save_responses: If True, save validated responses to JSON.
+            save_responses: If True, save invalid responses to JSON for debugging.
                 Ignored if response_saver is explicitly provided.
-            response_output_dir: Directory to save validated responses.
+            response_output_dir: Directory to save invalid response snapshots.
                 Only used if response_saver is None and save_responses is True.
         """
         self.logger = logger
@@ -150,19 +150,12 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 for error in validation_summary['errors']:
                     self.logger.error(f"  - {error}")
             else:
-                self.logger.debug(f"✓ Validation passed for match {match_id}")
+                self.logger.debug(f"[OK] Validation passed for match {match_id}")
         
-        # Save validated response if enabled
+        # Save invalid responses for debugging if enabled
         if self.save_responses and self.response_saver:
             try:
-                if validation_summary and validation_summary['is_valid']:
-                    self.response_saver.save_response(
-                        raw_response, 
-                        str(match_id),
-                        validation_summary,
-                        source="fotmob"
-                    )
-                elif validation_summary:
+                if validation_summary and not validation_summary['is_valid']:
                     self.response_saver.save_invalid_response(
                         raw_response,
                         str(match_id),

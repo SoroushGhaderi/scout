@@ -391,7 +391,7 @@ def record_lineage(
 
 
 def load_match_files_from_tar(
-    archive_path: Path, processor: MatchProcessor, logger: logging.Logger
+    archive_path: Path, processor: FotMobBronzeMatchProcessor, logger: logging.Logger
 ) -> Dict[str, List]:
     """Load match files from TAR archive."""
     all_dataframes = {}

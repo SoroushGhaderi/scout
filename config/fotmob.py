@@ -105,9 +105,9 @@ class FotMobConfig(BaseConfig):
 
         config = FotMobConfig()
 
-        print(config.api.base_url)
+        logger.info(config.api.base_url)
 
-        print(config.storage.bronze_path)
+        logger.info(config.storage.bronze_path)
 
     Sensitive data (tokens) should be in .env file:
         FOTMOB_X_MAS_TOKEN: API authentication token

@@ -257,10 +257,9 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_c
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py --json
 ```
 
-### Recreate schema after dropping database
+### Recreate schema
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/drop_clickhouse_databases.py --yes
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse.py
 ```
 

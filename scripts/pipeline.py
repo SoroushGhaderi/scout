@@ -791,10 +791,10 @@ def run_pipeline(args: argparse.Namespace) -> int:
     pipeline_elapsed = time.time() - pipeline_start
     log_pipeline_summary(logger, results, len(date_info.dates), pipeline_elapsed, log_file)
     if results.all_successful():
-        logger.info("✓ Pipeline completed successfully!")
+        logger.info("[OK] Pipeline completed successfully!")
         return 0
     else:
-        logger.warning("⚠ Pipeline completed with some failures (see details above)")
+        logger.warning("[WARN] Pipeline completed with some failures (see details above)")
         return 1
 
 

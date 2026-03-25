@@ -67,6 +67,7 @@ class PipelineMode(Enum):
 
 
 _PROJECT_ROOT: Optional[Path] = None
+logger = logging.getLogger(__name__)
 
 
 def get_project_root() -> Path:
@@ -305,7 +306,7 @@ class PerformanceTimer:
         Initialize timer.
         Args:
             operation_name: Description of operation being timed
-            logger: Optional logger (uses print if None)
+            logger: Optional logger (uses module logger if None)
         """
         self.operation_name = operation_name
         self.logger = logger
@@ -327,7 +328,7 @@ class PerformanceTimer:
             log_func = getattr(self.logger, level, self.logger.info)
             log_func(message)
         else:
-            print(message)
+            getattr(logger, level, logger.info)(message)
 
     def __enter__(self):
         """Support context manager usage."""
@@ -353,15 +354,15 @@ def format_elapsed_time(seconds: float) -> str:
 
 
 def print_header(title: str, char: str = "=", width: int = 80) -> None:
-    """Print a formatted header line."""
-    print("\n" + char * width)
-    print(title)
-    print(char * width)
+    """Log a formatted header line."""
+    logger.info("%s", "\n" + char * width)
+    logger.info("%s", title)
+    logger.info("%s", char * width)
 
 
 def print_separator(char: str = "-", width: int = 80) -> None:
-    """Print a separator line."""
-    print(char * width)
+    """Log a separator line."""
+    logger.info("%s", char * width)
 
 
 def log_header(logger: logging.Logger, title: str, char: str = "=", width: int = 80) -> None:

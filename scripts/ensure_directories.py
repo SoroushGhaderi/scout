@@ -9,7 +9,10 @@ Usage:
 """
 
 import sys
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def ensure_directories() -> None:
@@ -27,9 +30,8 @@ def ensure_directories() -> None:
         project_root / "logs",
     ]
 
-    print("Creating required directories...")
-    print(f"Project root: {project_root}")
-    print()
+    logger.info("Creating required directories...")
+    logger.info("Project root: %s", project_root)
 
     created = []
     existed = []
@@ -37,35 +39,33 @@ def ensure_directories() -> None:
     for directory in directories:
         if directory.exists():
             existed.append(directory)
-            print(f"  ✓ {directory.relative_to(project_root)} (already exists)")
+            logger.info("  [OK] %s (already exists)", directory.relative_to(project_root))
         else:
             directory.mkdir(parents=True, exist_ok=True)
             created.append(directory)
-            print(f"  + {directory.relative_to(project_root)} (created)")
+            logger.info("  + %s (created)", directory.relative_to(project_root))
 
-    print()
-    print("=" * 60)
-    print(f"Summary:")
-    print(f"  Created: {len(created)} directories")
-    print(f"  Existed: {len(existed)} directories")
-    print(f"  Total:   {len(directories)} directories")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("Summary:")
+    logger.info("  Created: %s directories", len(created))
+    logger.info("  Existed: %s directories", len(existed))
+    logger.info("  Total:   %s directories", len(directories))
+    logger.info("=" * 60)
 
     if created:
-        print()
-        print("✓ Directory structure initialized successfully!")
+        logger.info("[OK] Directory structure initialized successfully!")
     else:
-        print()
-        print("✓ All directories already exist.")
+        logger.info("[OK] All directories already exist.")
 
 
 def main() -> int:
     """Main execution function."""
     try:
+        logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
         ensure_directories()
         return 0
     except Exception as e:
-        print(f"Error creating directories: {e}", file=sys.stderr)
+        logger.error("Error creating directories: %s", e)
         return 1
 
 

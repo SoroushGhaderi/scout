@@ -115,7 +115,7 @@ is_valid, errors, warnings = validator.validate_response(data)
 
 **3. ResponseSaver** (`src/utils/fotmob_validator.py`)
 
-Saves validated responses to organized JSON files.
+Saves invalid responses to organized JSON files for debugging.
 
 ---
 

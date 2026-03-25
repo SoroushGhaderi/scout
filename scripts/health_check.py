@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import logging
 import os
 import sys
 from pathlib import Path
@@ -12,6 +13,8 @@ sys.path.insert(0, str(project_root))
 
 from src.utils.health_check import health_check
 from src.utils.logging_utils import setup_logging
+
+logger = logging.getLogger(__name__)
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -43,10 +46,10 @@ Examples:
     return parser.parse_args()
 
 
-def _print_component(component_name: str, component_result: Dict[str, Any]) -> None:
-    """Print one health-check component."""
-    print(f"\n{component_name.upper().replace('_', ' ')}")
-    print("-" * 80)
+def _log_component(component_name: str, component_result: Dict[str, Any]) -> None:
+    """Log one health-check component."""
+    logger.info("%s", component_name.upper().replace("_", " "))
+    logger.info("%s", "-" * 80)
 
     if "status" in component_result:
         status = component_result.get("status", "unknown")
@@ -57,13 +60,13 @@ def _print_component(component_name: str, component_result: Dict[str, Any]) -> N
             "critical": "ERR",
             "skipped": "SKIP",
         }.get(status, "?")
-        print(f"Status: {symbol} {status.upper()}")
+        logger.info("Status: %s %s", symbol, status.upper())
         message = component_result.get("message")
         if message:
-            print(f"Message: {message}")
+            logger.info("Message: %s", message)
         for key, value in component_result.items():
             if key not in {"status", "message"}:
-                print(f"{key}: {value}")
+                logger.info("%s: %s", key, value)
         return
 
     for path_name, path_result in component_result.items():
@@ -76,25 +79,25 @@ def _print_component(component_name: str, component_result: Dict[str, Any]) -> N
             "error": "ERR",
             "critical": "ERR",
         }.get(status, "?")
-        print(f"{path_name}: {symbol} {status.upper()}")
+        logger.info("%s: %s %s", path_name, symbol, status.upper())
         if "message" in path_result:
-            print(f"  {path_result['message']}")
+            logger.info("  %s", path_result["message"])
 
 
 def print_health_results(results: Dict[str, Any], json_output: bool = False) -> int:
-    """Print health check results and return a process exit code."""
+    """Log health check results and return a process exit code."""
     if json_output:
-        print(json.dumps(results, indent=2))
+        logger.info("%s", json.dumps(results, indent=2))
     else:
-        print("=" * 80)
-        print("SYSTEM HEALTH CHECK")
-        print("=" * 80)
-        print(f"Timestamp: {results['timestamp']}")
-        print(f"Overall Status: {results['overall_status'].upper()}")
+        logger.info("%s", "=" * 80)
+        logger.info("SYSTEM HEALTH CHECK")
+        logger.info("%s", "=" * 80)
+        logger.info("Timestamp: %s", results["timestamp"])
+        logger.info("Overall Status: %s", results["overall_status"].upper())
         for component_name, component_result in results["components"].items():
             if isinstance(component_result, dict):
-                _print_component(component_name, component_result)
-        print("\n" + "=" * 80)
+                _log_component(component_name, component_result)
+        logger.info("%s", "=" * 80)
 
     if results["overall_status"] == "healthy":
         return 0

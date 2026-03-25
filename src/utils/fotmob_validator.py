@@ -212,7 +212,7 @@ class FotMobValidator:
         context = f"match {match_id}" if match_id else "response"
         
         if is_valid:
-            self.logger.debug(f"✓ Validation passed for {context}")
+            self.logger.debug(f"[OK] Validation passed for {context}")
             if warnings:
                 self.logger.warning(
                     f"Validation warnings for {context} ({len(warnings)}):"
@@ -221,7 +221,7 @@ class FotMobValidator:
                     self.logger.warning(f"  - {warning}")
         else:
             self.logger.error(
-                f"❌ Validation failed for {context} with {len(errors)} errors:"
+                f"[ERROR] Validation failed for {context} with {len(errors)} errors:"
             )
             for error in errors:
                 self.logger.error(f"  - {error}")
@@ -420,19 +420,20 @@ def save_validated_response(
     output_dir: str = "data/validated_responses",
     source: str = "fotmob",
     validate: bool = True
-) -> Tuple[Path, bool, Optional[Dict[str, Any]]]:
+) -> Tuple[Optional[Path], bool, Optional[Dict[str, Any]]]:
     """
-    Validate and save API response.
+    Validate and save only invalid API responses.
     
     Args:
         data: API response data
         match_id: Match ID
-        output_dir: Directory to save responses
+        output_dir: Directory to save invalid responses
         source: Data source name
         validate: If True, validate before saving
     
     Returns:
-        Tuple of (file_path, is_valid, validation_summary)
+        Tuple of (file_path, is_valid, validation_summary).
+        file_path is None when the response is valid and therefore skipped.
     """
     validator = FotMobValidator()
     saver = ResponseSaver(output_dir)
@@ -445,11 +446,9 @@ def save_validated_response(
         validation_summary = validator.get_validation_summary(data)
         is_valid = validation_summary['is_valid']
     
-    # Save to appropriate location
-    if is_valid:
-        file_path = saver.save_response(data, match_id, validation_summary, source)
-    else:
+    # Save only invalid responses for debugging
+    file_path = None
+    if not is_valid:
         file_path = saver.save_invalid_response(data, match_id, validation_summary, source)
-    
-    return file_path, is_valid, validation_summary
 
+    return file_path, is_valid, validation_summary
