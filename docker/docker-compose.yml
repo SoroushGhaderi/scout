@@ -4,7 +4,7 @@
 name: scout
 
 services:
-  # ClickHouse Database - Stores data for both FotMob and AIScore
+  # ClickHouse Database - Stores data for FotMob
   # NOTE: Table creation is handled by the Python script (setup_clickhouse.py)
   # in the scraper container, NOT by ClickHouse's automatic initialization.
   # The script automatically checks if databases exist and creates them if missing.
@@ -73,7 +73,6 @@ services:
       - CLICKHOUSE_USER=fotmob_user
       - CLICKHOUSE_PASSWORD=fotmob_pass
       - CLICKHOUSE_DB_FOTMOB=fotmob
-      - CLICKHOUSE_DB_AISCORE=aiscore
       # Logging
       - LOG_LEVEL=INFO
       - LOG_DIR=/app/logs

@@ -27,8 +27,8 @@ except ImportError:
     FileLock = None
     Timeout = None
 
-from ..core import StorageProtocol, StorageError, StorageWriteError, StorageReadError
-from ..utils.lineage import LineageTracker
+from ...core import StorageProtocol, StorageError, StorageWriteError, StorageReadError
+from ...utils.lineage import LineageTracker
 
 
 class BaseBronzeStorage(StorageProtocol, ABC):

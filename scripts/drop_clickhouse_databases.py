@@ -14,11 +14,10 @@ Usage:
 
 """
 
-import sys
-import os
 import argparse
+import os
+import sys
 from pathlib import Path
-
 
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
@@ -32,35 +31,30 @@ logger = get_logger()
 def get_database_stats(client: ClickHouseClient, database: str) -> dict:
     """Get statistics about a database."""
     try:
-
         tables_result = client.execute(f"SHOW TABLES FROM {database}")
         tables = []
-        if hasattr(tables_result, 'result_rows') and tables_result.result_rows:
+        if hasattr(tables_result, "result_rows") and tables_result.result_rows:
             tables = [row[0] for row in tables_result.result_rows]
-        elif hasattr(tables_result, 'result_columns') and tables_result.result_columns:
+        elif hasattr(tables_result, "result_columns") and tables_result.result_columns:
             tables = list(tables_result.result_columns[0])
 
-
-        stats_result = client.execute(f"""
+        stats_result = client.execute(
+            f"""
             SELECT
                 formatReadableQuantity(sum(rows)) as rows,
                 formatReadableSize(sum(bytes)) as size
             FROM system.parts
             WHERE database = '{database}' AND active
-        """)
+        """
+        )
 
         rows = "0"
         size = "0 B"
-        if hasattr(stats_result, 'result_rows') and stats_result.result_rows:
+        if hasattr(stats_result, "result_rows") and stats_result.result_rows:
             rows = stats_result.result_rows[0][0] if stats_result.result_rows[0][0] else "0"
             size = stats_result.result_rows[0][1] if stats_result.result_rows[0][1] else "0 B"
 
-        return {
-            "tables": len(tables),
-            "table_names": tables,
-            "rows": rows,
-            "size": size
-        }
+        return {"tables": len(tables), "table_names": tables, "rows": rows, "size": size}
     except Exception as e:
         logger.warning(f"Could not get stats for {database}: {e}")
         return {"tables": 0, "table_names": [], "rows": "0", "size": "0 B"}
@@ -69,10 +63,10 @@ def get_database_stats(client: ClickHouseClient, database: str) -> dict:
 def drop_databases(confirm: bool = False) -> int:
     """Drop fotmob database."""
 
-    host = os.getenv('CLICKHOUSE_HOST', 'clickhouse')
-    port = int(os.getenv('CLICKHOUSE_PORT', '8123'))
-    username = os.getenv('CLICKHOUSE_USER', 'fotmob_user')
-    password = os.getenv('CLICKHOUSE_PASSWORD', 'fotmob_pass')
+    host = os.getenv("CLICKHOUSE_HOST", "clickhouse")
+    port = int(os.getenv("CLICKHOUSE_PORT", "8123"))
+    username = os.getenv("CLICKHOUSE_USER", "fotmob_user")
+    password = os.getenv("CLICKHOUSE_PASSWORD", "fotmob_pass")
 
     logger.warning("=" * 80)
     logger.warning("⚠️ DROP CLICKHOUSE DATABASES")
@@ -81,13 +75,8 @@ def drop_databases(confirm: bool = False) -> int:
     logger.warning(f"User: {username}")
     logger.warning("=" * 80)
 
-
     client = ClickHouseClient(
-        host=host,
-        port=port,
-        username=username,
-        password=password,
-        database="default"
+        host=host, port=port, username=username, password=password, database="default"
     )
 
     if not client.connect():
@@ -97,8 +86,7 @@ def drop_databases(confirm: bool = False) -> int:
 
     logger.info("✅ Connected to ClickHouse")
 
-
-    databases_to_drop = ['fotmob']
+    databases_to_drop = ["fotmob"]
     stats = {}
 
     logger.info("\n" + "=" * 80)
@@ -113,29 +101,29 @@ def drop_databases(confirm: bool = False) -> int:
             logger.warning(f" Tables: {stats[db_name]['tables']}")
             logger.warning(f" Rows: {stats[db_name]['rows']}")
             logger.warning(f" Size: {stats[db_name]['size']}")
-            if stats[db_name]['table_names']:
+            if stats[db_name]["table_names"]:
                 logger.warning(f" Table names: {', '.join(stats[db_name]['table_names'][:5])}")
-            if len(stats[db_name]['table_names']) > 5:
+            if len(stats[db_name]["table_names"]) > 5:
                 logger.warning(f" ...and {len(stats[db_name]['table_names']) - 5} more")
         except Exception as e:
             logger.warning(f"Database {db_name} may not exist: {e}")
             stats[db_name] = {"tables": 0, "rows": "0", "size": "0 B"}
 
-
     if not confirm:
         logger.warning("\n" + "=" * 80)
         logger.warning("⚠️ WARNING: This will DELETE all data from the following databases:")
         for db_name in databases_to_drop:
-            logger.warning(f" - {db_name} ({stats[db_name]['tables']} tables, {stats[db_name]['rows']} rows, {stats[db_name]['size']})")
+            logger.warning(
+                f" - {db_name} ({stats[db_name]['tables']} tables, {stats[db_name]['rows']} rows, {stats[db_name]['size']})"
+            )
         logger.warning("=" * 80)
         logger.warning("⚠️ This action CANNOT be undone!")
         logger.warning("=" * 80)
 
         response = input("\nType 'YES' to confirm (or 'no' to cancel): ").strip()
-        if response.upper() != 'YES':
+        if response.upper() != "YES":
             logger.info("❌ Operation cancelled by user")
             return 0
-
 
     logger.warning("\n" + "=" * 80)
     logger.warning("DROPPING DATABASES...")
@@ -154,7 +142,6 @@ def drop_databases(confirm: bool = False) -> int:
             logger.error(f"❌ Failed to drop database '{db_name}': {e}")
             failed_count += 1
 
-
     logger.info("\n" + "=" * 80)
     logger.info("Verification")
     logger.info("=" * 80)
@@ -163,9 +150,9 @@ def drop_databases(confirm: bool = False) -> int:
         result = client.execute("SHOW DATABASES")
         remaining_dbs = set()
 
-        if hasattr(result, 'result_rows') and result.result_rows:
+        if hasattr(result, "result_rows") and result.result_rows:
             remaining_dbs = {row[0] for row in result.result_rows}
-        elif hasattr(result, 'result_columns') and result.result_columns:
+        elif hasattr(result, "result_columns") and result.result_columns:
             remaining_dbs = set(result.result_columns[0])
 
         for db_name in databases_to_drop:
@@ -214,13 +201,11 @@ Examples:
 
   python scripts/drop_clickhouse_databases.py --yes
 
-        """
+        """,
     )
 
     parser.add_argument(
-        '--yes', '-y',
-        action='store_true',
-        help='Skip confirmation prompt (use with caution!)'
+        "--yes", "-y", action="store_true", help="Skip confirmation prompt (use with caution!)"
     )
 
     args = parser.parse_args()

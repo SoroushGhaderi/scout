@@ -1,5 +1,7 @@
-"""Processors package - Data transformation processors."""
+"""Processors package — Bronze, Silver, and Gold layer data transformers."""
 
-from .match_processor import MatchProcessor
+from .bronze.match_processor import MatchProcessor
+from .silver import FotMobSilverProcessor
+from .gold import FotMobGoldProcessor
 
-__all__ = ['MatchProcessor']
+__all__ = ["MatchProcessor", "FotMobSilverProcessor", "FotMobGoldProcessor"]

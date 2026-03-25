@@ -33,6 +33,23 @@ class ClickHouseClient:
         'substitutes',
         'coaches',
         'team_form',
+        'bronze_general',
+        'bronze_timeline',
+        'bronze_venue',
+        'bronze_player',
+        'bronze_shotmap',
+        'bronze_goal',
+        'bronze_cards',
+        'bronze_red_card',
+        'bronze_period',
+        'bronze_momentum',
+        'bronze_starters',
+        'bronze_substitutes',
+        'bronze_coaches',
+        'bronze_team_form',
+        'gold_player_match_stats',
+        'gold_match_summary',
+        'gold_team_season_stats',
     }
 
     def __init__(

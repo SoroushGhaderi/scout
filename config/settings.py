@@ -16,7 +16,6 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -64,7 +63,6 @@ class Settings(BaseSettings):
     clickhouse_password: str = ""
     clickhouse_database: str = "default"
     clickhouse_db_fotmob: str = "fotmob"
-    clickhouse_db_aiscore: str = "aiscore"
     
     enable_metrics: bool = True
     enable_health_checks: bool = True
@@ -114,7 +112,6 @@ class Settings(BaseSettings):
             'clickhouse_port': self.clickhouse_port,
             'clickhouse_database': self.clickhouse_database,
             'clickhouse_db_fotmob': self.clickhouse_db_fotmob,
-            'clickhouse_db_aiscore': self.clickhouse_db_aiscore,
             'enable_metrics': self.enable_metrics,
             'enable_health_checks': self.enable_health_checks,
         }

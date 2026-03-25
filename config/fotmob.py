@@ -157,8 +157,11 @@ class FotMobConfig(BaseConfig):
         )
 
         storage_config = yaml_fotmob.get('storage', {})
+        bronze_path = storage_config['bronze_path']
         self.storage = StorageConfig(
-            bronze_path=storage_config['bronze_path'],
+            bronze_path=bronze_path,
+            silver_path=storage_config.get('silver_path', f"{bronze_path}_silver"),
+            gold_path=storage_config.get('gold_path', f"{bronze_path}_gold"),
             enabled=storage_config.get('enabled', True),
         )
 
@@ -238,6 +241,10 @@ class FotMobConfig(BaseConfig):
 
         if os.getenv('FOTMOB_BRONZE_PATH'):
             self.storage.bronze_path = os.getenv('FOTMOB_BRONZE_PATH')
+        if os.getenv('FOTMOB_SILVER_PATH'):
+            self.storage.silver_path = os.getenv('FOTMOB_SILVER_PATH')
+        if os.getenv('FOTMOB_GOLD_PATH'):
+            self.storage.gold_path = os.getenv('FOTMOB_GOLD_PATH')
         if os.getenv('FOTMOB_STORAGE_ENABLED'):
             self.storage.enabled = os.getenv('FOTMOB_STORAGE_ENABLED').lower() == 'true'
 
@@ -334,6 +341,16 @@ class FotMobConfig(BaseConfig):
     def bronze_base_dir(self) -> str:
         """Backward compatibility: storage.bronze_path"""
         return self.storage.bronze_path
+
+    @property
+    def silver_base_dir(self) -> str:
+        """Backward compatibility: storage.silver_path"""
+        return self.storage.silver_path
+
+    @property
+    def gold_base_dir(self) -> str:
+        """Backward compatibility: storage.gold_path"""
+        return self.storage.gold_path
 
     @property
     def parquet_base_dir(self) -> str:

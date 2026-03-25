@@ -8,16 +8,16 @@ Usage:
     python scripts/ensure_directories.py
 """
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 
 def ensure_directories() -> None:
     """Create required directories if they don't exist."""
-    
+
     # Get project root (parent of scripts directory)
     project_root = Path(__file__).parent.parent
-    
+
     # Required directories
     directories = [
         project_root / "data",
@@ -26,14 +26,14 @@ def ensure_directories() -> None:
         project_root / "data" / "fotmob" / "matches",
         project_root / "logs",
     ]
-    
+
     print("Creating required directories...")
     print(f"Project root: {project_root}")
     print()
-    
+
     created = []
     existed = []
-    
+
     for directory in directories:
         if directory.exists():
             existed.append(directory)
@@ -42,7 +42,7 @@ def ensure_directories() -> None:
             directory.mkdir(parents=True, exist_ok=True)
             created.append(directory)
             print(f"  + {directory.relative_to(project_root)} (created)")
-    
+
     print()
     print("=" * 60)
     print(f"Summary:")
@@ -50,7 +50,7 @@ def ensure_directories() -> None:
     print(f"  Existed: {len(existed)} directories")
     print(f"  Total:   {len(directories)} directories")
     print("=" * 60)
-    
+
     if created:
         print()
         print("✓ Directory structure initialized successfully!")

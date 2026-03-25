@@ -198,7 +198,7 @@ make optimize-tables
 # Or manually
 docker-compose -f docker/docker-compose.yml exec -T clickhouse clickhouse-client \
   --user fotmob_user --password fotmob_pass \
-  < clickhouse/init/03_optimize_tables.sql
+  < clickhouse/bronze/02_optimize.sql
 ```
 
 ## Key Features

@@ -23,30 +23,33 @@ Usage:
 
 # Load environment variables from .env file FIRST
 import os
+
 from dotenv import load_dotenv
+
 load_dotenv()
 
-from src.utils.alerting import get_alert_manager, AlertLevel
-from src.utils.logging_utils import setup_logging
-from src.utils.metrics_alerts import send_daily_report, send_monthly_report
-from scripts.refresh_turnstile import refresh_if_needed
-from src.orchestrator import FotMobOrchestrator
-from config import FotMobConfig
-from utils import (
-    add_project_to_path,
-    validate_date_format,
-    create_date_range_info,
-    DateRangeInfo,
-    PipelineStats,
-    print_header,
-    print_separator,
-)
 import argparse
 import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional
+
+from config import FotMobConfig
+from scripts.refresh_turnstile import refresh_if_needed
+from src.orchestrator import FotMobOrchestrator
+from src.utils.alerting import AlertLevel, get_alert_manager
+from src.utils.logging_utils import setup_logging
+from src.utils.metrics_alerts import send_daily_report, send_monthly_report
+from utils import (
+    DateRangeInfo,
+    PipelineStats,
+    add_project_to_path,
+    create_date_range_info,
+    print_header,
+    print_separator,
+    validate_date_format,
+)
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -100,14 +103,14 @@ def get_bronze_storage_stats(bronze_base_dir: str, date_str: str) -> tuple:
     date_dir = Path(bronze_base_dir) / "matches" / date_str
     if not date_dir.exists():
         return 0, 0.0
-    
+
     json_files = list(date_dir.glob("match_*.json"))
     gz_files = list(date_dir.glob("match_*.json.gz"))
     all_files = json_files + gz_files
-    
+
     total_size = sum(f.stat().st_size for f in all_files)
     size_mb = total_size / (1024 * 1024)
-    
+
     return len(all_files), size_mb
 
 
@@ -197,9 +200,7 @@ def parse_arguments() -> argparse.Namespace:
     return args
 
 
-def _validate_month_argument(
-    parser: argparse.ArgumentParser, args: argparse.Namespace
-) -> None:
+def _validate_month_argument(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
     """Validate month argument if provided."""
     if not args.month:
         return
@@ -407,15 +408,17 @@ def run_scraping(args: argparse.Namespace) -> int:
         if metrics:
             stats.update_from_metrics(metrics)
             stats.add_duration(duration)
-            
-            bronze_files, bronze_size_mb = get_bronze_storage_stats(config.bronze_base_dir, date_str)
+
+            bronze_files, bronze_size_mb = get_bronze_storage_stats(
+                config.bronze_base_dir, date_str
+            )
             stats.add_bronze_storage(bronze_files, bronze_size_mb)
-            
+
             print_date_metrics(metrics)
-            
+
             # Send daily Telegram report
             send_daily_report(
-                scraper='fotmob',
+                scraper="fotmob",
                 date=date_str,
                 matches_scraped=metrics.successful_matches,
                 errors=metrics.failed_matches,
@@ -424,7 +427,7 @@ def run_scraping(args: argparse.Namespace) -> int:
                 bronze_files=bronze_files,
                 bronze_size_mb=bronze_size_mb,
             )
-            
+
             # Check and refresh turnstile if needed (every 30 minutes)
             was_refreshed, turnstile_status = refresh_if_needed(max_age_seconds=1800)
             if was_refreshed:
@@ -439,7 +442,7 @@ def run_scraping(args: argparse.Namespace) -> int:
         # Get month from first date (format: YYYYMMDD)
         month = date_info.dates[0][:6] if date_info.dates else None
         send_monthly_report(
-            scraper='fotmob',
+            scraper="fotmob",
             month=month,
             dates_processed=stats.dates_processed,
             dates_total=len(date_info.dates),

@@ -2,56 +2,72 @@
 
 This module centralizes common operations used across scraping scripts.
 """
-import sys
 import logging
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Optional, Tuple, List, Dict, Any
-from datetime import datetime, timedelta
+import sys
 from calendar import monthrange
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 DATE_FORMAT_COMPACT = "%Y%m%d"
 DATE_FORMAT_MONTH = "%Y%m"
 DATE_FORMAT_DISPLAY = "%Y-%m-%d"
-MONTH_NAMES = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-]
+MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 VALID_YEAR_RANGE = (2000, 2100)
+
+
 @dataclass
 class StepResult:
     """Result of a pipeline step execution."""
+
     name: str
     success: bool
     exit_code: int
     elapsed_time: float
     date_str: Optional[str] = None
     error_message: Optional[str] = None
+
+
 @dataclass
 class PipelineStats:
     """Statistics for pipeline execution."""
+
     dates_processed: int = 0
     dates_failed: int = 0
     total_matches: int = 0
     total_successful: int = 0
     total_failed: int = 0
     total_skipped: int = 0
+
+
 @dataclass
 class DateRangeInfo:
     """Information about a date range for display and logging."""
+
     dates: List[str]
     display_text: str
     mode_text: str
     log_suffix: str
+
+
 class ScraperType(Enum):
     """Types of scrapers supported."""
+
     FOTMOB = "fotmob"
+
+
 class PipelineMode(Enum):
     """Pipeline execution modes."""
+
     SINGLE_DATE = "single_date"
     DATE_RANGE = "date_range"
     MONTHLY = "monthly"
+
+
 _PROJECT_ROOT: Optional[Path] = None
+
 
 def get_project_root() -> Path:
     """Get project root directory (cached for performance).
@@ -65,6 +81,7 @@ def get_project_root() -> Path:
         _PROJECT_ROOT = current_file.parent.parent.parent
     return _PROJECT_ROOT
 
+
 def add_project_to_path() -> None:
     """Add project root to Python path if not already present."""
     project_root = get_project_root()
@@ -72,7 +89,10 @@ def add_project_to_path() -> None:
     if project_root_str not in sys.path:
         sys.path.insert(0, project_root_str)
 
-def validate_date_format(date_str: str, format_type: str = "YYYYMMDD") -> Tuple[bool, Optional[str]]:
+
+def validate_date_format(
+    date_str: str, format_type: str = "YYYYMMDD"
+) -> Tuple[bool, Optional[str]]:
     """
     Validate date string format.
     Args:
@@ -87,6 +107,7 @@ def validate_date_format(date_str: str, format_type: str = "YYYYMMDD") -> Tuple[
         return _validate_month_date(date_str)
     return False, f"Unknown format type: {format_type}"
 
+
 def _validate_full_date(date_str: str) -> Tuple[bool, Optional[str]]:
     """Validate a full date string (YYYYMMDD format)."""
     if len(date_str) != 8 or not date_str.isdigit():
@@ -100,11 +121,15 @@ def _validate_full_date(date_str: str) -> Tuple[bool, Optional[str]]:
         if not (1 <= day <= 31):
             return False, f"Invalid day: {day}. Must be between 01 and 31"
         if not (VALID_YEAR_RANGE[0] <= year <= VALID_YEAR_RANGE[1]):
-            return False, f"Invalid year: {year}. Must be between {VALID_YEAR_RANGE[0]} and {VALID_YEAR_RANGE[1]}"
+            return (
+                False,
+                f"Invalid year: {year}. Must be between {VALID_YEAR_RANGE[0]} and {VALID_YEAR_RANGE[1]}",
+            )
         datetime(year, month, day)
         return True, None
     except ValueError as e:
         return False, f"Invalid date: {date_str}. {str(e)}"
+
 
 def _validate_month_date(date_str: str) -> Tuple[bool, Optional[str]]:
     """Validate a month string (YYYYMM format)."""
@@ -116,10 +141,14 @@ def _validate_month_date(date_str: str) -> Tuple[bool, Optional[str]]:
         if not (1 <= month <= 12):
             return False, f"Invalid month: {month}. Must be between 01 and 12"
         if not (VALID_YEAR_RANGE[0] <= year <= VALID_YEAR_RANGE[1]):
-            return False, f"Invalid year: {year}. Must be between {VALID_YEAR_RANGE[0]} and {VALID_YEAR_RANGE[1]}"
+            return (
+                False,
+                f"Invalid year: {year}. Must be between {VALID_YEAR_RANGE[0]} and {VALID_YEAR_RANGE[1]}",
+            )
         return True, None
     except ValueError as e:
         return False, f"Invalid month: {date_str}. {str(e)}"
+
 
 def generate_date_range(start_date: str, end_date: str) -> List[str]:
     """
@@ -139,6 +168,7 @@ def generate_date_range(start_date: str, end_date: str) -> List[str]:
         current += timedelta(days=1)
     return dates
 
+
 def generate_month_dates(month_str: str) -> List[str]:
     """
     Generate all dates in a month.
@@ -152,6 +182,7 @@ def generate_month_dates(month_str: str) -> List[str]:
     _, last_day = monthrange(year, month)
     return [f"{year}{month:02d}{day:02d}" for day in range(1, last_day + 1)]
 
+
 def extract_year_month(month_str: str) -> Tuple[str, str]:
     """
     Extract year and month from YYYYMM format.
@@ -161,6 +192,7 @@ def extract_year_month(month_str: str) -> Tuple[str, str]:
         Tuple of (year_str, month_str)
     """
     return month_str[:4], month_str[4:6]
+
 
 def get_month_display_name(month_str: str) -> str:
     """
@@ -174,12 +206,13 @@ def get_month_display_name(month_str: str) -> str:
     month_name = MONTH_NAMES[int(month) - 1]
     return f"{month_name} {year}"
 
+
 def create_date_range_info(
     date: Optional[str] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
     month: Optional[str] = None,
-    num_days: Optional[int] = None
+    num_days: Optional[int] = None,
 ) -> DateRangeInfo:
     """
     Create DateRangeInfo from various date arguments.
@@ -199,7 +232,7 @@ def create_date_range_info(
             dates=dates,
             display_text=f"Month: {display_name} ({month})",
             mode_text=f"Monthly ({len(dates)} days)",
-            log_suffix=month
+            log_suffix=month,
         )
     elif start_date:
         if num_days:
@@ -210,17 +243,16 @@ def create_date_range_info(
             dates=dates,
             display_text=f"Range: {start_date} to {end_date}",
             mode_text=f"Range ({len(dates)} days)",
-            log_suffix=f"{start_date}_to_{end_date}"
+            log_suffix=f"{start_date}_to_{end_date}",
         )
     elif date:
         return DateRangeInfo(
-            dates=[date],
-            display_text=f"Date: {date}",
-            mode_text="Single date",
-            log_suffix=date
+            dates=[date], display_text=f"Date: {date}", mode_text="Single date", log_suffix=date
         )
     else:
         raise ValueError("Must provide date, start_date, or month")
+
+
 class ImplicitWaitContext:
     """
     Context manager for temporaril in y changing Selenium implicit wait.
@@ -229,7 +261,9 @@ class ImplicitWaitContext:
         with ImplicitWaitContext(driver, 0):
             elements = driver.find_elements(By.CSS_SELECTOR, ".fast")
     """
+
     DEFAULT_WAIT = 10
+
     def __init__(self, driver, wait_seconds: float):
         """
         Initialize context manager.
@@ -240,6 +274,7 @@ class ImplicitWaitContext:
         self.driver = driver
         self.new_wait = wait_seconds
         self.original_wait = self.DEFAULT_WAIT
+
     def __enter__(self):
         """Enter context: save current wait and set new wait."""
         try:
@@ -247,6 +282,7 @@ class ImplicitWaitContext:
         except Exception:
             pass
         return self
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Exit context: restore original wait."""
         try:
@@ -254,6 +290,8 @@ class ImplicitWaitContext:
         except Exception:
             pass
         return False
+
+
 class PerformanceTimer:
     """
     Simple timer for performanc in e measurement.
@@ -261,6 +299,7 @@ class PerformanceTimer:
         timer = PerformanceTimer("Operation name")
         timer.log_elapsed()
     """
+
     def __init__(self, operation_name: str, logger: Optional[logging.Logger] = None):
         """
         Initialize timer.
@@ -271,9 +310,11 @@ class PerformanceTimer:
         self.operation_name = operation_name
         self.logger = logger
         self.start_time = datetime.now()
+
     def elapsed(self) -> float:
         """Get elapsed time in seconds."""
         return (datetime.now() - self.start_time).total_seconds()
+
     def log_elapsed(self, level: str = "info") -> None:
         """
         Log elapsed time.
@@ -287,13 +328,16 @@ class PerformanceTimer:
             log_func(message)
         else:
             print(message)
+
     def __enter__(self):
         """Support context manager usage."""
         return self
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Auto-log on context exit."""
         self.log_elapsed()
         return False
+
 
 def format_elapsed_time(seconds: float) -> str:
     """
@@ -307,21 +351,25 @@ def format_elapsed_time(seconds: float) -> str:
         return f"{seconds:.1f}s"
         return f"{seconds:.1f}s ({seconds/60:.1f} minutes)"
 
+
 def print_header(title: str, char: str = "=", width: int = 80) -> None:
     """Print a formatted header line."""
     print("\n" + char * width)
     print(title)
     print(char * width)
 
+
 def print_separator(char: str = "-", width: int = 80) -> None:
     """Print a separator line."""
     print(char * width)
+
 
 def log_header(logger: logging.Logger, title: str, char: str = "=", width: int = 80) -> None:
     """Log a formatted header line."""
     logger.info("\n" + char * width)
     logger.info(title)
     logger.info(char * width)
+
 
 def format_stats_summary(stats: Dict[str, Any], indent: int = 2) -> str:
     """

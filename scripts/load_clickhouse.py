@@ -18,42 +18,42 @@ Usage:
 
     Note:
     Table optimization is handled separately via SQL scripts.
-    Run clickhouse/init/03_optimize_tables.sql to optimize and deduplicate tables.
+    Run clickhouse/bronze/02_optimize.sql to optimize and deduplicate tables.
 """
 
 import argparse
-import sys
-import os
-import logging
-import json
 import gzip
-import tarfile
 import io
+import json
+import logging
+import os
+import sys
+import tarfile
 import warnings
-from pathlib import Path
-from datetime import datetime, timedelta, date
 from calendar import monthrange
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any, Set
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 import pandas as pd
-from src.storage.clickhouse_client import ClickHouseClient
-from src.storage.bronze_storage import BronzeStorage as FotMobBronzeStorage
-from src.processors.match_processor import MatchProcessor
-from config import FotMobConfig
-from src.utils.logging_utils import get_logger, setup_logging
-from src.utils.lineage import LineageTracker
-from src.utils.date_utils import (
-    format_date_compact_to_display,
-    extract_year_month,
-    DATE_FORMAT_COMPACT,
-)
-from src.utils.alerting import get_alert_manager, AlertLevel
-from src.storage.dlq import DeadLetterQueue
 
+from config import FotMobConfig
+from src.processors.bronze.match_processor import MatchProcessor
+from src.storage.bronze.fotmob import BronzeStorage as FotMobBronzeStorage
+from src.storage.clickhouse_client import ClickHouseClient
+from src.storage.dlq import DeadLetterQueue
+from src.utils.alerting import AlertLevel, get_alert_manager
+from src.utils.date_utils import (
+    DATE_FORMAT_COMPACT,
+    extract_year_month,
+    format_date_compact_to_display,
+)
+from src.utils.lineage import LineageTracker
+from src.utils.logging_utils import get_logger, setup_logging
 
 # ============================================================================
 # Constants
@@ -96,24 +96,6 @@ UNIQUE_KEY_COLUMNS = {
     "substitutes": ["match_id", "player_id"],
     "coaches": ["match_id", "id"],
     "team_form": ["match_id", "team_id", "form_position"],
-    "matches": ["game_date", "match_id"],
-    "odds_1x2": ["game_date", "match_id", "scraped_at", "bookmaker"],
-    "odds_asian_handicap": [
-        "game_date",
-        "match_id",
-        "scraped_at",
-        "home_handicap",
-        "away_handicap",
-    ],
-    "odds_over_under": [
-        "game_date",
-        "match_id",
-        "scraped_at",
-        "bookmaker",
-        "total_line",
-        "market_type",
-    ],
-    "daily_listings": ["scrape_date"],
 }
 
 INT64_COLUMNS = {
@@ -128,6 +110,11 @@ INT64_COLUMNS = {
 }
 
 INT32_RANGE = (2147483647, -2147483648)
+
+
+def to_bronze_table_name(logical_table_name: str) -> str:
+    """Map logical table names to physical bronze table names."""
+    return f"bronze_{logical_table_name}"
 
 
 # ============================================================================
@@ -157,17 +144,10 @@ class LoadingStats:
 
 def get_unique_key_columns(table_name: str) -> List[str]:
     """Get unique key columns for a table (used for deduplication)."""
-    # Remove AIScore entries from UNIQUE_KEY_COLUMNS
-    fotmob_keys = {
-        k: v for k, v in UNIQUE_KEY_COLUMNS.items()
-        if k in FOTMOB_TABLES
-    }
-    return fotmob_keys.get(table_name, ["match_id"])
+    return UNIQUE_KEY_COLUMNS.get(table_name, ["match_id"])
 
 
-def table_exists(
-    client: ClickHouseClient, table_name: str, database: str = "fotmob"
-) -> bool:
+def table_exists(client: ClickHouseClient, table_name: str, database: str = "fotmob") -> bool:
     """Check if a table exists in ClickHouse."""
     try:
         client.execute(f"DESCRIBE TABLE {database}.{table_name}")
@@ -177,8 +157,6 @@ def table_exists(
         if "does not exist" in error_str or "unknown_table" in error_str:
             return False
         raise
-
-
 
 
 # ============================================================================
@@ -205,7 +183,10 @@ def prepare_nullable_numeric_columns(df: pd.DataFrame) -> pd.DataFrame:
         if df[col].dtype in ["float64", "float32"]:
             try:
                 non_null_values = df[col].dropna()
-                if len(non_null_values) > 0 and (non_null_values == non_null_values.astype(int)).all():
+                if (
+                    len(non_null_values) > 0
+                    and (non_null_values == non_null_values.astype(int)).all()
+                ):
                     df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
             except (ValueError, TypeError):
                 pass
@@ -231,9 +212,7 @@ def rename_columns_for_table(
     return df
 
 
-def check_table_has_inserted_at(
-    client: ClickHouseClient, table_name: str, database: str
-) -> bool:
+def check_table_has_inserted_at(client: ClickHouseClient, table_name: str, database: str) -> bool:
     """Check if table has inserted_at column."""
     try:
         table_info = client.execute(f"DESCRIBE TABLE {database}.{table_name}")
@@ -256,13 +235,8 @@ def _extract_describe_rows(table_info) -> List:
         return table_info.result_rows
     elif hasattr(table_info, "result_columns") and table_info.result_columns:
         num_cols = len(table_info.result_columns)
-        num_rows = (
-            len(table_info.result_columns[0]) if table_info.result_columns[0] else 0
-        )
-        return [
-            [table_info.result_columns[i][j] for i in range(num_cols)]
-            for j in range(num_rows)
-        ]
+        num_rows = len(table_info.result_columns[0]) if table_info.result_columns[0] else 0
+        return [[table_info.result_columns[i][j] for i in range(num_cols)] for j in range(num_rows)]
     elif isinstance(table_info, (list, tuple)):
         return table_info
     return []
@@ -292,7 +266,7 @@ def validate_and_fix_schema(
 
             if col_name not in df.columns:
                 continue
-                
+
             # Track nullable integer columns
             if "Nullable" in col_type and "Int" in col_type:
                 nullable_int_cols.append(col_name)
@@ -340,9 +314,7 @@ def validate_and_fix_schema(
     return df
 
 
-def add_inserted_at_column(
-    df: pd.DataFrame, table_has_inserted_at: bool
-) -> pd.DataFrame:
+def add_inserted_at_column(df: pd.DataFrame, table_has_inserted_at: bool) -> pd.DataFrame:
     """Add or remove inserted_at column based on table schema."""
     if table_has_inserted_at and "inserted_at" not in df.columns:
         df["inserted_at"] = datetime.now()
@@ -427,26 +399,20 @@ def load_match_files_from_tar(
     logger.info(f"Found TAR archive: {archive_path}")
     try:
         with tarfile.open(archive_path, "r") as tar:
-            json_gz_members = [
-                m for m in tar.getmembers() if m.name.endswith(".json.gz")
-            ]
+            json_gz_members = [m for m in tar.getmembers() if m.name.endswith(".json.gz")]
             logger.info(f"Found {len(json_gz_members)} match files in TAR archive")
 
             for member in json_gz_members:
                 try:
                     f = tar.extractfile(member)
                     if f:
-                        with gzip.open(
-                            io.BytesIO(f.read()), "rt", encoding="utf-8"
-                        ) as gz:
+                        with gzip.open(io.BytesIO(f.read()), "rt", encoding="utf-8") as gz:
                             file_data = json.load(gz)
                         raw_data = file_data.get("data", file_data)
                         dataframes, _ = processor.process_all(raw_data)
                         _add_processed_dataframes(dataframes, all_dataframes)
                 except Exception as e:
-                    logger.error(
-                        f"Error processing {member.name} from TAR: {e}", exc_info=True
-                    )
+                    logger.error(f"Error processing {member.name} from TAR: {e}", exc_info=True)
     except Exception as e:
         logger.error(f"Error reading TAR archive {archive_path}: {e}", exc_info=True)
 
@@ -540,9 +506,7 @@ def process_fotmob_table(
     if not df_list:
         return 0
 
-    non_empty_dfs = [
-        df for df in df_list if isinstance(df, pd.DataFrame) and not df.empty
-    ]
+    non_empty_dfs = [df for df in df_list if isinstance(df, pd.DataFrame) and not df.empty]
     if not non_empty_dfs:
         return 0
 
@@ -553,10 +517,12 @@ def process_fotmob_table(
     elif table_name == "lineup_data":
         return 0
 
+    physical_table = to_bronze_table_name(clickhouse_table)
+
     # Check table exists
-    if not table_exists(client, clickhouse_table, database="fotmob"):
+    if not table_exists(client, physical_table, database="fotmob"):
         logger.error(
-            f"Table fotmob.{clickhouse_table} does not exist. "
+            f"Table fotmob.{physical_table} does not exist. "
             f"Please run 'python scripts/setup_clickhouse.py' to create all required tables."
         )
         return 0
@@ -573,12 +539,8 @@ def process_fotmob_table(
     combined_df = prepare_int64_columns(combined_df, clickhouse_table)
     combined_df = prepare_nullable_numeric_columns(combined_df)
 
-    table_has_inserted_at = check_table_has_inserted_at(
-        client, clickhouse_table, "fotmob"
-    )
-    combined_df = validate_and_fix_schema(
-        combined_df, client, clickhouse_table, "fotmob", logger
-    )
+    table_has_inserted_at = check_table_has_inserted_at(client, physical_table, "fotmob")
+    combined_df = validate_and_fix_schema(combined_df, client, physical_table, "fotmob", logger)
     combined_df = add_inserted_at_column(combined_df, table_has_inserted_at)
 
     # Insert data
@@ -586,7 +548,7 @@ def process_fotmob_table(
         rows_inserted = insert_dataframe_with_dlq(
             client,
             combined_df,
-            clickhouse_table,
+            physical_table,
             "fotmob",
             date_str,
             logger,
@@ -597,7 +559,7 @@ def process_fotmob_table(
             lineage_tracker,
             "fotmob",
             date_str,
-            clickhouse_table,
+            physical_table,
             rows_inserted,
             len(df_list),
             logger,
@@ -608,7 +570,7 @@ def process_fotmob_table(
         error_str = str(e).lower()
         if "does not exist" in error_str or "unknown_table" in error_str:
             logger.error(
-                f"Table fotmob.{clickhouse_table} does not exist. "
+                f"Table fotmob.{physical_table} does not exist. "
                 f"Please run 'python scripts/setup_clickhouse.py' to create all required tables."
             )
         else:
@@ -637,15 +599,11 @@ def load_fotmob_data(
         matches_dir = bronze_storage.matches_dir / date_str
 
         if not matches_dir.exists():
-            logger.warning(
-                f"No bronze files found for date {date_str} at {matches_dir}"
-            )
+            logger.warning(f"No bronze files found for date {date_str} at {matches_dir}")
             return stats
 
         # Load all match files
-        all_dataframes = load_fotmob_match_files(
-            matches_dir, date_str, processor, logger
-        )
+        all_dataframes = load_fotmob_match_files(matches_dir, date_str, processor, logger)
 
         if not all_dataframes:
             logger.warning(f"No match files found in {matches_dir}")
@@ -659,9 +617,7 @@ def load_fotmob_data(
         logger.info("Accumulated dataframes summary:")
         for table_name, df_list in all_dataframes.items():
             total_rows = sum(len(df) for df in df_list) if df_list else 0
-            logger.info(
-                f"  {table_name}: {len(df_list)} dataframes, {total_rows} total rows"
-            )
+            logger.info(f"  {table_name}: {len(df_list)} dataframes, {total_rows} total rows")
 
         # Process main tables
         for table_name, df_list in all_dataframes.items():
@@ -698,20 +654,19 @@ def _process_special_fotmob_table(
     logger: logging.Logger,
 ) -> int:
     """Process special FotMob tables (starters, substitutes, coaches)."""
-    non_empty_dfs = [
-        df for df in df_list if isinstance(df, pd.DataFrame) and not df.empty
-    ]
+    non_empty_dfs = [df for df in df_list if isinstance(df, pd.DataFrame) and not df.empty]
     if not non_empty_dfs:
         return 0
 
     # Check table exists
     try:
-        client.execute(f"DESCRIBE TABLE fotmob.{table_name}")
+        physical_table = to_bronze_table_name(table_name)
+        client.execute(f"DESCRIBE TABLE fotmob.{physical_table}")
     except Exception as e:
         error_str = str(e).lower()
         if "does not exist" in error_str or "unknown_table" in error_str:
             logger.error(
-                f"Table fotmob.{table_name} does not exist. "
+                f"Table fotmob.{physical_table} does not exist. "
                 f"Please run 'python scripts/setup_clickhouse.py' to create all required tables."
             )
             return 0
@@ -725,15 +680,10 @@ def _process_special_fotmob_table(
 
     combined_df = prepare_int64_columns(combined_df, table_name)
     combined_df = prepare_nullable_numeric_columns(combined_df)
-    combined_df = validate_and_fix_schema(
-        combined_df, client, table_name, "fotmob", logger
-    )
+    combined_df = validate_and_fix_schema(combined_df, client, physical_table, "fotmob", logger)
 
     # Add inserted_at only for tables that have it
-    if (
-        table_name in TABLES_WITH_INSERTED_AT
-        and "inserted_at" not in combined_df.columns
-    ):
+    if table_name in TABLES_WITH_INSERTED_AT and "inserted_at" not in combined_df.columns:
         combined_df["inserted_at"] = datetime.now()
 
     if combined_df.empty:
@@ -742,14 +692,14 @@ def _process_special_fotmob_table(
 
     try:
         rows_inserted = insert_dataframe_with_dlq(
-            client, combined_df, table_name, "fotmob", date_str, logger
+            client, combined_df, physical_table, "fotmob", date_str, logger
         )
 
         record_lineage(
             lineage_tracker,
             "fotmob",
             date_str,
-            table_name,
+            physical_table,
             rows_inserted,
             len(non_empty_dfs),
             logger,
@@ -758,12 +708,6 @@ def _process_special_fotmob_table(
         return rows_inserted
     except Exception:
         return 0
-
-
-
-
-
-
 
 
 # ============================================================================
@@ -809,21 +753,17 @@ Examples:
   # Load FotMob data for a date
   python scripts/load_clickhouse.py --scraper fotmob --date 20251113
   
-  # Load AIScore data for a date
-  python scripts/load_clickhouse.py --scraper aiscore --date 20251113
-  
   # Load date range
   python scripts/load_clickhouse.py --scraper fotmob --start-date 20251101 --end-date 20251107
   
   # Load entire month
   python scripts/load_clickhouse.py --scraper fotmob --month 202511
-  python scripts/load_clickhouse.py --scraper aiscore --month 202511
   
   # Show table statistics
   python scripts/load_clickhouse.py --scraper fotmob --stats
   
   # Truncate and reload
-  python scripts/load_clickhouse.py --scraper aiscore --date 20251113 --truncate
+  python scripts/load_clickhouse.py --scraper fotmob --date 20251113 --truncate
         """,
     )
 
@@ -853,13 +793,9 @@ def _add_date_arguments(parser: argparse.ArgumentParser) -> None:
     date_group.add_argument(
         "--start-date", type=str, help="Start date for range loading (YYYYMMDD format)"
     )
-    date_group.add_argument(
-        "--month", type=str, help="Load entire month (YYYYMM format)"
-    )
+    date_group.add_argument("--month", type=str, help="Load entire month (YYYYMM format)")
 
-    parser.add_argument(
-        "--end-date", type=str, help="End date for range loading (YYYYMMDD format)"
-    )
+    parser.add_argument("--end-date", type=str, help="End date for range loading (YYYYMMDD format)")
 
 
 def _add_connection_arguments(parser: argparse.ArgumentParser) -> None:
@@ -892,20 +828,12 @@ def _add_connection_arguments(parser: argparse.ArgumentParser) -> None:
 
 def _add_option_arguments(parser: argparse.ArgumentParser) -> None:
     """Add option arguments."""
-    parser.add_argument(
-        "--truncate", action="store_true", help="Truncate tables before loading"
-    )
-    parser.add_argument(
-        "--stats", action="store_true", help="Show table statistics and exit"
-    )
-    parser.add_argument(
-        "--force", action="store_true", help="Force reload even if data exists"
-    )
+    parser.add_argument("--truncate", action="store_true", help="Truncate tables before loading")
+    parser.add_argument("--stats", action="store_true", help="Show table statistics and exit")
+    parser.add_argument("--force", action="store_true", help="Force reload even if data exists")
 
 
-def validate_arguments(
-    parser: argparse.ArgumentParser, args: argparse.Namespace
-) -> None:
+def validate_arguments(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
     """Validate parsed arguments."""
     if args.month:
         if len(args.month) != 6 or not args.month.isdigit():
@@ -924,21 +852,20 @@ def validate_arguments(
 # ============================================================================
 
 
-def show_statistics(
-    client: ClickHouseClient, database: str, logger: logging.Logger
-) -> None:
+def show_statistics(client: ClickHouseClient, database: str, logger: logging.Logger) -> None:
     """Show table statistics."""
     logger.info(f"\n=== {database.upper()} Database Statistics ===\n")
     tables = FOTMOB_TABLES
 
     for table in tables:
-        stats = client.get_table_stats(table, database=database)
+        physical_table = to_bronze_table_name(table)
+        stats = client.get_table_stats(physical_table, database=database)
         if "error" not in stats:
             logger.info(
-                f"{table}: {stats.get('row_count', 0):,} rows, {stats.get('size', '0 B')}"
+                f"{physical_table}: {stats.get('row_count', 0):,} rows, {stats.get('size', '0 B')}"
             )
         else:
-            logger.warning(f"{table}: {stats.get('error', 'Unknown error')}")
+            logger.warning(f"{physical_table}: {stats.get('error', 'Unknown error')}")
 
 
 def get_dates_to_process(args: argparse.Namespace, logger: logging.Logger) -> List[str]:
@@ -1031,7 +958,7 @@ def main():
             tables = FOTMOB_TABLES
             for table in tables:
                 try:
-                    client.truncate_table(table, database=database)
+                    client.truncate_table(to_bronze_table_name(table), database=database)
                 except Exception as e:
                     logger.warning(f"Could not truncate {table}: {e}")
 
@@ -1052,9 +979,7 @@ def main():
                 for table, count in stats.items():
                     total_stats[table] = total_stats.get(table, 0) + count
             except Exception as e:
-                logger.error(
-                    f"Failed to load {database} data for {date_str}: {e}", exc_info=True
-                )
+                logger.error(f"Failed to load {database} data for {date_str}: {e}", exc_info=True)
                 alert_manager = get_alert_manager()
                 alert_manager.send_alert(
                     level=AlertLevel.ERROR,

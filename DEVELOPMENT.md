@@ -174,7 +174,7 @@ make optimize-tables
 2. Implement base scraper interface from `src/core/interfaces.py`
 3. Add configuration in `config/`
 4. Update `scripts/pipeline.py`
-5. Create ClickHouse schema in `clickhouse/init/`
+5. Create ClickHouse schema in `clickhouse/{bronze|silver|gold}/`
 
 ---
 

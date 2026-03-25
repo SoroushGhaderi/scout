@@ -36,12 +36,17 @@ except ImportError:
 class StorageConfig:
     """Base storage configuration for data lake architecture."""
     bronze_path: str = ""
+    silver_path: str = ""
+    gold_path: str = ""
     enabled: bool = True
 
     def ensure_directories(self):
         """Create storage directories if they don't exist."""
-        if self.enabled and self.bronze_path:
-            Path(self.bronze_path).mkdir(parents=True, exist_ok=True)
+        if not self.enabled:
+            return
+        for path in (self.bronze_path, self.silver_path, self.gold_path):
+            if path:
+                Path(path).mkdir(parents=True, exist_ok=True)
 
 
 @dataclass
@@ -284,4 +289,3 @@ class BaseConfig(ABC):
                 errors.append("bronze_path cannot be empty")
 
         return errors
-

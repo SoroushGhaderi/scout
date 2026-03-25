@@ -63,7 +63,7 @@ load-fotmob: ## Load FotMob data to ClickHouse (usage: make load-fotmob DATE=202
 # ClickHouse optimization
 optimize-tables: ## Optimize and deduplicate all ClickHouse tables
 	@echo "Optimizing ClickHouse tables..."
-	docker-compose $(COMPOSE_FILE) exec -T clickhouse clickhouse-client --user fotmob_user --password fotmob_pass < clickhouse/init/03_optimize_tables.sql
+	docker-compose $(COMPOSE_FILE) exec -T clickhouse clickhouse-client --user fotmob_user --password fotmob_pass < clickhouse/bronze/02_optimize.sql
 	@echo "Table optimization complete!"
 
 # Status checks
@@ -79,4 +79,3 @@ dev: ## Start in development mode with override
 
 test: ## Run tests in container
 	docker-compose $(COMPOSE_FILE) exec scraper pytest
-

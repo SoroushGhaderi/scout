@@ -20,8 +20,8 @@ except ImportError:
     FileLock = None
     Timeout = None
 
-from .base_bronze_storage import BaseBronzeStorage
-from ..core.constants import HealthThresholds
+from .base import BaseBronzeStorage
+from ...core.constants import HealthThresholds
 
 logger = logging.getLogger(__name__)
 

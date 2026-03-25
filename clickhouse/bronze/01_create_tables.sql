@@ -1,14 +1,14 @@
 -- Create tables for FotMob data warehouse
 -- This script creates all 14 tables for FotMob match data
--- Run this AFTER creating the databases (00_create_databases_fotmob_and_aiscore.sql)
+-- Run this AFTER creating the database (00_create_databases_fotmob.sql)
 --
 -- Table deduplication: Use OPTIMIZE TABLE <table> FINAL DEDUPLICATE to remove duplicates
--- Example: OPTIMIZE TABLE fotmob.general FINAL DEDUPLICATE
+-- Example: OPTIMIZE TABLE fotmob.bronze_general FINAL DEDUPLICATE
 
 USE fotmob;
 
 -- 1. General Match Statistics
-CREATE TABLE IF NOT EXISTS general (
+CREATE TABLE IF NOT EXISTS bronze_general (
     match_id Int32,
     match_round Nullable(String),
     team_color_dark_mode_home Nullable(String),
@@ -39,7 +39,7 @@ ORDER BY (match_id)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
 -- 2. Match Timeline
-CREATE TABLE IF NOT EXISTS timeline (
+CREATE TABLE IF NOT EXISTS bronze_timeline (
     match_id Int32,
     match_time_utc Nullable(DateTime),
     first_half_started Nullable(String),
@@ -58,7 +58,7 @@ ORDER BY (match_id)
 PARTITION BY toYYYYMM(toDate(assumeNotNull(match_time_utc)));
 
 -- 3. Match Venue Information
-CREATE TABLE IF NOT EXISTS venue (
+CREATE TABLE IF NOT EXISTS bronze_venue (
     match_id Int32,
     stadium_name Nullable(String),
     stadium_city Nullable(String),
@@ -84,7 +84,7 @@ ORDER BY (match_id)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_date_utc)));
 
 -- 4. Player Statistics
-CREATE TABLE IF NOT EXISTS player (
+CREATE TABLE IF NOT EXISTS bronze_player (
     match_id Int32,
     player_id Nullable(Int32),
     player_name Nullable(String),
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS player (
 ORDER BY (match_id, assumeNotNull(player_id));
 
 -- 5. Shot Map Events
-CREATE TABLE IF NOT EXISTS shotmap (
+CREATE TABLE IF NOT EXISTS bronze_shotmap (
     match_id Int32,
     id Nullable(Int64),
     event_type Nullable(String),
@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS shotmap (
 ORDER BY (match_id, assumeNotNull(id));
 
 -- 6. Goal Events
-CREATE TABLE IF NOT EXISTS goal (
+CREATE TABLE IF NOT EXISTS bronze_goal (
     match_id Int32,
     event_id Int64,
     goal_time Int32,
@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS goal (
 ORDER BY (match_id, event_id);
 
 -- 7. Card Events
-CREATE TABLE IF NOT EXISTS cards (
+CREATE TABLE IF NOT EXISTS bronze_cards (
     match_id Int32,
     event_id Int64,
     time Int32,
@@ -232,7 +232,7 @@ CREATE TABLE IF NOT EXISTS cards (
 ORDER BY (match_id, event_id);
 
 -- 8. Red Card Events
-CREATE TABLE IF NOT EXISTS red_card (
+CREATE TABLE IF NOT EXISTS bronze_red_card (
     match_id Int32,
     event_id Int64,
     red_card_time Int32,
@@ -247,7 +247,7 @@ CREATE TABLE IF NOT EXISTS red_card (
 ORDER BY (match_id, event_id);
 
 -- 9. Period Statistics
-CREATE TABLE IF NOT EXISTS period (
+CREATE TABLE IF NOT EXISTS bronze_period (
     match_id Int32,
     period String,
     ball_possession_home Nullable(Int32),
@@ -347,7 +347,7 @@ CREATE TABLE IF NOT EXISTS period (
 ORDER BY (match_id, period);
 
 -- 10. Momentum Data
-CREATE TABLE IF NOT EXISTS momentum (
+CREATE TABLE IF NOT EXISTS bronze_momentum (
     match_id Int32,
     minute Nullable(Float32),
     value Nullable(Int32),
@@ -357,7 +357,7 @@ CREATE TABLE IF NOT EXISTS momentum (
 ORDER BY (match_id, assumeNotNull(minute));
 
 -- 11. Starting Lineup
-CREATE TABLE IF NOT EXISTS starters (
+CREATE TABLE IF NOT EXISTS bronze_starters (
     match_id Int32,
     team_side String,
     player_id Int64,
@@ -388,7 +388,7 @@ CREATE TABLE IF NOT EXISTS starters (
 ORDER BY (match_id, player_id);
 
 -- 12. Substitute Players
-CREATE TABLE IF NOT EXISTS substitutes (
+CREATE TABLE IF NOT EXISTS bronze_substitutes (
     match_id Int32,
     team_side String,
     player_id Int64,
@@ -409,7 +409,7 @@ CREATE TABLE IF NOT EXISTS substitutes (
 ORDER BY (match_id, player_id);
 
 -- 13. Team Coaches
-CREATE TABLE IF NOT EXISTS coaches (
+CREATE TABLE IF NOT EXISTS bronze_coaches (
     match_id Int32,
     team_side String,
     id Int64,
@@ -426,7 +426,7 @@ CREATE TABLE IF NOT EXISTS coaches (
 ORDER BY (match_id, id);
 
 -- 14. Team Form
-CREATE TABLE IF NOT EXISTS team_form (
+CREATE TABLE IF NOT EXISTS bronze_team_form (
     match_id Int32,
     team_side String,
     team_id Int64,
@@ -456,17 +456,17 @@ ORDER BY (match_id, team_id, form_position);
 -- OPTIMIZE TABLES (run after data loading to deduplicate)
 -- ============================================================================
 -- Example usage:
--- OPTIMIZE TABLE fotmob.general FINAL DEDUPLICATE;
--- OPTIMIZE TABLE fotmob.timeline FINAL DEDUPLICATE;
--- OPTIMIZE TABLE fotmob.venue FINAL DEDUPLICATE;
--- OPTIMIZE TABLE fotmob.player FINAL DEDUPLICATE;
--- OPTIMIZE TABLE fotmob.shotmap FINAL DEDUPLICATE;
--- OPTIMIZE TABLE fotmob.goal FINAL DEDUPLICATE;
--- OPTIMIZE TABLE fotmob.cards FINAL DEDUPLICATE;
--- OPTIMIZE TABLE fotmob.red_card FINAL DEDUPLICATE;
--- OPTIMIZE TABLE fotmob.period FINAL DEDUPLICATE;
--- OPTIMIZE TABLE fotmob.momentum FINAL DEDUPLICATE;
--- OPTIMIZE TABLE fotmob.starters FINAL DEDUPLICATE;
--- OPTIMIZE TABLE fotmob.substitutes FINAL DEDUPLICATE;
--- OPTIMIZE TABLE fotmob.coaches FINAL DEDUPLICATE;
--- OPTIMIZE TABLE fotmob.team_form FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_general FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_timeline FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_venue FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_player FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_shotmap FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_goal FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_cards FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_red_card FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_period FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_momentum FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_starters FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_substitutes FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_coaches FINAL DEDUPLICATE;
+-- OPTIMIZE TABLE fotmob.bronze_team_form FINAL DEDUPLICATE;

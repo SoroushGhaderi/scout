@@ -69,6 +69,8 @@ fotmob:
 
   storage:
     bronze_path: data/fotmob
+    silver_path: data/fotmob_silver
+    gold_path: data/fotmob_gold
     enabled: true
 
   retry:

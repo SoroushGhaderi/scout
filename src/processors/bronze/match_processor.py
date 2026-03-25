@@ -6,15 +6,15 @@ from pathlib import Path
 import pandas as pd
 from pydantic import ValidationError as PydanticValidationError
 
-from ..core import ProcessorProtocol, ValidationError, ProcessorError
-from ..models import (
+from ...core import ProcessorProtocol, ValidationError, ProcessorError
+from ...models import (
     MatchTimeline, GeneralMatchStats, GoalEventHeader, RedCardEvent,
     GoalEventMatchFacts, CardEventMatchFacts, SubstitutionEvent,
     MomentumDataPoint, PeriodStats,
     FlatPlayerStats, ShotEvent, LineupPlayer, SubstitutePlayer, TeamCoach,
     MatchVenue, TeamFormMatch
 )
-from ..utils.fotmob_validator import (
+from ...utils.fotmob_validator import (
     FotMobValidator, SafeFieldExtractor, ResponseSaver
 )
 

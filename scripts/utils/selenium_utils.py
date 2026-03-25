@@ -6,12 +6,13 @@ around implicit waits and element lookups.
 
 from contextlib import contextmanager
 from typing import List, Optional
+
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 @contextmanager
@@ -51,10 +52,7 @@ def temporary_wait(driver: WebDriver, seconds: float):
 
 
 def find_with_fallbacks(
-    driver: WebDriver,
-    selectors: List[tuple],
-    timeout: float = 2.0,
-    must_be_visible: bool = True
+    driver: WebDriver, selectors: List[tuple], timeout: float = 2.0, must_be_visible: bool = True
 ) -> Optional[WebElement]:
     """Try multiple selectors in order, returning first match.
 
@@ -95,10 +93,7 @@ def find_with_fallbacks(
 
 
 def find_all_with_fallbacks(
-    driver: WebDriver,
-    selectors: List[tuple],
-    timeout: float = 2.0,
-    must_be_visible: bool = True
+    driver: WebDriver, selectors: List[tuple], timeout: float = 2.0, must_be_visible: bool = True
 ) -> List[WebElement]:
     """Try multiple selectors in order, returning all matches from first successful selector.
 
@@ -140,9 +135,7 @@ def quick_check(driver: WebDriver, by: str, selector: str) -> bool:
 
 
 def wait_for_any(
-    driver: WebDriver,
-    selectors: List[tuple],
-    timeout: float = 10.0
+    driver: WebDriver, selectors: List[tuple], timeout: float = 10.0
 ) -> Optional[WebElement]:
     """Wait for any of the given selectors to appear.
 
@@ -157,6 +150,7 @@ def wait_for_any(
         First element that appears, or None if timeout
     """
     try:
+
         def any_selector_present(driver):
             for by, selector in selectors:
                 try:
