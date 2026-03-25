@@ -1,16 +1,10 @@
-"""
-Health check utilities for monitorin in g system components.
-Provides health checks for:
-- ClickHouse connection
-- Storage access
-- Disk space
-"""
+"""Health check utilities for ClickHouse, storage access, and disk space."""
 import shutil
 from pathlib import Path
 from typing import Dict, Any, Optional
 from datetime import datetime
 from .logging_utils import get_logger
-from .alerting import get_alert_manager, AlertLevel
+from .alerting import get_alert_manager
 def check_disk_space(path: str = ".", threshold_gb: float = 1.0) -> Dict[str, Any]:
     """
     Check available disk space for a given path.
@@ -260,14 +254,15 @@ def health_check(
     disk_result = check_disk_space(disk_path, threshold_gb=disk_threshold_gb)
     results["components"]["disk_space"] = disk_result
     statuses = []
-    for component_name, component_result in results["components"].items():
-        if isinstance(component_result, dict):
-            if "status" in component_result:
-                statuses.append(component_result["status"])
-        elif isinstance(component_result, dict):
-            for path, path_result in component_result.items():
-                if isinstance(path_result, dict) and "status" in path_result:
-                    statuses.append(path_result["status"])
+    for component_result in results["components"].values():
+        if not isinstance(component_result, dict):
+            continue
+        if "status" in component_result:
+            statuses.append(component_result["status"])
+            continue
+        for path_result in component_result.values():
+            if isinstance(path_result, dict) and "status" in path_result:
+                statuses.append(path_result["status"])
     if "error" in statuses or "critical" in statuses:
         results["overall_status"] = "unhealthy"
     elif "warning" in statuses:
@@ -278,27 +273,29 @@ def health_check(
         results["overall_status"] = "unknown"
     alert_manager = get_alert_manager()
     for component_name, component_result in results["components"].items():
-        if isinstance(component_result, dict):
-            if "status" in component_result:
-                status = component_result.get("status")
-                if status in ["error", "critical", "warning"]:
-                    message = component_result.get("message", "Unknown issue")
-                    alert_manager.alert_health_check_failure(
-                        component=component_name,
-                        status=status,
-                        message=message,
-                        context=component_result
-                    )
-        elif isinstance(component_result, dict):
-            for path, path_result in component_result.items():
-                if isinstance(path_result, dict):
-                    status = path_result.get("status")
-                    if status in ["error", "critical", "warning"]:
-                        message = path_result.get("message", "Unknown issue")
-                        alert_manager.alert_health_check_failure(
-                            component=f"{component_name}:{path}",
-                            status=status,
-                            message=message,
-                            context=path_result
-                        )
+        if not isinstance(component_result, dict):
+            continue
+        if "status" in component_result:
+            status = component_result.get("status")
+            if status in ["error", "critical", "warning"]:
+                message = component_result.get("message", "Unknown issue")
+                alert_manager.alert_health_check_failure(
+                    component=component_name,
+                    status=status,
+                    message=message,
+                    context=component_result
+                )
+            continue
+        for path, path_result in component_result.items():
+            if not isinstance(path_result, dict):
+                continue
+            status = path_result.get("status")
+            if status in ["error", "critical", "warning"]:
+                message = path_result.get("message", "Unknown issue")
+                alert_manager.alert_health_check_failure(
+                    component=f"{component_name}:{path}",
+                    status=status,
+                    message=message,
+                    context=path_result
+                )
     return results

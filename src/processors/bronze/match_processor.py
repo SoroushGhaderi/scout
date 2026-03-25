@@ -78,8 +78,8 @@ RATIO_STAT_FIELDS = frozenset({
 })
 
 
-class MatchProcessor(ProcessorProtocol):
-    """Process raw match data to structured format."""
+class FotMobBronzeMatchProcessor(ProcessorProtocol):
+    """Process raw FotMob bronze data into structured bronze tables."""
 
     def __init__(
         self,
@@ -1214,3 +1214,7 @@ class MatchProcessor(ProcessorProtocol):
         except Exception as e:
             self.logger.exception(f"Error processing team form data: {e}")
         return processed_form
+
+
+# Backward-compatible alias; prefer FotMobBronzeMatchProcessor in new code.
+MatchProcessor = FotMobBronzeMatchProcessor

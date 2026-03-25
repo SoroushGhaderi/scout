@@ -2,7 +2,7 @@
 
 PURPOSE: Orchestrates the complete data pipeline:
     1. FotMob Bronze Layer (scraping)
-    2. Load FotMob to ClickHouse
+    2. Load FotMob raw files into ClickHouse Bronze tables
     3. Build FotMob Silver layer
     4. Build FotMob Gold layer
 
@@ -52,7 +52,7 @@ SCRIPT_NAMES = {
 
 RESULT_CATEGORIES = {
     "fotmob_bronze": "FotMob Bronze",
-    "fotmob_clickhouse": "FotMob ClickHouse",
+    "fotmob_clickhouse": "FotMob Bronze -> ClickHouse",
     "fotmob_silver": "FotMob Silver",
     "fotmob_gold": "FotMob Gold",
 }
@@ -122,7 +122,7 @@ def create_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Unified Pipeline Orchestrator - "
-            "Runs FotMob bronze scraping, ClickHouse load, silver, and gold stages"
+            "Runs FotMob bronze scraping, ClickHouse bronze load, silver, and gold stages"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
@@ -195,7 +195,7 @@ def _add_pipeline_control_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--skip-bronze",
         action="store_true",
-        help="Skip bronze scraping (run ClickHouse loading only)",
+        help="Skip bronze scraping (run ClickHouse bronze loading, silver, and/or gold only)",
     )
     parser.add_argument(
         "--skip-fotmob",

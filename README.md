@@ -1,346 +1,271 @@
-# Scout - Sports Data Pipeline
+# Scout
 
-> Production-ready football data scraper with FotMob API integration, connected with ClickHouse data warehouse.
+Scout is a FotMob-only football data pipeline with an explicit medallion architecture.
+
+- Bronze: raw FotMob API responses stored on disk and loaded into ClickHouse `bronze_*` tables
+- Silver: cleaned ClickHouse `silver_*` views built from Bronze
+- Gold: analytics-ready ClickHouse `gold_*` tables built from Silver
+
+## Architecture
+
+```text
+FotMob API
+  -> data/fotmob/                   raw Bronze files
+  -> fotmob.bronze_*               ClickHouse Bronze tables
+  -> fotmob.silver_*               ClickHouse Silver views
+  -> fotmob.gold_*                 ClickHouse Gold tables
+```
+
+## Layer Rules
+
+- Bronze is the only filesystem-backed layer
+- Silver and Gold exist only in ClickHouse
+- Bronze warehouse tables are always prefixed with `bronze_`
+- Silver warehouse views are always prefixed with `silver_`
+- Gold warehouse tables are always prefixed with `gold_`
+- Scout currently supports FotMob only
+
+## Prerequisites
+
+- Docker and Docker Compose
+- Python 3.11 if running locally outside Docker
+- A valid `FOTMOB_X_MAS_TOKEN`
+- ClickHouse credentials in `.env`
 
 ## Quick Start
 
 ```bash
-# 1. Setup
 git clone <repository-url>
 cd scout
 cp .env.example .env
-# Edit .env and add FOTMOB_X_MAS_TOKEN
+# edit .env and set FOTMOB_X_MAS_TOKEN plus ClickHouse credentials
 
-# 2. Start services
 docker-compose -f docker/docker-compose.yml up -d
-# Or use: make up
 
-# 3. Create ClickHouse tables
+# create Bronze + Silver + Gold schema
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse.py
 
-# 4. Run pipeline (data/ and logs/ folders created automatically)
+# run a complete single-day pipeline
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208
-
-# 5. Optimize tables (run periodically)
-make optimize-tables
 ```
 
-## Architecture
+## Required Configuration
 
-```
-FotMob API
-     ↓
-Bronze Layer (JSON → TAR)
-     ↓
-ClickHouse (Analytics)
-```
+### `.env`
 
-**Data Sources:**
-- **FotMob**: Match details, player stats, shots, timeline (REST API)
-
-**Storage:**
-- **Bronze**: Raw JSON data compressed in TAR archives (`data/fotmob/`)
-- **ClickHouse**: Analytics tables (fotmob: 14 tables)
-
-## Installation
-
-### Using Docker (Recommended)
+Minimum useful values:
 
 ```bash
-# Start all services
-docker-compose -f docker/docker-compose.yml up -d
-# Or use: make up
-
-# Setup ClickHouse
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse.py
-```
-
-### Local Installation
-
-```bash
-# Install package
-pip install -e .
-
-# Install with dev dependencies
-pip install -e ".[dev]"
-
-# Install with Cloudflare bypass
-pip install -e ".[cloudflare]"
-```
-
-## Configuration
-
-Scout uses a **two-layer configuration system**:
-
-### 1. config.yaml (Primary - Application Settings)
-Contains all application-specific configuration:
-- Scraper behavior (timeouts, delays, max workers)
-- Filtering and validation rules
-- Storage paths and settings
-- Logging and metrics configuration
-- Browser and request settings
-
-**Location:** `config.yaml` in project root
-
-### 2. .env (Environment-Specific - Secrets Only)
-Contains **only sensitive data**:
-- Database credentials
-- API tokens
-- Email credentials
-- Environment-specific overrides
-
-**Location:** `.env` in project root (not tracked in git)
-
-### Setup
-
-```bash
-# 1. Copy and edit config
-cp config.yaml config.example.yaml  # Backup (optional)
-# Edit config.yaml to customize behavior
-
-# 2. Configure secrets
-cp .env.example .env  # Or create new .env
-# Edit .env and add:
 FOTMOB_X_MAS_TOKEN=your_token_here
-CLICKHOUSE_PASSWORD=your_password_here
+CLICKHOUSE_HOST=clickhouse
+CLICKHOUSE_PORT=8123
+CLICKHOUSE_USER=fotmob_user
+CLICKHOUSE_PASSWORD=fotmob_pass
+CLICKHOUSE_DB_FOTMOB=fotmob
 ```
 
-### Quick Reference
+### `config.yaml`
 
-**config.yaml** - Build once, use everywhere:
+Bronze is the only local layer path:
+
 ```yaml
 fotmob:
-  scraping:
-    max_workers: 2
-    enable_parallel: true
-  request:
-    timeout: 30
-
+  storage:
+    bronze_path: data/fotmob
+    enabled: true
 ```
 
-**.env** - Never commit to git:
+See `CONFIG_GUIDE.md` for the full configuration reference.
+
+## Running The Code
+
+### 1. Start infrastructure
+
 ```bash
-FOTMOB_X_MAS_TOKEN=eyJib2R5Ijp7...
-CLICKHOUSE_PASSWORD=secure_password
+docker-compose -f docker/docker-compose.yml up -d
 ```
 
-See [CONFIG_GUIDE.md](CONFIG_GUIDE.md) for detailed configuration documentation.
+### 2. Create ClickHouse schema
 
-## Usage
-
-### Unified Pipeline
+Create all layers:
 
 ```bash
-# Single date (both scrapers + ClickHouse)
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208
-
-# Date range
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py --start-date 20251201 --end-date 20251207
-
-# Monthly
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py --month 202512
-
-# Options
---force           # Force re-scrape/reload
---bronze-only     # Skip ClickHouse loading
---skip-bronze     # Skip scraping, only load to ClickHouse
---skip-fotmob     # Skip FotMob scraper
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse.py
 ```
 
-### Individual Scrapers
+Or create one layer at a time:
 
-**FotMob:**
 ```bash
-# Scrape to bronze layer
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse_bronze.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse_silver.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse_gold.py
+```
+
+### 3. Scrape Bronze files
+
+```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/scrape_fotmob.py 20251208
+```
 
-# Load to ClickHouse
+This writes raw FotMob match responses into `data/fotmob/`.
+
+### 4. Load Bronze files into ClickHouse Bronze tables
+
+```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/load_clickhouse.py --scraper fotmob --date 20251208
 ```
 
-## ClickHouse
+This creates or appends records in tables such as:
 
-### Access ClickHouse
+- `fotmob.bronze_general`
+- `fotmob.bronze_player`
+- `fotmob.bronze_shotmap`
+- `fotmob.bronze_goal`
+- `fotmob.bronze_period`
+
+### 5. Build Silver views
 
 ```bash
-# Command line
-docker-compose -f docker/docker-compose.yml exec clickhouse clickhouse-client \
-  --user fotmob_user --password fotmob_pass
-
-# HTTP Interface
-# URL: http://localhost:8123
-# User: fotmob_user, Password: fotmob_pass
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/process_silver.py --date 20251208
 ```
 
-### Sample Queries
+This refreshes views such as:
+
+- `fotmob.silver_general`
+- `fotmob.silver_player`
+- `fotmob.silver_shotmap`
+- `fotmob.silver_period`
+- `fotmob.silver_venue`
+
+### 6. Build Gold tables
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/process_gold.py --date 20251208
+```
+
+This refreshes tables such as:
+
+- `fotmob.gold_player_match_stats`
+- `fotmob.gold_match_summary`
+- `fotmob.gold_team_season_stats`
+
+## Full Pipeline Modes
+
+### One date
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208
+```
+
+### Date range
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py --start-date 20251201 --end-date 20251207
+```
+
+### Month
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py --month 202512
+```
+
+### Bronze only
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --bronze-only
+```
+
+### Silver only
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --silver-only
+```
+
+### Gold only
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --gold-only
+```
+
+### Skip scraping and reuse existing Bronze files
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --skip-bronze
+```
+
+## Bronze Table Engine
+
+All ClickHouse Bronze tables use:
 
 ```sql
--- Top scorers
-SELECT player_name, SUM(goals) as total_goals
-FROM fotmob.player
-GROUP BY player_name
-ORDER BY total_goals DESC
-LIMIT 10;
-
--- Matches by league
-SELECT league_name, COUNT(*) as matches
-FROM fotmob.general
-GROUP BY league_name
-ORDER BY matches DESC;
+ENGINE = ReplacingMergeTree(inserted_at)
 ```
 
-### Table Optimization
+That allows re-runs and deduplication by keeping the newest inserted version before compaction.
+
+Run optimization periodically:
 
 ```bash
-# Optimize all tables (run after data loading)
-make optimize-tables
-
-# Or manually
 docker-compose -f docker/docker-compose.yml exec -T clickhouse clickhouse-client \
   --user fotmob_user --password fotmob_pass \
   < clickhouse/bronze/02_optimize.sql
 ```
 
-## Key Features
-
-- FotMob API scraping support
-- Bronze layer with automatic TAR compression (60-75% space savings)
-- ClickHouse data warehouse with 14 tables
-- Automated deduplication (ReplacingMergeTree)
-- League-based filtering (95 competitions)
-- Docker containerization
-- Comprehensive validation system
-- Unified logging pipeline
-- Health checks and alerting
-- Idempotent operations (safe to re-run)
-
 ## Project Structure
 
-```
+```text
 scout/
-├── src/              # Source code
-│   ├── scrapers/     # FotMob scraper
-│   ├── storage/      # Bronze storage & ClickHouse client
-│   ├── processors/   # Data transformation
-│   ├── config/       # Configuration management
-│   └── utils/        # Utilities (validation, logging, etc.)
-├── scripts/          # Executable scripts
-├── docker/           # Docker configuration
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   └── docker-entrypoint.sh
-├── clickhouse/       # SQL schemas
-├── data/             # Bronze layer (auto-created, TAR archives)
-│   └── fotmob/       # FotMob raw data
-├── logs/             # Application logs (auto-created)
-├── pyproject.toml    # Modern Python project config
-└── .env              # Configuration
+├── clickhouse/
+│   ├── bronze/
+│   ├── silver/
+│   └── gold/
+├── config/
+├── scripts/
+│   ├── scrape_fotmob.py
+│   ├── load_clickhouse.py
+│   ├── process_silver.py
+│   ├── process_gold.py
+│   ├── setup_clickhouse.py
+│   ├── setup_clickhouse_bronze.py
+│   ├── setup_clickhouse_silver.py
+│   └── setup_clickhouse_gold.py
+├── src/
+│   ├── processors/
+│   │   ├── bronze/
+│   │   ├── silver/
+│   │   └── gold/
+│   └── storage/
+│       ├── bronze/
+│       ├── silver/
+│       └── gold/
+└── data/
+    └── fotmob/
 ```
-
-**Note**: The `data/` and `logs/` directories are automatically created when you first run the pipeline.
 
 ## Troubleshooting
 
-### Missing Data or Logs Directories
+### Create local directories early
 
-**The directories are created automatically** when you run the pipeline for the first time. No manual setup needed.
-
-If you want to pre-create them:
 ```bash
-# Inside Docker container
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/ensure_directories.py
-
-# Or manually
-mkdir -p data/fotmob logs
 ```
 
-### FotMob 404 Errors
-
-FotMob changed API endpoint in Dec 2025:
-```bash
-# Update .env
-FOTMOB_API_BASE_URL=https://www.fotmob.com/api/data
-```
-
-### Docker Issues
+### Check system health
 
 ```bash
-# Check status
-docker-compose -f docker/docker-compose.yml ps
-
-# View logs
-docker-compose -f docker/docker-compose.yml logs -f scraper
-
-# Restart
-docker-compose -f docker/docker-compose.yml restart scraper
-
-# Rebuild
-docker-compose -f docker/docker-compose.yml build --no-cache
-docker-compose -f docker/docker-compose.yml up -d
-```
-
-## Monitoring
-
-```bash
-# View logs
-tail -f logs/pipeline_20251208.log
-tail -f logs/fotmob_scraper_20251208.log
-
-# Health check
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py
-
-# Docker status
-docker-compose -f docker/docker-compose.yml ps
-docker-compose -f docker/docker-compose.yml logs clickhouse
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py --json
 ```
 
-## Performance Optimizations
+### Recreate schema after dropping database
 
-**Bronze Layer:**
-- Automatic TAR compression (60-75% space reduction)
-- Atomic file writes
-- File locking for thread safety
-- Batch operations
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/drop_clickhouse_databases.py --yes
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse.py
+```
 
-**Scraping:**
-- Browser resource blocking (images, CSS, fonts)
-- Request delays to avoid rate limiting
-- Connection pooling
-- Parallel processing (configurable)
+## Notes
 
-**ClickHouse:**
-- Batch inserts via DataFrames
-- Table partitioning by date
-- Manual table optimization
-- Deduplication via ReplacingMergeTree
-
-## Development
-
-See [DEVELOPMENT.md](DEVELOPMENT.md) for:
-- Validation system details
-- Adding new scrapers
-- Custom processing
-- Testing and debugging
-
-## Support
-
-**Documentation:**
-- Complete guide: [DEVELOPMENT.md](DEVELOPMENT.md)
-- Project config: [pyproject.toml](pyproject.toml)
-
-**Logs:**
-- Pipeline: `logs/pipeline_*.log`
-- FotMob: `logs/fotmob_scraper_*.log`
-
-**Tools:**
-- Health check: `python scripts/health_check.py`
-- Validation: `python scripts/validate_fotmob_responses.py`
-- League analysis: `python scripts/analyze_leagues.py`
-
-## License
-
-MIT
-
----
-
-**Scout** - Comprehensive sports data scraping and analytics system
+- Scout is currently FotMob-only
+- Silver and Gold are warehouse layers, not local directories
+- Bare ClickHouse table names like `general` or `player` should not be introduced for warehouse objects

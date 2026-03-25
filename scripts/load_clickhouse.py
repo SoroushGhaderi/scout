@@ -1,7 +1,7 @@
-"""Load data from bronze layer JSON files into ClickHouse data warehouse.
+"""Load raw FotMob bronze files into ClickHouse bronze tables.
 
 SCRAPER: FotMob
-PURPOSE: Load processed data from bronze layer (JSON/JSON.gz) directly to ClickHouse
+PURPOSE: Transform raw bronze files (JSON/JSON.gz/TAR) into ClickHouse bronze tables
 
 Usage:
     # Load FotMob data for a date
@@ -42,8 +42,8 @@ sys.path.insert(0, str(project_root))
 import pandas as pd
 
 from config import FotMobConfig
-from src.processors.bronze.match_processor import MatchProcessor
-from src.storage.bronze.fotmob import BronzeStorage as FotMobBronzeStorage
+from src.processors.bronze.match_processor import FotMobBronzeMatchProcessor
+from src.storage.bronze.fotmob import FotMobBronzeStorage
 from src.storage.clickhouse_client import ClickHouseClient
 from src.storage.dlq import DeadLetterQueue
 from src.utils.alerting import AlertLevel, get_alert_manager
@@ -420,7 +420,7 @@ def load_match_files_from_tar(
 
 
 def load_match_files_from_json_gz(
-    matches_dir: Path, processor: MatchProcessor, logger: logging.Logger
+    matches_dir: Path, processor: FotMobBronzeMatchProcessor, logger: logging.Logger
 ) -> Dict[str, List]:
     """Load match files from JSON.gz files."""
     all_dataframes = {}
@@ -442,7 +442,7 @@ def load_match_files_from_json_gz(
 
 
 def load_match_files_from_json(
-    matches_dir: Path, processor: MatchProcessor, logger: logging.Logger
+    matches_dir: Path, processor: FotMobBronzeMatchProcessor, logger: logging.Logger
 ) -> Dict[str, List]:
     """Load match files from JSON files."""
     all_dataframes = {}
@@ -473,7 +473,7 @@ def _add_processed_dataframes(dataframes: Dict, all_dataframes: Dict) -> None:
 
 
 def load_fotmob_match_files(
-    matches_dir: Path, date_str: str, processor: MatchProcessor, logger: logging.Logger
+    matches_dir: Path, date_str: str, processor: FotMobBronzeMatchProcessor, logger: logging.Logger
 ) -> Dict[str, List]:
     """Load all FotMob match files from a directory."""
     all_dataframes = {}
@@ -594,7 +594,7 @@ def load_fotmob_data(
     try:
         config = FotMobConfig()
         bronze_storage = FotMobBronzeStorage(config.storage.bronze_path)
-        processor = MatchProcessor()
+        processor = FotMobBronzeMatchProcessor()
 
         matches_dir = bronze_storage.matches_dir / date_str
 

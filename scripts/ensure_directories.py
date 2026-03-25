@@ -1,6 +1,6 @@
 """Ensure required directories exist.
 
-This script creates the necessary directory structure for the Scout project.
+This script creates the required local directory structure for the Scout project.
 It's optional since the pipeline scripts create directories automatically,
 but can be useful for pre-initialization or troubleshooting.
 
@@ -22,7 +22,7 @@ def ensure_directories() -> None:
     directories = [
         project_root / "data",
         project_root / "data" / "fotmob",
-        project_root / "data" / "fotmob" / "daily",
+        project_root / "data" / "fotmob" / "daily_listings",
         project_root / "data" / "fotmob" / "matches",
         project_root / "logs",
     ]

@@ -1,308 +1,344 @@
 # Configuration Guide
 
-Scout uses a two-layer configuration system that separates application settings from environment-specific and sensitive data.
+This guide explains how Scout is configured and how to run the FotMob-only Bronze, Silver, and Gold pipeline in practice.
 
-## Configuration Architecture
+## 1. Configuration Model
 
-### Layer 1: config.yaml (Primary)
-Contains **all application-specific settings** that define how scrapers behave:
-- Request timeouts and delays
-- Scraping behavior settings
-- Storage paths and configuration
-- Browser settings
-- Selectors and validation rules
-- Retry policies
-- Logging and metrics configuration
+Scout uses two configuration sources:
 
-**Location:** `config.yaml` in project root
+- `config.yaml` for application behavior
+- `.env` for secrets and environment-specific overrides
 
-**Best for:**
-- Application logic and feature configuration
-- Settings that are the same across all environments
-- Easy collaboration and version control
+## 2. Architecture-Aware Configuration Rules
 
-### Layer 2: .env (Sensitive & Environment-Specific)
-Contains **only sensitive data and environment-specific values**:
-- Database credentials
-- API authentication tokens
-- Email/SMTP credentials
-- Environment-specific overrides
+- Bronze is the only local storage layer
+- Silver and Gold live only in ClickHouse
+- `fotmob.storage.bronze_path` is the only layer path in `config.yaml`
+- Do not add `silver_path` or `gold_path` unless the architecture changes intentionally
 
-**Location:** `.env` in project root (not tracked in git)
+## 3. `config.yaml`
 
-**Best for:**
-- Credentials and secrets
-- Environment-specific values (dev, staging, production)
-- Configuration that varies by deployment
+`config.yaml` contains non-secret runtime settings.
 
-## How Configuration Loading Works
+Example:
 
-### FotMobConfig
-```python
-config = FotMobConfig()
-```
-
-Loading priority:
-1. Load defaults from `config.yaml` under `fotmob:` section
-2. Apply .env overrides using `FOTMOB_*` variables
-3. Initialize directories and validate
-
-## Configuration File Structure
-
-### config.yaml
 ```yaml
-# Common settings
 logging:
   level: INFO
   file: logs/scraper.log
   dir: logs
 
-# FotMob scraper configuration
 fotmob:
   api:
     base_url: https://www.fotmob.com/api/data
-    x_mas_token: set_via_env
+    user_agent: Mozilla/5.0 ...
+    user_agents:
+      - "Mozilla/5.0 ..."
   request:
     timeout: 30
     delay_min: 2.0
     delay_max: 4.0
+  scraping:
+    max_workers: 2
+    enable_parallel: true
+    metrics_update_interval: 20
+    filter_by_status: true
+    allowed_match_statuses:
+      - Finished
+      - FT
   storage:
     bronze_path: data/fotmob
     enabled: true
-  # ... more settings
+  retry:
+    max_attempts: 3
+    initial_wait: 2.0
+    max_wait: 10.0
 ```
 
-### .env
-```bash
-# Database credentials
-CLICKHOUSE_HOST=clickhouse
-CLICKHOUSE_USER=fotmob_user
-CLICKHOUSE_PASSWORD=secure_password
+### Important `config.yaml` sections
 
-# API tokens (sensitive)
+#### `fotmob.api`
+
+- Controls API base URL and browser-like headers
+- `x_mas` token is not stored here; it belongs in `.env`
+
+#### `fotmob.request`
+
+- Controls request timeout and pacing
+- Useful when tuning reliability versus scrape speed
+
+#### `fotmob.scraping`
+
+- Controls worker count, status filtering, and caching
+- In runtime, the orchestrator may still force safer sequential scraping if needed
+
+#### `fotmob.storage`
+
+- `bronze_path` defines where raw Bronze files are stored
+- This directory is used by the scraper and by Bronze-to-ClickHouse loading
+
+## 4. `.env`
+
+`.env` contains secrets and deployment-specific values.
+
+Minimum recommended example:
+
+```bash
 FOTMOB_X_MAS_TOKEN=your_token_here
 
-# Configuration file path (optional)
+CLICKHOUSE_HOST=clickhouse
+CLICKHOUSE_PORT=8123
+CLICKHOUSE_USER=fotmob_user
+CLICKHOUSE_PASSWORD=fotmob_pass
+CLICKHOUSE_DB_FOTMOB=fotmob
+
+LOG_LEVEL=INFO
+```
+
+Optional useful values:
+
+```bash
+FOTMOB_BRONZE_PATH=data/fotmob
+FOTMOB_REQUEST_TIMEOUT=30
+FOTMOB_DELAY_MIN=2.0
+FOTMOB_DELAY_MAX=4.0
+FOTMOB_MAX_WORKERS=2
+FOTMOB_ENABLE_PARALLEL=false
 CONFIG_FILE_PATH=config.yaml
 ```
 
-## Overriding Configuration
+## 5. How Configuration Loads
 
-### Via .env Variables
-Override any config.yaml setting using environment variables:
+`FotMobConfig()` loads settings in this order:
 
-**Format:** `FOTMOB_{CONFIG_PATH_UPPERCASE}`
+1. `config.yaml`
+2. `.env` overrides
+3. directory initialization for local Bronze storage and logging
 
-**Examples:**
+That means `.env` wins over `config.yaml` for the values it overrides.
+
+## 6. How To Run The Code
+
+### Docker workflow
+
+#### Step 1: start containers
+
 ```bash
-# Override FotMob request timeout
-FOTMOB_REQUEST_TIMEOUT=60
-
-# Override FotMob storage path
-FOTMOB_STORAGE_BRONZE_PATH=/custom/path/fotmob
+docker-compose -f docker/docker-compose.yml up -d
 ```
 
-### Via Code
-```python
-from config import FotMobConfig
+#### Step 2: create ClickHouse schema
 
-config = FotMobConfig()
-config.request.timeout = 60  # Override after loading
-```
+All layers:
 
-## Configuration Precedence
-
-For any setting:
-1. **Highest:** Code-level overrides (set after config instantiation)
-2. **Medium:** .env file variables (FOTMOB_*)
-3. **Lowest:** config.yaml defaults
-
-## Best Practices
-
-### ✅ DO:
-- Keep application settings in `config.yaml`
-- Keep credentials in `.env` (never commit to git)
-- Use .env for environment-specific values
-- Document new configuration options in `config.yaml`
-- Update config.yaml when adding new features
-
-### ❌ DON'T:
-- Put credentials in `config.yaml`
-- Put application logic in `.env`
-- Commit `.env` to version control
-- Hardcode values in Python code when they should be configurable
-
-## Adding New Configuration
-
-1. Add setting to `config.yaml` under appropriate section
-2. Update corresponding dataclass in `config/*.py`
-3. Update `_load_config()` method to load from YAML
-4. Add .env override in `_apply_env_overrides()` if needed
-
-**Example:**
-```yaml
-# In config.yaml
-fotmob:
-  request:
-    custom_setting: 123
-```
-
-```python
-# In config/fotmob.py
-from dataclasses import dataclass
-
-@dataclass
-class RequestConfig:
-    timeout: int = 30
-    custom_setting: int = 123  # Add new field
-
-# In _load_config()
-request_config = yaml_fotmob.get('request', {})
-self.request = RequestConfig(
-    timeout=request_config.get('timeout', 30),
-    custom_setting=request_config.get('custom_setting', 123),
-)
-
-# In _apply_env_overrides()
-if os.getenv('FOTMOB_REQUEST_CUSTOM_SETTING'):
-    self.request.custom_setting = int(os.getenv('FOTMOB_REQUEST_CUSTOM_SETTING'))
-```
-
-## Telegram Daily Metrics & Alerts
-
-Scout uses **Telegram** for daily scraping reports with metrics and emojis.
-
-### Setup Instructions
-
-#### 1. Create a Telegram Bot
 ```bash
-# 1. Open Telegram and message @BotFather
-# 2. Type /newbot
-# 3. Choose a name and username
-# 4. You'll get: "Use this token to access the HTTP API"
-# 5. Copy your token
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse.py
 ```
 
-#### 2. Get Your Chat ID
+Only Bronze:
+
 ```bash
-# 1. Forward the bot message to yourself or a group
-# 2. Visit: https://api.telegram.org/bot[YOUR_TOKEN]/getUpdates
-# 3. Replace [YOUR_TOKEN] with your actual token
-# 4. Look for "chat": {"id": 123456789}  (this is your chat_id)
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse_bronze.py
 ```
 
-#### 3. Configure Environment
-Add to `.env`:
+Only Silver:
+
 ```bash
-TELEGRAM_BOT_TOKEN=8431175588:AAENww0dKW50wEgMLU9iRcyvGH4A7bHgsto
-TELEGRAM_CHAT_ID=your_chat_id_here
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse_silver.py
 ```
 
-### Using Telegram Reports
+Only Gold:
 
-#### FotMob Daily Report
-```python
-from src.utils.metrics_alerts import send_daily_report
-
-send_daily_report(
-    scraper='fotmob',
-    date='20260215',
-    matches_scraped=150,
-    errors=2,
-    skipped=3,
-    duration_seconds=3600,
-    cache_hits=45
-)
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse_gold.py
 ```
 
-**Sample Output:**
-```
-⚽ FotMob Daily Report - 20260215
+#### Step 3: scrape raw Bronze files
 
-✨ Matches Scraped: 150
-📈 Success Rate: 98.7% ✅
-❌ Errors: 2
-⏭️ Skipped: 3
-⏱️ Duration: 1.0h
-💨 Cache Hits: 45
-
-✅ All matches scraped successfully!
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/scrape_fotmob.py 20251208
 ```
 
-### Emoji Legend
+#### Step 4: load Bronze files into ClickHouse Bronze tables
 
-**Status:**
-- ✅ Success
-- ❌ Error
-- ⚠️ Warning
-- ℹ️ Info
-
-**Metrics:**
-- ⚽ Matches
-- ✨ Matches Scraped
-- 📈 Success Rate
-- ⏱️ Duration
-- 💨 Cache Hits
-- 💰 Odds
-
-### Integration in Pipeline
-
-Add to your scraping script (e.g., `scripts/pipeline.py`):
-
-```python
-import time
-from src.utils.metrics_alerts import send_daily_report
-
-# Start scraping
-start_time = time.time()
-fotmob_start = start_time
-
-# ... FotMob scraping ...
-fotmob_duration = time.time() - fotmob_start
-fotmob_matches = 150  # Your actual count
-
-# Send FotMob report
-send_daily_report(
-    scraper='fotmob',
-    matches_scraped=fotmob_matches,
-    errors=2,
-    duration_seconds=fotmob_duration
-)
-
-print("✅ Daily report sent to Telegram!")
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/load_clickhouse.py --scraper fotmob --date 20251208
 ```
 
-## Configuration Validation
+#### Step 5: build Silver views
 
-Configuration is validated during initialization. Validation errors include:
-- Invalid log levels
-- Missing required paths
-- Invalid retry settings
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/process_silver.py --date 20251208
+```
 
-Check logs for validation warnings during startup.
+#### Step 6: build Gold tables
 
-## Troubleshooting
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/process_gold.py --date 20251208
+```
 
-### config.yaml not found
-- Ensure `config.yaml` exists in project root
-- Check `CONFIG_FILE_PATH` environment variable if custom location
+### Full orchestration
 
-### Settings not loading
-- Verify YAML syntax in `config.yaml`
-- Check variable names in .env match expected format
-- Review logs for parsing errors
+Single day:
 
-### .env overrides not working
-- Verify variable name format: `{SCRAPER}_{SETTING_PATH_UPPERCASE}`
-- Ensure .env file is loaded (check `python-dotenv`)
-- Note: Some complex settings may not support .env overrides
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208
+```
 
-## Configuration Files in Git
+Date range:
 
-### Tracked:
-- ✅ `config.yaml` - Application defaults
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py --start-date 20251201 --end-date 20251207
+```
 
-### Ignored (.gitignore):
-- ❌ `.env` - Never commit secrets
-- ❌ `.env.local` - Local environment overrides
-- ❌ `.env.*.local` - Environment-specific secrets
+Month:
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py --month 202512
+```
+
+## 7. Pipeline Flags
+
+### `--bronze-only`
+
+Runs only the raw FotMob scrape into local Bronze storage.
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --bronze-only
+```
+
+### `--silver-only`
+
+Runs only the Silver stage in ClickHouse.
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --silver-only
+```
+
+### `--gold-only`
+
+Runs only the Gold stage in ClickHouse.
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --gold-only
+```
+
+### `--skip-bronze`
+
+Skips scraping and reuses already-saved Bronze files.
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --skip-bronze
+```
+
+### `--force`
+
+Forces reprocessing where supported.
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --force
+```
+
+## 8. Warehouse Naming Standards
+
+These are mandatory for ClickHouse objects used by Scout.
+
+### Bronze
+
+- `fotmob.bronze_general`
+- `fotmob.bronze_timeline`
+- `fotmob.bronze_venue`
+- `fotmob.bronze_player`
+- `fotmob.bronze_shotmap`
+- `fotmob.bronze_goal`
+- `fotmob.bronze_cards`
+- `fotmob.bronze_red_card`
+- `fotmob.bronze_period`
+- `fotmob.bronze_momentum`
+- `fotmob.bronze_starters`
+- `fotmob.bronze_substitutes`
+- `fotmob.bronze_coaches`
+- `fotmob.bronze_team_form`
+
+### Silver
+
+- `fotmob.silver_general`
+- `fotmob.silver_player`
+- `fotmob.silver_shotmap`
+- `fotmob.silver_period`
+- `fotmob.silver_venue`
+
+### Gold
+
+- `fotmob.gold_player_match_stats`
+- `fotmob.gold_match_summary`
+- `fotmob.gold_team_season_stats`
+
+Bare warehouse names like `general`, `player`, or `timeline` should not be used for persisted ClickHouse objects.
+
+## 9. Bronze Engine Standard
+
+All Bronze tables use:
+
+```sql
+ENGINE = ReplacingMergeTree(inserted_at)
+```
+
+That means:
+
+- re-runs are safe
+- duplicates can be compacted later
+- `inserted_at` is required on each Bronze table
+
+Optimization command:
+
+```bash
+docker-compose -f docker/docker-compose.yml exec -T clickhouse clickhouse-client \
+  --user fotmob_user --password fotmob_pass \
+  < clickhouse/bronze/02_optimize.sql
+```
+
+## 10. Validation And Health Checks
+
+Check health:
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py --json
+```
+
+Validate saved responses:
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/validate_fotmob_responses.py
+```
+
+## 11. Troubleshooting
+
+### `config.yaml` not found
+
+- confirm the file exists in the project root
+- confirm `CONFIG_FILE_PATH` is correct if you override it
+
+### `.env` override not applied
+
+- use the exact supported variable name
+- restart the container or shell session after changing environment values
+
+### No Bronze files found
+
+- confirm `fotmob.storage.bronze_path` exists
+- run `scripts/ensure_directories.py` if needed
+- run `scripts/scrape_fotmob.py` before `scripts/load_clickhouse.py`
+
+### ClickHouse schema missing
+
+- run `scripts/setup_clickhouse.py`
+- or run the layer-specific setup scripts in Bronze, Silver, Gold order
+
+## 12. Scope Reminder
+
+Scout is currently FotMob-only.
+
+- Additional sources should not be added to the active configuration model unless the architecture changes deliberately
+- Source-specific runtime commands should not be mixed into the FotMob-only docs without an explicit design update

@@ -166,8 +166,12 @@ def drop_databases(confirm: bool = False) -> int:
             logger.info(f"✅ Successfully dropped {dropped_count} database(s)")
             logger.info("=" * 80)
             logger.info("\n💡 Next steps:")
-            logger.info(" To recreate databases and tables, run:")
+            logger.info(" To recreate the full medallion schema, run:")
             logger.info(" docker-compose exec scraper python scripts/setup_clickhouse.py")
+            logger.info(" Or recreate an individual layer with:")
+            logger.info(" docker-compose exec scraper python scripts/setup_clickhouse_bronze.py")
+            logger.info(" docker-compose exec scraper python scripts/setup_clickhouse_silver.py")
+            logger.info(" docker-compose exec scraper python scripts/setup_clickhouse_gold.py")
             return 0
         else:
             logger.error(f"❌ Failed to drop {failed_count} database(s)")

@@ -410,7 +410,7 @@ def run_scraping(args: argparse.Namespace) -> int:
             stats.add_duration(duration)
 
             bronze_files, bronze_size_mb = get_bronze_storage_stats(
-                config.bronze_base_dir, date_str
+                config.storage.bronze_path, date_str
             )
             stats.add_bronze_storage(bronze_files, bronze_size_mb)
 

@@ -18,9 +18,9 @@ import requests
 from .core import OrchestratorProtocol, OrchestratorError, StorageProtocol
 from .core.constants import Defaults
 from config import FotMobConfig
-from .processors import MatchProcessor
+from .processors import FotMobBronzeMatchProcessor
 from .scrapers import MatchScraper, DailyScraper
-from .storage import BronzeStorage, get_s3_uploader
+from .storage import FotMobBronzeStorage, get_s3_uploader
 from .utils import ScraperMetrics, DataQualityChecker, get_alert_manager
 from .utils.alerting import AlertLevel
 
@@ -65,10 +65,10 @@ class FotMobOrchestrator(OrchestratorProtocol):
             # Never fail initialization due to config shape differences
             self.logger.debug(f"Could not enforce sequential FotMob scraping: {e}")
 
-        self.bronze_storage = BronzeStorage(self.config.bronze_base_dir)
+        self.bronze_storage = FotMobBronzeStorage(self.config.storage.bronze_path)
         self.logger.info("Bronze layer storage initialized")
 
-        self.processor = None if bronze_only else MatchProcessor()
+        self.processor = None if bronze_only else FotMobBronzeMatchProcessor()
 
         self.logger.info(f"FotMob Orchestrator initialized (bronze_only={bronze_only})")
         if bronze_only:
@@ -209,7 +209,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
             self.logger.info("Checking S3 backup...")
             s3_uploader = get_s3_uploader()
             if s3_uploader:
-                bronze_dir = f"{self.config.bronze_base_dir}/matches/{date_str}"
+                bronze_dir = f"{self.config.storage.bronze_path}/matches/{date_str}"
                 bronze_path = Path(bronze_dir)
                 
                 self.logger.info(f"Checking bronze directory: {bronze_dir}")

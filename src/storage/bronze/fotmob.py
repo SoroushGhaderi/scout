@@ -26,7 +26,7 @@ from ...core.constants import HealthThresholds
 logger = logging.getLogger(__name__)
 
 
-class BronzeStorage(BaseBronzeStorage):
+class FotMobBronzeStorage(BaseBronzeStorage):
     """FotMob-specific Bronze layer storage.
 
     Extends BaseBronzeStorage with FotMob-specific functionality:
@@ -335,3 +335,7 @@ class BronzeStorage(BaseBronzeStorage):
                     except Exception:
                         pass
                 return False
+
+
+# Backward-compatible alias; prefer FotMobBronzeStorage in new code.
+BronzeStorage = FotMobBronzeStorage

@@ -1,0 +1,220 @@
+"""Shared helpers for ClickHouse layer setup scripts."""
+
+import os
+import sys
+from pathlib import Path
+from typing import Iterable, Optional
+
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from src.storage.clickhouse_client import ClickHouseClient
+from src.utils.logging_utils import get_logger
+
+logger = get_logger()
+
+LAYER_ORDER = ("bronze", "silver", "gold")
+
+
+def connect_clickhouse() -> ClickHouseClient:
+    """Connect to ClickHouse, creating the configured user when needed."""
+    host = os.getenv("CLICKHOUSE_HOST", "clickhouse")
+    port = int(os.getenv("CLICKHOUSE_PORT", "8123"))
+    username = os.getenv("CLICKHOUSE_USER", "fotmob_user")
+    password = os.getenv("CLICKHOUSE_PASSWORD", "fotmob_pass")
+
+    logger.info("Connecting to ClickHouse at %s:%s", host, port)
+    client = ClickHouseClient(
+        host=host,
+        port=port,
+        username=username,
+        password=password,
+        database="default",
+    )
+
+    if client.connect():
+        return client
+
+    logger.warning("Failed to connect with user '%s', trying default user...", username)
+    default_client = ClickHouseClient(
+        host=host,
+        port=port,
+        username="default",
+        password="",
+        database="default",
+    )
+
+    default_connected = default_client.connect()
+    if not default_connected:
+        try:
+            import clickhouse_connect
+
+            default_client.client = clickhouse_connect.get_client(
+                host=host,
+                port=port,
+                username="default",
+                database="default",
+            )
+            default_client.client.query("SELECT 1")
+            default_connected = True
+            logger.info("Connected with default user (no password)")
+        except Exception as exc:
+            logger.debug("Default user connection without password failed: %s", exc)
+
+    if not default_connected:
+        raise RuntimeError("Failed to connect to ClickHouse even with the default user")
+
+    try:
+        if not create_user_if_not_exists(default_client, username, password):
+            raise RuntimeError(f"Failed to create ClickHouse user '{username}'")
+    finally:
+        default_client.disconnect()
+
+    if not client.connect():
+        raise RuntimeError(
+            f"Still failed to connect with user '{username}' after creating it. "
+            "You may need to restart the ClickHouse container."
+        )
+    return client
+
+
+def create_user_if_not_exists(client: ClickHouseClient, username: str, password: str) -> bool:
+    """Create ClickHouse user if it does not exist."""
+    try:
+        result = client.execute(f"SELECT name FROM system.users WHERE name = '{username}'")
+        user_exists = False
+        if hasattr(result, "result_rows") and result.result_rows:
+            user_exists = True
+        elif hasattr(result, "result_columns") and result.result_columns:
+            user_exists = len(result.result_columns[0]) > 0
+
+        if user_exists:
+            logger.info("User '%s' already exists, skipping creation", username)
+            return True
+
+        logger.info("Creating user '%s'...", username)
+        client.execute(f"CREATE USER IF NOT EXISTS {username} IDENTIFIED BY '{password}'")
+        for grant_query in (
+            f"GRANT ALL ON fotmob.* TO {username}",
+            f"GRANT CREATE DATABASE ON *.* TO {username}",
+        ):
+            try:
+                client.execute(grant_query)
+            except Exception as exc:
+                logger.warning("Could not grant permission (may already exist): %s", exc)
+        return True
+    except Exception as exc:
+        logger.error("Failed to create user '%s': %s", username, exc)
+        return False
+
+
+def resolve_clickhouse_root() -> Path:
+    """Locate the ClickHouse SQL root directory."""
+    candidates = [
+        Path("/app/clickhouse"),
+        project_root / "clickhouse",
+        Path("clickhouse"),
+    ]
+    root = next((path for path in candidates if path.exists()), None)
+    if root is None:
+        tried = "\n".join(f"  - {candidate}" for candidate in candidates)
+        raise FileNotFoundError(f"ClickHouse SQL directory not found. Tried:\n{tried}")
+    return root
+
+
+def get_layer_sql_files(layer_name: str, clickhouse_root: Optional[Path] = None) -> list[Path]:
+    """Return ordered SQL files for a specific medallion layer."""
+    if layer_name not in LAYER_ORDER:
+        raise ValueError(f"Unknown layer '{layer_name}'")
+    root = clickhouse_root or resolve_clickhouse_root()
+    layer_dir = root / layer_name
+    if not layer_dir.exists():
+        raise FileNotFoundError(f"Missing SQL directory for layer '{layer_name}': {layer_dir}")
+    sql_files = sorted(layer_dir.glob("*.sql"))
+    if not sql_files:
+        raise FileNotFoundError(f"No SQL files found in {layer_dir}")
+    return sql_files
+
+
+def execute_sql_file(client: ClickHouseClient, sql_file: Path, database: Optional[str] = None) -> bool:
+    """Execute an SQL file statement by statement."""
+    try:
+        sql_content = sql_file.read_text(encoding="utf-8")
+        if database:
+            client.execute(f"USE {database}")
+            client.database = database
+
+        statements = []
+        current_statement = []
+        for line in sql_content.splitlines():
+            if line.strip().startswith("--"):
+                continue
+            if "--" in line:
+                line = line[: line.index("--")]
+            line = line.strip()
+            if not line:
+                continue
+            if database and line.upper().startswith("USE "):
+                continue
+            current_statement.append(line)
+            if line.endswith(";"):
+                statement = " ".join(current_statement).rstrip(";").strip()
+                if statement:
+                    statements.append(statement)
+                current_statement = []
+
+        if current_statement:
+            statement = " ".join(current_statement).strip()
+            if statement:
+                statements.append(statement)
+
+        executed_count = 0
+        for statement in statements:
+            try:
+                client.execute(statement)
+                executed_count += 1
+            except Exception as exc:
+                if "already exists" in str(exc).lower():
+                    executed_count += 1
+                    continue
+                logger.error("Failed while executing %s: %s", sql_file.name, exc)
+                logger.error("Statement: %s", statement)
+                return False
+
+        logger.info("Executed %s/%s statements from %s", executed_count, len(statements), sql_file.name)
+        return executed_count > 0
+    except Exception as exc:
+        logger.error("Error reading/executing %s: %s", sql_file, exc, exc_info=True)
+        return False
+
+
+def run_clickhouse_layer_setup(layer_name: str, client: Optional[ClickHouseClient] = None) -> int:
+    """Create one ClickHouse medallion layer."""
+    owns_client = client is None
+    active_client = client or connect_clickhouse()
+    try:
+        clickhouse_root = resolve_clickhouse_root()
+        sql_files = get_layer_sql_files(layer_name, clickhouse_root=clickhouse_root)
+        logger.info("Using ClickHouse SQL root: %s", clickhouse_root)
+        logger.info("Executing %s layer SQL...", layer_name.upper())
+        for sql_file in sql_files:
+            logger.info("Running %s", sql_file.name)
+            if not execute_sql_file(active_client, sql_file):
+                return 1
+        logger.info("%s layer setup completed", layer_name.upper())
+        return 0
+    finally:
+        if owns_client:
+            active_client.disconnect()
+
+
+def run_clickhouse_layers(layer_names: Iterable[str]) -> int:
+    """Create multiple ClickHouse layers with one shared connection."""
+    client = connect_clickhouse()
+    try:
+        for layer_name in layer_names:
+            if run_clickhouse_layer_setup(layer_name, client=client) != 0:
+                return 1
+        return 0
+    finally:
+        client.disconnect()

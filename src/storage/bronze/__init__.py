@@ -1,5 +1,5 @@
 """Bronze layer storage package — raw API responses (JSON format)."""
 from .base import BaseBronzeStorage
-from .fotmob import BronzeStorage
+from .fotmob import FotMobBronzeStorage, BronzeStorage
 
-__all__ = ["BaseBronzeStorage", "BronzeStorage"]
+__all__ = ["BaseBronzeStorage", "FotMobBronzeStorage", "BronzeStorage"]

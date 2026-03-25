@@ -1,7 +1,4 @@
-"""ClickHouse client for loading data from silver layer to ClickHouse data warehouse.
-
-Supports FotMob scraper data loading.
-"""
+"""ClickHouse client for Bronze, Silver, and Gold warehouse operations."""
 
 import logging
 import re
@@ -19,20 +16,6 @@ class ClickHouseClient:
     """ClickHouse client for data warehouse operations."""
 
     ALLOWED_TABLES = {
-        'general',
-        'timeline',
-        'venue',
-        'player',
-        'shotmap',
-        'goal',
-        'cards',
-        'red_card',
-        'period',
-        'momentum',
-        'starters',
-        'substitutes',
-        'coaches',
-        'team_form',
         'bronze_general',
         'bronze_timeline',
         'bronze_venue',
@@ -47,6 +30,11 @@ class ClickHouseClient:
         'bronze_substitutes',
         'bronze_coaches',
         'bronze_team_form',
+        'silver_general',
+        'silver_player',
+        'silver_shotmap',
+        'silver_period',
+        'silver_venue',
         'gold_player_match_stats',
         'gold_match_summary',
         'gold_team_season_stats',

@@ -2,7 +2,8 @@
 -- This script creates all 14 tables for FotMob match data
 -- Run this AFTER creating the database (00_create_databases_fotmob.sql)
 --
--- Table deduplication: Use OPTIMIZE TABLE <table> FINAL DEDUPLICATE to remove duplicates
+-- Table deduplication: Bronze tables use ReplacingMergeTree(inserted_at)
+-- and should be periodically compacted with OPTIMIZE TABLE <table> FINAL DEDUPLICATE
 -- Example: OPTIMIZE TABLE fotmob.bronze_general FINAL DEDUPLICATE
 
 USE fotmob;
@@ -34,7 +35,7 @@ CREATE TABLE IF NOT EXISTS bronze_general (
     match_finished UInt8,
     full_score Nullable(String),
     inserted_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
@@ -53,7 +54,7 @@ CREATE TABLE IF NOT EXISTS bronze_timeline (
     game_started UInt8,
     game_cancelled UInt8,
     inserted_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id)
 PARTITION BY toYYYYMM(toDate(assumeNotNull(match_time_utc)));
 
@@ -79,7 +80,7 @@ CREATE TABLE IF NOT EXISTS bronze_venue (
     tournament_parent_league_id Nullable(Int32),
     tournament_link Nullable(String),
     inserted_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_date_utc)));
 
@@ -143,7 +144,7 @@ CREATE TABLE IF NOT EXISTS bronze_player (
     total_xg Nullable(Float32),
     fun_facts Array(Nullable(String)),
     inserted_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, assumeNotNull(player_id));
 
 -- 5. Shot Map Events
@@ -181,7 +182,7 @@ CREATE TABLE IF NOT EXISTS bronze_shotmap (
     full_name Nullable(String),
     team_color Nullable(String),
     inserted_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, assumeNotNull(id));
 
 -- 6. Goal Events
@@ -211,7 +212,7 @@ CREATE TABLE IF NOT EXISTS bronze_goal (
     shot_period Nullable(String),
     shot_from_inside_box Nullable(UInt8),
     inserted_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, event_id);
 
 -- 7. Card Events
@@ -228,7 +229,7 @@ CREATE TABLE IF NOT EXISTS bronze_cards (
     description Nullable(String),
     score String,
     inserted_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, event_id);
 
 -- 8. Red Card Events
@@ -243,7 +244,7 @@ CREATE TABLE IF NOT EXISTS bronze_red_card (
     away_score Int32,
     is_home UInt8,
     inserted_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, event_id);
 
 -- 9. Period Statistics
@@ -343,7 +344,7 @@ CREATE TABLE IF NOT EXISTS bronze_period (
     home_color Nullable(String),
     away_color Nullable(String),
     inserted_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, period);
 
 -- 10. Momentum Data
@@ -353,7 +354,7 @@ CREATE TABLE IF NOT EXISTS bronze_momentum (
     value Nullable(Int32),
     momentum_team Nullable(String),
     inserted_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, assumeNotNull(minute));
 
 -- 11. Starting Lineup
@@ -384,7 +385,7 @@ CREATE TABLE IF NOT EXISTS bronze_starters (
     substitution_type Nullable(String),
     substitution_reason Nullable(String),
     inserted_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, player_id);
 
 -- 12. Substitute Players
@@ -405,7 +406,7 @@ CREATE TABLE IF NOT EXISTS bronze_substitutes (
     substitution_type Nullable(String),
     substitution_reason Nullable(String),
     inserted_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, player_id);
 
 -- 13. Team Coaches
@@ -421,8 +422,9 @@ CREATE TABLE IF NOT EXISTS bronze_coaches (
     country_code Nullable(String),
     primary_team_id Nullable(Int32),
     primary_team_name Nullable(String),
-    is_coach Nullable(UInt8)
-) ENGINE = MergeTree()
+    is_coach Nullable(UInt8),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, id);
 
 -- 14. Team Form
@@ -449,7 +451,7 @@ CREATE TABLE IF NOT EXISTS bronze_team_form (
     away_team_name Nullable(String),
     away_score Nullable(String),
     inserted_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
+) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, team_id, form_position);
 
 -- ============================================================================
