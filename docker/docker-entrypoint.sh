@@ -14,7 +14,7 @@ echo "ClickHouse is ready!"
 
 # Check and create databases/tables if they don't exist
 echo "Checking ClickHouse databases..."
-python scripts/setup_clickhouse.py
+python scripts/orchestration/setup_clickhouse.py
 if [ $? -eq 0 ]; then
   echo "✓ Database check completed"
 else

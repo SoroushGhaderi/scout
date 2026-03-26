@@ -95,7 +95,7 @@ services:
     restart: unless-stopped
     # Override command to keep container running (for interactive use)
     # Uncomment to run a specific command:
-    # command: ["python", "scripts/scrape_fotmob.py", "20251113"]
+    # command: ["python", "scripts/bronze/scrape_fotmob.py", "20251113"]
     # Or use: docker-compose run scraper <command>
     command: ["tail", "-f", "/dev/null"]  # Keep container running
     # Security: Run as non-root user (already set in Dockerfile)

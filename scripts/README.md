@@ -1,10 +1,10 @@
 # Scripts Layout
 
-This folder now has medallion-oriented entrypoints:
+Layer-separated entrypoints:
 
 - `scripts/bronze/`
 - `scripts/silver/`
 - `scripts/gold/`
 - `scripts/orchestration/`
 
-Legacy root-level scripts are still available for backward compatibility.
+Legacy root-level scripts remain available for backward compatibility.
