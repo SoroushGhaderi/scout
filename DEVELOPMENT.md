@@ -22,8 +22,9 @@
 13. [Common Commands](#common-commands)
 14. [Code Review — Current Status](#code-review--current-status)
 15. [Technical Debt & Bugs](#technical-debt--bugs)
-16. [Future Improvements](#future-improvements)
-17. [Professional Recommendations](#professional-recommendations)
+16. [Improvement Backlog (Mar 2026)](#improvement-backlog-mar-2026)
+17. [Future Improvements](#future-improvements)
+18. [Professional Recommendations](#professional-recommendations)
 
 ---
 
@@ -181,11 +182,8 @@ make optimize-tables
 ## Testing
 
 ```bash
-# Run validation test suite
-python scripts/test_validation.py
-
-# Validate existing data
-python scripts/validate_fotmob_responses.py data/fotmob/matches/20251208
+# Unit/integration tests
+pytest
 
 # Health check
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py
@@ -294,6 +292,36 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_c
 | No pytest test suite | Reliability |
 | `fotmob_credentials.py` hardcoded secrets | Security risk |
 | Duplicate BronzeStorage classes | Confusion |
+
+---
+
+## Improvement Backlog (Mar 2026)
+
+This backlog reflects current codebase findings and is prioritized for practical execution.
+
+### P0 (Fix Immediately)
+
+| Item | Why it matters | Suggested fix |
+|------|----------------|---------------|
+| `scripts/scrape_fotmob.py` import order is fragile (`from config import FotMobConfig` before path setup) | Can import the wrong `config` module in multi-project environments | Move `sys.path`/project-root setup above project imports, or package scripts as modules and run via `python -m` |
+| `pyproject.toml` console entrypoint points to missing target (`scout = "src.cli:main"`) | Installed CLI command is broken | Add `src/cli.py` with `main()`, or remove/fix entrypoint |
+| Documentation drift after script removals | Onboarding friction and operator errors | Keep README/DEVELOPMENT/CONFIG guides in sync with actual script inventory on every cleanup PR |
+
+### P1 (High Priority)
+
+| Item | Why it matters | Suggested fix |
+|------|----------------|---------------|
+| Excessive broad `except Exception` blocks in orchestration/storage paths | Can hide root causes and make incidents harder to debug | Catch expected exception types first; include structured context in logs; re-raise when appropriate |
+| Subprocess-driven orchestration in `scripts/pipeline.py` | Harder error propagation and slower startup per step | Replace subprocess calls with direct Python function/service calls |
+| Logging consistency still mixed in style | Operational readability | Enforce logging conventions (`[OK]`, `[WARN]`, `[ERROR]`) via lint/check script |
+
+### P2 (Medium Priority)
+
+| Item | Why it matters | Suggested fix |
+|------|----------------|---------------|
+| Limited automated tests around scripts and orchestrator integration | Regression risk in production pipeline | Add focused pytest suite for date parsing, pipeline flag logic, and orchestrator success/failure flows |
+| `scripts/utils/selenium_utils.py` appears unused | Dead code increases maintenance surface | Confirm no runtime dependency and remove if truly unused |
+| Observability quality (metrics + SLOs) can improve | Faster incident detection and recovery | Add explicit SLO dashboards and alert thresholds for scrape success rate, freshness, and load latency |
 
 ---
 

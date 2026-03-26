@@ -196,7 +196,7 @@ class DeadLetterQueue:
                     table_name = parts[0]
                     file_date = parts[1]
 
-                    record_count = sum(1 for _ in open(dlq_file, 'r', encoding='utf-8') if _.strip())
+                    record_count = self._count_records(dlq_file)
                     stats["total_records"] += record_count
 
                     if table_name not in stats["by_table"]:
@@ -213,3 +213,8 @@ class DeadLetterQueue:
 
         stats["total_size_mb"] = stats["total_size_bytes"] / (1024 * 1024)
         return stats
+
+    def _count_records(self, dlq_file: Path) -> int:
+        """Count non-empty JSONL records in a DLQ file."""
+        with open(dlq_file, "r", encoding="utf-8") as handle:
+            return sum(1 for line in handle if line.strip())

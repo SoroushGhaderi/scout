@@ -307,12 +307,6 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_c
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py --json
 ```
 
-Validate saved responses:
-
-```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/validate_fotmob_responses.py
-```
-
 ## 11. Troubleshooting
 
 ### `config.yaml` not found

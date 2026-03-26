@@ -24,9 +24,9 @@ import logging
 import time
 import hashlib
 import base64
-import asyncio
 from pathlib import Path
 from typing import Optional, Dict, Any
+from urllib.parse import urlencode
 
 logger = logging.getLogger(__name__)
 
@@ -144,6 +144,7 @@ class PlaywrightFetcher:
     # ------------------------------------------------------------------
 
     def initialize(self):
+        """Warm the signing parameters cache."""
         self._ensure_signing_params()
 
     def fetch_json(
@@ -156,7 +157,7 @@ class PlaywrightFetcher:
 
         api_path = "/api/data/" + url.split("/api/data/")[-1]
         if params:
-            qs = "&".join(f"{k}={v}" for k, v in params.items())
+            qs = urlencode(params, doseq=True)
             url_path = f"{api_path}?{qs}"
         else:
             url_path = api_path
@@ -186,7 +187,7 @@ class PlaywrightFetcher:
                 headers=headers,
                 cookies=cookies,
                 impersonate="chrome131",
-                timeout=30,
+                timeout=self.config.request.timeout,
             )
             if resp.status_code == 200:
                 return resp.json()
@@ -204,6 +205,11 @@ class PlaywrightFetcher:
             return None
 
     def close(self):
+        """Close any managed resources.
+
+        The fetcher is currently stateless after initialization, so there is
+        nothing to close. The method remains for context-manager symmetry.
+        """
         pass
 
     # ------------------------------------------------------------------
@@ -257,27 +263,27 @@ class PlaywrightFetcher:
     def _extract_signing_params_via_playwright(self) -> Dict[str, str]:
         """Load fotmob.com briefly with Playwright to extract the signing params."""
         try:
-            from playwright.async_api import async_playwright
+            from playwright.sync_api import sync_playwright
         except ImportError as exc:
             raise ImportError(
                 "playwright is not installed — cannot extract signing params.\n"
                 "Fix: pip install playwright && playwright install chromium"
             ) from exc
 
-        async def _run():
-            async with async_playwright() as pw:
-                browser = await pw.chromium.launch(
-                    headless=True,
-                    args=["--no-sandbox", "--disable-setuid-sandbox"],
-                )
-                page = await browser.new_page()
-                await page.goto(
+        with sync_playwright() as pw:
+            browser = pw.chromium.launch(
+                headless=True,
+                args=["--no-sandbox", "--disable-setuid-sandbox"],
+            )
+            try:
+                page = browser.new_page()
+                page.goto(
                     self.FOTMOB_BASE,
                     wait_until="domcontentloaded",
                     timeout=30_000,
                 )
-                await page.wait_for_timeout(3_000)
-                result = await page.evaluate(
+                page.wait_for_timeout(3_000)
+                result = page.evaluate(
                     """
                     () => {
                         for (const chunk of (window.webpackChunk_N_E || [])) {
@@ -299,10 +305,9 @@ class PlaywrightFetcher:
                     }
                     """
                 )
-                await browser.close()
-                return result
+            finally:
+                browser.close()
 
-        result = asyncio.run(_run())
         if not result or not result.get("foo") or not result.get("h"):
             raise ValueError("Could not find signing params in FotMob webpack")
         return result

@@ -36,6 +36,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional
 
+# Ensure local project imports resolve before importing project modules.
+SCRIPT_DIR = Path(__file__).parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+for _path in (str(SCRIPT_DIR), str(PROJECT_ROOT)):
+    if _path not in sys.path:
+        sys.path.insert(0, _path)
+
 from config import FotMobConfig
 from scripts.refresh_turnstile import refresh_if_needed
 from src.orchestrator import FotMobOrchestrator
@@ -45,17 +52,11 @@ from src.utils.metrics_alerts import send_daily_report, send_monthly_report
 from utils import (
     DateRangeInfo,
     PipelineStats,
-    add_project_to_path,
     create_date_range_info,
     print_header,
     print_separator,
     validate_date_format,
 )
-
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent))
-
-add_project_to_path()
 
 logger = logging.getLogger(__name__)
 

@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_chrome_turnstile() -> str:
+    """Read `turnstile_verified` from Chrome cookies for FotMob."""
     try:
         import browser_cookie3
 
@@ -31,8 +32,8 @@ def get_chrome_turnstile() -> str:
             tv = {c.name: c.value for c in cj}.get("turnstile_verified", "")
             if tv:
                 return tv
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("Could not read Chrome cookies: %s", exc)
     return ""
 
 
@@ -74,27 +75,36 @@ def get_turnstile_age_info(turnstile_value: str) -> Tuple[Optional[int], str]:
 
 
 def check_age(tv: str) -> str:
+    """Return a human-readable status for a turnstile token."""
     _, status = get_turnstile_age_info(tv)
     return status
 
 
+def _load_credentials_json(path: Path) -> dict:
+    """Load credentials.json from disk."""
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 def update_credentials_json(tv: str) -> bool:
+    """Update `credentials.json` atomically with a fresh turnstile token."""
     path = ROOT / "credentials.json"
     if not path.exists():
         logger.error(f"credentials.json not found: {path}")
         return False
 
     try:
-        with open(path, "r") as f:
-            data = json.load(f)
+        data = _load_credentials_json(path)
 
         if "cookies" not in data:
             data["cookies"] = {}
 
         data["cookies"]["turnstile_verified"] = tv
 
-        with open(path, "w") as f:
+        temp_path = path.with_suffix(".json.tmp")
+        with open(temp_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
+        temp_path.replace(path)
 
         logger.info("Updated credentials.json with new turnstile token")
         return True
@@ -117,8 +127,7 @@ def refresh_if_needed(max_age_seconds: int = 1800) -> Tuple[bool, Optional[str]]
         return False, "credentials.json not found"
 
     try:
-        with open(creds_path, "r") as f:
-            data = json.load(f)
+        data = _load_credentials_json(creds_path)
 
         current_tv = data.get("cookies", {}).get("turnstile_verified", "")
         if not current_tv:
@@ -153,6 +162,7 @@ def refresh_if_needed(max_age_seconds: int = 1800) -> Tuple[bool, Optional[str]]
 
 
 def main():
+    """Refresh the stored turnstile cookie from Chrome if available."""
     logger.info("Reading turnstile_verified from Chrome...")
     tv = get_chrome_turnstile()
 
@@ -169,14 +179,15 @@ def main():
     logger.info(f"Found turnstile: {tv[:60]}...")
     logger.info(f"Status: {status}")
 
-    if "EXPIRED" in status:
+    if status.startswith("expired"):
         logger.warning(
             "Cookie is expired. Visit https://www.fotmob.com in Chrome, "
             "wait for the page to load, then run this script again"
         )
         sys.exit(1)
 
-    update_credentials_json(tv)
+    if not update_credentials_json(tv):
+        sys.exit(1)
     logger.info("Done. The running scraper will pick up the change automatically.")
 
 

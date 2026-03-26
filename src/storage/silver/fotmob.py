@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Iterable
 
 from ..clickhouse_client import ClickHouseClient
+from ..clickhouse_sql_executor import execute_sql_script
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +23,4 @@ class FotMobSilverStorage:
             self._execute_sql_file(sql_file)
 
     def _execute_sql_file(self, sql_file: Path) -> None:
-        sql_content = sql_file.read_text(encoding="utf-8")
-        statements = [stmt.strip() for stmt in sql_content.split(";") if stmt.strip()]
-        for statement in statements:
-            logger.info("Executing silver SQL from %s", sql_file.name)
-            self.client.execute(statement)
+        execute_sql_script(self.client, sql_file, layer_name="silver")
