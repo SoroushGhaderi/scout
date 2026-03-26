@@ -1,495 +1,229 @@
-# Scout — Development Guide & Code Review
+# Scout Development Guide
 
-> **Senior Review — Feb 2026**
-> Written as a combined developer reference and candid engineering assessment.
+This document defines the engineering standard for Bronze, Silver, and Gold layers in Scout, with focus on professional SQL organization and Python execution patterns for Silver and Gold.
 
----
+## 1. Architecture Overview
 
-## Table of Contents
+### Medallion Flow
 
-1. [Architecture Overview](#architecture-overview)
-2. [Data Flow](#data-flow)
-3. [Storage Layers](#storage-layers)
-4. [Validation System](#validation-system)
-5. [Automatic Compression](#automatic-compression)
-6. [ClickHouse Optimization](#clickhouse-optimization)
-7. [Logging Improvements](#logging-improvements)
-8. [Extension Points](#extension-points)
-9. [Testing](#testing)
-10. [Performance Metrics](#performance-metrics)
-11. [Security Considerations](#security-considerations)
-12. [Configuration Reference](#configuration-reference)
-13. [Common Commands](#common-commands)
-14. [Code Review — Current Status](#code-review--current-status)
-15. [Technical Debt & Bugs](#technical-debt--bugs)
-16. [Improvement Backlog (Mar 2026)](#improvement-backlog-mar-2026)
-17. [Future Improvements](#future-improvements)
-18. [Professional Recommendations](#professional-recommendations)
+1. Bronze: raw ingestion and normalization
+2. Silver: cleaned, conformed, reusable analytical entities
+3. Gold: business-level aggregates and serving tables
 
----
+Current pipeline entrypoint: `scripts/pipeline.py`
 
-## Architecture Overview
+Current layer runners:
+- `scripts/process_silver.py`
+- `scripts/process_gold.py`
 
-### System Diagram
+Current shared SQL execution helper:
+- `src/storage/clickhouse_sql_executor.py`
 
-```
-FotMob REST API
-       │
-       ▼
- playwright_fetcher
- daily_scraper.py
- match_scraper.py
-       │
-       ▼
-          Bronze Layer (JSON → GZIP → TAR)
-          data/fotmob/matches/YYYYMMDD/
-                  │
-                  ▼
-        ClickHouse (Analytics DB)
-        fotmob.*  (14 tables)
-                  │
-                  ▼
-              S3 Backup (Arvan Cloud)
-```
+## 2. Layer Responsibility Boundaries
 
----
+### Bronze
+- Ingest raw/semi-structured source data
+- Preserve source fidelity and traceability
+- Minimal transformation
 
-## Data Flow
+### Silver
+- Clean and standardize fields
+- Resolve data types, null handling, key consistency
+- Build stable entities/views for downstream use
 
-```
-1. Fetch Daily Listing  → API/Web
-2. Get Match IDs        → Filter already scraped
-3. Scrape Matches       → Parallel/Sequential
-4. Save to Bronze       → Atomic writes + metadata
-5. Compress             → GZIP + TAR (60-75% savings)
-6. Load to ClickHouse   → Batch insert via DataFrames
-7. Optimize Tables      → Manual DEDUPLICATE (make optimize-tables)
-8. S3 Backup            → Optional: bronze/{scraper}/YYYYMM/YYYYMMDD.tar.gz
+### Gold
+- Build aggregate and domain-ready metrics
+- Optimize for BI/reporting/product use cases
+- Keep business logic explicit and testable
+
+## 3. Professional SQL Folder Structure
+
+Use layer-specific query folders, separated by intent.
+
+```text
+clickhouse/
+  silver/
+    ddl/
+      000_create_database.sql
+      010_create_or_replace_views.sql
+    dml/
+      100_backfill_entities.sql
+      110_refresh_incremental.sql
+  gold/
+    ddl/
+      000_create_database.sql
+      010_create_tables.sql
+    dml/
+      100_refresh_match_summary.sql
+      110_refresh_player_stats.sql
 ```
 
----
+### Naming Standard
 
-## Storage Layers
+- Format: `NNN_<domain>_<action>.sql`
+- `NNN` controls order, lexical sort is execution order
+- Keep one concern per file (avoid very large mixed scripts)
 
-**Bronze Layer:**
-```
-data/
-└── fotmob/
-    ├── matches/YYYYMMDD/
-    │   └── YYYYMMDD_matches.tar        (compressed archive)
-    ├── lineage/YYYYMMDD/
-    │   └── lineage.json
-    └── daily_listings/YYYYMMDD/
-        └── matches.json
-```
+### SQL Authoring Rules
 
-**ClickHouse Schema:**
-- **fotmob** database: 14 tables (general, player, shotmap, goal, cards, red_card, venue, timeline, period, momentum, starters, substitutes, coaches, team_form)
+- Prefer idempotent statements:
+  - `CREATE TABLE IF NOT EXISTS`
+  - `CREATE OR REPLACE VIEW`
+- Keep DDL and DML separated by folder
+- Keep SQL deterministic and re-runnable
+- Use comments for business intent, not obvious syntax
 
----
+## 4. Python Runner Standard (Silver/Gold)
 
-## Validation System
+Python is orchestration, SQL is transformation logic.
 
-### Components
+### Runner Responsibilities
 
-**1. SafeFieldExtractor** (`src/utils/fotmob_validator.py`)
+- Discover SQL files by layer and stage (`ddl`, `dml`)
+- Execute in deterministic order
+- Log query file, statement count, elapsed time, success/failure
+- Stop on failure with clear context
 
-Provides null-safe field extraction from nested dictionaries.
+### Runner Must Not
 
-```python
-from src.utils.fotmob_validator import SafeFieldExtractor
+- Embed large SQL business logic inside Python strings
+- Build unsafe dynamic SQL from raw user input
+- Mix orchestration concerns with transformation definitions
 
-extractor = SafeFieldExtractor()
-match_id = extractor.safe_get(data, 'general.matchId', default=0)
-```
+### Dynamic Query Policy
 
-**2. FotMobValidator** (`src/utils/fotmob_validator.py`)
+Default policy is static SQL files.
 
-Validates API responses against expected schema.
+If runtime behavior is needed (date/month/window):
+1. Prefer pre-defined SQL variants in separate files
+2. If dynamic injection is unavoidable, only allow strict allowlisted values in Python before execution
+3. Never directly concatenate unsanitized input into SQL
 
-```python
-from src.utils.fotmob_validator import FotMobValidator
+## 5. Recommended Code Structure in Current Repo
 
-validator = FotMobValidator()
-is_valid, errors, warnings = validator.validate_response(data)
-```
+Keep your existing shape and evolve it incrementally.
 
-**3. ResponseSaver** (`src/utils/fotmob_validator.py`)
+### Keep
 
-Saves invalid responses to organized JSON files for debugging.
+- `src/processors/silver/fotmob.py` and `src/processors/gold/fotmob.py` for SQL discovery
+- `src/storage/silver/fotmob.py` and `src/storage/gold/fotmob.py` for execution wiring
+- `src/storage/clickhouse_sql_executor.py` for shared execution logic
 
----
+### Improve Next
 
-## Automatic Compression
+1. Update processors to discover SQL in both `ddl/` and `dml/` folders
+2. Add optional `--dry-run` in `scripts/process_silver.py` and `scripts/process_gold.py`
+3. Add execution summary object (files run, statements run, elapsed seconds, failed file)
+4. Add query-level metrics/logging for better observability
 
-After scraping completes, the system automatically compresses match files into TAR archives, achieving 60-75% space savings.
+## 6. How to Add a New Silver Query
 
-**Process Flow:**
-```
-JSON Files → GZIP (.json.gz) → TAR Archive → Delete .json.gz → Keep .tar
-```
+1. Identify query type:
+- Schema/view change -> `clickhouse/silver/ddl/`
+- Data refresh/backfill -> `clickhouse/silver/dml/`
 
-**Statistics:**
-- Before: 450 files, ~22 MB
-- After: 1 TAR file, ~6.2 MB
-- Savings: 15.8 MB (72%)
+2. Add file with next ordered prefix:
+- Example: `120_player_quality_rules.sql`
 
-**Manual Compression:**
-```python
-from src.storage import BronzeStorage
+3. Ensure idempotency and safe rerun behavior
 
-bronze = BronzeStorage("data/fotmob")
-stats = bronze.compress_date_files("20251209")
-```
+4. Run locally:
+- `python scripts/process_silver.py --date YYYYMMDD`
 
----
+5. Validate outputs with explicit checks in ClickHouse
 
-## ClickHouse Optimization
+6. Add or update tests if transformation behavior changed
 
-```bash
-# Optimize all tables (recommended after bulk loading)
-make optimize-tables
-```
+## 7. How to Add a New Gold Query
 
-**When to Optimize:**
-- After bulk data loading
-- Periodically (daily, weekly, or monthly)
-- When query performance degrades
+1. Decide object type:
+- New serving table/materialization -> `clickhouse/gold/ddl/`
+- Aggregate population/refresh -> `clickhouse/gold/dml/`
 
----
+2. Add ordered SQL file:
+- Example: `130_refresh_team_form.sql`
 
-## Logging Improvements
+3. Ensure rerun strategy is explicit:
+- Full refresh, partition refresh, or incremental append
 
-- **DEBUG**: Element interactions, verification steps
-- **INFO**: Milestones, progress (every 10 matches)
-- **WARNING**: Recoverable issues, low match counts
-- **ERROR**: Critical failures
+4. Run locally:
+- `python scripts/process_gold.py --month YYYYMM`
 
----
+5. Validate row counts, keys, and metric sanity
 
-## Extension Points
+## 8. Testing and Validation Standard
 
-### Adding New Scrapers
+### Minimum Automated Coverage
 
-1. Create scraper module in `src/scrapers/{scraper_name}/`
-2. Implement base scraper interface from `src/core/interfaces.py`
-3. Add configuration in `config/`
-4. Update `scripts/pipeline.py`
-5. Create ClickHouse schema in `clickhouse/{bronze|silver|gold}/`
+- SQL discovery order tests
+- SQL splitting and statement execution tests
+- Runner failure behavior tests (fail-fast with file context)
+- CLI argument validation tests (`--date`, `--month`)
 
----
+### Data Quality Checks
 
-## Testing
+- Null rate checks on critical columns
+- Duplicate key checks on expected unique keys
+- Freshness checks for latest processed dates
+- Aggregate reconciliation checks (Silver vs Gold)
 
-```bash
-# Unit/integration tests
-pytest
+## 9. Operational Runbook
 
-# Health check
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py
-```
-
----
-
-## Performance Metrics
-
-| Operation | Time | Notes |
-|-----------|------|-------|
-| FotMob API scrape | ~0.5-1 sec/match | |
-| Compression (100 matches) | ~1-2 sec | Byte-copy method |
-| ClickHouse batch insert | 1000-5000 rows/batch | |
-| Table optimization | 5-30 sec/table | |
-
----
-
-## Security Considerations
-
-**SQL Injection Protection:**
-- Table name whitelist in ClickHouseClient
-- Database parameter validation with regex
-- Parameterized queries
-
-**File System Security:**
-- Atomic writes (temp → rename)
-- File locking for concurrent access
-- Path validation
-
-**Credentials Management:**
-- Sensitive data in `.env` file (not tracked in git)
-- Application settings in `config.yaml`
-
----
-
-## Configuration Reference
-
-**Two-layer configuration:**
-1. `config.yaml` — All application settings
-2. `.env` — Secrets and environment-specific values
-
----
-
-## Common Commands
+### Core Commands
 
 ```bash
 # Full pipeline
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208
+python scripts/pipeline.py 20251113
 
-# Bronze only
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --bronze-only
+# Silver only
+python scripts/pipeline.py 20251113 --silver-only
 
-# Optimize tables
-make optimize-tables
+# Gold only
+python scripts/pipeline.py 20251113 --gold-only
 
-# Health check
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py
+# Direct layer runs
+python scripts/process_silver.py --date 20251113
+python scripts/process_gold.py --month 202511
 ```
+
+### Incident Basics
+
+1. Identify failing SQL file from logs
+2. Re-run layer for same date/month after fix
+3. Validate target tables/views with row count and sample checks
+4. Record root cause and preventive action
+
+## 10. Prioritized Engineering Backlog (Non-Redundant)
+
+### P0
+
+- Introduce `ddl/` and `dml/` folder split for Silver and Gold
+- Standardize SQL naming and ordering convention
+- Keep transformation logic in SQL files, not embedded Python
+
+### P1
+
+- Add `--dry-run` support for Silver/Gold runners
+- Add query execution summaries and consistent structured logs
+- Add tests around SQL discovery and failure semantics
+
+### P2
+
+- Add lightweight data contracts and quality assertions per layer
+- Add incremental refresh strategy per Gold table
+- Add layer-level performance dashboards (duration, success rate)
+
+## 11. Final Standards Checklist
+
+Use this checklist for each PR touching Silver/Gold:
+
+- Query file is in correct layer and stage (`ddl` or `dml`)
+- Naming follows `NNN_<domain>_<action>.sql`
+- SQL is idempotent or rerun strategy is explicit
+- Python changes are orchestration-only
+- Tests updated for behavior changes
+- Documentation updated when structure changes
 
 ---
 
-## Code Review — Current Status
-
-### What's Working Well ✅
-
-- **Atomic file writes with locking** — Production-grade concurrent safety
-- **Bronze → ClickHouse separation** — Two-stage pipeline means raw data never lost
-- **TAR compression pipeline** — 60-75% space savings with transparent decompression
-- **ClickHouse table design** — ReplacingMergeTree with correct deduplication
-- **League filtering** — 95 competition allowlist prevents bloat
-- **Pydantic models** — v2 for response validation
-- **Separation of concerns** — Clean split in scrapers
-- **BaseBronzeStorage abstraction** — Avoids duplication
-
-### Fixed Issues ✅
-
-| Issue | Status |
-|-------|--------|
-| Race condition in `mark_match_as_scraped` | ✅ Fixed (FileLock added) |
-| SQL injection in database parameter | ✅ Fixed (regex validation) |
-| Compression inefficiency | ✅ Fixed (byte-copy method) |
-| AlertManager thread-safety | ✅ Fixed (double-checked locking) |
-| Logging pattern inconsistent | ✅ Fixed (logging.getLogger(__name__)) |
-| Redundant imports inside methods | ✅ Fixed |
-| Dead parameters in BaseScraper | ✅ Fixed |
-| AlertChannel ABC declaration | ✅ Already implemented |
-
----
-
-## Technical Debt & Bugs
-
-### Bugs Still Pending
-
-| # | Issue | Impact | Priority |
-|---|-------|--------|----------|
-| 1 | `asyncio.run()` in sync context | Will break in async context | Medium |
-| 2 | O(n²) marking performance | 300 matches = 900 file I/O ops | Medium |
-| 3 | Subprocess pipeline | No exception propagation, slow startup | Low |
-
-### Technical Debt
-
-| Item | Impact |
-|------|--------|
-| Code clarity issue | Maintainability |
-| No pytest test suite | Reliability |
-| `fotmob_credentials.py` hardcoded secrets | Security risk |
-| Duplicate BronzeStorage classes | Confusion |
-
----
-
-## Improvement Backlog (Mar 2026)
-
-This backlog reflects current codebase findings and is prioritized for practical execution.
-
-### P0 (Fix Immediately)
-
-| Item | Why it matters | Suggested fix |
-|------|----------------|---------------|
-| `scripts/scrape_fotmob.py` import order is fragile (`from config import FotMobConfig` before path setup) | Can import the wrong `config` module in multi-project environments | Move `sys.path`/project-root setup above project imports, or package scripts as modules and run via `python -m` |
-| `pyproject.toml` console entrypoint points to missing target (`scout = "src.cli:main"`) | Installed CLI command is broken | Add `src/cli.py` with `main()`, or remove/fix entrypoint |
-| Documentation drift after script removals | Onboarding friction and operator errors | Keep README/DEVELOPMENT/CONFIG guides in sync with actual script inventory on every cleanup PR |
-
-### P1 (High Priority)
-
-| Item | Why it matters | Suggested fix |
-|------|----------------|---------------|
-| Excessive broad `except Exception` blocks in orchestration/storage paths | Can hide root causes and make incidents harder to debug | Catch expected exception types first; include structured context in logs; re-raise when appropriate |
-| Subprocess-driven orchestration in `scripts/pipeline.py` | Harder error propagation and slower startup per step | Replace subprocess calls with direct Python function/service calls |
-| Logging consistency still mixed in style | Operational readability | Enforce logging conventions (`[OK]`, `[WARN]`, `[ERROR]`) via lint/check script |
-
-### P2 (Medium Priority)
-
-| Item | Why it matters | Suggested fix |
-|------|----------------|---------------|
-| Limited automated tests around scripts and orchestrator integration | Regression risk in production pipeline | Add focused pytest suite for date parsing, pipeline flag logic, and orchestrator success/failure flows |
-| `scripts/utils/selenium_utils.py` appears unused | Dead code increases maintenance surface | Confirm no runtime dependency and remove if truly unused |
-| Observability quality (metrics + SLOs) can improve | Faster incident detection and recovery | Add explicit SLO dashboards and alert thresholds for scrape success rate, freshness, and load latency |
-
----
-
-## Future Improvements
-
-### High-Value Features
-
-| Feature | Priority |
-|---------|----------|
-| Add more data sources (FlashScore, SofaScore) | High |
-| Real-time/WebSocket scraping | High |
-| Historical data backfill | Medium |
-| REST API layer (FastAPI) | Medium |
-| Prometheus + Grafana monitoring | Medium |
-
-### Architecture Improvements
-
-1. **Unit test suite** — Add pytest with core logic tests
-2. **Refactor subprocess pipeline** — Direct function calls instead of subprocess
-3. **Async pipeline conversion** — asyncio for better performance
-4. **Batch marking** — Eliminate O(n²) pattern
-
----
-
-## Professional Recommendations
-
-As a senior data engineer, here are strategic recommendations for productionizing this system:
-
-### 1. Data Quality Foundation
-
-**Implement Great Expectations for automated data validation:**
-- Schema enforcement on ingestion
-- Completeness checks (missing matches, null fields)
-- Anomaly detection (unusual score ranges, match durations)
-
-```python
-# Example: Define expectations
-expect_column_values_to_be_between("home_score", 0, 20)
-expect_column_values_to_not_be_null("match_id")
-```
-
-### 2. Schema Evolution Strategy
-
-Your ClickHouse tables will evolve as FotMob changes their API. Implement:
-- Versioned schemas with migration scripts
-- Backward-compatible columns (always add, rarely remove)
-- Graceful degradation for missing fields
-
-### 3. Cost Optimization
-
-| Area | Recommendation |
-|------|----------------|
-| **Storage** | Implement tiered storage: hot (recent 30 days) → cold (S3) |
-| **Compute** | Use ClickHouse materialized views for pre-aggregations |
-| **Scraping** | Add caching layer for repeated requests |
-
-### 4. Observability Stack
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Scout Pipeline                        │
-└─────────────────┬───────────────────────────────────────┘
-                  │
-        ┌─────────▼─────────┐
-        │  Prometheus       │  ← Scrape metrics
-        │  (metrics)        │
-        └─────────┬─────────┘
-                  │
-        ┌─────────▼─────────┐
-        │  Grafana          │  ← Dashboards
-        │  (visualization)  │
-        └─────────┬─────────┘
-                  │
-        ┌─────────▼─────────┐
-        │  AlertManager    │  ← On-call
-        │  (notifications) │
-        └─────────────────┘
-```
-
-**Key metrics to track:**
-- Scraping success rate (target: >95%)
-- Average scrape time per match
-- ClickHouse insert latency
-- Data freshness (time from match end to available)
-- Error rate by type
-
-### 5. Incremental Loading Strategy
-
-Currently, the pipeline reloads all data. For production:
-
-```sql
--- Instead of: INSERT INTO ... SELECT * FROM bronze
--- Use: INSERT INTO ... SELECT * FROM bronze WHERE scraped_at > last_successful_load
-```
-
-This requires:
-- Adding `scraped_at` timestamp column
-- Tracking `last_successful_load` in metadata table
-- Handling late-arriving data (matches updated after initial scrape)
-
-### 6. Data Lake Considerations
-
-For analytics at scale, consider:
-
-| Option | Pros | Cons |
-|--------|------|------|
-| **Current (TAR)** | Simple, works | No partitioning |
-| **Delta Lake** | ACID, time travel | Extra dependency |
-| **Iceberg** | Cloud-native, efficient | Complexity |
-| **Parquet directly** | Fast queries | No transactions |
-
-**Recommendation:** Start with Parquet, migrate to Iceberg if needed.
-
-### 7. Backfill Strategy
-
-For historical data:
-
-```python
-# Priority order for backfill:
-# 1. High-value leagues (Premier League, La Liga, etc.)
-# 2. Recent seasons (2023-2025)
-# 3. All other leagues
-
-# Implement exponential backoff:
-# - First attempt: immediate
-# - Second: 1 min
-# - Third: 5 min
-# - Fourth: 30 min
-# - Fifth+: 2 hours
-```
-
-### 8. Runbook Template
-
-Document for operations:
-
-```
-## Incident: Low Scrape Success Rate
-
-### Detection
-- Prometheus alert: success_rate < 90%
-
-### Diagnosis
-1. Check logs: `grep ERROR logs/pipeline_*.log | tail -50`
-2. Verify FotMob API: curl https://www.fotmob.com/api/matches
-3. Check credentials: python scripts/refresh_turnstile.py --verify
-
-### Mitigation
-1. If 5xx errors: Wait and retry (FotMob may be down)
-2. If auth errors: Run refresh_turnstile.py
-3. If rate limited: Increase delay in config.yaml
-
-### Recovery
-1. Re-run failed dates: python scripts/pipeline.py 20251208 --force
-2. Verify: python scripts/health_check.py
-```
-
----
-
-## Overall Assessment
-
-| Dimension | Score | Notes |
-|-----------|-------|-------|
-| **Readability** | 8/10 | Good naming, docstrings, type hints |
-| **Maintainability** | 8/10 | Clean architecture, some dead code remains |
-| **Performance** | 7/10 | Good baseline, room for async optimization |
-| **Security** | 8/10 | Fixed SQL injection, credentials need attention |
-| **Testability** | 5/10 | No unit tests yet, but infrastructure is testable |
-
----
-
-**Scout Development Guide** — Technical reference for developers and operators
+This guide is now the single source of truth for Silver/Gold development workflow in Scout.
