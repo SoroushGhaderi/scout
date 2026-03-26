@@ -75,7 +75,7 @@ fotmob:
     enabled: true
 ```
 
-See `CONFIG_GUIDE.md` for the full configuration reference.
+See `DEVELOPMENT_ARCHITECTURE.md` for the full development, architecture, and configuration reference.
 
 ## Running The Code
 
