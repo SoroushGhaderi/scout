@@ -15,11 +15,13 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 ROOT = Path(__file__).parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+from src.utils.logging_utils import initialize_logging
+
+initialize_logging(log_level="INFO", force=True)
+logger = get_logger(__name__)
 
 
 def get_chrome_turnstile() -> str:

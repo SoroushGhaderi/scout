@@ -58,7 +58,7 @@ from utils import (
     validate_date_format,
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 # ============================================================================
@@ -391,7 +391,6 @@ def run_scraping(args: argparse.Namespace) -> int:
         name="bronze_processing",
         log_dir=config.log_dir,
         log_level=config.log_level,
-        date_suffix=date_info.log_suffix,
     )
 
     # Print header

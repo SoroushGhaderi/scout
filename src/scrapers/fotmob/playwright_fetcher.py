@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 from urllib.parse import urlencode
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 # ---------------------------------------------------------------------------

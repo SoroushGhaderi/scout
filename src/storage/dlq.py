@@ -6,11 +6,12 @@ Stores failed records that couldn't be inserted to ClickHouse for later analysis
 
 import json
 import logging
+import math
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class DeadLetterQueue:
@@ -94,7 +95,7 @@ class DeadLetterQueue:
             for col in df_copy.columns:
                 if pd.api.types.is_datetime64_any_dtype(df_copy[col]):
                     df_copy[col] = df_copy[col].astype(str)
-            return df_copy.to_dict('records')
+            return self._replace_nan(df_copy.to_dict('records'))
 
         if isinstance(data, (datetime, date, Timestamp)):
             return data.isoformat() if hasattr(data, 'isoformat') else str(data)
@@ -105,7 +106,17 @@ class DeadLetterQueue:
         if isinstance(data, list):
             return [self._serialize_data(item) for item in data]
 
-        return data
+        return self._replace_nan(data)
+
+    def _replace_nan(self, value: Any) -> Any:
+        """Recursively convert NaN values to None for strict JSON compatibility."""
+        if isinstance(value, dict):
+            return {k: self._replace_nan(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [self._replace_nan(item) for item in value]
+        if isinstance(value, float) and math.isnan(value):
+            return None
+        return value
 
     def _get_row_count(self, data: Any) -> int:
         """

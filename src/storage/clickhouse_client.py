@@ -9,7 +9,7 @@ import clickhouse_connect
 
 from ..utils.health_check import check_clickhouse_connection
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class ClickHouseClient:

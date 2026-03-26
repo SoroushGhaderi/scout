@@ -22,7 +22,7 @@ try:
 except ImportError:
     BOTO3_AVAILABLE = False
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class S3Uploader:

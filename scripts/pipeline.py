@@ -21,12 +21,13 @@ Usage:
 """
 import argparse
 import logging
-import subprocess
 import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
+
+import structlog
 
 sys.path.insert(0, str(Path(__file__).parent))
 from utils.script_utils import (
@@ -42,13 +43,6 @@ from utils.script_utils import (
 add_project_to_path()
 from src.utils.alerting import AlertLevel, get_alert_manager
 from src.utils.logging_utils import setup_logging
-
-SCRIPT_NAMES = {
-    "fotmob_bronze": "scrape_fotmob.py",
-    "clickhouse_load": "load_clickhouse.py",
-    "silver_process": "process_silver.py",
-    "gold_process": "process_gold.py",
-}
 
 RESULT_CATEGORIES = {
     "fotmob_bronze": "FotMob Bronze",
@@ -315,34 +309,32 @@ def create_date_info(args: argparse.Namespace) -> DateRangeInfo:
 
 def run_step(
     name: str,
-    cmd: List[str],
-    project_root: Path,
+    operation: str,
+    runner: Callable[[], int],
     continue_on_error: bool = False,
     date_str: Optional[str] = None,
-    log_file: Optional[Path] = None,
 ) -> StepResult:
     """
     Run a pipeline step and return result.
     Args:
         name: Step name for logging
-        cmd: Command to execute
-        project_root: Project root directory
+        operation: Human-readable operation description
+        runner: Callable that executes the step and returns an exit code
         continue_on_error: Whether to continue on failure
         date_str: Date being processed (for alerts)
-        log_file: Optional log file path
     Returns:
         StepResult with execution details
     """
-    logger = logging.getLogger("pipeline")
-    _log_step_header(logger, name, cmd)
+    logger = get_logger("pipeline")
+    _log_step_header(logger, name, operation)
     start_time = time.time()
-    result = _execute_command(cmd, project_root, log_file)
+    exit_code = _execute_runner(runner, logger)
     elapsed_time = time.time() - start_time
-    success = result.returncode == 0
+    success = exit_code == 0
     step_result = StepResult(
         name=name,
         success=success,
-        exit_code=result.returncode,
+        exit_code=exit_code,
         elapsed_time=elapsed_time,
         date_str=date_str,
     )
@@ -350,42 +342,26 @@ def run_step(
     return step_result
 
 
-def _log_step_header(logger: logging.Logger, name: str, cmd: List[str]) -> None:
+def _log_step_header(logger: logging.Logger, name: str, operation: str) -> None:
     """Log step header information."""
     logger.info("\n" + "=" * 80)
-    logger.info(f"STEP: {name}")
+    logger.info("STEP: %s", name)
     logger.info("=" * 80)
-    logger.info(f"Command: {' '.join(cmd)}")
+    logger.info("Operation: %s", operation)
     logger.info("=" * 80 + "\n")
 
 
-def _execute_command(cmd: List[str], project_root: Path, log_file: Optional[Path] = None) -> Any:
-    """Execute command with output handling."""
-    if log_file:
-        return _execute_with_logging(cmd, project_root, log_file)
-    return subprocess.run(cmd, cwd=project_root, text=True)
-
-
-def _execute_with_logging(cmd: List[str], project_root: Path, log_file: Path) -> Any:
-    """Execute command with output teed to log file."""
-    with open(log_file, "a", encoding="utf-8") as log_f:
-        process = subprocess.Popen(
-            cmd,
-            cwd=project_root,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            universal_newlines=True,
-        )
-        for line in process.stdout:
-            if line:
-                log_f.write(line)
-                log_f.flush()
-                sys.stdout.write(line)
-                sys.stdout.flush()
-        process.wait()
-    return type("Result", (), {"returncode": process.returncode})()
+def _execute_runner(runner: Callable[[], int], logger: logging.Logger) -> int:
+    """Execute a step runner and normalize the resulting exit code."""
+    try:
+        result = runner()
+        return int(result) if result is not None else 0
+    except SystemExit as exc:
+        code = exc.code if isinstance(exc.code, int) else 1
+        return code
+    except (RuntimeError, OSError, ValueError) as exc:
+        logger.error("Step failed with runtime error: %s", exc, exc_info=True)
+        return 1
 
 
 def _handle_step_result(
@@ -427,22 +403,22 @@ def _send_step_failure_alert(result: StepResult) -> None:
 
 
 def run_fotmob_bronze(
-    date_str: str, config: PipelineConfig, project_root: Path, log_file: Optional[Path] = None
+    date_str: str, config: PipelineConfig
 ) -> StepResult:
     """Run FotMob bronze scraping for a date."""
-    script_path = project_root / "scripts" / SCRIPT_NAMES["fotmob_bronze"]
-    cmd = [sys.executable, str(script_path), date_str]
+    import scrape_fotmob
+
+    argv = [date_str]
     if config.force:
-        cmd.append("--force")
+        argv.append("--force")
     if config.debug:
-        cmd.append("--debug")
+        argv.append("--debug")
     return run_step(
         f"FotMob Bronze - {date_str}",
-        cmd,
-        project_root,
+        f"scrape_fotmob.main({' '.join(argv)})",
+        lambda: scrape_fotmob.main(argv),
         continue_on_error=True,
         date_str=date_str,
-        log_file=log_file,
     )
 
 
@@ -450,21 +426,19 @@ def run_clickhouse_load(
     scraper: str,
     date_str: str,
     config: PipelineConfig,
-    project_root: Path,
-    log_file: Optional[Path] = None,
 ) -> StepResult:
     """Load data to ClickHouse for a scraper and date."""
-    script_path = project_root / "scripts" / SCRIPT_NAMES["clickhouse_load"]
-    cmd = [sys.executable, str(script_path), "--scraper", scraper, "--date", date_str]
+    import load_clickhouse
+
+    argv = ["--scraper", scraper, "--date", date_str]
     if config.force:
-        cmd.append("--force")
+        argv.append("--force")
     return run_step(
         f"ClickHouse Load - {scraper} - {date_str}",
-        cmd,
-        project_root,
+        f"load_clickhouse.main({' '.join(argv)})",
+        lambda: load_clickhouse.main(argv),
         continue_on_error=True,
         date_str=date_str,
-        log_file=log_file,
     )
 
 
@@ -472,93 +446,83 @@ def run_clickhouse_load_month(
     scraper: str,
     month_str: str,
     config: PipelineConfig,
-    project_root: Path,
-    log_file: Optional[Path] = None,
 ) -> StepResult:
     """Load data to ClickHouse for a scraper and month."""
-    script_path = project_root / "scripts" / SCRIPT_NAMES["clickhouse_load"]
-    cmd = [sys.executable, str(script_path), "--scraper", scraper, "--month", month_str]
+    import load_clickhouse
+
+    argv = ["--scraper", scraper, "--month", month_str]
     if config.force:
-        cmd.append("--force")
+        argv.append("--force")
     return run_step(
         f"ClickHouse Load - {scraper} - Month {month_str}",
-        cmd,
-        project_root,
+        f"load_clickhouse.main({' '.join(argv)})",
+        lambda: load_clickhouse.main(argv),
         continue_on_error=True,
         date_str=month_str,
-        log_file=log_file,
     )
 
 
 def run_silver_process(
     date_str: str,
-    project_root: Path,
-    log_file: Optional[Path] = None,
 ) -> StepResult:
     """Run silver processing for a date."""
-    script_path = project_root / "scripts" / SCRIPT_NAMES["silver_process"]
-    cmd = [sys.executable, str(script_path), "--date", date_str]
+    import process_silver
+
+    argv = ["--date", date_str]
     return run_step(
         f"Silver Process - {date_str}",
-        cmd,
-        project_root,
+        f"process_silver.main({' '.join(argv)})",
+        lambda: process_silver.main(argv),
         continue_on_error=True,
         date_str=date_str,
-        log_file=log_file,
     )
 
 
 def run_silver_process_month(
     month_str: str,
-    project_root: Path,
-    log_file: Optional[Path] = None,
 ) -> StepResult:
     """Run silver processing for a month."""
-    script_path = project_root / "scripts" / SCRIPT_NAMES["silver_process"]
-    cmd = [sys.executable, str(script_path), "--month", month_str]
+    import process_silver
+
+    argv = ["--month", month_str]
     return run_step(
         f"Silver Process - Month {month_str}",
-        cmd,
-        project_root,
+        f"process_silver.main({' '.join(argv)})",
+        lambda: process_silver.main(argv),
         continue_on_error=True,
         date_str=month_str,
-        log_file=log_file,
     )
 
 
 def run_gold_process(
     date_str: str,
-    project_root: Path,
-    log_file: Optional[Path] = None,
 ) -> StepResult:
     """Run gold processing for a date."""
-    script_path = project_root / "scripts" / SCRIPT_NAMES["gold_process"]
-    cmd = [sys.executable, str(script_path), "--date", date_str]
+    import process_gold
+
+    argv = ["--date", date_str]
     return run_step(
         f"Gold Process - {date_str}",
-        cmd,
-        project_root,
+        f"process_gold.main({' '.join(argv)})",
+        lambda: process_gold.main(argv),
         continue_on_error=True,
         date_str=date_str,
-        log_file=log_file,
     )
 
 
 def run_gold_process_month(
     month_str: str,
-    project_root: Path,
-    log_file: Optional[Path] = None,
 ) -> StepResult:
     """Run gold processing for a month."""
-    script_path = project_root / "scripts" / SCRIPT_NAMES["gold_process"]
-    cmd = [sys.executable, str(script_path), "--month", month_str]
+    import process_gold
+
+    argv = ["--month", month_str]
     return run_step(
         f"Gold Process - Month {month_str}",
-        cmd,
-        project_root,
+        f"process_gold.main({' '.join(argv)})",
+        lambda: process_gold.main(argv),
         continue_on_error=True,
         date_str=month_str,
-        log_file=log_file,
     )
 
 
@@ -566,19 +530,23 @@ def setup_pipeline_logging(
     project_root: Path, date_info: DateRangeInfo, debug: bool = False
 ) -> tuple[logging.Logger, Path]:
     """Setup logging for pipeline execution."""
-    log_file = project_root / "logs" / f"pipeline_{date_info.log_suffix}.log"
+    log_file = project_root / "logs" / "pipeline.log"
     log_file.parent.mkdir(parents=True, exist_ok=True)
-    logger = setup_logging(
-        name="pipeline", log_dir="logs", log_level="DEBUG" if debug else "INFO", date_suffix=None
-    )
+    logger = setup_logging(name="pipeline", log_dir="logs", log_level="DEBUG" if debug else "INFO")
     for handler in logger.handlers[:]:
         if isinstance(handler, logging.FileHandler):
             logger.removeHandler(handler)
             handler.close()
     file_handler = logging.FileHandler(log_file, encoding="utf-8")
     file_handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - " "%(funcName)s:%(lineno)d - %(message)s"
+    formatter = structlog.stdlib.ProcessorFormatter(
+        processor=structlog.processors.JSONRenderer(),
+        foreign_pre_chain=[
+            structlog.stdlib.add_log_level,
+            structlog.stdlib.add_logger_name,
+            structlog.stdlib.ExtraAdder(),
+            structlog.processors.TimeStamper(fmt="iso"),
+        ],
     )
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
@@ -611,12 +579,10 @@ def process_bronze_scraping(
     date_str: str,
     config: PipelineConfig,
     results: PipelineResults,
-    project_root: Path,
-    log_file: Path,
 ) -> None:
     """Process bronze scraping for a single date."""
     if not config.skip_fotmob and not config.skip_bronze:
-        result = run_fotmob_bronze(date_str, config, project_root, log_file=log_file)
+        result = run_fotmob_bronze(date_str, config)
         results.add_result("fotmob_bronze", result)
 
 
@@ -624,12 +590,10 @@ def process_clickhouse_loading_per_date(
     date_str: str,
     config: PipelineConfig,
     results: PipelineResults,
-    project_root: Path,
-    log_file: Path,
 ) -> None:
     """Process ClickHouse loading for a single date."""
     if not config.skip_fotmob:
-        result = run_clickhouse_load("fotmob", date_str, config, project_root, log_file=log_file)
+        result = run_clickhouse_load("fotmob", date_str, config)
         results.add_result("fotmob_clickhouse", result)
 
 
@@ -637,8 +601,6 @@ def process_clickhouse_loading_monthly(
     month_str: str,
     config: PipelineConfig,
     results: PipelineResults,
-    project_root: Path,
-    log_file: Path,
     logger: logging.Logger,
 ) -> None:
     """Process ClickHouse loading for monthly mode."""
@@ -647,7 +609,7 @@ def process_clickhouse_loading_monthly(
     logger.info(f"{'#' * 80}\n")
     if not config.skip_fotmob:
         result = run_clickhouse_load_month(
-            "fotmob", month_str, config, project_root, log_file=log_file
+            "fotmob", month_str, config
         )
         results.add_result("fotmob_clickhouse", result)
 
@@ -656,12 +618,10 @@ def process_silver_per_date(
     date_str: str,
     config: PipelineConfig,
     results: PipelineResults,
-    project_root: Path,
-    log_file: Path,
 ) -> None:
     """Process silver layer for a single date."""
     if not config.skip_fotmob:
-        result = run_silver_process(date_str, project_root, log_file=log_file)
+        result = run_silver_process(date_str)
         results.add_result("fotmob_silver", result)
 
 
@@ -669,12 +629,10 @@ def process_silver_monthly(
     month_str: str,
     config: PipelineConfig,
     results: PipelineResults,
-    project_root: Path,
-    log_file: Path,
 ) -> None:
     """Process silver layer for monthly mode."""
     if not config.skip_fotmob:
-        result = run_silver_process_month(month_str, project_root, log_file=log_file)
+        result = run_silver_process_month(month_str)
         results.add_result("fotmob_silver", result)
 
 
@@ -682,12 +640,10 @@ def process_gold_per_date(
     date_str: str,
     config: PipelineConfig,
     results: PipelineResults,
-    project_root: Path,
-    log_file: Path,
 ) -> None:
     """Process gold layer for a single date."""
     if not config.skip_fotmob:
-        result = run_gold_process(date_str, project_root, log_file=log_file)
+        result = run_gold_process(date_str)
         results.add_result("fotmob_gold", result)
 
 
@@ -695,12 +651,10 @@ def process_gold_monthly(
     month_str: str,
     config: PipelineConfig,
     results: PipelineResults,
-    project_root: Path,
-    log_file: Path,
 ) -> None:
     """Process gold layer for monthly mode."""
     if not config.skip_fotmob:
-        result = run_gold_process_month(month_str, project_root, log_file=log_file)
+        result = run_gold_process_month(month_str)
         results.add_result("fotmob_gold", result)
 
 
@@ -751,7 +705,7 @@ def run_pipeline(args: argparse.Namespace) -> int:
         logger.info(f"# Processing date {idx}/{len(date_info.dates)}: {date_str}")
         logger.info(f"{'#' * 80}\n")
         if not config.silver_only and not config.gold_only:
-            process_bronze_scraping(date_str, config, results, project_root, log_file)
+            process_bronze_scraping(date_str, config, results)
         if (
             not args.month
             and not config.skip_clickhouse
@@ -759,21 +713,21 @@ def run_pipeline(args: argparse.Namespace) -> int:
             and not config.silver_only
             and not config.gold_only
         ):
-            process_clickhouse_loading_per_date(date_str, config, results, project_root, log_file)
+            process_clickhouse_loading_per_date(date_str, config, results)
         if (
             not args.month
             and not config.skip_silver
             and not config.bronze_only
             and not config.gold_only
         ):
-            process_silver_per_date(date_str, config, results, project_root, log_file)
+            process_silver_per_date(date_str, config, results)
         if (
             not args.month
             and not config.skip_gold
             and not config.bronze_only
             and not config.silver_only
         ):
-            process_gold_per_date(date_str, config, results, project_root, log_file)
+            process_gold_per_date(date_str, config, results)
     if (
         args.month
         and not config.skip_clickhouse
@@ -782,12 +736,12 @@ def run_pipeline(args: argparse.Namespace) -> int:
         and not config.gold_only
     ):
         process_clickhouse_loading_monthly(
-            args.month, config, results, project_root, log_file, logger
+            args.month, config, results, logger
         )
     if args.month and not config.skip_silver and not config.bronze_only and not config.gold_only:
-        process_silver_monthly(args.month, config, results, project_root, log_file)
+        process_silver_monthly(args.month, config, results)
     if args.month and not config.skip_gold and not config.bronze_only and not config.silver_only:
-        process_gold_monthly(args.month, config, results, project_root, log_file)
+        process_gold_monthly(args.month, config, results)
     pipeline_elapsed = time.time() - pipeline_start
     log_pipeline_summary(logger, results, len(date_info.dates), pipeline_elapsed, log_file)
     if results.all_successful():
@@ -809,10 +763,10 @@ if __name__ == "__main__":
         exit_code = main()
         sys.exit(exit_code)
     except KeyboardInterrupt:
-        logger = logging.getLogger("pipeline")
+        logger = get_logger("pipeline")
         logger.warning("\n\nPipeline interrupted by user. Exiting...")
         sys.exit(130)
-    except Exception as e:
-        logger = logging.getLogger("pipeline")
+    except (RuntimeError, OSError, ValueError) as e:
+        logger = get_logger("pipeline")
         logger.error(f"\nFatal error: {e}", exc_info=True)
         sys.exit(1)

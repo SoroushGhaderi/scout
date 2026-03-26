@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .clickhouse_client import ClickHouseClient
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def split_sql_statements(sql_content: str) -> list[str]:

@@ -23,7 +23,7 @@ except ImportError:
 from .base import BaseBronzeStorage
 from ...core.constants import HealthThresholds
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class FotMobBronzeStorage(BaseBronzeStorage):

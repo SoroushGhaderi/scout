@@ -77,7 +77,7 @@ class BaseBronzeStorage(StorageProtocol, ABC):
             base_dir: Base directory for raw data (e.g., data/fotmob)
         """
         self.base_dir = Path(base_dir)
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = get_logger(self.__class__.__name__)
 
         self.lineage_tracker = LineageTracker(base_path=str(self.base_dir))
 

@@ -10,7 +10,7 @@ from ...core.constants import Defaults
 from config import FotMobConfig
 from .playwright_fetcher import PlaywrightFetcher
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class BaseScraper(ScraperProtocol):

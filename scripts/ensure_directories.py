@@ -12,7 +12,13 @@ import sys
 import logging
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.utils.logging_utils import initialize_logging
+
+logger = get_logger(__name__)
 
 
 def ensure_directories() -> None:
@@ -61,7 +67,7 @@ def ensure_directories() -> None:
 def main() -> int:
     """Main execution function."""
     try:
-        logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s")
+        initialize_logging(log_level="INFO", force=True)
         ensure_directories()
         return 0
     except Exception as e:

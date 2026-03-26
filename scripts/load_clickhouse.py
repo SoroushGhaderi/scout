@@ -207,7 +207,10 @@ def rename_columns_for_table(
 
     if column_renames:
         df = df.rename(columns=column_renames)
-        logger.debug(f"Renamed columns for {table_name}: {column_renames}")
+        logger.debug(
+            "Renamed columns for table",
+            extra={"table_name": table_name, "column_renames": column_renames},
+        )
 
     return df
 
@@ -254,9 +257,13 @@ def validate_and_fix_schema(
         table_info = client.execute(f"DESCRIBE TABLE {database}.{table_name}")
         rows = _extract_describe_rows(table_info)
 
-        non_nullable_int32_cols = []
+        non_nullable_int_cols = []
+        non_nullable_uint_cols = []
+        non_nullable_float_cols = []
         non_nullable_string_cols = []
         nullable_int_cols = []
+        nullable_float_cols = []
+        nullable_string_cols = []
 
         for row in rows:
             if not row or len(row) < 2:
@@ -268,26 +275,45 @@ def validate_and_fix_schema(
                 continue
 
             # Track nullable integer columns
-            if "Nullable" in col_type and "Int" in col_type:
-                nullable_int_cols.append(col_name)
-            elif "Nullable" not in col_type and col_name in df.columns:
-                if "Int32" in col_type:
-                    non_nullable_int32_cols.append(col_name)
+            if "Nullable" in col_type:
+                if "Int" in col_type:
+                    nullable_int_cols.append(col_name)
+                elif "Float" in col_type:
+                    nullable_float_cols.append(col_name)
+                elif "String" in col_type:
+                    nullable_string_cols.append(col_name)
+            elif col_name in df.columns:
+                if "UInt" in col_type:
+                    non_nullable_uint_cols.append(col_name)
+                elif "Int" in col_type:
+                    non_nullable_int_cols.append(col_name)
+                elif "Float" in col_type:
+                    non_nullable_float_cols.append(col_name)
                 elif "String" in col_type:
                     non_nullable_string_cols.append(col_name)
 
         int32_max, int32_min = INT32_RANGE
 
         # Handle non-nullable columns
-        for col in non_nullable_int32_cols + non_nullable_string_cols:
+        for col in (
+            non_nullable_int_cols
+            + non_nullable_uint_cols
+            + non_nullable_float_cols
+            + non_nullable_string_cols
+        ):
             null_mask = df[col].isna()
             if null_mask.any():
                 logger.error(
                     f"Found {null_mask.sum()} NULL values in non-nullable column {table_name}.{col}. Setting defaults."
                 )
-                df.loc[null_mask, col] = 0 if col in non_nullable_int32_cols else ""
+                if col in non_nullable_float_cols:
+                    df.loc[null_mask, col] = 0.0
+                elif col in non_nullable_string_cols:
+                    df.loc[null_mask, col] = ""
+                else:
+                    df.loc[null_mask, col] = 0
 
-        for col in non_nullable_int32_cols:
+        for col in non_nullable_int_cols:
             df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
             overflow_mask = (df[col] < int32_min) | (df[col] > int32_max)
             if overflow_mask.any():
@@ -296,6 +322,20 @@ def validate_and_fix_schema(
                 )
                 df.loc[overflow_mask & (df[col] > int32_max), col] = int32_max
                 df.loc[overflow_mask & (df[col] < int32_min), col] = int32_min
+            df[col] = df[col].astype("int64")
+
+        for col in non_nullable_uint_cols:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+            negative_mask = df[col] < 0
+            if negative_mask.any():
+                logger.error(
+                    f"Found {negative_mask.sum()} negative values in unsigned column {table_name}.{col}. Clamping to 0."
+                )
+                df.loc[negative_mask, col] = 0
+            df[col] = df[col].astype("int64")
+
+        for col in non_nullable_float_cols:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0).astype("float64")
 
         # Handle nullable integer columns - convert all types to Int64 to properly handle NaN/None
         for col in nullable_int_cols:
@@ -306,10 +346,35 @@ def validate_and_fix_schema(
                 # Convert to nullable Int64 type, which properly preserves NaN as <NA>
                 df[col] = numeric_col.astype("Int64")
             except Exception as col_err:
-                logger.debug(f"Could not convert nullable int column {col}: {col_err}")
+                logger.debug(
+                    "Could not convert nullable int column",
+                    extra={"table_name": table_name, "column_name": col, "error": str(col_err)},
+                )
+
+        for col in nullable_float_cols:
+            try:
+                numeric_col = pd.to_numeric(df[col], errors="coerce")
+                df[col] = numeric_col.where(numeric_col.notna(), None)
+            except Exception as col_err:
+                logger.debug(
+                    "Could not convert nullable float column",
+                    extra={"table_name": table_name, "column_name": col, "error": str(col_err)},
+                )
+
+        for col in nullable_string_cols:
+            try:
+                df[col] = df[col].astype(object).where(df[col].notna(), None)
+            except Exception as col_err:
+                logger.debug(
+                    "Could not normalize nullable string column",
+                    extra={"table_name": table_name, "column_name": col, "error": str(col_err)},
+                )
 
     except Exception as e:
-        logger.debug(f"Schema validation skipped for {table_name}: {e}")
+        logger.debug(
+            "Schema validation skipped",
+            extra={"table_name": table_name, "error": str(e)},
+        )
 
     return df
 
@@ -339,14 +404,17 @@ def insert_dataframe_with_dlq(
 ) -> int:
     """Insert DataFrame with DLQ fallback for failures."""
     if df.empty:
-        logger.info(f"No rows to insert for {table_name}")
+        logger.info("No rows to insert", extra={"table_name": table_name, "database": database})
         return 0
 
     dlq = DeadLetterQueue()
 
     try:
         rows_inserted = client.insert_dataframe(table_name, df, database=database)
-        logger.info(f"Loaded {rows_inserted} rows into {database}.{table_name}")
+        logger.info(
+            "Loaded rows into table",
+            extra={"database": database, "table_name": table_name, "rows_inserted": rows_inserted},
+        )
         return rows_inserted
     except Exception as insert_error:
         dlq.send_to_dlq(
@@ -355,7 +423,10 @@ def insert_dataframe_with_dlq(
             error=str(insert_error),
             context={"date": date_str, "database": database, **(context or {})},
         )
-        logger.error(f"Failed to insert {table_name}, sent to DLQ: {insert_error}")
+        logger.error(
+            "Failed to insert table; sent to DLQ",
+            extra={"table_name": table_name, "database": database, "error": str(insert_error)},
+        )
         raise
 
 
@@ -382,7 +453,10 @@ def record_lineage(
             },
         )
     except Exception as e:
-        logger.warning(f"Could not record lineage for {table_name}: {e}")
+        logger.warning(
+            "Could not record lineage",
+            extra={"table_name": table_name, "date": date_str, "error": str(e)},
+        )
 
 
 # ============================================================================
@@ -396,11 +470,14 @@ def load_match_files_from_tar(
     """Load match files from TAR archive."""
     all_dataframes = {}
 
-    logger.info(f"Found TAR archive: {archive_path}")
+    logger.info("Found TAR archive", extra={"archive_path": str(archive_path)})
     try:
         with tarfile.open(archive_path, "r") as tar:
             json_gz_members = [m for m in tar.getmembers() if m.name.endswith(".json.gz")]
-            logger.info(f"Found {len(json_gz_members)} match files in TAR archive")
+            logger.info(
+                "Found match files in TAR archive",
+                extra={"archive_path": str(archive_path), "match_file_count": len(json_gz_members)},
+            )
 
             for member in json_gz_members:
                 try:
@@ -412,9 +489,21 @@ def load_match_files_from_tar(
                         dataframes, _ = processor.process_all(raw_data)
                         _add_processed_dataframes(dataframes, all_dataframes)
                 except Exception as e:
-                    logger.error(f"Error processing {member.name} from TAR: {e}", exc_info=True)
+                    logger.error(
+                        "Error processing member from TAR",
+                        extra={
+                            "archive_path": str(archive_path),
+                            "member_name": member.name,
+                            "error": str(e),
+                        },
+                        exc_info=True,
+                    )
     except Exception as e:
-        logger.error(f"Error reading TAR archive {archive_path}: {e}", exc_info=True)
+        logger.error(
+            "Error reading TAR archive",
+            extra={"archive_path": str(archive_path), "error": str(e)},
+            exc_info=True,
+        )
 
     return all_dataframes
 
@@ -427,7 +516,10 @@ def load_match_files_from_json_gz(
     json_gz_files = list(matches_dir.glob("match_*.json.gz"))
 
     if json_gz_files:
-        logger.info(f"Found {len(json_gz_files)} .json.gz files")
+        logger.info(
+            "Found JSON.GZ files",
+            extra={"matches_dir": str(matches_dir), "file_count": len(json_gz_files)},
+        )
         for json_gz_file in json_gz_files:
             try:
                 with gzip.open(json_gz_file, "rt", encoding="utf-8") as f:
@@ -436,7 +528,11 @@ def load_match_files_from_json_gz(
                 dataframes, _ = processor.process_all(raw_data)
                 _add_processed_dataframes(dataframes, all_dataframes)
             except Exception as e:
-                logger.error(f"Error processing {json_gz_file}: {e}", exc_info=True)
+                logger.error(
+                    "Error processing JSON.GZ file",
+                    extra={"file_path": str(json_gz_file), "error": str(e)},
+                    exc_info=True,
+                )
 
     return all_dataframes
 
@@ -449,7 +545,10 @@ def load_match_files_from_json(
     json_files = list(matches_dir.glob("match_*.json"))
 
     if json_files:
-        logger.info(f"Found {len(json_files)} JSON files")
+        logger.info(
+            "Found JSON files",
+            extra={"matches_dir": str(matches_dir), "file_count": len(json_files)},
+        )
         for json_file in json_files:
             try:
                 with open(json_file, "r", encoding="utf-8") as f:
@@ -458,7 +557,11 @@ def load_match_files_from_json(
                 dataframes, _ = processor.process_all(raw_data)
                 _add_processed_dataframes(dataframes, all_dataframes)
             except Exception as e:
-                logger.error(f"Error processing {json_file}: {e}", exc_info=True)
+                logger.error(
+                    "Error processing JSON file",
+                    extra={"file_path": str(json_file), "error": str(e)},
+                    exc_info=True,
+                )
 
     return all_dataframes
 
@@ -570,11 +673,15 @@ def process_fotmob_table(
         error_str = str(e).lower()
         if "does not exist" in error_str or "unknown_table" in error_str:
             logger.error(
-                f"Table fotmob.{physical_table} does not exist. "
-                f"Please run 'python scripts/setup_clickhouse.py' to create all required tables."
+                "Table does not exist. Run setup_clickhouse.py to create required tables.",
+                extra={"database": "fotmob", "table_name": physical_table},
             )
         else:
-            logger.error(f"Error loading {table_name}: {e}", exc_info=True)
+            logger.error(
+                "Error loading table",
+                extra={"table_name": table_name, "date": date_str, "error": str(e)},
+                exc_info=True,
+            )
         return 0
 
 
@@ -599,25 +706,40 @@ def load_fotmob_data(
         matches_dir = bronze_storage.matches_dir / date_str
 
         if not matches_dir.exists():
-            logger.warning(f"No bronze files found for date {date_str} at {matches_dir}")
+            logger.warning(
+                "No bronze files found for date",
+                extra={"date": date_str, "matches_dir": str(matches_dir)},
+            )
             return stats
 
         # Load all match files
         all_dataframes = load_fotmob_match_files(matches_dir, date_str, processor, logger)
 
         if not all_dataframes:
-            logger.warning(f"No match files found in {matches_dir}")
+            logger.warning("No match files found", extra={"matches_dir": str(matches_dir), "date": date_str})
             return stats
 
         logger.info(
-            f"Processed {sum(len(df_list) for df_list in all_dataframes.values())} match files for {date_str}"
+            "Processed match files for date",
+            extra={
+                "date": date_str,
+                "match_file_count": sum(len(df_list) for df_list in all_dataframes.values()),
+            },
         )
 
         # Log summary
         logger.info("Accumulated dataframes summary:")
         for table_name, df_list in all_dataframes.items():
             total_rows = sum(len(df) for df in df_list) if df_list else 0
-            logger.info(f"  {table_name}: {len(df_list)} dataframes, {total_rows} total rows")
+            logger.info(
+                "Accumulated dataframe stats",
+                extra={
+                    "date": date_str,
+                    "table_name": table_name,
+                    "dataframe_count": len(df_list),
+                    "total_rows": total_rows,
+                },
+            )
 
         # Process main tables
         for table_name, df_list in all_dataframes.items():
@@ -640,7 +762,7 @@ def load_fotmob_data(
                 )
 
     except Exception as e:
-        logger.error(f"Error loading FotMob data: {e}", exc_info=True)
+        logger.error("Error loading FotMob data", extra={"date": date_str, "error": str(e)}, exc_info=True)
 
     return stats
 
@@ -687,7 +809,7 @@ def _process_special_fotmob_table(
         combined_df["inserted_at"] = datetime.now()
 
     if combined_df.empty:
-        logger.info(f"No rows to insert for {table_name}")
+        logger.info("No rows to insert", extra={"table_name": table_name, "date": date_str})
         return 0
 
     try:
@@ -854,7 +976,9 @@ def validate_arguments(parser: argparse.ArgumentParser, args: argparse.Namespace
 
 def show_statistics(client: ClickHouseClient, database: str, logger: logging.Logger) -> None:
     """Show table statistics."""
-    logger.info(f"\n=== {database.upper()} Database Statistics ===\n")
+    logger.info("=" * 80)
+    logger.info("Database statistics", extra={"database": database.upper()})
+    logger.info("=" * 80)
     tables = FOTMOB_TABLES
 
     for table in tables:
@@ -862,10 +986,23 @@ def show_statistics(client: ClickHouseClient, database: str, logger: logging.Log
         stats = client.get_table_stats(physical_table, database=database)
         if "error" not in stats:
             logger.info(
-                f"{physical_table}: {stats.get('row_count', 0):,} rows, {stats.get('size', '0 B')}"
+                "Table statistics",
+                extra={
+                    "database": database,
+                    "table_name": physical_table,
+                    "row_count": stats.get("row_count", 0),
+                    "size": stats.get("size", "0 B"),
+                },
             )
         else:
-            logger.warning(f"{physical_table}: {stats.get('error', 'Unknown error')}")
+            logger.warning(
+                "Failed to read table statistics",
+                extra={
+                    "database": database,
+                    "table_name": physical_table,
+                    "error": stats.get("error", "Unknown error"),
+                },
+            )
 
 
 def get_dates_to_process(args: argparse.Namespace, logger: logging.Logger) -> List[str]:
@@ -888,10 +1025,17 @@ def get_dates_to_process(args: argparse.Namespace, logger: logging.Logger) -> Li
             "Dec",
         ]
         month_name = month_names[int(month) - 1]
-        logger.info(f"\n{'='*80}")
-        logger.info(f"Monthly Loading Mode: Month: {month_name} {year} ({args.month})")
-        logger.info(f"Total dates: {len(dates)}")
-        logger.info(f"{'='*80}\n")
+        logger.info("=" * 80)
+        logger.info(
+            "Monthly loading mode",
+            extra={
+                "month": args.month,
+                "month_name": month_name,
+                "year": int(year),
+                "total_dates": len(dates),
+            },
+        )
+        logger.info("=" * 80)
         return dates
     elif args.start_date:
         return generate_date_range(args.start_date, args.end_date)
@@ -900,32 +1044,19 @@ def get_dates_to_process(args: argparse.Namespace, logger: logging.Logger) -> Li
     return []
 
 
-def main():
+def main(argv: Optional[List[str]] = None) -> int:
     """Main entry point."""
     parser = create_argument_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     validate_arguments(parser, args)
 
     database = args.scraper
 
-    # Determine date suffix for logging
-    if args.stats:
-        date_suffix = None
-    elif args.month:
-        date_suffix = args.month
-    elif args.start_date:
-        date_suffix = f"{args.start_date}_to_{args.end_date}"
-    elif args.date:
-        date_suffix = args.date
-    else:
-        date_suffix = None
-
     logger = setup_logging(
         name="clickhouse_loader",
         log_dir="logs",
         log_level="INFO",
-        date_suffix=date_suffix,
     )
 
     # Connect to ClickHouse
@@ -939,13 +1070,13 @@ def main():
 
     if not client.connect():
         logger.error("Failed to connect to ClickHouse")
-        sys.exit(1)
+        return 1
 
     try:
         # Show statistics if requested
         if args.stats:
             show_statistics(client, database, logger)
-            return
+            return 0
 
         # Get dates to process
         dates = get_dates_to_process(args, logger)
@@ -960,26 +1091,33 @@ def main():
                 try:
                     client.truncate_table(to_bronze_table_name(table), database=database)
                 except Exception as e:
-                    logger.warning(f"Could not truncate {table}: {e}")
+                    logger.warning(
+                        "Could not truncate table",
+                        extra={"database": database, "table_name": table, "error": str(e)},
+                    )
 
         # Load data for each date
         total_stats: Dict[str, int] = {}
         for date_str in dates:
-            logger.info(f"\n{'='*80}")
-            logger.info(f"Loading {database} data for {date_str}")
-            logger.info(f"{'='*80}\n")
+            logger.info("=" * 80)
+            logger.info("Loading data for date", extra={"database": database, "date": date_str})
+            logger.info("=" * 80)
 
             try:
                 if database == "fotmob":
                     stats = load_fotmob_data(client, date_str, args.force, logger)
                 else:
-                    logger.error(f"Unknown scraper: {database}")
+                    logger.error("Unknown scraper", extra={"database": database})
                     continue
 
                 for table, count in stats.items():
                     total_stats[table] = total_stats.get(table, 0) + count
             except Exception as e:
-                logger.error(f"Failed to load {database} data for {date_str}: {e}", exc_info=True)
+                logger.error(
+                    "Failed to load data for date",
+                    extra={"database": database, "date": date_str, "error": str(e)},
+                    exc_info=True,
+                )
                 alert_manager = get_alert_manager()
                 alert_manager.send_alert(
                     level=AlertLevel.ERROR,
@@ -994,17 +1132,19 @@ def main():
                 )
 
         # Print summary
-        logger.info(f"\n{'='*80}")
+        logger.info("=" * 80)
         logger.info("LOADING SUMMARY")
-        logger.info(f"{'='*80}\n")
-        logger.info(f"Dates processed: {len(dates)}")
+        logger.info("=" * 80)
+        logger.info("Dates processed", extra={"date_count": len(dates)})
         logger.info("Total rows loaded by table:")
         for table, count in sorted(total_stats.items()):
-            logger.info(f"  {table}: {count:,} rows")
+            logger.info("Rows loaded by table", extra={"table_name": table, "row_count": count})
 
     finally:
         client.disconnect()
 
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

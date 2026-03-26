@@ -14,7 +14,7 @@ sys.path.insert(0, str(project_root))
 from src.utils.health_check import health_check
 from src.utils.logging_utils import setup_logging
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def parse_arguments() -> argparse.Namespace:

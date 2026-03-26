@@ -18,7 +18,7 @@ from ...utils.fotmob_validator import (
     FotMobValidator, SafeFieldExtractor, ResponseSaver
 )
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 # Period statistics key mapping: API key -> (home_field, away_field)

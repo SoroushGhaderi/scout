@@ -67,7 +67,7 @@ class PipelineMode(Enum):
 
 
 _PROJECT_ROOT: Optional[Path] = None
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def get_project_root() -> Path:

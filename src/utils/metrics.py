@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @dataclass
