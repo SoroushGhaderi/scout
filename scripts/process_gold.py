@@ -19,11 +19,11 @@ from utils.script_utils import validate_date_format
 logger = get_logger()
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run gold aggregations for FotMob")
     parser.add_argument("--date", type=str, help="Optional date (YYYYMMDD) filter")
     parser.add_argument("--month", type=str, help="Optional month (YYYYMM) filter")
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def _build_match_filter(args: argparse.Namespace) -> str:
@@ -136,8 +136,8 @@ def refresh_gold_tables(client: ClickHouseClient, args: argparse.Namespace) -> N
     )
 
 
-def main() -> int:
-    args = parse_args()
+def main(argv=None) -> int:
+    args = parse_args(argv)
     if args.date:
         is_valid, error_msg = validate_date_format(args.date, "YYYYMMDD")
         if not is_valid:

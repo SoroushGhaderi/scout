@@ -19,15 +19,15 @@ from utils.script_utils import validate_date_format
 logger = get_logger()
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run silver transformations for FotMob")
     parser.add_argument("--date", type=str, help="Optional date (YYYYMMDD) for logging/context")
     parser.add_argument("--month", type=str, help="Optional month (YYYYMM) for logging/context")
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
-def main() -> int:
-    args = parse_args()
+def main(argv=None) -> int:
+    args = parse_args(argv)
     if args.date:
         is_valid, error_msg = validate_date_format(args.date, "YYYYMMDD")
         if not is_valid:

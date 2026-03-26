@@ -43,10 +43,10 @@ cp .env.example .env
 docker-compose -f docker/docker-compose.yml up -d
 
 # create Bronze + Silver + Gold schema
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/setup_clickhouse.py
 
 # run a complete single-day pipeline
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py 20251208
 ```
 
 ## Required Configuration
@@ -90,21 +90,21 @@ docker-compose -f docker/docker-compose.yml up -d
 Create all layers:
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/setup_clickhouse.py
 ```
 
 Or create one layer at a time:
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse_bronze.py
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse_silver.py
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse_gold.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/setup_clickhouse.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/setup_clickhouse.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/setup_clickhouse.py
 ```
 
 ### 3. Scrape Bronze files
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/scrape_fotmob.py 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/scrape_fotmob.py 20251208
 ```
 
 This writes raw FotMob match responses into `data/fotmob/`.
@@ -112,7 +112,7 @@ This writes raw FotMob match responses into `data/fotmob/`.
 ### 4. Load Bronze files into ClickHouse Bronze tables
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/load_clickhouse.py --scraper fotmob --date 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/load_clickhouse.py --scraper fotmob --date 20251208
 ```
 
 This creates or appends records in tables such as:
@@ -126,7 +126,7 @@ This creates or appends records in tables such as:
 ### 5. Build Silver views
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/process_silver.py --date 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/process.py --date 20251208
 ```
 
 This refreshes views such as:
@@ -140,7 +140,7 @@ This refreshes views such as:
 ### 6. Build Gold tables
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/process_gold.py --date 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/process.py --date 20251208
 ```
 
 This refreshes tables such as:
@@ -154,43 +154,43 @@ This refreshes tables such as:
 ### One date
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py 20251208
 ```
 
 ### Date range
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py --start-date 20251201 --end-date 20251207
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py --start-date 20251201 --end-date 20251207
 ```
 
 ### Month
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py --month 202512
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py --month 202512
 ```
 
 ### Bronze only
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --bronze-only
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py 20251208 --bronze-only
 ```
 
 ### Silver only
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --silver-only
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py 20251208 --silver-only
 ```
 
 ### Gold only
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --gold-only
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py 20251208 --gold-only
 ```
 
 ### Skip scraping and reuse existing Bronze files
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/pipeline.py 20251208 --skip-bronze
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py 20251208 --skip-bronze
 ```
 
 ## Bronze Table Engine
@@ -221,14 +221,20 @@ scout/
 │   └── gold/
 ├── config/
 ├── scripts/
-│   ├── scrape_fotmob.py
-│   ├── load_clickhouse.py
-│   ├── process_silver.py
-│   ├── process_gold.py
-│   ├── setup_clickhouse.py
-│   ├── setup_clickhouse_bronze.py
-│   ├── setup_clickhouse_silver.py
-│   └── setup_clickhouse_gold.py
+│   ├── bronze/
+│   │   ├── scrape_fotmob.py
+│   │   ├── load_clickhouse.py
+│   │   └── setup_clickhouse.py
+│   ├── silver/
+│   │   ├── process.py
+│   │   └── setup_clickhouse.py
+│   ├── gold/
+│   │   ├── process.py
+│   │   └── setup_clickhouse.py
+│   ├── orchestration/
+│   │   ├── pipeline.py
+│   │   └── setup_clickhouse.py
+│   └── *.py (legacy compatibility entrypoints)
 ├── src/
 │   ├── processors/
 │   │   ├── bronze/
@@ -260,7 +266,7 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_c
 ### Recreate schema
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_clickhouse.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/setup_clickhouse.py
 ```
 
 ## Notes
@@ -268,3 +274,4 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/setup_cl
 - Scout is currently FotMob-only
 - Silver and Gold are warehouse layers, not local directories
 - Bare ClickHouse table names like `general` or `player` should not be introduced for warehouse objects
+- Legacy root-level `scripts/*.py` entrypoints still work for compatibility

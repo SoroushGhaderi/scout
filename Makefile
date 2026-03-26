@@ -79,3 +79,6 @@ dev: ## Start in development mode with override
 
 test: ## Run tests in container
 	docker-compose $(COMPOSE_FILE) exec scraper pytest
+
+check-logging: ## Validate logging style conventions
+	python scripts/check_logging_style.py
