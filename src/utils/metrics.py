@@ -6,6 +6,7 @@ from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
+from .logging_utils import get_logger
 
 logger = get_logger(__name__)
 

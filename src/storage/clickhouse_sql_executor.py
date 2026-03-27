@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 from .clickhouse_client import ClickHouseClient
+from ..utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
 

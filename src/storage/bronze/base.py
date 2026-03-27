@@ -29,6 +29,7 @@ except ImportError:
 
 from ...core import StorageProtocol, StorageError, StorageWriteError, StorageReadError
 from ...utils.lineage import LineageTracker
+from ...utils.logging_utils import get_logger
 
 
 class BaseBronzeStorage(StorageProtocol, ABC):

@@ -1,10 +1,15 @@
-"""Layered entrypoint for all-layer ClickHouse setup."""
+"""Create the FotMob bronze, silver, and gold ClickHouse layers."""
 
+import sys
 from pathlib import Path
-import runpy
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from clickhouse_setup_common import LAYER_ORDER, run_clickhouse_layers
+
+
+def main() -> int:
+    return run_clickhouse_layers(LAYER_ORDER)
 
 
 if __name__ == "__main__":
-    root = Path(__file__).resolve().parents[2]
-    runpy.run_path(str(root / "scripts" / "setup_clickhouse.py"), run_name="__main__")
-
+    sys.exit(main())

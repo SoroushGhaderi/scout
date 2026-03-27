@@ -22,6 +22,7 @@ except ImportError:
 
 from .base import BaseBronzeStorage
 from ...core.constants import HealthThresholds
+from ...utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
 

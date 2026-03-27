@@ -8,6 +8,7 @@ from typing import Optional, Dict, Any, List
 import clickhouse_connect
 
 from ..utils.health_check import check_clickhouse_connection
+from ..utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
 

@@ -14,6 +14,7 @@ import tarfile
 import tempfile
 from pathlib import Path
 from typing import Optional, List
+from ..utils.logging_utils import get_logger
 
 try:
     import boto3

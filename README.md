@@ -234,7 +234,10 @@ scout/
 │   ├── orchestration/
 │   │   ├── pipeline.py
 │   │   └── setup_clickhouse.py
-│   └── *.py (legacy compatibility entrypoints)
+│   ├── ensure_directories.py
+│   ├── health_check.py
+│   ├── refresh_turnstile.py
+│   └── check_logging_style.py
 ├── src/
 │   ├── processors/
 │   │   ├── bronze/
@@ -274,4 +277,8 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestr
 - Scout is currently FotMob-only
 - Silver and Gold are warehouse layers, not local directories
 - Bare ClickHouse table names like `general` or `player` should not be introduced for warehouse objects
-- Legacy root-level `scripts/*.py` entrypoints still work for compatibility
+
+## Repo Hygiene
+
+- Script inventory: `SCRIPTS_AUDIT.md`
+- Script command contract: `SCRIPTS_CONTRACT.md`

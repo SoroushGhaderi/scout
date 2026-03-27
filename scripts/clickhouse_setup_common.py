@@ -22,60 +22,100 @@ def connect_clickhouse() -> ClickHouseClient:
     port = int(os.getenv("CLICKHOUSE_PORT", "8123"))
     username = os.getenv("CLICKHOUSE_USER", "fotmob_user")
     password = os.getenv("CLICKHOUSE_PASSWORD", "fotmob_pass")
+    host_candidates = [host]
+    if host == "clickhouse" and not Path("/.dockerenv").exists():
+        host_candidates.extend(["localhost", "127.0.0.1"])
 
-    logger.info("Connecting to ClickHouse at %s:%s", host, port)
-    client = ClickHouseClient(
-        host=host,
-        port=port,
-        username=username,
-        password=password,
-        database="default",
-    )
-
-    if client.connect():
-        return client
-
-    logger.warning("Failed to connect with user '%s', trying default user...", username)
-    default_client = ClickHouseClient(
-        host=host,
-        port=port,
-        username="default",
-        password="",
-        database="default",
-    )
-
-    default_connected = default_client.connect()
-    if not default_connected:
-        try:
-            import clickhouse_connect
-
-            default_client.client = clickhouse_connect.get_client(
-                host=host,
-                port=port,
-                username="default",
-                database="default",
-            )
-            default_client.client.query("SELECT 1")
-            default_connected = True
-            logger.info("Connected with default user (no password)")
-        except Exception as exc:
-            logger.debug("Default user connection without password failed: %s", exc)
-
-    if not default_connected:
-        raise RuntimeError("Failed to connect to ClickHouse even with the default user")
-
-    try:
-        if not create_user_if_not_exists(default_client, username, password):
-            raise RuntimeError(f"Failed to create ClickHouse user '{username}'")
-    finally:
-        default_client.disconnect()
-
-    if not client.connect():
-        raise RuntimeError(
-            f"Still failed to connect with user '{username}' after creating it. "
-            "You may need to restart the ClickHouse container."
+    attempted_hosts: list[str] = []
+    for candidate_host in host_candidates:
+        attempted_hosts.append(candidate_host)
+        logger.info("Connecting to ClickHouse at %s:%s", candidate_host, port)
+        client = ClickHouseClient(
+            host=candidate_host,
+            port=port,
+            username=username,
+            password=password,
+            database="default",
         )
-    return client
+
+        if client.connect():
+            # User can authenticate, but may still miss newer grants.
+            # Try to reconcile grants via default admin user when possible.
+            if username != "default":
+                try:
+                    grant_client = ClickHouseClient(
+                        host=candidate_host,
+                        port=port,
+                        username="default",
+                        password="",
+                        database="default",
+                    )
+                    if grant_client.connect():
+                        try:
+                            if not create_user_if_not_exists(grant_client, username, password):
+                                logger.warning(
+                                    "Could not reconcile grants for user '%s' on host '%s'",
+                                    username,
+                                    candidate_host,
+                                )
+                        finally:
+                            grant_client.disconnect()
+                except Exception as exc:
+                    logger.warning(
+                        "Skipped grant reconciliation for user '%s' on host '%s': %s",
+                        username,
+                        candidate_host,
+                        exc,
+                    )
+            return client
+
+        logger.warning("Failed to connect with user '%s', trying default user...", username)
+        default_client = ClickHouseClient(
+            host=candidate_host,
+            port=port,
+            username="default",
+            password="",
+            database="default",
+        )
+
+        default_connected = default_client.connect()
+        if not default_connected:
+            try:
+                import clickhouse_connect
+
+                default_client.client = clickhouse_connect.get_client(
+                    host=candidate_host,
+                    port=port,
+                    username="default",
+                    database="default",
+                )
+                default_client.client.query("SELECT 1")
+                default_connected = True
+                logger.info("Connected with default user (no password)")
+            except Exception as exc:
+                logger.debug("Default user connection without password failed: %s", exc)
+
+        if not default_connected:
+            continue
+
+        try:
+            if not create_user_if_not_exists(default_client, username, password):
+                raise RuntimeError(f"Failed to create ClickHouse user '{username}'")
+        finally:
+            default_client.disconnect()
+
+        if client.connect():
+            return client
+        logger.warning(
+            "Still failed to connect with user '%s' after creation on host '%s'",
+            username,
+            candidate_host,
+        )
+
+    raise RuntimeError(
+        "Failed to connect to ClickHouse even with default user. Tried hosts: "
+        f"{', '.join(attempted_hosts)}"
+    )
 
 
 def create_user_if_not_exists(client: ClickHouseClient, username: str, password: str) -> bool:
@@ -89,14 +129,15 @@ def create_user_if_not_exists(client: ClickHouseClient, username: str, password:
             user_exists = len(result.result_columns[0]) > 0
 
         if user_exists:
-            logger.info("User '%s' already exists, skipping creation", username)
-            return True
+            logger.info("User '%s' already exists, ensuring grants...", username)
+        else:
+            logger.info("Creating user '%s'...", username)
+            client.execute(f"CREATE USER IF NOT EXISTS {username} IDENTIFIED BY '{password}'")
 
-        logger.info("Creating user '%s'...", username)
-        client.execute(f"CREATE USER IF NOT EXISTS {username} IDENTIFIED BY '{password}'")
         for grant_query in (
             f"GRANT ALL ON fotmob.* TO {username}",
             f"GRANT CREATE DATABASE ON *.* TO {username}",
+            f"GRANT TABLE ENGINE ON ReplacingMergeTree TO {username}",
         ):
             try:
                 client.execute(grant_query)
