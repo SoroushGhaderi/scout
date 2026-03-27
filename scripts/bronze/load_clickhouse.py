@@ -1034,7 +1034,6 @@ def get_dates_to_process(args: argparse.Namespace, logger: logging.Logger) -> Li
             "Dec",
         ]
         month_name = month_names[int(month) - 1]
-        logger.info("=" * 80)
         logger.info(
             "Monthly loading mode",
             extra={
@@ -1044,7 +1043,6 @@ def get_dates_to_process(args: argparse.Namespace, logger: logging.Logger) -> Li
                 "total_dates": len(dates),
             },
         )
-        logger.info("=" * 80)
         return dates
     elif args.start_date:
         return generate_date_range(args.start_date, args.end_date)
@@ -1108,9 +1106,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         # Load data for each date
         total_stats: Dict[str, int] = {}
         for date_str in dates:
-            logger.info("=" * 80)
             logger.info("Loading data for date", extra={"database": database, "date": date_str})
-            logger.info("=" * 80)
 
             try:
                 if database == "fotmob":

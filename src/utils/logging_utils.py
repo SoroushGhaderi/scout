@@ -2,8 +2,10 @@
 
 import logging
 import os
+import re
 import sys
 import warnings
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
@@ -13,6 +15,7 @@ from structlog.stdlib import LoggerFactory
 
 _STRUCTLOG_CONFIGURED = False
 _DEFAULT_LOGGER_NAME = "scout"
+_ANSI_ESCAPE_RE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 
 
 def _normalize_log_level(log_level: str) -> int:
@@ -118,6 +121,21 @@ def _should_use_colors() -> bool:
     return sys.stdout.isatty()
 
 
+def _resolve_date_suffix(date_suffix: Optional[str] = None) -> str:
+    """Resolve date suffix used in log file names."""
+    if date_suffix:
+        return date_suffix
+    return datetime.now().strftime("%Y%m%d")
+
+
+class _AnsiStrippingFormatter(logging.Formatter):
+    """Formatter that removes ANSI escape sequences from log records."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        rendered = super().format(record)
+        return _ANSI_ESCAPE_RE.sub("", rendered)
+
+
 def initialize_logging(
     log_level: str = "INFO",
     json_output: Optional[bool] = None,
@@ -154,15 +172,14 @@ def setup_logging(
             logger.removeHandler(handler)
             handler.close()
 
-    # Keep log file path fixed/predictable for each logger.
-    # date_suffix/log_format are kept for backwards-compatible function signature.
-    _ = date_suffix
+    # Keep a predictable dated log path for easier daily troubleshooting.
     _ = log_format
-    log_file = Path(log_dir) / f"{name}.log"
+    resolved_date_suffix = _resolve_date_suffix(date_suffix)
+    log_file = Path(log_dir) / f"{name}_{resolved_date_suffix}.log"
 
     file_handler = logging.FileHandler(log_file, encoding="utf-8")
     file_handler.setLevel(level)
-    file_handler.setFormatter(logging.Formatter("%(message)s"))
+    file_handler.setFormatter(_AnsiStrippingFormatter("%(message)s"))
     logger.addHandler(file_handler)
 
     bound_logger = get_logger(name)
@@ -198,11 +215,11 @@ def setup_json_logging(
             logger.removeHandler(handler)
             handler.close()
 
-    _ = date_suffix
-    log_file = Path(log_dir) / f"{name}.json"
+    resolved_date_suffix = _resolve_date_suffix(date_suffix)
+    log_file = Path(log_dir) / f"{name}_{resolved_date_suffix}.json"
 
     file_handler = logging.FileHandler(log_file, encoding="utf-8")
-    file_handler.setFormatter(logging.Formatter("%(message)s"))
+    file_handler.setFormatter(_AnsiStrippingFormatter("%(message)s"))
     file_handler.setLevel(_normalize_log_level(log_level))
     logger.addHandler(file_handler)
     bound_logger = get_logger(name)
