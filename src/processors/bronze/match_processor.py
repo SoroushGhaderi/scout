@@ -17,6 +17,7 @@ from ...models import (
 from ...utils.fotmob_validator import (
     FotMobValidator, SafeFieldExtractor, ResponseSaver
 )
+from ...utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
 
@@ -108,6 +109,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
         self.validator = validator or FotMobValidator()
         self.extractor = extractor or SafeFieldExtractor()
         self.save_responses = save_responses
+        self._processed_match_count = 0
 
         # Handle response_saver with backward compatibility
         if response_saver is not None:
@@ -166,7 +168,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 self.logger.error(f"Failed to save response for match {match_id}: {e}")
         
         # Process data
-        self.logger.info(f"Processing all data for match {match_id}")
+        self.logger.debug("Processing match payload", match_id=match_id)
         processed_data = {
             "general": self.process_general_stats(raw_response),
             "timeline": self.process_match_timeline(raw_response),
@@ -182,7 +184,15 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             "lineup_data": self.process_lineup_data(raw_response),
         }
         dataframes = self._convert_to_dataframes(processed_data)
-        self.logger.info(f"Completed processing match {match_id}")
+        self._processed_match_count += 1
+        if self._processed_match_count % 100 == 0:
+            self.logger.info(
+                "Processed match batch",
+                processed_matches=self._processed_match_count,
+                latest_match_id=match_id,
+            )
+        else:
+            self.logger.debug("Completed processing match", match_id=match_id)
         
         return dataframes, validation_summary
 

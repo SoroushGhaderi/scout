@@ -1,15 +1,17 @@
 """Logging utilities for Scout project with structlog as the global backend."""
 
 import logging
+import os
 import sys
+import warnings
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import structlog
+from structlog.stdlib import LoggerFactory
 
 
 _STRUCTLOG_CONFIGURED = False
-_LOGGING_BOOTSTRAPPED = False
 _DEFAULT_LOGGER_NAME = "scout"
 
 
@@ -18,85 +20,112 @@ def _normalize_log_level(log_level: str) -> int:
     return getattr(logging, log_level.upper(), logging.INFO)
 
 
-def _configure_structlog() -> None:
-    """Configure structlog once for stdlib integration."""
+def _is_production_environment() -> bool:
+    """Return True when runtime environment should default to JSON logs."""
+    env = os.getenv("SCRAPER_ENV") or os.getenv("ENVIRONMENT") or "development"
+    return env.lower() == "production"
+
+
+def _merge_extra_fields(
+    _: structlog.typing.WrappedLogger,
+    __: str,
+    event_dict: structlog.typing.EventDict,
+) -> structlog.typing.EventDict:
+    """
+    Flatten stdlib-style ``extra={...}`` into top-level structured fields.
+
+    This keeps compatibility with existing call-sites while we use BoundLogger.
+    """
+    extra = event_dict.pop("extra", None)
+    if isinstance(extra, dict):
+        for key, value in extra.items():
+            event_dict.setdefault(key, value)
+    return event_dict
+
+
+def configure_logging(
+    json_logs: Optional[bool] = None,
+    log_level: str = "INFO",
+    force: bool = False,
+    suppress_noisy_warnings: bool = True,
+) -> None:
+    """
+    Configure structured logging once for the whole process.
+
+    Best-practice defaults:
+    - ConsoleRenderer for local/dev readability
+    - JSONRenderer in production
+    """
     global _STRUCTLOG_CONFIGURED
-    if _STRUCTLOG_CONFIGURED:
-        return
+
+    use_json = _is_production_environment() if json_logs is None else json_logs
+
+    if suppress_noisy_warnings:
+        warnings.filterwarnings(
+            "ignore",
+            message=r"urllib3 v2 only supports OpenSSL 1\.1\.1\+",
+        )
+
+    logging.basicConfig(
+        format="%(message)s",
+        stream=sys.stdout,
+        level=_normalize_log_level(log_level),
+        force=force,
+    )
+
+    processors = [
+        structlog.contextvars.merge_contextvars,
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        _merge_extra_fields,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+    ]
+
+    if use_json:
+        processors.append(structlog.processors.JSONRenderer())
+    else:
+        processors.append(
+            structlog.dev.ConsoleRenderer(
+                colors=_should_use_colors(),
+                sort_keys=False,
+                pad_event=28,
+                exception_formatter=structlog.dev.plain_traceback,
+            )
+        )
 
     structlog.configure(
-        processors=[
-            structlog.contextvars.merge_contextvars,
-            structlog.stdlib.add_log_level,
-            structlog.stdlib.add_logger_name,
-            structlog.stdlib.ExtraAdder(),
-            structlog.processors.TimeStamper(fmt="iso"),
-            structlog.processors.StackInfoRenderer(),
-            structlog.processors.format_exc_info,
-            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
-        ],
-        logger_factory=structlog.stdlib.LoggerFactory(),
+        processors=processors,
         wrapper_class=structlog.stdlib.BoundLogger,
+        context_class=dict,
+        logger_factory=LoggerFactory(),
         cache_logger_on_first_use=True,
     )
     _STRUCTLOG_CONFIGURED = True
 
 
-def _shared_processors() -> list:
-    """Shared pre-chain processors for non-structlog log records."""
-    return [
-        structlog.stdlib.add_log_level,
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.ExtraAdder(),
-        structlog.processors.TimeStamper(fmt="iso"),
-    ]
-
-
-def _build_console_formatter() -> structlog.stdlib.ProcessorFormatter:
-    """Create structlog-backed console formatter."""
-    return structlog.stdlib.ProcessorFormatter(
-        processor=structlog.dev.ConsoleRenderer(colors=False),
-        foreign_pre_chain=_shared_processors(),
-    )
-
-
-def _build_json_formatter() -> structlog.stdlib.ProcessorFormatter:
-    """Create structlog-backed JSON formatter."""
-    return structlog.stdlib.ProcessorFormatter(
-        processor=structlog.processors.JSONRenderer(),
-        foreign_pre_chain=_shared_processors(),
-    )
+def _should_use_colors() -> bool:
+    """Return True when ANSI colors should be used in console logs."""
+    if os.getenv("NO_COLOR") is not None:
+        return False
+    force_color = os.getenv("FORCE_COLOR", "").strip().lower()
+    if force_color in {"1", "true", "yes"}:
+        return True
+    if force_color in {"0", "false", "no"}:
+        return False
+    return sys.stdout.isatty()
 
 
 def initialize_logging(
     log_level: str = "INFO",
-    json_output: bool = True,
+    json_output: Optional[bool] = None,
     force: bool = False,
 ) -> logging.Logger:
-    """Initialize root logging so all project loggers use structlog."""
-    global _LOGGING_BOOTSTRAPPED
-
-    _configure_structlog()
-    root_logger = logging.getLogger()
-    level = _normalize_log_level(log_level)
-
-    if _LOGGING_BOOTSTRAPPED and not force:
-        root_logger.setLevel(level)
-        return root_logger
-
-    if force:
-        root_logger.handlers.clear()
-
-    if not root_logger.handlers:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
-        formatter = _build_json_formatter() if json_output else _build_console_formatter()
-        console_handler.setFormatter(formatter)
-        root_logger.addHandler(console_handler)
-
-    root_logger.setLevel(level)
-    _LOGGING_BOOTSTRAPPED = True
-    return root_logger
+    """Backward-compatible initializer that delegates to ``configure_logging``."""
+    configure_logging(json_logs=json_output, log_level=log_level, force=force)
+    return logging.getLogger()
 
 
 def setup_logging(
@@ -105,9 +134,14 @@ def setup_logging(
     log_level: str = "INFO",
     log_format: Optional[str] = None,
     date_suffix: Optional[str] = None,
-) -> logging.Logger:
-    """Configure logger with minimal, consistent JSON structure for all handlers."""
-    initialize_logging(log_level=log_level)
+) -> structlog.BoundLogger:
+    """
+    Configure a named logger and optional file output.
+
+    Console/file rendering follows the same renderer choice from configure_logging:
+    human-readable in dev, JSON in production unless overridden upstream.
+    """
+    initialize_logging(log_level=log_level, json_output=None)
 
     Path(log_dir).mkdir(parents=True, exist_ok=True)
     logger = logging.getLogger(name)
@@ -118,6 +152,7 @@ def setup_logging(
     for handler in logger.handlers[:]:
         if isinstance(handler, logging.FileHandler):
             logger.removeHandler(handler)
+            handler.close()
 
     # Keep log file path fixed/predictable for each logger.
     # date_suffix/log_format are kept for backwards-compatible function signature.
@@ -127,32 +162,22 @@ def setup_logging(
 
     file_handler = logging.FileHandler(log_file, encoding="utf-8")
     file_handler.setLevel(level)
-    file_handler.setFormatter(_build_json_formatter())
+    file_handler.setFormatter(logging.Formatter("%(message)s"))
     logger.addHandler(file_handler)
 
-    logger.info("Logging initialized. Log file: %s", log_file)
-    return logger
+    bound_logger = get_logger(name)
+    bound_logger.info("Logging initialized", log_file=str(log_file), log_level=log_level)
+    return bound_logger
 
 
-def get_logger(name: str = _DEFAULT_LOGGER_NAME) -> logging.Logger:
-    """Get a logger after ensuring global structlog bootstrap is active."""
-    initialize_logging()
-    return logging.getLogger(name)
-
-
-class LoggerAdapter(logging.LoggerAdapter):
-    """
-    Custom logger adapter that adds context to log messages.
-    Usage:
-        logger = LoggerAdapter(base_logger, {'match_id': '123456'})
-        logger.info("Processing match")
-    """
-    def process(self, msg, kwargs):
-        """Add extra context to log messages."""
-        if self.extra:
-            context = " | ".join(f"{k}={v}" for k, v in self.extra.items())
-            msg = f"[{context}] {msg}"
-        return msg, kwargs
+def get_logger(name: Optional[str] = None, **initial_context: Any) -> structlog.BoundLogger:
+    """Get a structlog logger with optional initial context."""
+    if not _STRUCTLOG_CONFIGURED:
+        configure_logging()
+    log = structlog.get_logger(name or _DEFAULT_LOGGER_NAME)
+    if initial_context:
+        log = log.bind(**initial_context)
+    return log
 
 
 def setup_json_logging(
@@ -160,22 +185,8 @@ def setup_json_logging(
     log_dir: str = "logs",
     log_level: str = "INFO",
     date_suffix: Optional[str] = None,
-) -> logging.Logger:
-    """
-    Configure JSON structured logging for production environments.
-    Creates a logger that outputs JSON-formatted logs for easy parsing
-    by log aggregation and analysis tools.
-    Args:
-        name: Logger name
-        log_dir: Directory to store log files
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        date_suffix: Deprecated. Kept only for backwards compatibility.
-    Returns:
-        Configured logger with JSON formatter
-    Example:
-        >>> logger = setup_json_logging("my_app", log_level="DEBUG")
-        >>> logger.info("User logged in", extra={"user_id": "123", "ip": "192.168.1.1"})
-    """
+) -> structlog.BoundLogger:
+    """Compatibility wrapper: force JSON renderer regardless of environment."""
     initialize_logging(log_level=log_level, json_output=True)
     Path(log_dir).mkdir(parents=True, exist_ok=True)
     logger = logging.getLogger(name)
@@ -185,14 +196,15 @@ def setup_json_logging(
     for handler in logger.handlers[:]:
         if isinstance(handler, logging.FileHandler):
             logger.removeHandler(handler)
+            handler.close()
 
-    json_formatter = _build_json_formatter()
     _ = date_suffix
     log_file = Path(log_dir) / f"{name}.json"
 
     file_handler = logging.FileHandler(log_file, encoding="utf-8")
-    file_handler.setFormatter(json_formatter)
+    file_handler.setFormatter(logging.Formatter("%(message)s"))
     file_handler.setLevel(_normalize_log_level(log_level))
     logger.addHandler(file_handler)
-    logger.info("JSON logging initialized. Log file: %s", log_file)
-    return logger
+    bound_logger = get_logger(name)
+    bound_logger.info("JSON logging initialized", log_file=str(log_file), log_level=log_level)
+    return bound_logger
