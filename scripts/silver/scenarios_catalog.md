@@ -115,6 +115,24 @@ Find finished matches with very low combined xG, including draws.
 python3 scripts/silver/scenario_tactical_stalemate.py
 ```
 
+## scenario_great_escape
+
+### Purpose
+
+Find finished wins where the winning side was losing at minute 60.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_great_escape.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_great_escape.py`
+- Target table: `fotmob.silver_scenario_great_escape`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_great_escape.py
+```
+
 ## Template For Future Scenarios
 
 - Scenario name: `scenario_<name>`

@@ -112,3 +112,22 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_tactical_stalemate (
 ) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, match_result)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
+
+CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_great_escape (
+    match_id Int32,
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    goal_diff Int32,
+    home_score_at_60 UInt32,
+    away_score_at_60 UInt32,
+    winning_team Nullable(String),
+    winning_side LowCardinality(String),
+    match_time_utc_date Nullable(String),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, winning_side)
+PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
