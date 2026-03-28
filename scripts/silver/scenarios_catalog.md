@@ -97,6 +97,24 @@ Find finished matches where the winner had less than 35% possession.
 python3 scripts/silver/scenario_low_block_heist.py
 ```
 
+## scenario_tactical_stalemate
+
+### Purpose
+
+Find finished matches with very low combined xG, including draws.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_tactical_stalemate.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_tactical_stalemate.py`
+- Target table: `fotmob.silver_scenario_tactical_stalemate`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_tactical_stalemate.py
+```
+
 ## Template For Future Scenarios
 
 - Scenario name: `scenario_<name>`
