@@ -61,6 +61,8 @@ class GeneralMatchStats(BaseModel):
     match_started: bool = Field(False, description="Whether match has started")
     match_finished: bool = Field(False, description="Whether match has finished")
     full_score: Optional[str] = Field(None, description="Full match score as string (e.g., '2-1')")
+    home_score: Optional[int] = Field(None, description="Home team score parsed from full score")
+    away_score: Optional[int] = Field(None, description="Away team score parsed from full score")
 
 
 class InfoBox(BaseModel):

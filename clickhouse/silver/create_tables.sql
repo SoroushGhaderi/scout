@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_demolition (
 ORDER BY (match_id, winning_side)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
-CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_win_with_low_xg_conceded (
+CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_defensive_shutdown_win (
     match_id Int32,
     home_team_id Nullable(Int32),
     home_team_name Nullable(String),
@@ -134,7 +134,7 @@ PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
 CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_one_man_army (
     match_id Int32,
-    player_id Int32,
+    player_id Nullable(Int32),
     player_name Nullable(String),
     team_id Nullable(Int32),
     team_name Nullable(String),
@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_one_man_army (
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
-ORDER BY (match_id, player_id)
+ORDER BY (match_id, ifNull(player_id, -1))
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
 CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_last_gasp (
@@ -195,7 +195,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_shot_stopper (
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
-ORDER BY (match_id, keeper_id)
+ORDER BY (match_id, ifNull(keeper_id, -1))
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
 CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_war_zone (

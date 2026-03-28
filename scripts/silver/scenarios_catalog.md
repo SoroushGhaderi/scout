@@ -25,7 +25,7 @@ Find finished matches with a 3+ goal winning margin for quick analysis of domina
 python3 scripts/silver/scenario_demolition.py
 ```
 
-## scenario_win_with_low_xg_conceded
+## scenario_defensive_shutdown_win
 
 ### Purpose
 
@@ -33,14 +33,14 @@ Find finished matches where the winner allowed less than 0.3 xG (strong defensiv
 
 ### Files
 
-- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_win_with_low_xg_conceded.sql`
-- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_win_with_low_xg_conceded.py`
-- Target table: `fotmob.silver_scenario_win_with_low_xg_conceded`
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_defensive_shutdown_win.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_defensive_shutdown_win.py`
+- Target table: `fotmob.silver_scenario_defensive_shutdown_win`
 
 ### Run
 
 ```bash
-python3 scripts/silver/scenario_win_with_low_xg_conceded.py
+python3 scripts/silver/scenario_defensive_shutdown_win.py
 ```
 
 ## scenario_underdog_heist

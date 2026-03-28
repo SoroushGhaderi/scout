@@ -1,0 +1,25 @@
+columns substreams version: 1
+10 columns:
+1 substreams for column `match_id`:
+	match_id
+1 substreams for column `event_id`:
+	event_id
+1 substreams for column `red_card_time`:
+	red_card_time
+2 substreams for column `red_card_overload_time`:
+	red_card_overload_time.null
+	red_card_overload_time
+2 substreams for column `player_id`:
+	player_id.null
+	player_id
+2 substreams for column `player_name`:
+	player_name.null
+	player_name
+1 substreams for column `home_score`:
+	home_score
+1 substreams for column `away_score`:
+	away_score
+1 substreams for column `is_home`:
+	is_home
+1 substreams for column `inserted_at`:
+	inserted_at

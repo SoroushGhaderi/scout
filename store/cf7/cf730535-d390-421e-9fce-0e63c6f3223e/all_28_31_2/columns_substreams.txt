@@ -1,0 +1,63 @@
+columns substreams version: 1
+22 columns:
+1 substreams for column `match_id`:
+	match_id
+2 substreams for column `team_side`:
+	team_side.size
+	team_side
+1 substreams for column `team_id`:
+	team_id
+2 substreams for column `team_name`:
+	team_name.null
+	team_name
+1 substreams for column `form_position`:
+	form_position
+1 substreams for column `result`:
+	result
+2 substreams for column `result_string`:
+	result_string.size
+	result_string
+2 substreams for column `score`:
+	score.null
+	score
+2 substreams for column `form_match_date`:
+	form_match_date.null
+	form_match_date
+2 substreams for column `form_match_id`:
+	form_match_id.null
+	form_match_id
+2 substreams for column `form_match_link`:
+	form_match_link.null
+	form_match_link
+2 substreams for column `opponent_id`:
+	opponent_id.null
+	opponent_id
+2 substreams for column `opponent_name`:
+	opponent_name.null
+	opponent_name
+2 substreams for column `opponent_image_url`:
+	opponent_image_url.null
+	opponent_image_url
+2 substreams for column `is_home_match`:
+	is_home_match.null
+	is_home_match
+2 substreams for column `home_team_id`:
+	home_team_id.null
+	home_team_id
+2 substreams for column `home_team_name`:
+	home_team_name.null
+	home_team_name
+2 substreams for column `home_score`:
+	home_score.null
+	home_score
+2 substreams for column `away_team_id`:
+	away_team_id.null
+	away_team_id
+2 substreams for column `away_team_name`:
+	away_team_name.null
+	away_team_name
+2 substreams for column `away_score`:
+	away_score.null
+	away_score
+1 substreams for column `inserted_at`:
+	inserted_at

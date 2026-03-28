@@ -1,0 +1,37 @@
+columns substreams version: 1
+13 columns:
+1 substreams for column `match_id`:
+	match_id
+2 substreams for column `match_time_utc`:
+	match_time_utc.null
+	match_time_utc
+2 substreams for column `first_half_started`:
+	first_half_started.null
+	first_half_started
+2 substreams for column `first_half_ended`:
+	first_half_ended.null
+	first_half_ended
+2 substreams for column `second_half_started`:
+	second_half_started.null
+	second_half_started
+2 substreams for column `second_half_ended`:
+	second_half_ended.null
+	second_half_ended
+2 substreams for column `first_extra_half_started`:
+	first_extra_half_started.null
+	first_extra_half_started
+2 substreams for column `second_extra_half_started`:
+	second_extra_half_started.null
+	second_extra_half_started
+2 substreams for column `game_ended`:
+	game_ended.null
+	game_ended
+1 substreams for column `game_finished`:
+	game_finished
+1 substreams for column `game_started`:
+	game_started
+2 substreams for column `game_cancelled`:
+	game_cancelled.sparse.idx
+	game_cancelled
+1 substreams for column `inserted_at`:
+	inserted_at

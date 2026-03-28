@@ -1,0 +1,285 @@
+columns substreams version: 1
+95 columns:
+1 substreams for column `match_id`:
+	match_id
+2 substreams for column `period`:
+	period.size
+	period
+2 substreams for column `ball_possession_home`:
+	ball_possession_home.null
+	ball_possession_home
+2 substreams for column `ball_possession_away`:
+	ball_possession_away.null
+	ball_possession_away
+2 substreams for column `expected_goals_home`:
+	expected_goals_home.null
+	expected_goals_home
+2 substreams for column `expected_goals_away`:
+	expected_goals_away.null
+	expected_goals_away
+2 substreams for column `expected_goals_open_play_home`:
+	expected_goals_open_play_home.null
+	expected_goals_open_play_home
+2 substreams for column `expected_goals_open_play_away`:
+	expected_goals_open_play_away.null
+	expected_goals_open_play_away
+2 substreams for column `expected_goals_set_play_home`:
+	expected_goals_set_play_home.null
+	expected_goals_set_play_home
+2 substreams for column `expected_goals_set_play_away`:
+	expected_goals_set_play_away.null
+	expected_goals_set_play_away
+2 substreams for column `expected_goals_non_penalty_home`:
+	expected_goals_non_penalty_home.null
+	expected_goals_non_penalty_home
+2 substreams for column `expected_goals_non_penalty_away`:
+	expected_goals_non_penalty_away.null
+	expected_goals_non_penalty_away
+2 substreams for column `expected_goals_on_target_home`:
+	expected_goals_on_target_home.null
+	expected_goals_on_target_home
+2 substreams for column `expected_goals_on_target_away`:
+	expected_goals_on_target_away.null
+	expected_goals_on_target_away
+2 substreams for column `distance_covered_home`:
+	distance_covered_home.null
+	distance_covered_home
+2 substreams for column `distance_covered_away`:
+	distance_covered_away.null
+	distance_covered_away
+2 substreams for column `walking_distance_home`:
+	walking_distance_home.null
+	walking_distance_home
+2 substreams for column `walking_distance_away`:
+	walking_distance_away.null
+	walking_distance_away
+2 substreams for column `running_distance_home`:
+	running_distance_home.null
+	running_distance_home
+2 substreams for column `running_distance_away`:
+	running_distance_away.null
+	running_distance_away
+2 substreams for column `sprinting_distance_home`:
+	sprinting_distance_home.null
+	sprinting_distance_home
+2 substreams for column `sprinting_distance_away`:
+	sprinting_distance_away.null
+	sprinting_distance_away
+2 substreams for column `number_of_sprints_home`:
+	number_of_sprints_home.null
+	number_of_sprints_home
+2 substreams for column `number_of_sprints_away`:
+	number_of_sprints_away.null
+	number_of_sprints_away
+2 substreams for column `top_speed_home`:
+	top_speed_home.null
+	top_speed_home
+2 substreams for column `top_speed_away`:
+	top_speed_away.null
+	top_speed_away
+2 substreams for column `total_shots_home`:
+	total_shots_home.null
+	total_shots_home
+2 substreams for column `total_shots_away`:
+	total_shots_away.null
+	total_shots_away
+2 substreams for column `shots_on_target_home`:
+	shots_on_target_home.null
+	shots_on_target_home
+2 substreams for column `shots_on_target_away`:
+	shots_on_target_away.null
+	shots_on_target_away
+2 substreams for column `shots_off_target_home`:
+	shots_off_target_home.null
+	shots_off_target_home
+2 substreams for column `shots_off_target_away`:
+	shots_off_target_away.null
+	shots_off_target_away
+2 substreams for column `blocked_shots_home`:
+	blocked_shots_home.null
+	blocked_shots_home
+2 substreams for column `blocked_shots_away`:
+	blocked_shots_away.null
+	blocked_shots_away
+2 substreams for column `shots_woodwork_home`:
+	shots_woodwork_home.null
+	shots_woodwork_home
+2 substreams for column `shots_woodwork_away`:
+	shots_woodwork_away.null
+	shots_woodwork_away
+2 substreams for column `shots_sidebox_home`:
+	shots_sidebox_home.null
+	shots_sidebox_home
+2 substreams for column `shots_sidebox_away`:
+	shots_sidebox_away.null
+	shots_sidebox_away
+2 substreams for column `shots_inside_box_home`:
+	shots_inside_box_home.null
+	shots_inside_box_home
+2 substreams for column `shots_inside_box_away`:
+	shots_inside_box_away.null
+	shots_inside_box_away
+2 substreams for column `shots_outside_box_home`:
+	shots_outside_box_home.null
+	shots_outside_box_home
+2 substreams for column `shots_outside_box_away`:
+	shots_outside_box_away.null
+	shots_outside_box_away
+2 substreams for column `big_chances_home`:
+	big_chances_home.null
+	big_chances_home
+2 substreams for column `big_chances_away`:
+	big_chances_away.null
+	big_chances_away
+2 substreams for column `big_chances_missed_home`:
+	big_chances_missed_home.null
+	big_chances_missed_home
+2 substreams for column `big_chances_missed_away`:
+	big_chances_missed_away.null
+	big_chances_missed_away
+2 substreams for column `fouls_home`:
+	fouls_home.null
+	fouls_home
+2 substreams for column `fouls_away`:
+	fouls_away.null
+	fouls_away
+2 substreams for column `corners_home`:
+	corners_home.null
+	corners_home
+2 substreams for column `corners_away`:
+	corners_away.null
+	corners_away
+2 substreams for column `shots_home`:
+	shots_home.null
+	shots_home
+2 substreams for column `shots_away`:
+	shots_away.null
+	shots_away
+2 substreams for column `passes_home`:
+	passes_home.null
+	passes_home
+2 substreams for column `passes_away`:
+	passes_away.null
+	passes_away
+2 substreams for column `accurate_passes_home`:
+	accurate_passes_home.null
+	accurate_passes_home
+2 substreams for column `accurate_passes_away`:
+	accurate_passes_away.null
+	accurate_passes_away
+2 substreams for column `own_half_passes_home`:
+	own_half_passes_home.null
+	own_half_passes_home
+2 substreams for column `own_half_passes_away`:
+	own_half_passes_away.null
+	own_half_passes_away
+2 substreams for column `opposition_half_passes_home`:
+	opposition_half_passes_home.null
+	opposition_half_passes_home
+2 substreams for column `opposition_half_passes_away`:
+	opposition_half_passes_away.null
+	opposition_half_passes_away
+2 substreams for column `long_balls_accurate_home`:
+	long_balls_accurate_home.null
+	long_balls_accurate_home
+2 substreams for column `long_balls_accurate_away`:
+	long_balls_accurate_away.null
+	long_balls_accurate_away
+2 substreams for column `accurate_crosses_home`:
+	accurate_crosses_home.null
+	accurate_crosses_home
+2 substreams for column `accurate_crosses_away`:
+	accurate_crosses_away.null
+	accurate_crosses_away
+2 substreams for column `player_throws_home`:
+	player_throws_home.null
+	player_throws_home
+2 substreams for column `player_throws_away`:
+	player_throws_away.null
+	player_throws_away
+2 substreams for column `touches_opp_box_home`:
+	touches_opp_box_home.null
+	touches_opp_box_home
+2 substreams for column `touches_opp_box_away`:
+	touches_opp_box_away.null
+	touches_opp_box_away
+2 substreams for column `tackles_succeeded_home`:
+	tackles_succeeded_home.null
+	tackles_succeeded_home
+2 substreams for column `tackles_succeeded_away`:
+	tackles_succeeded_away.null
+	tackles_succeeded_away
+2 substreams for column `interceptions_home`:
+	interceptions_home.null
+	interceptions_home
+2 substreams for column `interceptions_away`:
+	interceptions_away.null
+	interceptions_away
+2 substreams for column `shot_blocks_home`:
+	shot_blocks_home.null
+	shot_blocks_home
+2 substreams for column `shot_blocks_away`:
+	shot_blocks_away.null
+	shot_blocks_away
+2 substreams for column `clearances_home`:
+	clearances_home.null
+	clearances_home
+2 substreams for column `clearances_away`:
+	clearances_away.null
+	clearances_away
+2 substreams for column `keeper_saves_home`:
+	keeper_saves_home.null
+	keeper_saves_home
+2 substreams for column `keeper_saves_away`:
+	keeper_saves_away.null
+	keeper_saves_away
+2 substreams for column `duels_won_home`:
+	duels_won_home.null
+	duels_won_home
+2 substreams for column `duels_won_away`:
+	duels_won_away.null
+	duels_won_away
+2 substreams for column `ground_duels_won_home`:
+	ground_duels_won_home.null
+	ground_duels_won_home
+2 substreams for column `ground_duels_won_away`:
+	ground_duels_won_away.null
+	ground_duels_won_away
+2 substreams for column `aerials_won_home`:
+	aerials_won_home.null
+	aerials_won_home
+2 substreams for column `aerials_won_away`:
+	aerials_won_away.null
+	aerials_won_away
+2 substreams for column `dribbles_succeeded_home`:
+	dribbles_succeeded_home.null
+	dribbles_succeeded_home
+2 substreams for column `dribbles_succeeded_away`:
+	dribbles_succeeded_away.null
+	dribbles_succeeded_away
+2 substreams for column `yellow_cards_home`:
+	yellow_cards_home.null
+	yellow_cards_home
+2 substreams for column `yellow_cards_away`:
+	yellow_cards_away.null
+	yellow_cards_away
+2 substreams for column `red_cards_home`:
+	red_cards_home.null
+	red_cards_home
+2 substreams for column `red_cards_away`:
+	red_cards_away.null
+	red_cards_away
+2 substreams for column `offsides_home`:
+	offsides_home.null
+	offsides_home
+2 substreams for column `offsides_away`:
+	offsides_away.null
+	offsides_away
+2 substreams for column `home_color`:
+	home_color.null
+	home_color
+2 substreams for column `away_color`:
+	away_color.null
+	away_color
+1 substreams for column `inserted_at`:
+	inserted_at

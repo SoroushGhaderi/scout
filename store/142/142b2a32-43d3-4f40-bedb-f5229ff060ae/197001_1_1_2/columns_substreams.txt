@@ -1,0 +1,43 @@
+columns substreams version: 1
+14 columns:
+1 substreams for column `match_id`:
+	match_id
+2 substreams for column `home_team_id`:
+	home_team_id.null
+	home_team_id
+2 substreams for column `away_team_id`:
+	away_team_id.null
+	away_team_id
+2 substreams for column `home_team_name`:
+	home_team_name.null
+	home_team_name
+2 substreams for column `away_team_name`:
+	away_team_name.null
+	away_team_name
+2 substreams for column `home_score`:
+	home_score.null
+	home_score
+2 substreams for column `away_score`:
+	away_score.null
+	away_score
+2 substreams for column `xg_home`:
+	xg_home.null
+	xg_home
+2 substreams for column `xg_away`:
+	xg_away.null
+	xg_away
+2 substreams for column `combined_xg`:
+	combined_xg.null
+	combined_xg
+2 substreams for column `winning_team`:
+	winning_team.null
+	winning_team
+3 substreams for column `match_result`:
+	match_result.dict_prefix
+	match_result.dict
+	match_result
+2 substreams for column `match_time_utc_date`:
+	match_time_utc_date.null
+	match_time_utc_date
+1 substreams for column `inserted_at`:
+	inserted_at

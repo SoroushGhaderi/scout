@@ -1,0 +1,7 @@
+columns format version: 1
+5 columns:
+`match_id` Int32
+`minute` Nullable(Float32)
+`value` Nullable(Int32)
+`momentum_team` Nullable(String)
+`inserted_at` DateTime

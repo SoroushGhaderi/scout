@@ -1,0 +1,77 @@
+columns substreams version: 1
+26 columns:
+1 substreams for column `match_id`:
+	match_id
+2 substreams for column `team_side`:
+	team_side.size
+	team_side
+1 substreams for column `player_id`:
+	player_id
+2 substreams for column `age`:
+	age.null
+	age
+2 substreams for column `name`:
+	name.null
+	name
+2 substreams for column `first_name`:
+	first_name.null
+	first_name
+2 substreams for column `last_name`:
+	last_name.null
+	last_name
+2 substreams for column `position_id`:
+	position_id.null
+	position_id
+2 substreams for column `usual_playing_position_id`:
+	usual_playing_position_id.null
+	usual_playing_position_id
+2 substreams for column `shirt_number`:
+	shirt_number.null
+	shirt_number
+2 substreams for column `is_captain`:
+	is_captain.null
+	is_captain
+2 substreams for column `country_name`:
+	country_name.null
+	country_name
+2 substreams for column `country_code`:
+	country_code.null
+	country_code
+2 substreams for column `horizontal_x`:
+	horizontal_x.null
+	horizontal_x
+2 substreams for column `horizontal_y`:
+	horizontal_y.null
+	horizontal_y
+2 substreams for column `horizontal_height`:
+	horizontal_height.null
+	horizontal_height
+2 substreams for column `horizontal_width`:
+	horizontal_width.null
+	horizontal_width
+2 substreams for column `vertical_x`:
+	vertical_x.null
+	vertical_x
+2 substreams for column `vertical_y`:
+	vertical_y.null
+	vertical_y
+2 substreams for column `vertical_height`:
+	vertical_height.null
+	vertical_height
+2 substreams for column `vertical_width`:
+	vertical_width.null
+	vertical_width
+2 substreams for column `performance_rating`:
+	performance_rating.null
+	performance_rating
+2 substreams for column `substitution_time`:
+	substitution_time.null
+	substitution_time
+2 substreams for column `substitution_type`:
+	substitution_type.null
+	substitution_type
+2 substreams for column `substitution_reason`:
+	substitution_reason.null
+	substitution_reason
+1 substreams for column `inserted_at`:
+	inserted_at

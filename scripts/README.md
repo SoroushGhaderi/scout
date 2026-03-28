@@ -24,7 +24,7 @@ Use these for all new documentation, automation, and daily runs:
 ## Scenario Scripts
 
 - `scripts/silver/scenario_demolition.py`
-- `scripts/silver/scenario_clean_sheet_dominance.py`
+- `scripts/silver/scenario_defensive_shutdown_win.py`
 - `scripts/silver/scenario_underdog_heist.py`
 - `scripts/silver/scenario_dead_ball_dominance.py`
 - `scripts/silver/scenario_low_block_heist.py`

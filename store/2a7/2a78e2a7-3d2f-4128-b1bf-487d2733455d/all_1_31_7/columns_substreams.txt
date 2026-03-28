@@ -1,0 +1,15 @@
+columns substreams version: 1
+5 columns:
+1 substreams for column `match_id`:
+	match_id
+2 substreams for column `minute`:
+	minute.null
+	minute
+2 substreams for column `value`:
+	value.null
+	value
+2 substreams for column `momentum_team`:
+	momentum_team.null
+	momentum_team
+1 substreams for column `inserted_at`:
+	inserted_at

@@ -1,0 +1,28 @@
+ATTACH TABLE _ UUID 'cf730535-d390-421e-9fce-0e63c6f3223e'
+(
+    `match_id` Int32,
+    `team_side` String,
+    `team_id` Int64,
+    `team_name` Nullable(String),
+    `form_position` Int32,
+    `result` Int32,
+    `result_string` String,
+    `score` Nullable(String),
+    `form_match_date` Nullable(String),
+    `form_match_id` Nullable(String),
+    `form_match_link` Nullable(String),
+    `opponent_id` Nullable(Int32),
+    `opponent_name` Nullable(String),
+    `opponent_image_url` Nullable(String),
+    `is_home_match` Nullable(UInt8),
+    `home_team_id` Nullable(Int32),
+    `home_team_name` Nullable(String),
+    `home_score` Nullable(String),
+    `away_team_id` Nullable(Int32),
+    `away_team_name` Nullable(String),
+    `away_score` Nullable(String),
+    `inserted_at` DateTime DEFAULT now()
+)
+ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, team_id, form_position)
+SETTINGS index_granularity = 8192
