@@ -30,4 +30,5 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/scenario_low_block_heist.py`
 - `scripts/silver/scenario_tactical_stalemate.py`
 - `scripts/silver/scenario_great_escape.py`
+- `scripts/silver/scenario_one_man_army.py`
 - `scripts/silver/scenarios_catalog.md`
