@@ -223,6 +223,42 @@ Find highly efficient scorers with multiple goals from low shot and low xG volum
 python3 scripts/silver/scenario_clinical_finisher.py
 ```
 
+## scenario_russian_roulette
+
+### Purpose
+
+Find finished matches with intense penalty-event variance and multiple spot kicks.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_russian_roulette.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_russian_roulette.py`
+- Target table: `fotmob.silver_scenario_russian_roulette`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_russian_roulette.py
+```
+
+## scenario_efficiency_machine
+
+### Purpose
+
+Find winning teams that combine low shot volume with high average xG per shot.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_efficiency_machine.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_efficiency_machine.py`
+- Target table: `fotmob.silver_scenario_efficiency_machine`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_efficiency_machine.py
+```
+
 ## Template For Future Scenarios
 
 - Scenario name: `scenario_<name>`

@@ -35,4 +35,6 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/scenario_shot_stopper.py`
 - `scripts/silver/scenario_war_zone.py`
 - `scripts/silver/scenario_clinical_finisher.py`
+- `scripts/silver/scenario_russian_roulette.py`
+- `scripts/silver/scenario_efficiency_machine.py`
 - `scripts/silver/scenarios_catalog.md`
