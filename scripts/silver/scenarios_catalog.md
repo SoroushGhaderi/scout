@@ -151,6 +151,24 @@ Find standout individual performances with at least two goals or two assists.
 python3 scripts/silver/scenario_one_man_army.py
 ```
 
+## scenario_last_gasp
+
+### Purpose
+
+Find finished wins where the deciding goal came late (85+) from draw/losing state.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_last_gasp.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_last_gasp.py`
+- Target table: `fotmob.silver_scenario_last_gasp`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_last_gasp.py
+```
+
 ## Template For Future Scenarios
 
 - Scenario name: `scenario_<name>`
