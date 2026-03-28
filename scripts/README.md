@@ -42,4 +42,5 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/scenario_wildcard.py`
 - `scripts/silver/scenario_lead_by_example.py`
 - `scripts/silver/scenario_young_gun.py`
+- `scripts/silver/scenario_second_half_warriors.py`
 - `scripts/silver/scenarios_catalog.md`

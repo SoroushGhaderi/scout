@@ -349,6 +349,24 @@ Find high-impact young starters (age <= 21) with above-average ratings and direc
 python3 scripts/silver/scenario_young_gun.py
 ```
 
+## scenario_second_half_warriors
+
+### Purpose
+
+Find teams that trailed at halftime but recovered to at least draw by full time.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_second_half_warriors.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_second_half_warriors.py`
+- Target table: `fotmob.silver_scenario_second_half_warriors`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_second_half_warriors.py
+```
+
 ## Template For Future Scenarios
 
 - Scenario name: `scenario_<name>`

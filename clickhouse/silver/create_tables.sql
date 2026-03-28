@@ -426,3 +426,25 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_young_gun (
 ) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, ifNull(player_id, -1))
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
+
+CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_second_half_warriors (
+    match_id Int32,
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_name Nullable(String),
+    home_score_ft Nullable(Int32),
+    away_score_ft Nullable(Int32),
+    home_score_ht UInt32,
+    away_score_ht UInt32,
+    home_second_half_goals Int32,
+    away_second_half_goals Int32,
+    losing_team_at_ht LowCardinality(String),
+    match_result LowCardinality(String),
+    comeback_team Nullable(String),
+    comeback_type LowCardinality(String),
+    match_time_utc_date Nullable(String),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, match_result)
+PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
