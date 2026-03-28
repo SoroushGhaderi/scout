@@ -240,7 +240,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_clinical_finisher (
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
-ORDER BY (match_id, player_id)
+ORDER BY (match_id, ifNull(player_id, -1))
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
 CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_russian_roulette (
@@ -314,7 +314,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_away_day_masterclass (
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
-ORDER BY (match_id, away_team_id)
+ORDER BY (match_id, ifNull(away_team_id, -1))
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
 CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_key_pass_king (
