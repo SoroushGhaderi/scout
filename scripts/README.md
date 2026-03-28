@@ -34,4 +34,5 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/scenario_last_gasp.py`
 - `scripts/silver/scenario_shot_stopper.py`
 - `scripts/silver/scenario_war_zone.py`
+- `scripts/silver/scenario_clinical_finisher.py`
 - `scripts/silver/scenarios_catalog.md`

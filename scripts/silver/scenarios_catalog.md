@@ -205,6 +205,24 @@ Find finished high-intensity matches with extreme fouls/cards profiles.
 python3 scripts/silver/scenario_war_zone.py
 ```
 
+## scenario_clinical_finisher
+
+### Purpose
+
+Find highly efficient scorers with multiple goals from low shot and low xG volume.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_clinical_finisher.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_clinical_finisher.py`
+- Target table: `fotmob.silver_scenario_clinical_finisher`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_clinical_finisher.py
+```
+
 ## Template For Future Scenarios
 
 - Scenario name: `scenario_<name>`
