@@ -169,6 +169,24 @@ Find finished wins where the deciding goal came late (85+) from draw/losing stat
 python3 scripts/silver/scenario_last_gasp.py
 ```
 
+## scenario_shot_stopper
+
+### Purpose
+
+Find goalkeepers with standout shot-stopping impact (xG saved >= 1.5).
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_shot_stopper.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_shot_stopper.py`
+- Target table: `fotmob.silver_scenario_shot_stopper`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_shot_stopper.py
+```
+
 ## Template For Future Scenarios
 
 - Scenario name: `scenario_<name>`
