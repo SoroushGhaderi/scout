@@ -1,6 +1,7 @@
 """Shared helpers for ClickHouse layer setup scripts."""
 
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Iterable, Optional
@@ -18,13 +19,21 @@ LAYER_ORDER = ("bronze", "silver", "gold")
 
 def connect_clickhouse() -> ClickHouseClient:
     """Connect to ClickHouse, creating the configured user when needed."""
-    host = os.getenv("CLICKHOUSE_HOST", "clickhouse")
+    host = os.getenv("CLICKHOUSE_HOST", "localhost")
     port = int(os.getenv("CLICKHOUSE_PORT", "8123"))
     username = os.getenv("CLICKHOUSE_USER", "fotmob_user")
     password = os.getenv("CLICKHOUSE_PASSWORD", "fotmob_pass")
+    is_docker_runtime = Path("/.dockerenv").exists()
     host_candidates = [host]
-    if host == "clickhouse" and not Path("/.dockerenv").exists():
-        host_candidates.extend(["localhost", "127.0.0.1"])
+    if not is_docker_runtime:
+        # Host-side runs should prefer local port mapping first, then docker DNS alias.
+        if host == "clickhouse":
+            host_candidates = ["localhost", "127.0.0.1", "clickhouse"]
+        elif host == "localhost":
+            host_candidates = ["localhost", "127.0.0.1"]
+
+    # Keep order stable while removing duplicates.
+    host_candidates = list(dict.fromkeys(host_candidates))
 
     attempted_hosts: list[str] = []
     for candidate_host in host_candidates:
@@ -152,8 +161,8 @@ def create_user_if_not_exists(client: ClickHouseClient, username: str, password:
 def resolve_clickhouse_root() -> Path:
     """Locate the ClickHouse SQL root directory."""
     candidates = [
-        Path("/app/clickhouse"),
         project_root / "clickhouse",
+        Path("/app/clickhouse"),
         Path("clickhouse"),
     ]
     root = next((path for path in candidates if path.exists()), None)
@@ -171,10 +180,20 @@ def get_layer_sql_files(layer_name: str, clickhouse_root: Optional[Path] = None)
     layer_dir = root / layer_name
     if not layer_dir.exists():
         raise FileNotFoundError(f"Missing SQL directory for layer '{layer_name}': {layer_dir}")
-    sql_files = sorted(layer_dir.glob("*.sql"))
+    sql_files = [sql_file for sql_file in layer_dir.glob("*.sql") if not sql_file.name.startswith("scenario_")]
     if not sql_files:
         raise FileNotFoundError(f"No SQL files found in {layer_dir}")
-    return sql_files
+
+    def _sort_key(sql_file: Path) -> tuple[int, int, str]:
+        name = sql_file.name
+        number_prefix = re.match(r"^(\d+)_", name)
+        if number_prefix:
+            return (0, int(number_prefix.group(1)), name)
+        if name == "create_tables.sql":
+            return (1, 0, name)
+        return (2, 0, name)
+
+    return sorted(sql_files, key=_sort_key)
 
 
 def execute_sql_file(client: ClickHouseClient, sql_file: Path, database: Optional[str] = None) -> bool:

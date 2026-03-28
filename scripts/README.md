@@ -20,3 +20,10 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/health_check.py`
 - `scripts/refresh_turnstile.py`
 - `scripts/check_logging_style.py`
+
+## Scenario Scripts
+
+- `scripts/silver/scenario_demolition.py`
+- `scripts/silver/scenario_clean_sheet_dominance.py`
+- `scripts/silver/scenario_underdog_heist.py`
+- `scripts/silver/scenarios_catalog.md`

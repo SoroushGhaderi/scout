@@ -1,0 +1,71 @@
+# Silver Scenarios Catalog
+
+This file is the shared documentation for scenario-style jobs in the silver layer.
+Add each new scenario as a separate section below.
+
+## Shared DDL For Scenario Tables
+
+- Table DDL file: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/create_tables.sql`
+
+## scenario_demolition
+
+### Purpose
+
+Find finished matches with a 3+ goal winning margin for quick analysis of dominant results.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_demolition.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_demolition.py`
+- Target table: `fotmob.silver_scenario_demolition`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_demolition.py
+```
+
+## scenario_win_with_low_xg_conceded
+
+### Purpose
+
+Find finished matches where the winner allowed less than 0.3 xG (strong defensive dominance).
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_win_with_low_xg_conceded.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_win_with_low_xg_conceded.py`
+- Target table: `fotmob.silver_scenario_win_with_low_xg_conceded`
+
+### Run
+
+```bash
+python3 scripts/silver/silver_scenario_win_with_low_xg_conceded.py
+```
+
+## scenario_underdog_heist
+
+### Purpose
+
+Find finished matches where the winner had less than 1.0 xG (an underdog-style win).
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_underdog_heist.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_underdog_heist.py`
+- Target table: `fotmob.silver_scenario_underdog_heist`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_underdog_heist.py
+```
+
+## Template For Future Scenarios
+
+- Scenario name: `scenario_<name>`
+- Purpose: short business reason
+- SQL file: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_<name>.sql`
+- Python file: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_<name>.py`
+- Optional target table: `fotmob.silver_scenario_<name>`
+- Run command: `python3 scripts/silver/scenario_<name>.py`
