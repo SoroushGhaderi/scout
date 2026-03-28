@@ -259,6 +259,60 @@ Find winning teams that combine low shot volume with high average xG per shot.
 python3 scripts/silver/scenario_efficiency_machine.py
 ```
 
+## scenario_away_day_masterclass
+
+### Purpose
+
+Find away wins where the away side dominated both possession and xG.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_away_day_masterclass.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_away_day_masterclass.py`
+- Target table: `fotmob.silver_scenario_away_day_masterclass`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_away_day_masterclass.py
+```
+
+## scenario_key_pass_king
+
+### Purpose
+
+Find top creators with high chance creation and strong expected-assist output.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_key_pass_king.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_key_pass_king.py`
+- Target table: `fotmob.silver_scenario_key_pass_king`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_key_pass_king.py
+```
+
+## scenario_wildcard
+
+### Purpose
+
+Find substitutes who came on and delivered direct goal contributions.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_wildcard.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_wildcard.py`
+- Target table: `fotmob.silver_scenario_wildcard`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_wildcard.py
+```
+
 ## Template For Future Scenarios
 
 - Scenario name: `scenario_<name>`

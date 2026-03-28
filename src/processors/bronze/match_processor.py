@@ -730,8 +730,8 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                         total = stat_detail.get("stat", {}).get("total")
                         if key == "rating_title":
                             flat_data["fotmob_rating"] = value
-                        elif key == "mins_played":
-                            flat_data["mins_played"] = value
+                        elif key in ("minutes_played", "mins_played"):
+                            flat_data["minutes_played"] = value
                         elif key == "goals":
                             flat_data["goals"] = value
                         elif key == "assists":

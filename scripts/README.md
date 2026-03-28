@@ -37,4 +37,7 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/scenario_clinical_finisher.py`
 - `scripts/silver/scenario_russian_roulette.py`
 - `scripts/silver/scenario_efficiency_machine.py`
+- `scripts/silver/scenario_away_day_masterclass.py`
+- `scripts/silver/scenario_key_pass_king.py`
+- `scripts/silver/scenario_wildcard.py`
 - `scripts/silver/scenarios_catalog.md`
