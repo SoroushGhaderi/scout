@@ -367,3 +367,62 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_wildcard (
 ) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, ifNull(player_id, -1))
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
+
+CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_lead_by_example (
+    match_id Int32,
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    goal_diff Int32,
+    player_id Nullable(Int32),
+    captain_name Nullable(String),
+    team_side LowCardinality(String),
+    goals Nullable(Int32),
+    assists Nullable(Int32),
+    goal_contributions Nullable(Int32),
+    xg Nullable(Float32),
+    xa Nullable(Float32),
+    rating Nullable(Float32),
+    avg_rating Nullable(Float32),
+    rating_above_avg Nullable(Float32),
+    minutes_played Nullable(Int32),
+    winning_team Nullable(String),
+    winning_side LowCardinality(String),
+    match_time_utc_date Nullable(String),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, ifNull(player_id, -1))
+PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
+
+CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_young_gun (
+    match_id Int32,
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    player_id Nullable(Int32),
+    player_name Nullable(String),
+    age Nullable(Int32),
+    team_side LowCardinality(String),
+    is_captain Nullable(UInt8),
+    goals Nullable(Int32),
+    assists Nullable(Int32),
+    goal_contributions Nullable(Int32),
+    xg Nullable(Float32),
+    xa Nullable(Float32),
+    rating Nullable(Float32),
+    avg_rating Nullable(Float32),
+    rating_above_avg Nullable(Float32),
+    minutes_played Nullable(Int32),
+    winning_team Nullable(String),
+    match_result LowCardinality(String),
+    match_time_utc_date Nullable(String),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, ifNull(player_id, -1))
+PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));

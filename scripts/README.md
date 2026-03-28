@@ -40,4 +40,6 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/scenario_away_day_masterclass.py`
 - `scripts/silver/scenario_key_pass_king.py`
 - `scripts/silver/scenario_wildcard.py`
+- `scripts/silver/scenario_lead_by_example.py`
+- `scripts/silver/scenario_young_gun.py`
 - `scripts/silver/scenarios_catalog.md`

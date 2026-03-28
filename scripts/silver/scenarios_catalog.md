@@ -313,6 +313,42 @@ Find substitutes who came on and delivered direct goal contributions.
 python3 scripts/silver/scenario_wildcard.py
 ```
 
+## scenario_lead_by_example
+
+### Purpose
+
+Find winning captains who delivered direct output and rated above overall average.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_lead_by_example.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_lead_by_example.py`
+- Target table: `fotmob.silver_scenario_lead_by_example`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_lead_by_example.py
+```
+
+## scenario_young_gun
+
+### Purpose
+
+Find high-impact young starters (age <= 21) with above-average ratings and direct output.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_young_gun.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_young_gun.py`
+- Target table: `fotmob.silver_scenario_young_gun`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_young_gun.py
+```
+
 ## Template For Future Scenarios
 
 - Scenario name: `scenario_<name>`
