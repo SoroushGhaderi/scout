@@ -87,7 +87,7 @@ UNIQUE_KEY_COLUMNS = {
     "venue": ["match_id"],
     "player": ["match_id", "player_id"],
     "shotmap": ["match_id", "id"],
-    "goal": ["match_id", "event_id"],
+    "goal": ["match_id", "event_id", "player_id", "goal_time"],
     "cards": ["match_id", "event_id"],
     "red_card": ["match_id", "event_id"],
     "period": ["match_id", "period"],

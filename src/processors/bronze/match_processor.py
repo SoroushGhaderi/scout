@@ -1,5 +1,6 @@
 """Match data processor: converts raw API data to structured format."""
 import logging
+import re
 from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
 
@@ -118,6 +119,18 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             self.response_saver = ResponseSaver(response_output_dir)
         else:
             self.response_saver = None
+
+    @staticmethod
+    def _split_full_score(full_score: Optional[str]) -> Tuple[Optional[int], Optional[int]]:
+        """Parse score strings like '2-1' or '2 - 1' into home/away integer scores."""
+        if not full_score:
+            return None, None
+
+        match = re.match(r"^\s*(\d+)\s*-\s*(\d+)\s*$", str(full_score))
+        if not match:
+            return None, None
+
+        return int(match.group(1)), int(match.group(2))
 
     def process_all(
         self, 
@@ -289,6 +302,8 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 return None
             team_colors_dark = general_data.get("teamColors", {}).get("darkMode", {})
             team_colors_light = general_data.get("teamColors", {}).get("lightMode", {})
+            full_score = self.extractor.safe_get_nested(response_data, "header", "status", "scoreStr")
+            home_score, away_score = self._split_full_score(full_score)
             processed_data = {
                 "match_id": general_data.get("matchId"),
                 "match_round": general_data.get("matchRound"),
@@ -313,9 +328,9 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 "match_time_utc_date": general_data.get("matchTimeUTCDate"),
                 "match_started": general_data.get("started", False),
                 "match_finished": general_data.get("finished", False),
-                "full_score": self.extractor.safe_get_nested(
-                    response_data, "header", "status", "scoreStr"
-                )
+                "full_score": full_score,
+                "home_score": home_score,
+                "away_score": away_score,
             }
             validated_stats = GeneralMatchStats(**processed_data)
             return validated_stats.model_dump()
@@ -353,10 +368,22 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                             continue
                         player_data = scorer_stat.get("player", {}) or {}
                         shotmap_data = scorer_stat.get("shotmapEvent", {}) or {}
+                        goal_time = scorer_stat.get("time")
+                        if goal_time is None:
+                            goal_time = shotmap_data.get("min")
+
+                        event_id = scorer_stat.get("eventId")
+                        if event_id is None:
+                            event_id = 0
+
+                        player_id = player_data.get("id")
+                        if player_id is None:
+                            player_id = scorer_stat.get("playerId")
+
                         flat_goal_data = {
                             "match_id": match_id,
-                            "event_id": scorer_stat.get("eventId"),
-                            "goal_time": scorer_stat.get("time"),
+                            "event_id": event_id,
+                            "goal_time": goal_time,
                             "goal_overload_time": scorer_stat.get("overloadTime"),
                             "home_score": scorer_stat.get("homeScore"),
                             "away_score": scorer_stat.get("awayScore"),
@@ -365,7 +392,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                             "goal_description": scorer_stat.get("goalDescription"),
                             "assist_player_id": scorer_stat.get("assistPlayerId"),
                             "assist_player_name": scorer_stat.get("assistInput"),
-                            "player_id": player_data.get("id"),
+                            "player_id": player_id,
                             "player_name": player_data.get("name"),
                             "shot_event_id": shotmap_data.get("id"),
                             "shot_x_loc": shotmap_data.get("x"),

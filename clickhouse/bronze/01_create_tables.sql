@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS fotmob.bronze_general (
     match_started UInt8,
     match_finished UInt8,
     full_score Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id)
@@ -213,7 +215,7 @@ CREATE TABLE IF NOT EXISTS fotmob.bronze_goal (
     shot_from_inside_box Nullable(UInt8),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
-ORDER BY (match_id, event_id);
+ORDER BY (match_id, event_id, ifNull(player_id, -1), goal_time);
 
 -- 7. Card Events
 CREATE TABLE IF NOT EXISTS fotmob.bronze_cards (
