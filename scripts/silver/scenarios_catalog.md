@@ -187,6 +187,24 @@ Find goalkeepers with standout shot-stopping impact (xG saved >= 1.5).
 python3 scripts/silver/scenario_shot_stopper.py
 ```
 
+## scenario_war_zone
+
+### Purpose
+
+Find finished high-intensity matches with extreme fouls/cards profiles.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_war_zone.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_war_zone.py`
+- Target table: `fotmob.silver_scenario_war_zone`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_war_zone.py
+```
+
 ## Template For Future Scenarios
 
 - Scenario name: `scenario_<name>`
