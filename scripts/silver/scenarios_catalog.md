@@ -40,7 +40,7 @@ Find finished matches where the winner allowed less than 0.3 xG (strong defensiv
 ### Run
 
 ```bash
-python3 scripts/silver/silver_scenario_win_with_low_xg_conceded.py
+python3 scripts/silver/scenario_win_with_low_xg_conceded.py
 ```
 
 ## scenario_underdog_heist
@@ -59,6 +59,42 @@ Find finished matches where the winner had less than 1.0 xG (an underdog-style w
 
 ```bash
 python3 scripts/silver/scenario_underdog_heist.py
+```
+
+## scenario_dead_ball_dominance
+
+### Purpose
+
+Find finished wins where the winning side scored at least two goals from dead-ball situations.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_dead_ball_dominance.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_dead_ball_dominance.py`
+- Target table: `fotmob.silver_scenario_dead_ball_dominance`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_dead_ball_dominance.py
+```
+
+## scenario_low_block_heist
+
+### Purpose
+
+Find finished matches where the winner had less than 35% possession.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_low_block_heist.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_low_block_heist.py`
+- Target table: `fotmob.silver_scenario_low_block_heist`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_low_block_heist.py
 ```
 
 ## Template For Future Scenarios

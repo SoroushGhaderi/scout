@@ -15,6 +15,10 @@ from src.utils.logging_utils import get_logger
 logger = get_logger()
 
 LAYER_ORDER = ("bronze", "silver", "gold")
+CREATE_TABLE_PATTERN = re.compile(
+    r"^CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([`\"\w.]+)",
+    re.IGNORECASE,
+)
 
 
 def connect_clickhouse() -> ClickHouseClient:
@@ -229,19 +233,30 @@ def execute_sql_file(client: ClickHouseClient, sql_file: Path, database: Optiona
                 statements.append(statement)
 
         executed_count = 0
+        created_tables: list[str] = []
         for statement in statements:
+            normalized_statement = statement.strip()
+            create_match = CREATE_TABLE_PATTERN.match(normalized_statement)
+            table_name = create_match.group(1).strip("`\"") if create_match else None
             try:
                 client.execute(statement)
                 executed_count += 1
+                if table_name:
+                    created_tables.append(table_name)
             except Exception as exc:
                 if "already exists" in str(exc).lower():
                     executed_count += 1
+                    if table_name:
+                        created_tables.append(table_name)
                     continue
                 logger.error("Failed while executing %s: %s", sql_file.name, exc)
                 logger.error("Statement: %s", statement)
                 return False
 
         logger.info("Executed %s/%s statements from %s", executed_count, len(statements), sql_file.name)
+        if created_tables:
+            for table_name in created_tables:
+                logger.info("Table processed from %s: %s", sql_file.name, table_name)
         return executed_count > 0
     except Exception as exc:
         logger.error("Error reading/executing %s: %s", sql_file, exc, exc_info=True)
