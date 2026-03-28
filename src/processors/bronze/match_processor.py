@@ -397,8 +397,16 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                             "shot_event_id": shotmap_data.get("id"),
                             "shot_x_loc": shotmap_data.get("x"),
                             "shot_y_loc": shotmap_data.get("y"),
-                            "shot_minute": shotmap_data.get("min"),
-                            "shot_minute_added": shotmap_data.get("mAdded"),
+                            "shot_minute": (
+                                shotmap_data.get("min")
+                                if shotmap_data.get("min") is not None
+                                else shotmap_data.get("minute")
+                            ),
+                            "shot_minute_added": (
+                                shotmap_data.get("minAdded")
+                                if shotmap_data.get("minAdded") is not None
+                                else shotmap_data.get("mAdded")
+                            ),
                             "shot_expected_goal": shotmap_data.get("expectedGoals"),
                             "shot_expected_goal_on_target": shotmap_data.get("expectedGoalsOnTarget"),
                             "shot_type": shotmap_data.get("shotType"),
@@ -880,8 +888,16 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     "player_name": shot_raw.get("playerName"),
                     "x": shot_raw.get("x"),
                     "y": shot_raw.get("y"),
-                    "min": shot_raw.get("minute"),
-                    "min_added": shot_raw.get("mAdded"),
+                    "min": (
+                        shot_raw.get("min")
+                        if shot_raw.get("min") is not None
+                        else shot_raw.get("minute")
+                    ),
+                    "min_added": (
+                        shot_raw.get("minAdded")
+                        if shot_raw.get("minAdded") is not None
+                        else shot_raw.get("mAdded")
+                    ),
                     "is_blocked": shot_raw.get("isBlocked"),
                     "is_on_target": shot_raw.get("isOnTarget"),
                     "blocked_x": shot_raw.get("blockedX"),
