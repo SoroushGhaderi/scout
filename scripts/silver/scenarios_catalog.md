@@ -277,6 +277,24 @@ Find goalkeepers who deny multiple big chances on target in finished matches.
 python3 scripts/silver/scenario_big_chance_killer.py
 ```
 
+## scenario_ten_men_stand
+
+### Purpose
+
+Find teams that avoid defeat despite receiving a red card.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_ten_men_stand.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_ten_men_stand.py`
+- Target table: `fotmob.silver_scenario_ten_men_stand`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_ten_men_stand.py
+```
+
 ## scenario_away_day_masterclass
 
 ### Purpose
