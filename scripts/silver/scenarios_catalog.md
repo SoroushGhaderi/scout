@@ -259,6 +259,24 @@ Find winning teams that combine low shot volume with high average xG per shot.
 python3 scripts/silver/scenario_efficiency_machine.py
 ```
 
+## scenario_big_chance_killer
+
+### Purpose
+
+Find goalkeepers who deny multiple big chances on target in finished matches.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_big_chance_killer.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_big_chance_killer.py`
+- Target table: `fotmob.silver_scenario_big_chance_killer`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_big_chance_killer.py
+```
+
 ## scenario_away_day_masterclass
 
 ### Purpose
