@@ -349,6 +349,60 @@ Find outfield players with perfect aerial success, heavy clearance volume, and z
 python3 scripts/silver/scenario_defensive_masterclass.py
 ```
 
+## scenario_the_metronome
+
+### Purpose
+
+Find outfield players who dictate tempo with very high touch volume and elite pass precision.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_the_metronome.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_the_metronome.py`
+- Target table: `fotmob.silver_scenario_the_metronome`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_the_metronome.py
+```
+
+## scenario_high_intensity_engine
+
+### Purpose
+
+Find outfield players with elite recovery and interception volume while playing at least one half.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_high_intensity_engine.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_high_intensity_engine.py`
+- Target table: `fotmob.silver_scenario_high_intensity_engine`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_high_intensity_engine.py
+```
+
+## scenario_box_to_box_general
+
+### Purpose
+
+Find outfield players who combine attacking box presence with defensive contribution and passing control.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_box_to_box_general.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_box_to_box_general.py`
+- Target table: `fotmob.silver_scenario_box_to_box_general`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_box_to_box_general.py
+```
+
 ## scenario_away_day_masterclass
 
 ### Purpose
