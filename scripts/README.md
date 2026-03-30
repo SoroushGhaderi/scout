@@ -51,4 +51,6 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/scenario_the_metronome.py`
 - `scripts/silver/scenario_high_intensity_engine.py`
 - `scripts/silver/scenario_box_to_box_general.py`
+- `scripts/silver/scenario_against_the_grain.py`
+- `scripts/silver/scenario_unpunished_aggression.py`
 - `scripts/silver/scenarios_catalog.md`

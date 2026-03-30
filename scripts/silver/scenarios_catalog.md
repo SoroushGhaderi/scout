@@ -511,6 +511,42 @@ Find teams that trailed at halftime but recovered to at least draw by full time.
 python3 scripts/silver/scenario_second_half_warriors.py
 ```
 
+## scenario_against_the_grain
+
+### Purpose
+
+Find outfield players sustaining elite pass accuracy and volume while their team plays with low possession.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_against_the_grain.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_against_the_grain.py`
+- Target table: `fotmob.silver_scenario_against_the_grain`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_against_the_grain.py
+```
+
+## scenario_unpunished_aggression
+
+### Purpose
+
+Find matches with very high foul volume but unusually low yellow-card totals.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_unpunished_aggression.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_unpunished_aggression.py`
+- Target table: `fotmob.silver_scenario_unpunished_aggression`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_unpunished_aggression.py
+```
+
 ## Template For Future Scenarios
 
 - Scenario name: `scenario_<name>`
