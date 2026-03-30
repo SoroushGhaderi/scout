@@ -547,6 +547,24 @@ Find matches with very high foul volume but unusually low yellow-card totals.
 python3 scripts/silver/scenario_unpunished_aggression.py
 ```
 
+## scenario_pressing_masterclass
+
+### Purpose
+
+Find wins where one side posts elite team-level recoveries and interceptions.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_pressing_masterclass.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_pressing_masterclass.py`
+- Target table: `fotmob.silver_scenario_pressing_masterclass`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_pressing_masterclass.py
+```
+
 ## Template For Future Scenarios
 
 - Scenario name: `scenario_<name>`
