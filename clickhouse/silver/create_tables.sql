@@ -501,3 +501,78 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_ten_men_stand (
 ) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, winning_side)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
+
+CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_progressive_powerhouse (
+    match_id Int32,
+    player_id Nullable(Int32),
+    player_name Nullable(String),
+    team_id Nullable(Int32),
+    player_team Nullable(String),
+    pass_accuracy Nullable(Float32),
+    passes_final_third Nullable(Int32),
+    successful_dribbles Nullable(Int32),
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    winning_team Nullable(String),
+    match_result LowCardinality(String),
+    winning_side LowCardinality(String),
+    match_time_utc_date Nullable(String),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, winning_side)
+PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
+
+CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_sterile_control (
+    match_id Int32,
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    match_time_utc_date Nullable(String),
+    period LowCardinality(String),
+    ball_possession_home Nullable(Float32),
+    ball_possession_away Nullable(Float32),
+    passes_home Nullable(Int32),
+    passes_away Nullable(Int32),
+    expected_goals_home Nullable(Float32),
+    expected_goals_away Nullable(Float32),
+    shots_on_target_home Nullable(Int32),
+    shots_on_target_away Nullable(Int32),
+    winning_team Nullable(String),
+    match_result LowCardinality(String),
+    winning_side LowCardinality(String),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, winning_side)
+PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
+
+CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_defensive_masterclass (
+    match_id Int32,
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    match_time_utc_date Nullable(String),
+    player_name Nullable(String),
+    player_team Nullable(String),
+    aerial_duels_won Nullable(Int32),
+    aerial_duel_attempts Nullable(Int32),
+    aerial_duel_success_rate Nullable(Float32),
+    clearances Nullable(Int32),
+    fouls_committed Nullable(Int32),
+    fotmob_rating Nullable(Float32),
+    winning_team Nullable(String),
+    match_result LowCardinality(String),
+    winning_side LowCardinality(String),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, winning_side)
+PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));

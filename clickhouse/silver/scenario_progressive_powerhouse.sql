@@ -1,0 +1,62 @@
+-- scenario_progressive_powerhouse: high-accuracy progressors with end-product carrying
+INSERT INTO fotmob.silver_scenario_progressive_powerhouse
+(
+    match_id,
+    player_id,
+    player_name,
+    team_id,
+    player_team,
+    pass_accuracy,
+    passes_final_third,
+    successful_dribbles,
+    home_team_id,
+    away_team_id,
+    home_team_name,
+    away_team_name,
+    home_score,
+    away_score,
+    winning_team,
+    match_result,
+    winning_side,
+    match_time_utc_date
+)
+SELECT
+    p.match_id,
+    p.player_id,
+    p.player_name,
+    p.team_id,
+    p.team_name AS player_team,
+    p.pass_accuracy,
+    p.passes_final_third,
+    p.successful_dribbles,
+    g.home_team_id,
+    g.away_team_id,
+    g.home_team_name,
+    g.away_team_name,
+    g.home_score,
+    g.away_score,
+    CASE
+        WHEN g.home_score > g.away_score THEN g.home_team_name
+        WHEN g.away_score > g.home_score THEN g.away_team_name
+        ELSE 'Draw'
+    END AS winning_team,
+    CASE
+        WHEN g.home_score > g.away_score THEN 'Home Win'
+        WHEN g.away_score > g.home_score THEN 'Away Win'
+        ELSE 'Draw'
+    END AS match_result,
+    CASE
+        WHEN g.home_score > g.away_score THEN 'home'
+        WHEN g.away_score > g.home_score THEN 'away'
+        ELSE 'draw'
+    END AS winning_side,
+    g.match_time_utc_date
+FROM fotmob.bronze_player AS p
+ANY INNER JOIN fotmob.bronze_general AS g
+    ON p.match_id = g.match_id
+WHERE
+    p.pass_accuracy >= 85.0
+    AND p.passes_final_third >= 8
+    AND p.successful_dribbles >= 3
+    AND p.is_goalkeeper = 0
+ORDER BY p.passes_final_third DESC, p.successful_dribbles DESC;

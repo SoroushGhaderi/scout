@@ -45,4 +45,7 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/scenario_second_half_warriors.py`
 - `scripts/silver/scenario_big_chance_killer.py`
 - `scripts/silver/scenario_ten_men_stand.py`
+- `scripts/silver/scenario_progressive_powerhouse.py`
+- `scripts/silver/scenario_sterile_control.py`
+- `scripts/silver/scenario_defensive_masterclass.py`
 - `scripts/silver/scenarios_catalog.md`

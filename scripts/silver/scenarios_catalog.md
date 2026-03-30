@@ -295,6 +295,60 @@ Find teams that avoid defeat despite receiving a red card.
 python3 scripts/silver/scenario_ten_men_stand.py
 ```
 
+## scenario_progressive_powerhouse
+
+### Purpose
+
+Find non-goalkeepers who combine elite passing accuracy, final-third volume, and dribble success.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_progressive_powerhouse.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_progressive_powerhouse.py`
+- Target table: `fotmob.silver_scenario_progressive_powerhouse`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_progressive_powerhouse.py
+```
+
+## scenario_sterile_control
+
+### Purpose
+
+Find matches where one side dominates possession and passing volume but creates little attacking threat.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_sterile_control.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_sterile_control.py`
+- Target table: `fotmob.silver_scenario_sterile_control`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_sterile_control.py
+```
+
+## scenario_defensive_masterclass
+
+### Purpose
+
+Find outfield players with perfect aerial success, heavy clearance volume, and zero fouls.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_defensive_masterclass.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_defensive_masterclass.py`
+- Target table: `fotmob.silver_scenario_defensive_masterclass`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_defensive_masterclass.py
+```
+
 ## scenario_away_day_masterclass
 
 ### Purpose
