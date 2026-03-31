@@ -63,4 +63,5 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/scenario_the_basketball_match.py`
 - `scripts/silver/scenario_the_lightning_rod.py`
 - `scripts/silver/scenario_the_human_shield.py`
+- `scripts/silver/scenario_the_golden_touch.py`
 - `scripts/silver/scenarios_catalog.md`

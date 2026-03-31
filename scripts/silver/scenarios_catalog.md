@@ -990,6 +990,29 @@ python3 scripts/silver/scenario_the_human_shield.py
 
 ---
 
+## ✨ Scenario: The Golden Touch (`scenario_the_golden_touch`)
+
+### 🎯 Purpose
+Find low-minute substitute cameos that produce direct scoreline impact with minimal touches.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Cameo Window (1–25 minutes):** Isolates true short-impact substitute appearances.
+- **Direct Output Gate (goal or assist):** Ensures each row reflects explicit scoreline contribution.
+- **Low-Touch Constraint (≤ 12):** Captures highly efficient impact rather than sustained-volume performances.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_the_golden_touch.sql`
+- **Python Runner:** `scripts/silver/scenario_the_golden_touch.py`
+- **Target Table:** `fotmob.silver_scenario_the_golden_touch`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_the_golden_touch.py
+```
+
+---
+
 ## Template For Future Scenarios
 
 ```markdown

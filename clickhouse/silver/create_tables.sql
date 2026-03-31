@@ -927,3 +927,27 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_the_human_shield (
 ) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, winning_side)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
+
+CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_the_golden_touch (
+    match_id Int32,
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    match_time_utc_date Nullable(String),
+    player_name Nullable(String),
+    player_team Nullable(String),
+    goals Nullable(Int32),
+    assists Nullable(Int32),
+    touches Nullable(Int32),
+    minutes_played Nullable(Int32),
+    fotmob_rating Nullable(Float32),
+    winning_team Nullable(String),
+    match_result LowCardinality(String),
+    winning_side LowCardinality(String),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, winning_side)
+PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
