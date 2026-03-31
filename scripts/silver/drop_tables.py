@@ -1,0 +1,88 @@
+"""Drop all FotMob silver tables in ClickHouse."""
+
+import argparse
+import sys
+from pathlib import Path
+
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root))
+
+from config.settings import settings
+from src.storage.clickhouse_client import ClickHouseClient
+from src.utils.logging_utils import get_logger
+
+logger = get_logger()
+
+
+def parse_args(argv=None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Drop all silver tables (silver_*) from the FotMob ClickHouse database"
+    )
+    parser.add_argument(
+        "--database",
+        default=settings.clickhouse_db_fotmob,
+        help=f"Target database name (default: {settings.clickhouse_db_fotmob})",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="List matching tables without dropping them",
+    )
+    return parser.parse_args(argv)
+
+
+def _find_silver_tables(client: ClickHouseClient, database: str) -> list[str]:
+    query = """
+        SELECT name
+        FROM system.tables
+        WHERE database = %(database)s
+          AND startsWith(name, 'silver_')
+        ORDER BY name
+    """
+    result = client.execute(query, {"database": database})
+    return [row[0] for row in result.result_rows]
+
+
+def main(argv=None) -> int:
+    args = parse_args(argv)
+    database = args.database
+
+    client = ClickHouseClient(
+        host=settings.clickhouse_host,
+        port=settings.clickhouse_port,
+        username=settings.clickhouse_user,
+        password=settings.clickhouse_password,
+        database="default",
+    )
+
+    if not client.connect():
+        logger.error("Failed to connect to ClickHouse")
+        return 1
+
+    try:
+        tables = _find_silver_tables(client, database)
+        if not tables:
+            logger.info("No tables found with prefix silver_ in %s", database)
+            return 0
+
+        logger.info("Found %s silver table(s) in %s", len(tables), database)
+        for table in tables:
+            full_table = f"{database}.{table}"
+            if args.dry_run:
+                logger.info("[dry-run] Would drop table %s", full_table)
+                continue
+
+            client.execute(f"DROP TABLE IF EXISTS {full_table}")
+            logger.info("Dropped table %s", full_table)
+
+        if args.dry_run:
+            logger.info("Dry-run completed")
+        else:
+            logger.info("All silver tables dropped successfully")
+        return 0
+    finally:
+        client.disconnect()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
