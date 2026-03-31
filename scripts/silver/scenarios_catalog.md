@@ -565,6 +565,24 @@ Find wins where one side posts elite team-level recoveries and interceptions.
 python3 scripts/silver/scenario_pressing_masterclass.py
 ```
 
+## scenario_elite_shot_stopper
+
+### Purpose
+
+Find primary goalkeepers with clean sheets, high save volume, and high xG faced.
+
+### Files
+
+- SQL: `/Users/soroush/Desktop/Projects/scout/clickhouse/silver/scenario_elite_shot_stopper.sql`
+- Python runner: `/Users/soroush/Desktop/Projects/scout/scripts/silver/scenario_elite_shot_stopper.py`
+- Target table: `fotmob.silver_scenario_elite_shot_stopper`
+
+### Run
+
+```bash
+python3 scripts/silver/scenario_elite_shot_stopper.py
+```
+
 ## Template For Future Scenarios
 
 - Scenario name: `scenario_<name>`
