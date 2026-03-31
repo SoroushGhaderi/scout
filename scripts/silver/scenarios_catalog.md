@@ -1013,6 +1013,29 @@ python3 scripts/silver/scenario_the_golden_touch.py
 
 ---
 
+## ⚙️ Scenario: Chaos Engine (`scenario_chaos_engine`)
+
+### 🎯 Purpose
+Find outfield disruptors who combine high defensive chaos with tactical fouling and productive attacking actions.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Defensive Disruption (tackles + interceptions ≥ 5):** Captures players repeatedly breaking opposition possession chains.
+- **Tactical Aggression (fouls committed ≥ 3):** Adds physical contest intensity to the defensive profile.
+- **Productive Transition Signal (chances created ≥ 1 with touches in opp box ≥ 2):** Ensures disruption is linked to tangible attacking value.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_chaos_engine.sql`
+- **Python Runner:** `scripts/silver/scenario_chaos_engine.py`
+- **Target Table:** `fotmob.silver_scenario_chaos_engine`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_chaos_engine.py
+```
+
+---
+
 ## Template For Future Scenarios
 
 ```markdown
