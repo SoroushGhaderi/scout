@@ -830,15 +830,15 @@ python3 scripts/silver/scenario_elite_shot_stopper.py
 ## 🕳️ Scenario: The Hollow Dominance (`scenario_the_hollow_dominance`)
 
 ### 🎯 Purpose
-Finds matches where one side generates heavy attacking volume and chance quality but still fails to win.
+Find matches where one side lays siege with elite shot and xG volume, but still fails to score more than once or win.
 
 ### 🧠 Tactical & Statistical Logic
 
-- **Siege Shot Volume (≥ 20 Shots):** Twenty-plus total shots indicates sustained territorial pressure and repeated final-third access. This threshold isolates high-volume attacking games from normal chance-trading matches.
-
-- **Chance Quality Edge (xG at least equal to opponent):** The dominating side must also post at least equal xG versus the opponent. This avoids classifying low-quality pot-shot volume as meaningful attacking dominance.
-
-- **Failure Outcome Constraint (Score ≤ 1 and did not win):** The "hollow" profile requires attacking dominance without conversion into victory. This captures wasteful finishing, elite opposing shot-stopping, or high-variance game states.
+- **Siege Volume Gate (shots ≥ 20, xG ≥ 2.5):** Requires both extreme shot count and high chance quality for the siege side.
+- **Failure Conversion Constraint (score ≤ 1 and did not win):** Ensures the dominant attacking side still fails to convert control into a win.
+- **Dual-Side Siege Detection:** Handles both home and away siege cases with explicit side/team labels (`siege_team`, `siege_side`).
+- **Underperformance Lens:** Adds siege-specific xG, missed big chances, and xG underperformance (`siege_xg - goals`) to quantify finishing failure.
+- **Chance-Profile Context:** Includes on-target shots, inside-box shots, blocked shots, open-play xG, and non-penalty xG splits.
 
 ### 📂 Technical Assets
 - **SQL Transformation:** `clickhouse/silver/scenario_the_hollow_dominance.sql`
@@ -924,13 +924,15 @@ python3 scripts/silver/scenario_the_line_breaker.py
 ## 🏀 Scenario: The Basketball Match (`scenario_the_basketball_match`)
 
 ### 🎯 Purpose
-Find chaotic matches with extreme combined xG and shot volume where both teams create heavy attacking output.
+Find end-to-end shootouts where both teams produce elite attacking volume, then rank matches by a composite chaos score.
 
 ### 🧠 Tactical & Statistical Logic
 
-- **Combined xG > 4.5:** Isolates truly high-event chance-quality environments, not just shot volume noise.
-- **Combined shots > 35:** Confirms sustained attacking tempo and repeated final-third entries from both sides.
-- **Both teams xG > 1.5:** Prevents one-sided shot inflation by requiring meaningful chance creation from each team.
+- **Mutual Chance Quality (combined xG > 4.5, each side xG > 1.5):** Ensures both teams materially contribute to the shootout profile.
+- **Extreme Shot Volume (combined shots > 35):** Filters for sustained transition-heavy attacking tempo.
+- **Composite Chaos Score:** Weights combined xG, combined shots, combined big chances, and total goals to rank peak high-event matches.
+- **Chaos Type Labeling:** Classifies matches as `balanced_shootout` or `lopsided_chaos` using xG parity between sides.
+- **Context Enrichment:** Adds on-target volume, inside-box shots, possession split, and open-play xG split for tactical interpretation.
 
 ### 📂 Technical Assets
 - **SQL Transformation:** `clickhouse/silver/scenario_the_basketball_match.sql`
@@ -970,13 +972,15 @@ python3 scripts/silver/scenario_the_lightning_rod.py
 ## 🛡️ Scenario: The Human Shield (`scenario_the_human_shield`)
 
 ### 🎯 Purpose
-Find outfield defenders who absorb intense pressure through elite shot blocking and clearance volume.
+Find outfield defenders who protect their box under heavy shot pressure, combining blocking, clearances, and defensive interventions into a composite shield profile.
 
 ### 🧠 Tactical & Statistical Logic
 
-- **Blocked Shots (≥ 4):** Isolates true high-sacrifice defenders repeatedly denying direct attempts.
-- **Clearance Volume (≥ 5):** Confirms sustained danger management, not isolated moments.
-- **Pressure Context (shots faced ≥ 15):** Requires the player’s team to be under heavy fire to ensure defensive actions are high-leverage.
+- **Block + Clearance Gate (blocked shots ≥ 4, clearances ≥ 5):** Keeps only defenders with sustained emergency-box defensive output.
+- **Heavy Fire Context (shots faced ≥ 15):** Requires genuine defensive stress from opponent shot volume.
+- **Composite Shield Score:** Weights blocks, clearances, interceptions, and tackles to rank overall defensive shielding impact.
+- **Block Share Percentage:** Measures how much of incoming shot volume the player personally blocked.
+- **Opposition xG Faced:** Adds opponent expected-goals context from full-match period data (`period = 'All'`).
 
 ### 📂 Technical Assets
 - **SQL Transformation:** `clickhouse/silver/scenario_the_human_shield.sql`
@@ -993,13 +997,15 @@ python3 scripts/silver/scenario_the_human_shield.py
 ## ✨ Scenario: The Golden Touch (`scenario_the_golden_touch`)
 
 ### 🎯 Purpose
-Find low-minute substitute cameos that produce direct scoreline impact with minimal touches.
+Find late substitutes who deliver direct scoreline impact on very low touch volume, then rank them by contribution efficiency.
 
 ### 🧠 Tactical & Statistical Logic
 
-- **Cameo Window (1–25 minutes):** Isolates true short-impact substitute appearances.
-- **Direct Output Gate (goal or assist):** Ensures each row reflects explicit scoreline contribution.
-- **Low-Touch Constraint (≤ 12):** Captures highly efficient impact rather than sustained-volume performances.
+- **Late Introduction Gate (substitution time ≥ 70):** Focuses on end-phase substitute interventions where time is limited.
+- **Direct Impact Filter (goal or assist, touches > 0):** Requires explicit scoreline contribution while excluding ghost appearances.
+- **Low-Touch Constraint (touches ≤ 12):** Keeps the profile centered on high efficiency rather than sustained usage.
+- **Contribution Efficiency Ranking:** Uses contribution-per-touch as the primary sort signal, then touch count and substitution timing.
+- **Chance Quality Context:** Adds xG, xA, xG+xA, and xG-per-shot for quality-adjusted impact profiling.
 
 ### 📂 Technical Assets
 - **SQL Transformation:** `clickhouse/silver/scenario_the_golden_touch.sql`
@@ -1016,13 +1022,15 @@ python3 scripts/silver/scenario_the_golden_touch.py
 ## ⚙️ Scenario: Chaos Engine (`scenario_chaos_engine`)
 
 ### 🎯 Purpose
-Find outfield disruptors who combine high defensive chaos with tactical fouling and productive attacking actions.
+Find high-intensity disruptors who blend defensive action volume, tactical aggression, and attacking-third presence, then contextualize them with their team's shot output.
 
 ### 🧠 Tactical & Statistical Logic
 
-- **Defensive Disruption (tackles + interceptions ≥ 5):** Captures players repeatedly breaking opposition possession chains.
-- **Tactical Aggression (fouls committed ≥ 3):** Adds physical contest intensity to the defensive profile.
-- **Productive Transition Signal (chances created ≥ 1 with touches in opp box ≥ 2):** Ensures disruption is linked to tangible attacking value.
+- **Core Disruptor Gate (minutes ≥ 45, tackles + interceptions ≥ 5):** Limits rows to meaningful-minute players with sustained ball-winning volume.
+- **Aggression + Final-Third Presence (fouls committed ≥ 3, touches in opp box ≥ 1):** Targets disruptive profiles that are both combative and positionally active high up the pitch.
+- **Composite Disruption Score:** Ranks players using defensive actions, attacking-box touches, fouls, and recoveries for a broader chaos signal.
+- **Shot Context Join (team shots ≥ 1):** Adds team-level shot volume, shots on target, and xG to proxy whether disruption translated into shot-generating phases.
+- **Finished Match Integrity:** Includes only completed matches for stable outcome labeling (`home_win`, `away_win`, `draw`).
 
 ### 📂 Technical Assets
 - **SQL Transformation:** `clickhouse/silver/scenario_chaos_engine.sql`
@@ -1032,6 +1040,29 @@ Find outfield disruptors who combine high defensive chaos with tactical fouling 
 ### 🚀 Execution
 ```bash
 python3 scripts/silver/scenario_chaos_engine.py
+```
+
+---
+
+## 🥵 Scenario: Tired Legs (`scenario_tired_legs`)
+
+### 🎯 Purpose
+Find late-match collapses driven by goal surges, shot escalation, and aggressive substitution patterns.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Late Chaos Signals:** Tracks late goals (75+), late shot share, and attacking subs between 60 and 75 minutes.
+- **Two-Signal Requirement:** Requires at least two chaos signals to prevent weak one-dimensional triggers.
+- **Composite Chaos Score:** Ranks matches by weighted late goals, shot escalation, substitution pressure, and late xG.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_tired_legs.sql`
+- **Python Runner:** `scripts/silver/scenario_tired_legs.py`
+- **Target Table:** `fotmob.silver_scenario_tired_legs`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_tired_legs.py
 ```
 
 ---

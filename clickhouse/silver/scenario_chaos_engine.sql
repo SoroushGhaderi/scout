@@ -1,7 +1,6 @@
--- scenario_chaos_engine: high-intensity disruptors combining defensive chaos with chance generation
+-- scenario_chaos_engine: disruptor profiles with defensive aggression, attacking-zone presence, and team shot context
 INSERT INTO fotmob.silver_scenario_chaos_engine
 (
-    -- 1. Match Identity
     match_id,
     home_team_id,
     away_team_id,
@@ -9,74 +8,140 @@ INSERT INTO fotmob.silver_scenario_chaos_engine
     away_team_name,
     home_score,
     away_score,
-    match_time_utc_date,
-
-    -- 2. Disruptor Metrics
+    player_id,
     player_name,
-    player_team,
+    team_id,
+    team_name,
+    tackles_won,
+    interceptions,
     defensive_actions,
-    fouls_committed,
-    chances_created,
     touches_opp_box,
+    fouls_committed,
+    was_fouled,
+    recoveries,
+    duels_won,
+    duels_lost,
+    duel_win_pct,
+    disruption_score,
+    team_total_shots,
+    team_shots_on_target,
+    team_xg,
     fotmob_rating,
-
-    -- 3. Outcome Labeling
-    winning_team,
+    minutes_played,
+    passes_final_third,
+    team_side,
     match_result,
-    winning_side
+    match_time_utc_date
 )
+WITH team_shots AS (
+    SELECT
+        match_id,
+        team_id,
+        count()                                             AS team_total_shots,
+        countIf(is_on_target = 1)                          AS team_shots_on_target,
+        round(sum(expected_goals), 3)                      AS team_xg
+    FROM fotmob.bronze_shotmap
+    WHERE
+        is_own_goal != 1
+        AND expected_goals IS NOT NULL
+    GROUP BY match_id, team_id
+),
+
+player_disruption AS (
+    SELECT
+        p.match_id,
+        p.player_id,
+        p.player_name,
+        p.team_id,
+        p.team_name,
+
+        coalesce(p.tackles_won, 0)                         AS tackles_won,
+        coalesce(p.interceptions, 0)                       AS interceptions,
+        coalesce(p.tackles_won, 0)
+            + coalesce(p.interceptions, 0)                 AS defensive_actions,
+
+        coalesce(p.touches_opp_box, 0)                     AS touches_opp_box,
+        coalesce(p.fouls_committed, 0)                     AS fouls_committed,
+        coalesce(p.was_fouled, 0)                          AS was_fouled,
+        coalesce(p.recoveries, 0)                          AS recoveries,
+        coalesce(p.defensive_actions, 0)                   AS total_defensive_actions,
+
+        coalesce(p.duels_won, 0)                           AS duels_won,
+        coalesce(p.duels_lost, 0)                          AS duels_lost,
+        round(
+            coalesce(p.duels_won, 0)
+            / nullIf(coalesce(p.duels_won, 0)
+                   + coalesce(p.duels_lost, 0), 0) * 100
+        , 1)                                               AS duel_win_pct,
+
+        (coalesce(p.tackles_won, 0) + coalesce(p.interceptions, 0))
+            + (coalesce(p.touches_opp_box, 0) * 0.5)
+            + (coalesce(p.fouls_committed, 0) * 0.8)
+            + (coalesce(p.recoveries, 0) * 0.6)           AS disruption_score,
+
+        p.fotmob_rating,
+        p.minutes_played,
+        p.passes_final_third
+    FROM fotmob.bronze_player AS p
+    WHERE
+        p.minutes_played >= 45
+        AND (
+            coalesce(p.tackles_won, 0)
+          + coalesce(p.interceptions, 0)
+        ) >= 5
+        AND coalesce(p.fouls_committed, 0) >= 3
+        AND coalesce(p.touches_opp_box, 0) >= 1
+)
+
 SELECT
-    -- 1. Match Identity
-    p.match_id,
+    g.match_id,
     g.home_team_id,
     g.away_team_id,
     g.home_team_name,
     g.away_team_name,
     g.home_score,
     g.away_score,
-    g.match_time_utc_date,
+    pd.player_id,
+    pd.player_name,
+    pd.team_id,
+    pd.team_name,
+    pd.tackles_won,
+    pd.interceptions,
+    pd.defensive_actions,
+    pd.touches_opp_box,
+    pd.fouls_committed,
+    pd.was_fouled,
+    pd.recoveries,
+    pd.duels_won,
+    pd.duels_lost,
+    pd.duel_win_pct,
+    pd.disruption_score,
+    ts.team_total_shots,
+    ts.team_shots_on_target,
+    ts.team_xg,
+    pd.fotmob_rating,
+    pd.minutes_played,
+    pd.passes_final_third,
 
-    -- 2. Disruptor Metrics
-    p.player_name,
-    p.team_name AS player_team,
-    (p.tackles_won + p.interceptions) AS defensive_actions,
-    p.fouls_committed,
-    p.chances_created,
-    p.touches_opp_box,
-    p.fotmob_rating,
-
-    -- 3. Outcome Labeling
-    multiIf(
-        g.home_score > g.away_score, g.home_team_name,
-        g.away_score > g.home_score, g.away_team_name,
-        'Draw'
-    ) AS winning_team,
-    CAST(
-        multiIf(
-            g.home_score > g.away_score, 'Home Win',
-            g.away_score > g.home_score, 'Away Win',
-            'Draw'
-        ),
-        'LowCardinality(String)'
-    ) AS match_result,
     CASE
-        WHEN g.home_score > g.away_score THEN 'home'
-        WHEN g.away_score > g.home_score THEN 'away'
+        WHEN pd.team_id = g.home_team_id THEN 'home'
+        WHEN pd.team_id = g.away_team_id THEN 'away'
+    END AS team_side,
+
+    CASE
+        WHEN g.home_score > g.away_score THEN 'home_win'
+        WHEN g.away_score > g.home_score THEN 'away_win'
         ELSE 'draw'
-    END AS winning_side
-FROM fotmob.bronze_player AS p
-INNER JOIN fotmob.bronze_general AS g
-    ON p.match_id = g.match_id
+    END AS match_result,
+    g.match_time_utc_date
+
+FROM fotmob.bronze_general AS g
+INNER JOIN player_disruption AS pd
+    ON g.match_id = pd.match_id
+INNER JOIN team_shots AS ts
+    ON g.match_id = ts.match_id
+    AND pd.team_id = ts.team_id
 WHERE
-    -- Outfield players with substantial minutes.
-    p.is_goalkeeper = 0
-    AND p.minutes_played >= 60
-
-    -- Disruptor profile: high defensive actions + tactical fouling.
-    AND (p.tackles_won + p.interceptions) >= 5
-    AND p.fouls_committed >= 3
-
-    -- Productive disruption and attacking-zone engagement.
-    AND p.chances_created >= 1
-    AND p.touches_opp_box >= 2
-ORDER BY (p.tackles_won + p.interceptions) DESC, p.fouls_committed DESC;
+    g.match_finished = 1
+    AND ts.team_total_shots >= 1
+ORDER BY pd.disruption_score DESC, pd.defensive_actions DESC;

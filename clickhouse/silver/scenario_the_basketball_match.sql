@@ -1,7 +1,6 @@
--- scenario_the_basketball_match: end-to-end high-chaos matches with extreme chance and shot volume
+-- scenario_the_basketball_match: high-volume shootouts ranked by composite chaos intensity
 INSERT INTO fotmob.silver_scenario_the_basketball_match
 (
-    -- 1. Match Identity
     match_id,
     home_team_id,
     away_team_id,
@@ -9,25 +8,34 @@ INSERT INTO fotmob.silver_scenario_the_basketball_match
     away_team_name,
     home_score,
     away_score,
-    match_time_utc_date,
-
-    -- 2. Chaotic Volume Metrics
-    expected_goals_home,
-    expected_goals_away,
+    total_goals,
+    goal_diff,
+    xg_home,
+    xg_away,
     combined_xg,
+    xg_diff,
     total_shots_home,
     total_shots_away,
     combined_shots,
-    home_xg,
-    away_xg,
-
-    -- 3. Outcome Labeling
-    winning_team,
+    shots_on_target_home,
+    shots_on_target_away,
+    combined_shots_on_target,
+    shots_inside_box_home,
+    shots_inside_box_away,
+    big_chances_home,
+    big_chances_away,
+    combined_big_chances,
+    ball_possession_home,
+    ball_possession_away,
+    xg_open_play_home,
+    xg_open_play_away,
+    combined_xg_open_play,
+    chaos_score,
+    chaos_type,
     match_result,
-    winning_side
+    match_time_utc_date
 )
 SELECT
-    -- 1. Match Identity
     g.match_id,
     g.home_team_id,
     g.away_team_id,
@@ -35,47 +43,63 @@ SELECT
     g.away_team_name,
     g.home_score,
     g.away_score,
-    g.match_time_utc_date,
-
-    -- 2. Chaotic Volume Metrics
-    p.expected_goals_home,
-    p.expected_goals_away,
-    (p.expected_goals_home + p.expected_goals_away) AS combined_xg,
+    g.home_score + g.away_score                             AS total_goals,
+    abs(g.home_score - g.away_score)                        AS goal_diff,
+    round(p.expected_goals_home, 3)                         AS xg_home,
+    round(p.expected_goals_away, 3)                         AS xg_away,
+    round(p.expected_goals_home
+        + p.expected_goals_away, 3)                         AS combined_xg,
+    round(p.expected_goals_home
+        - p.expected_goals_away, 3)                         AS xg_diff,
     p.total_shots_home,
     p.total_shots_away,
-    (p.total_shots_home + p.total_shots_away) AS combined_shots,
-    p.expected_goals_home AS home_xg,
-    p.expected_goals_away AS away_xg,
+    p.total_shots_home
+        + p.total_shots_away                                AS combined_shots,
+    p.shots_on_target_home,
+    p.shots_on_target_away,
+    p.shots_on_target_home
+        + p.shots_on_target_away                            AS combined_shots_on_target,
+    p.shots_inside_box_home,
+    p.shots_inside_box_away,
+    p.big_chances_home,
+    p.big_chances_away,
+    p.big_chances_home
+        + p.big_chances_away                                AS combined_big_chances,
+    p.ball_possession_home,
+    p.ball_possession_away,
+    round(p.expected_goals_open_play_home, 3)               AS xg_open_play_home,
+    round(p.expected_goals_open_play_away, 3)               AS xg_open_play_away,
+    round(p.expected_goals_open_play_home
+        + p.expected_goals_open_play_away, 3)               AS combined_xg_open_play,
+    round(
+          (p.expected_goals_home + p.expected_goals_away) * 5.0
+        + (p.total_shots_home + p.total_shots_away)   * 0.4
+        + (p.big_chances_home + p.big_chances_away)   * 3.0
+        + (g.home_score + g.away_score)               * 2.0
+    , 2)                                                    AS chaos_score,
 
-    -- 3. Outcome Labeling
-    multiIf(
-        g.home_score > g.away_score, g.home_team_name,
-        g.away_score > g.home_score, g.away_team_name,
-        'Draw'
-    ) AS winning_team,
-    CAST(
-        multiIf(
-            g.home_score > g.away_score, 'Home Win',
-            g.away_score > g.home_score, 'Away Win',
-            'Draw'
-        ),
-        'LowCardinality(String)'
-    ) AS match_result,
     CASE
-        WHEN g.home_score > g.away_score THEN 'home'
-        WHEN g.away_score > g.home_score THEN 'away'
+        WHEN least(p.expected_goals_home, p.expected_goals_away)
+            / nullIf(greatest(p.expected_goals_home, p.expected_goals_away), 0)
+            >= 0.6 THEN 'balanced_shootout'
+        ELSE 'lopsided_chaos'
+    END AS chaos_type,
+
+    CASE
+        WHEN g.home_score > g.away_score THEN 'home_win'
+        WHEN g.away_score > g.home_score THEN 'away_win'
         ELSE 'draw'
-    END AS winning_side
+    END AS match_result,
+    g.match_time_utc_date
+
 FROM fotmob.bronze_general AS g
 INNER JOIN fotmob.bronze_period AS p
     ON g.match_id = p.match_id
+    AND p.period = 'All'
 WHERE
-    -- Full-match aggregates only.
-    p.period = 'All'
-
-    -- Basketball-match logic: both sides create huge volume and quality.
-    AND (p.expected_goals_home + p.expected_goals_away) > 4.5
-    AND (p.total_shots_home + p.total_shots_away) > 35
+    g.match_finished = 1
+    AND p.expected_goals_home + p.expected_goals_away > 4.5
+    AND p.total_shots_home + p.total_shots_away > 35
     AND p.expected_goals_home > 1.5
     AND p.expected_goals_away > 1.5
-ORDER BY combined_xg DESC, combined_shots DESC;
+ORDER BY chaos_score DESC;
