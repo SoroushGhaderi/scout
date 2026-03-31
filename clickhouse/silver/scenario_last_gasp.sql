@@ -1,6 +1,7 @@
 -- scenario_last_gasp: late winner after minute 85 from draw/losing state
 INSERT INTO fotmob.silver_scenario_last_gasp
 (
+    -- 1. Match Identity
     match_id,
     home_team_id,
     away_team_id,
@@ -8,13 +9,16 @@ INSERT INTO fotmob.silver_scenario_last_gasp
     away_team_name,
     home_score,
     away_score,
+    -- 2. Decisive Late-Goal Metrics
     goal_diff,
     winning_goal_minute,
     winning_goal_added_time,
     winning_goal_scorer,
     home_score_before,
     away_score_before,
+    -- 3. Match Result Logic
     winning_team,
+    match_result,
     winning_side,
     match_time_utc_date
 )
@@ -34,6 +38,7 @@ WITH final_score_goals AS (
     FROM fotmob.bronze_goal
 )
 SELECT
+    -- 1. Match Identity
     g.match_id,
     g.home_team_id,
     g.away_team_id,
@@ -41,19 +46,28 @@ SELECT
     g.away_team_name,
     g.home_score,
     g.away_score,
+    -- 2. Decisive Late-Goal Metrics
     abs(g.home_score - g.away_score) AS goal_diff,
     wg.goal_time AS winning_goal_minute,
     wg.goal_overload_time AS winning_goal_added_time,
     wg.player_name AS winning_goal_scorer,
     wg.home_score_before,
     wg.away_score_before,
+    -- 3. Match Result Logic
     CASE
         WHEN g.home_score > g.away_score THEN g.home_team_name
         WHEN g.away_score > g.home_score THEN g.away_team_name
+        ELSE 'Draw'
     END AS winning_team,
+    CAST(CASE
+        WHEN g.home_score > g.away_score THEN 'Home Win'
+        WHEN g.away_score > g.home_score THEN 'Away Win'
+        ELSE 'Draw'
+    END AS LowCardinality(String)) AS match_result,
     CASE
         WHEN g.home_score > g.away_score THEN 'home'
         WHEN g.away_score > g.home_score THEN 'away'
+        ELSE 'draw'
     END AS winning_side,
     g.match_time_utc_date
 FROM fotmob.bronze_general AS g
@@ -61,6 +75,7 @@ INNER JOIN final_score_goals AS wg
     ON g.match_id = wg.match_id
     AND wg.rn = 1
 WHERE
+    -- Finished non-draw matches decided by a late state-changing goal.
     g.match_finished = 1
     AND g.home_score != g.away_score
     AND wg.goal_time >= 85

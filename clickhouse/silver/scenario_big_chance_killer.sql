@@ -42,9 +42,9 @@ SELECT
     round(max(s.expected_goals_on_target), 3) AS highest_xgot_saved,
     round(avg(s.expected_goals_on_target), 3) AS avg_xgot_per_save,
     CASE
-        WHEN g.home_score > g.away_score THEN 'home'
-        WHEN g.away_score > g.home_score THEN 'away'
-        ELSE 'draw'
+        WHEN g.home_score > g.away_score THEN 'Home Win'
+        WHEN g.away_score > g.home_score THEN 'Away Win'
+        ELSE 'Draw'
     END AS match_result,
     CASE
         WHEN g.home_score > g.away_score THEN 'home'

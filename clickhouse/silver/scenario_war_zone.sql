@@ -38,9 +38,9 @@ SELECT
     p.red_cards_away,
     p.red_cards_home + p.red_cards_away AS combined_red_cards,
     CASE
-        WHEN g.home_score > g.away_score THEN 'home'
-        WHEN g.away_score > g.home_score THEN 'away'
-        ELSE 'draw'
+        WHEN g.home_score > g.away_score THEN 'Home Win'
+        WHEN g.away_score > g.home_score THEN 'Away Win'
+        ELSE 'Draw'
     END AS match_result,
     g.match_time_utc_date
 FROM fotmob.bronze_general AS g

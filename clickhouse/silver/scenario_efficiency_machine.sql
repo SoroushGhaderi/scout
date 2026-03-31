@@ -1,6 +1,7 @@
 -- scenario_efficiency_machine: winners with low shot volume but high shot quality
 INSERT INTO fotmob.silver_scenario_efficiency_machine
 (
+    -- 1. Match Identity
     match_id,
     home_team_id,
     away_team_id,
@@ -8,8 +9,10 @@ INSERT INTO fotmob.silver_scenario_efficiency_machine
     away_team_name,
     home_score,
     away_score,
+    -- 2. Efficiency Metrics
     goal_diff,
     winning_team,
+    match_result,
     winning_side,
     home_total_shots,
     away_total_shots,
@@ -22,6 +25,7 @@ INSERT INTO fotmob.silver_scenario_efficiency_machine
     match_time_utc_date
 )
 SELECT
+    -- 1. Match Identity
     g.match_id,
     g.home_team_id,
     g.away_team_id,
@@ -29,14 +33,22 @@ SELECT
     g.away_team_name,
     g.home_score,
     g.away_score,
+    -- 2. Efficiency Metrics
     abs(g.home_score - g.away_score) AS goal_diff,
     CASE
         WHEN g.home_score > g.away_score THEN g.home_team_name
         WHEN g.away_score > g.home_score THEN g.away_team_name
+        ELSE 'Draw'
     END AS winning_team,
+    CAST(CASE
+        WHEN g.home_score > g.away_score THEN 'Home Win'
+        WHEN g.away_score > g.home_score THEN 'Away Win'
+        ELSE 'Draw'
+    END AS LowCardinality(String)) AS match_result,
     CASE
         WHEN g.home_score > g.away_score THEN 'home'
         WHEN g.away_score > g.home_score THEN 'away'
+        ELSE 'draw'
     END AS winning_side,
     countIf(s.team_id = g.home_team_id) AS home_total_shots,
     countIf(s.team_id = g.away_team_id) AS away_total_shots,
@@ -57,6 +69,7 @@ FROM fotmob.bronze_shotmap AS s
 INNER JOIN fotmob.bronze_general AS g
     ON s.match_id = g.match_id
 WHERE
+    -- Finished non-draw matches with valid xG and shot data.
     g.match_finished = 1
     AND g.home_score != g.away_score
     AND s.is_own_goal != 1
@@ -71,6 +84,7 @@ GROUP BY
     g.away_score,
     g.match_time_utc_date
 HAVING
+    -- Winner must combine low shot volume with high average xG per shot.
     (g.home_score > g.away_score AND home_total_shots <= 5 AND home_avg_xg_per_shot > 0.25)
     OR
     (g.away_score > g.home_score AND away_total_shots <= 5 AND away_avg_xg_per_shot > 0.25)

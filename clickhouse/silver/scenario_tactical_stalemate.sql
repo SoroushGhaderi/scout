@@ -29,12 +29,12 @@ SELECT
     CASE
         WHEN g.home_score > g.away_score THEN g.home_team_name
         WHEN g.away_score > g.home_score THEN g.away_team_name
-        ELSE NULL
+        ELSE 'Draw'
     END AS winning_team,
     CASE
-        WHEN g.home_score > g.away_score THEN 'home'
-        WHEN g.away_score > g.home_score THEN 'away'
-        ELSE 'draw'
+        WHEN g.home_score > g.away_score THEN 'Home Win'
+        WHEN g.away_score > g.home_score THEN 'Away Win'
+        ELSE 'Draw'
     END AS match_result,
     g.match_time_utc_date
 FROM fotmob.bronze_general AS g

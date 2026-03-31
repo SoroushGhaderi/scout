@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_demolition (
     home_score Nullable(Int32),
     away_score Nullable(Int32),
     goal_diff Int32,
+    match_result LowCardinality(String),
     winning_side LowCardinality(String),
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
@@ -27,6 +28,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_defensive_shutdown_win (
     expected_goals_home Nullable(Float32),
     expected_goals_away Nullable(Float32),
     winning_team Nullable(String),
+    match_result LowCardinality(String),
     winning_side LowCardinality(String),
     xg_conceded Nullable(Float32),
     match_time_utc_date Nullable(String),
@@ -48,6 +50,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_underdog_heist (
     xg_away Nullable(Float32),
     xg_diff Nullable(Float32),
     winning_team Nullable(String),
+    match_result LowCardinality(String),
     winning_side LowCardinality(String),
     winner_xg Nullable(Float32),
     match_time_utc_date Nullable(String),
@@ -67,6 +70,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_dead_ball_dominance (
     home_set_piece_goals UInt32,
     away_set_piece_goals UInt32,
     winning_team Nullable(String),
+    match_result LowCardinality(String),
     winning_side LowCardinality(String),
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
@@ -86,6 +90,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_low_block_heist (
     possession_home Nullable(Float32),
     possession_away Nullable(Float32),
     winning_team Nullable(String),
+    match_result LowCardinality(String),
     winning_side LowCardinality(String),
     winner_possession Nullable(Float32),
     match_time_utc_date Nullable(String),
@@ -125,6 +130,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_great_escape (
     home_score_at_60 UInt32,
     away_score_at_60 UInt32,
     winning_team Nullable(String),
+    match_result LowCardinality(String),
     winning_side LowCardinality(String),
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
@@ -134,6 +140,8 @@ PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
 CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_one_man_army (
     match_id Int32,
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
     player_id Nullable(Int32),
     player_name Nullable(String),
     team_id Nullable(Int32),
@@ -149,6 +157,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_one_man_army (
     home_score Nullable(Int32),
     away_score Nullable(Int32),
     team_side LowCardinality(String),
+    match_result LowCardinality(String),
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
@@ -170,6 +179,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_last_gasp (
     home_score_before Nullable(Int32),
     away_score_before Nullable(Int32),
     winning_team Nullable(String),
+    match_result LowCardinality(String),
     winning_side LowCardinality(String),
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
@@ -192,6 +202,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_shot_stopper (
     saves UInt32,
     xg_saved Nullable(Float32),
     keeper_side LowCardinality(String),
+    match_result LowCardinality(String),
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
@@ -237,6 +248,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_clinical_finisher (
     total_shots UInt32,
     combined_xg Nullable(Float32),
     team_side LowCardinality(String),
+    match_result LowCardinality(String),
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
@@ -282,6 +294,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_efficiency_machine (
     away_score Nullable(Int32),
     goal_diff Int32,
     winning_team Nullable(String),
+    match_result LowCardinality(String),
     winning_side LowCardinality(String),
     home_total_shots UInt32,
     away_total_shots UInt32,
@@ -311,6 +324,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_away_day_masterclass (
     xg_home Nullable(Float32),
     xg_away Nullable(Float32),
     xg_diff Nullable(Float32),
+    match_result LowCardinality(String),
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
@@ -319,6 +333,8 @@ PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
 CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_key_pass_king (
     match_id Int32,
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
     player_id Nullable(Int32),
     player_name Nullable(String),
     team_id Nullable(Int32),
@@ -390,6 +406,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_lead_by_example (
     rating_above_avg Nullable(Float32),
     minutes_played Nullable(Int32),
     winning_team Nullable(String),
+    match_result LowCardinality(String),
     winning_side LowCardinality(String),
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
@@ -433,6 +450,8 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_second_half_warriors (
     away_team_id Nullable(Int32),
     home_team_name Nullable(String),
     away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
     home_score_ft Nullable(Int32),
     away_score_ft Nullable(Int32),
     home_score_ht UInt32,

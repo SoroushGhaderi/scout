@@ -1,6 +1,7 @@
 -- scenario_lead_by_example: captains leading winning teams with above-average impact
 INSERT INTO fotmob.silver_scenario_lead_by_example
 (
+    -- 1. Match Identity
     match_id,
     home_team_id,
     away_team_id,
@@ -8,6 +9,7 @@ INSERT INTO fotmob.silver_scenario_lead_by_example
     away_team_name,
     home_score,
     away_score,
+    -- 2. Captain Impact Metrics
     goal_diff,
     player_id,
     captain_name,
@@ -21,7 +23,9 @@ INSERT INTO fotmob.silver_scenario_lead_by_example
     avg_rating,
     rating_above_avg,
     minutes_played,
+    -- 3. Match Result Logic
     winning_team,
+    match_result,
     winning_side,
     match_time_utc_date
 )
@@ -31,6 +35,7 @@ WITH avg_rating AS (
     WHERE fotmob_rating IS NOT NULL
 )
 SELECT
+    -- 1. Match Identity
     g.match_id,
     g.home_team_id,
     g.away_team_id,
@@ -38,6 +43,7 @@ SELECT
     g.away_team_name,
     g.home_score,
     g.away_score,
+    -- 2. Captain Impact Metrics
     abs(g.home_score - g.away_score) AS goal_diff,
     st.player_id,
     st.name AS captain_name,
@@ -51,13 +57,21 @@ SELECT
     round(ar.overall_avg_rating, 2) AS avg_rating,
     round(p.fotmob_rating - ar.overall_avg_rating, 2) AS rating_above_avg,
     p.minutes_played,
+    -- 3. Match Result Logic
     CASE
         WHEN g.home_score > g.away_score THEN g.home_team_name
         WHEN g.away_score > g.home_score THEN g.away_team_name
+        ELSE 'Draw'
     END AS winning_team,
+    CAST(CASE
+        WHEN g.home_score > g.away_score THEN 'Home Win'
+        WHEN g.away_score > g.home_score THEN 'Away Win'
+        ELSE 'Draw'
+    END AS LowCardinality(String)) AS match_result,
     CASE
         WHEN g.home_score > g.away_score THEN 'home'
         WHEN g.away_score > g.home_score THEN 'away'
+        ELSE 'draw'
     END AS winning_side,
     g.match_time_utc_date
 FROM fotmob.bronze_starters AS st
@@ -68,6 +82,7 @@ INNER JOIN fotmob.bronze_player AS p
     AND st.player_id = p.player_id
 CROSS JOIN avg_rating AS ar
 WHERE
+    -- Winning captains with above-average impact and direct output.
     g.match_finished = 1
     AND g.home_score != g.away_score
     AND st.is_captain = 1

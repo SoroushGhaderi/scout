@@ -44,9 +44,9 @@ SELECT
     p.minutes_played,
     p.fotmob_rating,
     CASE
-        WHEN g.home_score > g.away_score THEN 'home'
-        WHEN g.away_score > g.home_score THEN 'away'
-        ELSE 'draw'
+        WHEN g.home_score > g.away_score THEN 'Home Win'
+        WHEN g.away_score > g.home_score THEN 'Away Win'
+        ELSE 'Draw'
     END AS match_result,
     g.match_time_utc_date
 FROM fotmob.bronze_substitutes AS sub

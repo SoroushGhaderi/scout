@@ -6,6 +6,8 @@ INSERT INTO fotmob.silver_scenario_second_half_warriors
     away_team_id,
     home_team_name,
     away_team_name,
+    home_score,
+    away_score,
     home_score_ft,
     away_score_ft,
     home_score_ht,
@@ -32,6 +34,8 @@ SELECT
     g.away_team_id,
     g.home_team_name,
     g.away_team_name,
+    g.home_score,
+    g.away_score,
     g.home_score AS home_score_ft,
     g.away_score AS away_score_ft,
     ht.home_score_ht,
@@ -43,9 +47,9 @@ SELECT
         WHEN ht.away_score_ht < ht.home_score_ht THEN 'away'
     END AS losing_team_at_ht,
     CASE
-        WHEN g.home_score > g.away_score THEN 'home'
-        WHEN g.away_score > g.home_score THEN 'away'
-        ELSE 'draw'
+        WHEN g.home_score > g.away_score THEN 'Home Win'
+        WHEN g.away_score > g.home_score THEN 'Away Win'
+        ELSE 'Draw'
     END AS match_result,
     CASE
         WHEN ht.home_score_ht < ht.away_score_ht AND g.home_score >= g.away_score THEN g.home_team_name
