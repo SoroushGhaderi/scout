@@ -57,7 +57,8 @@ FROM fotmob.bronze_player AS p
 INNER JOIN fotmob.bronze_general AS g
     ON p.match_id = g.match_id
 WHERE
-    p.is_goalkeeper = 0
+    g.match_finished = 1
+    AND p.is_goalkeeper = 0
     AND p.aerial_duel_success_rate >= 100.0
     AND p.aerial_duel_attempts >= 5
     AND p.clearances >= 5

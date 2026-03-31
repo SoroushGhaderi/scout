@@ -71,7 +71,8 @@ INNER JOIN fotmob.bronze_general AS g
     ON p.match_id = g.match_id
 WHERE
     -- Outfield players with substantial minutes to represent true role profile.
-    p.is_goalkeeper = 0
+    g.match_finished = 1
+    AND p.is_goalkeeper = 0
     AND p.minutes_played >= 75
 
     -- Line-breaker profile: high long-ball progression with technical security from deep zones.

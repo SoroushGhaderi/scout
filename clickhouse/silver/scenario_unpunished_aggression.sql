@@ -73,7 +73,8 @@ INNER JOIN fotmob.bronze_period AS p
     ON g.match_id = p.match_id
 WHERE
     -- Full-match team aggregates only.
-    p.period = 'All'
+    g.match_finished = 1
+    AND p.period = 'All'
     -- Total fouls threshold.
     AND (ifNull(p.fouls_home, 0) + ifNull(p.fouls_away, 0)) >= 35
     -- Limited yellow-card punishment despite heavy fouling.

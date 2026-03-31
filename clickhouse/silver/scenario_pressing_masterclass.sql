@@ -61,6 +61,8 @@ SELECT
 FROM fotmob.bronze_general AS g
 INNER JOIN fotmob.bronze_player AS p
     ON g.match_id = p.match_id
+WHERE
+    g.match_finished = 1
 GROUP BY
     g.match_id,
     g.home_team_id,

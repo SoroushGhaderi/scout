@@ -30,8 +30,8 @@ WITH final_score_goals AS (
         is_home,
         home_score,
         away_score,
-        if(is_home = 1, home_score, home_score) AS home_score_before,
-        if(is_home = 0, away_score, away_score) AS away_score_before,
+        if(is_home = 1, home_score - 1, home_score) AS home_score_before,
+        if(is_home = 0, away_score - 1, away_score) AS away_score_before,
         player_id,
         player_name,
         row_number() OVER (PARTITION BY match_id ORDER BY goal_time DESC, goal_overload_time DESC) AS rn

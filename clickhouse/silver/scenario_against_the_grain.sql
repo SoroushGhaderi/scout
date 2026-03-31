@@ -66,7 +66,8 @@ INNER JOIN fotmob.bronze_period AS per
     ON p.match_id = per.match_id
 WHERE
     -- Filter for full-match context and outfield players only.
-    per.period = 'All'
+    g.match_finished = 1
+    AND per.period = 'All'
     AND p.is_goalkeeper = 0
 
     -- Player performance: strong volume plus elite passing precision.

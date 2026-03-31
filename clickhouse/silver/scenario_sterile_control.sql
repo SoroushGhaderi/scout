@@ -59,7 +59,8 @@ FROM fotmob.bronze_general AS g
 INNER JOIN fotmob.bronze_period AS p
     ON g.match_id = p.match_id
 WHERE
-    p.period = 'All'
+    g.match_finished = 1
+    AND p.period = 'All'
     AND (
         (p.ball_possession_home > 65 AND p.passes_home > 600 AND (p.expected_goals_home < 0.75 OR p.shots_on_target_home < 2))
         OR

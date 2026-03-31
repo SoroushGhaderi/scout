@@ -69,7 +69,8 @@ INNER JOIN fotmob.bronze_period AS per
     ON p.match_id = per.match_id
 WHERE
     -- Ensure primary full-match goalkeeper rows.
-    p.is_goalkeeper = 1
+    g.match_finished = 1
+    AND p.is_goalkeeper = 1
     AND p.minutes_played >= 80
     AND per.period = 'All'
 

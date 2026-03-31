@@ -129,9 +129,9 @@ SELECT
     END AS team_side,
 
     CASE
-        WHEN g.home_score > g.away_score THEN 'home_win'
-        WHEN g.away_score > g.home_score THEN 'away_win'
-        ELSE 'draw'
+        WHEN g.home_score > g.away_score THEN 'Home Win'
+        WHEN g.away_score > g.home_score THEN 'Away Win'
+        ELSE 'Draw'
     END AS match_result,
     g.match_time_utc_date
 

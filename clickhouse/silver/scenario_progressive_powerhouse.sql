@@ -52,10 +52,11 @@ SELECT
     END AS winning_side,
     g.match_time_utc_date
 FROM fotmob.bronze_player AS p
-ANY INNER JOIN fotmob.bronze_general AS g
+INNER JOIN fotmob.bronze_general AS g
     ON p.match_id = g.match_id
 WHERE
-    p.pass_accuracy >= 85.0
+    g.match_finished = 1
+    AND p.pass_accuracy >= 85.0
     AND p.passes_final_third >= 8
     AND p.successful_dribbles >= 3
     AND p.is_goalkeeper = 0

@@ -69,7 +69,8 @@ INNER JOIN fotmob.bronze_general AS g
     ON p.match_id = g.match_id
 WHERE
     -- Outfield players with enough minutes to influence both phases.
-    p.is_goalkeeper = 0
+    g.match_finished = 1
+    AND p.is_goalkeeper = 0
     AND p.minutes_played >= 45
     -- Flying wingback profile: strong dribble volume, efficiency, and final-third penetration.
     AND p.successful_dribbles >= 5
