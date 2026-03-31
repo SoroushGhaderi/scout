@@ -60,4 +60,7 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/scenario_touchline_terror.py`
 - `scripts/silver/scenario_the_flying_wingback.py`
 - `scripts/silver/scenario_the_line_breaker.py`
+- `scripts/silver/scenario_the_basketball_match.py`
+- `scripts/silver/scenario_the_lightning_rod.py`
+- `scripts/silver/scenario_the_human_shield.py`
 - `scripts/silver/scenarios_catalog.md`

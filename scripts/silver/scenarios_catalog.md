@@ -921,6 +921,75 @@ python3 scripts/silver/scenario_the_line_breaker.py
 
 ---
 
+## 🏀 Scenario: The Basketball Match (`scenario_the_basketball_match`)
+
+### 🎯 Purpose
+Find chaotic matches with extreme combined xG and shot volume where both teams create heavy attacking output.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Combined xG > 4.5:** Isolates truly high-event chance-quality environments, not just shot volume noise.
+- **Combined shots > 35:** Confirms sustained attacking tempo and repeated final-third entries from both sides.
+- **Both teams xG > 1.5:** Prevents one-sided shot inflation by requiring meaningful chance creation from each team.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_the_basketball_match.sql`
+- **Python Runner:** `scripts/silver/scenario_the_basketball_match.py`
+- **Target Table:** `fotmob.silver_scenario_the_basketball_match`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_the_basketball_match.py
+```
+
+---
+
+## ⚡ Scenario: The Lightning Rod (`scenario_the_lightning_rod`)
+
+### 🎯 Purpose
+Find attackers who repeatedly draw fouls while actively carrying the ball or receiving in dangerous areas.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Fouls Drawn (≥ 6):** Captures players who consistently attract defensive contact and pressure.
+- **Isolation/Threat Confirmation:** Requires either sustained take-on activity (`dribble_attempts >= 4`) or repeated dangerous-zone presence (`touches_opp_box >= 5`).
+- **Minutes Floor (≥ 45):** Ensures the profile represents stable match influence rather than brief substitute volatility.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_the_lightning_rod.sql`
+- **Python Runner:** `scripts/silver/scenario_the_lightning_rod.py`
+- **Target Table:** `fotmob.silver_scenario_the_lightning_rod`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_the_lightning_rod.py
+```
+
+---
+
+## 🛡️ Scenario: The Human Shield (`scenario_the_human_shield`)
+
+### 🎯 Purpose
+Find outfield defenders who absorb intense pressure through elite shot blocking and clearance volume.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Blocked Shots (≥ 4):** Isolates true high-sacrifice defenders repeatedly denying direct attempts.
+- **Clearance Volume (≥ 5):** Confirms sustained danger management, not isolated moments.
+- **Pressure Context (shots faced ≥ 15):** Requires the player’s team to be under heavy fire to ensure defensive actions are high-leverage.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_the_human_shield.sql`
+- **Python Runner:** `scripts/silver/scenario_the_human_shield.py`
+- **Target Table:** `fotmob.silver_scenario_the_human_shield`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_the_human_shield.py
+```
+
+---
+
 ## Template For Future Scenarios
 
 ```markdown
