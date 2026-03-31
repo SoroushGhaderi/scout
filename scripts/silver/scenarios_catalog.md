@@ -827,6 +827,100 @@ python3 scripts/silver/scenario_elite_shot_stopper.py
 
 ---
 
+## 🕳️ Scenario: The Hollow Dominance (`scenario_the_hollow_dominance`)
+
+### 🎯 Purpose
+Finds matches where one side generates heavy attacking volume and chance quality but still fails to win.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Siege Shot Volume (≥ 20 Shots):** Twenty-plus total shots indicates sustained territorial pressure and repeated final-third access. This threshold isolates high-volume attacking games from normal chance-trading matches.
+
+- **Chance Quality Edge (xG at least equal to opponent):** The dominating side must also post at least equal xG versus the opponent. This avoids classifying low-quality pot-shot volume as meaningful attacking dominance.
+
+- **Failure Outcome Constraint (Score ≤ 1 and did not win):** The "hollow" profile requires attacking dominance without conversion into victory. This captures wasteful finishing, elite opposing shot-stopping, or high-variance game states.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_the_hollow_dominance.sql`
+- **Python Runner:** `scripts/silver/scenario_the_hollow_dominance.py`
+- **Target Table:** `fotmob.silver_scenario_the_hollow_dominance`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_the_hollow_dominance.py
+```
+
+---
+
+## ⚡ Scenario: Touchline Terror (`scenario_touchline_terror`)
+
+### 🎯 Purpose
+Find outfield isolation specialists who combine high dribble volume, efficient take-ons, and repeated box entries.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Dribble Volume (≥ 5 successful):** Ensures this is a genuine one-v-one dominant display, not a one-off action.
+- **Dribble Efficiency (≥ 60%):** Filters to players who convert take-ons at a strong rate instead of high-risk inefficiency.
+- **Danger-Zone Presence (≥ 4 touches in opp box):** Confirms that wide progression translated into real final-third penetration.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_touchline_terror.sql`
+- **Python Runner:** `scripts/silver/scenario_touchline_terror.py`
+- **Target Table:** `fotmob.silver_scenario_touchline_terror`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_touchline_terror.py
+```
+
+---
+
+## 🪽 Scenario: The Flying Wingback (`scenario_the_flying_wingback`)
+
+### 🎯 Purpose
+Find outfield wide players who combine repeated take-on success with high box-touch activity.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Dribble Volume (≥ 5 successful):** Captures players repeatedly winning isolation duels, not one-off moments.
+- **Dribble Efficiency (≥ 60%):** Ensures attacking volume is productive rather than wasteful.
+- **Box Presence (≥ 4 touches in opp box):** Confirms wide progression turns into danger-zone involvement.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_the_flying_wingback.sql`
+- **Python Runner:** `scripts/silver/scenario_the_flying_wingback.py`
+- **Target Table:** `fotmob.silver_scenario_the_flying_wingback`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_the_flying_wingback.py
+```
+
+---
+
+## 🎯 Scenario: The Line Breaker (`scenario_the_line_breaker`)
+
+### 🎯 Purpose
+Find deep distributors who repeatedly break lines through accurate long progression while maintaining elite passing security.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Long Progression Volume (≥ 8 accurate long balls):** Isolates players repeatedly progressing play over defensive lines.
+- **Technical Security (≥ 85% pass accuracy with ≥ 50 accurate passes):** Keeps only primary distributors with sustained, reliable ball use.
+- **Deep-Role Confirmation (≤ 1 touch in opp box):** Filters out advanced attackers and keeps the profile anchored to deep build-up zones.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_the_line_breaker.sql`
+- **Python Runner:** `scripts/silver/scenario_the_line_breaker.py`
+- **Target Table:** `fotmob.silver_scenario_the_line_breaker`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_the_line_breaker.py
+```
+
+---
+
 ## Template For Future Scenarios
 
 ```markdown

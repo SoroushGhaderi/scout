@@ -56,4 +56,8 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/scenario_unpunished_aggression.py`
 - `scripts/silver/scenario_pressing_masterclass.py`
 - `scripts/silver/scenario_elite_shot_stopper.py`
+- `scripts/silver/scenario_the_hollow_dominance.py`
+- `scripts/silver/scenario_touchline_terror.py`
+- `scripts/silver/scenario_the_flying_wingback.py`
+- `scripts/silver/scenario_the_line_breaker.py`
 - `scripts/silver/scenarios_catalog.md`
