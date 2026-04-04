@@ -763,7 +763,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                                 flat_data["total_passes"] = total
                             if total and total > 0 and value is not None:
                                 flat_data["pass_accuracy"] = round((value / total) * 100, 1)
-                        elif key == "passes_to_final_third":
+                        elif key in ("passes_into_final_third", "passes_to_final_third"):
                             flat_data["passes_final_third"] = value
                         elif key == "accurate_crosses":
                             flat_data["accurate_crosses"] = value

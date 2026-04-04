@@ -524,17 +524,19 @@ python3 scripts/silver/scenario_the_metronome.py
 ## 🔋 Scenario: High Intensity Engine (`scenario_high_intensity_engine`)
 
 ### 🎯 Purpose
-Finds outfield players sustaining elite defensive work-rate across meaningful minutes — capturing the box-to-box or pressing-forward profiles who dominate ball-winning metrics through repeated high-intensity actions, not single interventions.
+Finds non-goalkeeper, non-center-back outfield players sustaining elite two-way work-rate across meaningful minutes by combining defensive volume with per-90 event density.
 
 ### 🧠 Tactical & Statistical Logic
 
-- **Recovery Volume (≥ 12 Recoveries):** Recoveries measure successful ball-winning events across the pitch — loose balls, second balls, and dispossessions won in open play. Twelve recoveries in a single match is a high-intensity threshold that identifies players who are continuously pressing, hunting second balls, and winning possession for their team throughout the 90 minutes.
+- **Defensive Volume Floor (≥ 12):** The scenario computes `defensive_volume = tackles_won + interceptions + recoveries` (with null-safe coalescing). This captures both duel-winning activity and anticipation-based regains, preventing single-metric bias.
 
-- **Interception Volume (≥ 4 Interceptions):** Interceptions require reading the game proactively — anticipating passes and cutting passing lanes before the ball arrives. Four interceptions in a single match is a demanding bar that identifies players with both high pressing intensity (to be in the right position) and high tactical intelligence (to read when to intercept rather than track).
+- **Engine Proxy via Event Density per 90:** `event_density_per90 = (touches + defensive_actions) / minutes_played * 90` provides an intensity proxy that rewards players who stay constantly involved on and off the ball, normalized for minutes.
 
-- **Why Both Together?:** Recoveries and interceptions measure different aspects of defensive intensity. A player can accumulate recoveries purely through second-ball aggression without much tactical positioning. Requiring both ensures the scenario captures well-rounded high-intensity defensive output — physical engine and tactical reading combined.
+- **Meaningful Sample (≥ 60 Minutes):** The minutes floor limits short-burst outliers and focuses on sustained match-level intensity.
 
-- **Sample Floor (≥ 45 Minutes Played):** A player who delivers 12 recoveries and 4 interceptions in 20 minutes before substitution or red card is demonstrating a very different intensity profile from one sustaining that output over a full half. The 45-minute floor prevents tiny-sample outliers from dominating the scenario.
+- **Positional Integrity:** Goalkeepers are excluded via `p.is_goalkeeper = 0`, and starter-position filtering excludes `position_id IN (1, 2, 3, 4)` to remove GK/SW/CB profiles and keep the scenario focused on high-engine non-central-defender roles.
+
+- **Context-Rich Output Fields:** The scenario includes match context (`league_name`, teams, scoreline, match time), player identity (`player_id`, `team_id`, starter position fields), and supporting duel/passing/xG metrics for downstream interpretation.
 
 ### 📂 Technical Assets
 - **SQL Transformation:** `clickhouse/silver/scenario_high_intensity_engine.sql`
@@ -1140,6 +1142,81 @@ Find low-possession teams that leaned heavily on direct long-ball progression, s
 ### 🚀 Execution
 ```bash
 python3 scripts/silver/scenario_route_one_masterclass.py
+```
+
+---
+
+## 🧱 Scenario: Total Suffocation (`scenario_total_suffocation`)
+
+### 🎯 Purpose
+Find matches where one side imposed extreme territorial control and almost completely removed the opponent's ability to create meaningful attacking threat.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Territorial Monopoly (> 60% possession):** Requires sustained control of match flow and territory.
+- **Absolute Shot Suppression (opponent shots on target = 0):** Enforces complete denial of on-frame threat.
+- **Chance-Quality Denial (opponent xG < 0.3):** Filters to near-zero expected threat environments.
+- **Box Exclusion (opponent touches in opp box ≤ 5):** Captures structural prevention of dangerous area access.
+- **All-Period Finished-Match Scope:** Uses full-match period aggregates (`period = 'All'`) and only completed fixtures.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_total_suffocation.sql`
+- **Python Runner:** `scripts/silver/scenario_total_suffocation.py`
+- **Target Table:** `fotmob.silver_scenario_total_suffocation`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_total_suffocation.py
+```
+
+---
+
+## 🗺️ Scenario: Territorial Suffocation (`scenario_territorial_suffocation`)
+
+### 🎯 Purpose
+Find matches where one side weaponized possession to keep the opponent out of dangerous zones and heavily limit on-target threat.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Deep-Block Forcing (opponent touches in opp box ≤ 5):** Captures structural territorial denial in high-value areas.
+- **Possession Control (> 65%):** Ensures suffocation is driven by dominant ball control and field position.
+- **Shot Suppression (opponent shots on target ≤ 1):** Confirms that territorial control translated into near-total shooting suppression.
+- **Dual-Side Detection:** Evaluates both home and away suffocation cases symmetrically.
+- **Full-Match Integrity:** Uses `period = 'All'` and finished matches only for stable full-game context.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_territorial_suffocation.sql`
+- **Python Runner:** `scripts/silver/scenario_territorial_suffocation.py`
+- **Target Table:** `fotmob.silver_scenario_territorial_suffocation`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_territorial_suffocation.py
+```
+
+---
+
+## 🎛️ Scenario: Clinical Pivot (`scenario_clinical_pivot`)
+
+### 🎯 Purpose
+Find deep-lying distribution hubs who combine elite passing volume and accuracy with consistent final-third progression while staying mostly outside advanced box zones.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Volume Distributor Gate (total passes ≥ 70):** Captures genuine tempo-setters with sustained on-ball responsibility.
+- **Precision Filter (pass accuracy ≥ 90%):** Keeps only highly secure distributors who control game flow efficiently.
+- **Progression Requirement (passes into final third ≥ 10):** Ensures volume is directional and advances team attacking phases.
+- **Non-Invasive Role Constraint (touches in opp box ≤ 1):** Filters out advanced attackers to retain deep pivot profiles.
+- **Context Enrichment:** Includes xG/xA, chance creation, recoveries, interceptions, and defensive actions for two-way interpretation.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_clinical_pivot.sql`
+- **Python Runner:** `scripts/silver/scenario_clinical_pivot.py`
+- **Target Table:** `fotmob.silver_scenario_clinical_pivot`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_clinical_pivot.py
 ```
 
 ---

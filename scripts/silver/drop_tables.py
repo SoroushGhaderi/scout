@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+import time
 from pathlib import Path
 
 project_root = Path(__file__).resolve().parents[2]
@@ -60,20 +61,43 @@ def main(argv=None) -> int:
         return 1
 
     try:
+        find_start = time.perf_counter()
         tables = _find_silver_tables(client, database)
+        find_elapsed_seconds = time.perf_counter() - find_start
+        logger.info("Silver table discovery completed in %.2f seconds", find_elapsed_seconds)
         if not tables:
             logger.info("No tables found with prefix silver_ in %s", database)
             return 0
 
-        logger.info("Found %s silver table(s) in %s", len(tables), database)
-        for table in tables:
+        total_tables = len(tables)
+        logger.info("Found %s silver table(s) in %s", total_tables, database)
+        for index, table in enumerate(tables, start=1):
             full_table = f"{database}.{table}"
             if args.dry_run:
-                logger.info("[dry-run] Would drop table %s", full_table)
+                logger.info(
+                    "[dry-run] Would drop silver table %s/%s: %s",
+                    index,
+                    total_tables,
+                    full_table,
+                )
                 continue
 
+            logger.info(
+                "Dropping silver table %s/%s: %s",
+                index,
+                total_tables,
+                full_table,
+            )
+            drop_start = time.perf_counter()
             client.execute(f"DROP TABLE IF EXISTS {full_table}")
-            logger.info("Dropped table %s", full_table)
+            drop_elapsed_seconds = time.perf_counter() - drop_start
+            logger.info(
+                "Dropped silver table %s/%s: %s in %.2f seconds",
+                index,
+                total_tables,
+                full_table,
+                drop_elapsed_seconds,
+            )
 
         if args.dry_run:
             logger.info("Dry-run completed")

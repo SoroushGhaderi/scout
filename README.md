@@ -139,10 +139,14 @@ This refreshes views such as:
 
 It also refreshes silver scenario tables (via `scripts/silver/scenario_*.py`), including:
 
+- `fotmob.silver_scenario_high_intensity_engine`
 - `fotmob.silver_scenario_the_black_hole`
 - `fotmob.silver_scenario_high_line_trap`
 - `fotmob.silver_scenario_the_ghost_poacher`
 - `fotmob.silver_scenario_route_one_masterclass`
+- `fotmob.silver_scenario_total_suffocation`
+- `fotmob.silver_scenario_territorial_suffocation`
+- `fotmob.silver_scenario_clinical_pivot`
 
 ### 6. Build Gold tables
 

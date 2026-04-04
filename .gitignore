@@ -147,6 +147,7 @@ logs/
 
 # Data files - EXPLICIT IGNORE
 data/
+store/
 *.csv
 *.xlsx
 *.xls

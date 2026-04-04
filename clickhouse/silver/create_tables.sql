@@ -626,20 +626,40 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_high_intensity_engine (
     away_team_name Nullable(String),
     home_score Nullable(Int32),
     away_score Nullable(Int32),
+    league_name Nullable(String),
     match_time_utc_date Nullable(String),
+    player_id Nullable(Int32),
     player_name Nullable(String),
-    player_team Nullable(String),
-    recoveries Nullable(Int32),
-    interceptions Nullable(Int32),
-    defensive_actions Nullable(Int32),
+    team_id Nullable(Int32),
+    team_name Nullable(String),
     minutes_played Nullable(Int32),
     fotmob_rating Nullable(Float32),
-    winning_team Nullable(String),
-    match_result LowCardinality(String),
-    winning_side LowCardinality(String),
+    position_id Nullable(Int32),
+    usual_playing_position_id Nullable(Int32),
+    tackles_won Nullable(Int32),
+    interceptions Nullable(Int32),
+    recoveries Nullable(Int32),
+    defensive_volume Nullable(Int32),
+    touches Nullable(Int32),
+    defensive_actions Nullable(Int32),
+    event_density_per90 Nullable(Float64),
+    duels_won Nullable(Int32),
+    duels_lost Nullable(Int32),
+    tackles_total Nullable(Int32),
+    tackle_attempts Nullable(Int32),
+    tackle_success_rate Nullable(Float32),
+    clearances Nullable(Int32),
+    dribbled_past Nullable(Int32),
+    fouls_committed Nullable(Int32),
+    was_fouled Nullable(Int32),
+    passes_final_third Nullable(Int32),
+    total_passes Nullable(Int32),
+    pass_accuracy Nullable(Float32),
+    expected_goals Nullable(Float32),
+    expected_assists Nullable(Float32),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
-ORDER BY (match_id, winning_side)
+ORDER BY (match_id, assumeNotNull(player_id))
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
 CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_box_to_box_general (
@@ -1190,4 +1210,101 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_route_one_masterclass (
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id)
+PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
+
+CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_total_suffocation (
+    match_id Int32,
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    league_name Nullable(String),
+    match_time_utc_date Nullable(String),
+    possession_home Nullable(Int32),
+    possession_away Nullable(Int32),
+    shots_on_target_home Nullable(Int32),
+    shots_on_target_away Nullable(Int32),
+    xg_home Nullable(Float64),
+    xg_away Nullable(Float64),
+    touches_opp_box_home Nullable(Int32),
+    touches_opp_box_away Nullable(Int32),
+    total_shots_home Nullable(Int32),
+    total_shots_away Nullable(Int32),
+    big_chances_home Nullable(Int32),
+    big_chances_away Nullable(Int32),
+    passes_home Nullable(Int32),
+    passes_away Nullable(Int32),
+    corners_home Nullable(Int32),
+    corners_away Nullable(Int32),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id)
+PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
+
+CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_territorial_suffocation (
+    match_id Int32,
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    league_name Nullable(String),
+    match_time_utc_date Nullable(String),
+    possession_home Nullable(Int32),
+    possession_away Nullable(Int32),
+    shots_on_target_home Nullable(Int32),
+    shots_on_target_away Nullable(Int32),
+    total_shots_home Nullable(Int32),
+    total_shots_away Nullable(Int32),
+    touches_opp_box_home Nullable(Int32),
+    touches_opp_box_away Nullable(Int32),
+    xg_home Nullable(Float64),
+    xg_away Nullable(Float64),
+    big_chances_home Nullable(Int32),
+    big_chances_away Nullable(Int32),
+    passes_home Nullable(Int32),
+    passes_away Nullable(Int32),
+    corners_home Nullable(Int32),
+    corners_away Nullable(Int32),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id)
+PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
+
+CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_clinical_pivot (
+    match_id Int32,
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    league_name Nullable(String),
+    match_time_utc_date Nullable(String),
+    player_id Nullable(Int32),
+    player_name Nullable(String),
+    team_id Nullable(Int32),
+    team_name Nullable(String),
+    minutes_played Nullable(Int32),
+    fotmob_rating Nullable(Float32),
+    total_passes Nullable(Int32),
+    accurate_passes Nullable(Int32),
+    pass_accuracy Nullable(Float32),
+    passes_final_third Nullable(Int32),
+    touches_opp_box Nullable(Int32),
+    touches Nullable(Int32),
+    expected_goals Nullable(Float32),
+    expected_assists Nullable(Float32),
+    chances_created Nullable(Int32),
+    successful_dribbles Nullable(Int32),
+    interceptions Nullable(Int32),
+    recoveries Nullable(Int32),
+    defensive_actions Nullable(Int32),
+    xg_plus_xa Nullable(Float64),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, assumeNotNull(player_id))
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));

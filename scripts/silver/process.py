@@ -2,6 +2,7 @@
 
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 project_root = Path(__file__).resolve().parents[2]
@@ -31,17 +32,35 @@ def main() -> int:
         logger.error("No scenario scripts found in %s", Path(__file__).resolve().parent)
         return 1
 
-    for script_path in scenario_scripts:
+    total_scripts = len(scenario_scripts)
+    for index, script_path in enumerate(scenario_scripts, start=1):
         command = _build_command(script_path)
-        logger.info("Running silver scenario script: %s", script_path.name)
+        logger.info(
+            "Running silver scenario script %s/%s: %s",
+            index,
+            total_scripts,
+            script_path.name,
+        )
+        script_start = time.perf_counter()
         result = subprocess.run(command, cwd=project_root)
+        elapsed_seconds = time.perf_counter() - script_start
         if result.returncode != 0:
             logger.error(
-                "Silver scenario script failed: %s (exit code %s)",
+                "Silver scenario script failed %s/%s: %s (exit code %s) after %.2f seconds",
+                index,
+                total_scripts,
                 script_path.name,
                 result.returncode,
+                elapsed_seconds,
             )
             return 1
+        logger.info(
+            "Completed silver scenario script %s/%s: %s in %.2f seconds",
+            index,
+            total_scripts,
+            script_path.name,
+            elapsed_seconds,
+        )
 
     logger.info("Silver processing completed successfully")
     return 0

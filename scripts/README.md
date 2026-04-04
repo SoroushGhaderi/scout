@@ -24,6 +24,8 @@ Use these for all new documentation, automation, and daily runs:
 
 ## Scenario Scripts
 
+These `scripts/silver/scenario_*.py` runners are discovered and executed by `scripts/silver/process.py`.
+
 - `scripts/silver/scenario_demolition.py`
 - `scripts/silver/scenario_defensive_shutdown_win.py`
 - `scripts/silver/scenario_underdog_heist.py`
@@ -67,6 +69,9 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/scenario_high_line_trap.py`
 - `scripts/silver/scenario_the_ghost_poacher.py`
 - `scripts/silver/scenario_route_one_masterclass.py`
+- `scripts/silver/scenario_total_suffocation.py`
+- `scripts/silver/scenario_territorial_suffocation.py`
+- `scripts/silver/scenario_clinical_pivot.py`
 - `scripts/silver/scenario_chaos_engine.py`
 - `scripts/silver/scenario_tired_legs.py`
 - `scripts/silver/scenarios_catalog.md`

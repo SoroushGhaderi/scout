@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import time
 from pathlib import Path
 from typing import Iterable, Optional
 
@@ -232,31 +233,44 @@ def execute_sql_file(client: ClickHouseClient, sql_file: Path, database: Optiona
             if statement:
                 statements.append(statement)
 
+        total_statements = len(statements)
         executed_count = 0
-        created_tables: list[str] = []
         for statement in statements:
             normalized_statement = statement.strip()
             create_match = CREATE_TABLE_PATTERN.match(normalized_statement)
             table_name = create_match.group(1).strip("`\"") if create_match else None
+            statement_start = time.perf_counter()
             try:
                 client.execute(statement)
                 executed_count += 1
-                if table_name:
-                    created_tables.append(table_name)
             except Exception as exc:
                 if "already exists" in str(exc).lower():
                     executed_count += 1
-                    if table_name:
-                        created_tables.append(table_name)
-                    continue
-                logger.error("Failed while executing %s: %s", sql_file.name, exc)
-                logger.error("Statement: %s", statement)
-                return False
+                else:
+                    logger.error("Failed while executing %s: %s", sql_file.name, exc)
+                    logger.error("Statement: %s", statement)
+                    return False
+            elapsed_seconds = time.perf_counter() - statement_start
 
-        logger.info("Executed %s/%s statements from %s", executed_count, len(statements), sql_file.name)
-        if created_tables:
-            for table_name in created_tables:
-                logger.info("Table processed from %s: %s", sql_file.name, table_name)
+            if table_name:
+                logger.info(
+                    "Table processed from %s: %s (%s/%s) in %.2f seconds",
+                    sql_file.name,
+                    table_name,
+                    executed_count,
+                    total_statements,
+                    elapsed_seconds,
+                )
+            else:
+                logger.info(
+                    "Processed statement from %s (%s/%s) in %.2f seconds",
+                    sql_file.name,
+                    executed_count,
+                    total_statements,
+                    elapsed_seconds,
+                )
+
+        logger.info("Executed %s/%s statements from %s", executed_count, total_statements, sql_file.name)
         return executed_count > 0
     except Exception as exc:
         logger.error("Error reading/executing %s: %s", sql_file, exc, exc_info=True)
@@ -274,8 +288,13 @@ def run_clickhouse_layer_setup(layer_name: str, client: Optional[ClickHouseClien
         logger.info("Executing %s layer SQL...", layer_name.upper())
         for sql_file in sql_files:
             logger.info("Running %s", sql_file.name)
-            if not execute_sql_file(active_client, sql_file):
+            file_start = time.perf_counter()
+            succeeded = execute_sql_file(active_client, sql_file)
+            elapsed_seconds = time.perf_counter() - file_start
+            if not succeeded:
+                logger.error("Failed %s in %.2f seconds", sql_file.name, elapsed_seconds)
                 return 1
+            logger.info("Completed %s in %.2f seconds", sql_file.name, elapsed_seconds)
         logger.info("%s layer setup completed", layer_name.upper())
         return 0
     finally:
