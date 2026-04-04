@@ -1,2 +1,2 @@
--- Ensure the single database for all medallion layers exists
-CREATE DATABASE IF NOT EXISTS fotmob;
+-- Create Silver schema (database) for curated scenario tables
+CREATE DATABASE IF NOT EXISTS silver;

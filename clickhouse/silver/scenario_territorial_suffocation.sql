@@ -1,5 +1,5 @@
 -- scenario_territorial_suffocation: possession-led territorial domination that suppresses opponent box access and on-target threat
-INSERT INTO fotmob.silver_scenario_territorial_suffocation
+INSERT INTO silver.scenario_territorial_suffocation
 (
     match_id,
     home_team_id,
@@ -53,9 +53,9 @@ SELECT
     coalesce(p.passes_away, 0) AS passes_away,
     coalesce(p.corners_home, 0) AS corners_home,
     coalesce(p.corners_away, 0) AS corners_away
-FROM fotmob.bronze_period AS p
+FROM bronze.period AS p
 FINAL
-INNER JOIN fotmob.bronze_general AS g
+INNER JOIN bronze.general AS g
     FINAL ON p.match_id = g.match_id
 WHERE
     g.match_finished = 1

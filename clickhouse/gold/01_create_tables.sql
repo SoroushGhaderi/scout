@@ -1,6 +1,6 @@
--- Gold aggregated tables in single fotmob database (schema-style via gold_ prefix)
+-- Gold aggregated tables in dedicated gold schema
 
-CREATE TABLE IF NOT EXISTS fotmob.gold_player_match_stats (
+CREATE TABLE IF NOT EXISTS gold.player_match_stats (
     match_id Int32,
     player_id Int32,
     player_name String,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS fotmob.gold_player_match_stats (
 ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, player_id);
 
-CREATE TABLE IF NOT EXISTS fotmob.gold_match_summary (
+CREATE TABLE IF NOT EXISTS gold.match_summary (
     match_id Int32,
     league_id Nullable(Int32),
     league_name Nullable(String),
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS fotmob.gold_match_summary (
 ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id);
 
-CREATE TABLE IF NOT EXISTS fotmob.gold_team_season_stats (
+CREATE TABLE IF NOT EXISTS gold.team_season_stats (
     league_id Int32,
     team_id Int32,
     team_name String,

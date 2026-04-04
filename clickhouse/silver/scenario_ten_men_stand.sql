@@ -1,5 +1,5 @@
 -- scenario_ten_men_stand: teams that avoid defeat after going down to ten men
-INSERT INTO fotmob.silver_scenario_ten_men_stand
+INSERT INTO silver.scenario_ten_men_stand
 (
     match_id,
     home_team_id,
@@ -37,7 +37,7 @@ WITH first_red AS (
             PARTITION BY match_id, is_home
             ORDER BY red_card_time ASC
         ) AS rn
-    FROM fotmob.bronze_red_card
+    FROM bronze.red_card
 )
 SELECT
     g.match_id,
@@ -91,8 +91,8 @@ SELECT
         ELSE 'draw'
     END AS winning_side,
     g.match_time_utc_date
-FROM fotmob.bronze_general AS g
-INNER JOIN fotmob.bronze_red_card AS rc
+FROM bronze.general AS g
+INNER JOIN bronze.red_card AS rc
     ON g.match_id = rc.match_id
 INNER JOIN first_red AS fr
     ON rc.match_id = fr.match_id

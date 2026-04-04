@@ -149,7 +149,9 @@ def create_user_if_not_exists(client: ClickHouseClient, username: str, password:
             client.execute(f"CREATE USER IF NOT EXISTS {username} IDENTIFIED BY '{password}'")
 
         for grant_query in (
-            f"GRANT ALL ON fotmob.* TO {username}",
+            f"GRANT ALL ON bronze.* TO {username}",
+            f"GRANT ALL ON silver.* TO {username}",
+            f"GRANT ALL ON gold.* TO {username}",
             f"GRANT CREATE DATABASE ON *.* TO {username}",
             f"GRANT TABLE ENGINE ON ReplacingMergeTree TO {username}",
         ):

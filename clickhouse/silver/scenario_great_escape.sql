@@ -1,5 +1,5 @@
 -- scenario_great_escape: winner was losing at minute 60 and still won
-INSERT INTO fotmob.silver_scenario_great_escape
+INSERT INTO silver.scenario_great_escape
 (
     -- 1. Match Identity
     match_id,
@@ -24,7 +24,7 @@ WITH goals_at_60 AS (
         match_id,
         sumIf(is_home = 1, goal_time <= 60) AS home_score_at_60,
         sumIf(is_home = 0, goal_time <= 60) AS away_score_at_60
-    FROM fotmob.bronze_goal
+    FROM bronze.goal
     GROUP BY match_id
 )
 SELECT
@@ -57,7 +57,7 @@ SELECT
         ELSE 'draw'
     END AS winning_side,
     g.match_time_utc_date
-FROM fotmob.bronze_general AS g
+FROM bronze.general AS g
 INNER JOIN goals_at_60 AS s
     ON g.match_id = s.match_id
 WHERE

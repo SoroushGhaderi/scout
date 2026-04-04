@@ -1,5 +1,5 @@
 -- scenario_progressive_powerhouse: high-accuracy progressors with end-product carrying
-INSERT INTO fotmob.silver_scenario_progressive_powerhouse
+INSERT INTO silver.scenario_progressive_powerhouse
 (
     match_id,
     player_id,
@@ -51,8 +51,8 @@ SELECT
         ELSE 'draw'
     END AS winning_side,
     g.match_time_utc_date
-FROM fotmob.bronze_player AS p
-INNER JOIN fotmob.bronze_general AS g
+FROM bronze.player AS p
+INNER JOIN bronze.general AS g
     ON p.match_id = g.match_id
 WHERE
     g.match_finished = 1

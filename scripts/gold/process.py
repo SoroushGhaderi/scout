@@ -39,7 +39,7 @@ def refresh_gold_tables(client: ClickHouseClient, args: argparse.Namespace) -> N
 
     client.execute(
         f"""
-        INSERT INTO fotmob.gold_player_match_stats
+        INSERT INTO gold.player_match_stats
         SELECT
             p.match_id,
             toInt32(p.player_id) AS player_id,
@@ -54,11 +54,11 @@ def refresh_gold_tables(client: ClickHouseClient, args: argparse.Namespace) -> N
             toFloat32(sum(s.expected_goals)) AS xg,
             toFloat32(sum(s.expected_goals_on_target)) AS xgot,
             now() AS inserted_at
-        FROM fotmob.silver_player p
-        LEFT JOIN fotmob.silver_shotmap s
+        FROM silver.player p
+        LEFT JOIN silver.shotmap s
             ON p.match_id = s.match_id
             AND p.player_id = s.player_id
-        INNER JOIN fotmob.silver_general g
+        INNER JOIN silver.general g
             ON p.match_id = g.match_id
         WHERE {match_filter}
         GROUP BY
@@ -76,7 +76,7 @@ def refresh_gold_tables(client: ClickHouseClient, args: argparse.Namespace) -> N
 
     client.execute(
         f"""
-        INSERT INTO fotmob.gold_match_summary
+        INSERT INTO gold.match_summary
         SELECT
             g.match_id,
             g.league_id,
@@ -92,9 +92,9 @@ def refresh_gold_tables(client: ClickHouseClient, args: argparse.Namespace) -> N
             toFloat32(maxIf(p.expected_goals_home, p.period = 'All')) AS expected_goals_home,
             toFloat32(maxIf(p.expected_goals_away, p.period = 'All')) AS expected_goals_away,
             now() AS inserted_at
-        FROM fotmob.silver_general g
-        LEFT JOIN fotmob.silver_venue v ON g.match_id = v.match_id
-        LEFT JOIN fotmob.silver_period p ON g.match_id = p.match_id
+        FROM silver.general g
+        LEFT JOIN silver.venue v ON g.match_id = v.match_id
+        LEFT JOIN silver.period p ON g.match_id = p.match_id
         WHERE {match_filter}
         GROUP BY
             g.match_id,
@@ -113,7 +113,7 @@ def refresh_gold_tables(client: ClickHouseClient, args: argparse.Namespace) -> N
 
     client.execute(
         """
-        INSERT INTO fotmob.gold_team_season_stats
+        INSERT INTO gold.team_season_stats
         SELECT
             toInt32(g.league_id) AS league_id,
             toInt32(p.team_id) AS team_id,
@@ -126,8 +126,8 @@ def refresh_gold_tables(client: ClickHouseClient, args: argparse.Namespace) -> N
             min(toDate(g.match_time_utc_date)) AS season_first_seen,
             max(toDate(g.match_time_utc_date)) AS season_last_seen,
             now() AS inserted_at
-        FROM fotmob.silver_player p
-        INNER JOIN fotmob.silver_general g ON p.match_id = g.match_id
+        FROM silver.player p
+        INNER JOIN silver.general g ON p.match_id = g.match_id
         WHERE g.league_id IS NOT NULL AND p.team_id IS NOT NULL
         GROUP BY
             g.league_id,
@@ -164,7 +164,7 @@ def main(argv=None) -> int:
     try:
         sql_dir = project_root / "clickhouse" / "gold"
         processor = FotMobGoldProcessor(sql_dir=sql_dir)
-        storage = FotMobGoldStorage(client, database=settings.clickhouse_db_fotmob)
+        storage = FotMobGoldStorage(client, database="gold")
 
         sql_files = processor.sql_files()
         if not sql_files:

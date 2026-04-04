@@ -1,5 +1,5 @@
 -- scenario_key_pass_king: elite chance creators in finished matches
-INSERT INTO fotmob.silver_scenario_key_pass_king
+INSERT INTO silver.scenario_key_pass_king
 (
     -- 1. Match Identity
     match_id,
@@ -56,8 +56,8 @@ SELECT
         ELSE 'Draw'
     END AS match_result,
     g.match_time_utc_date
-FROM fotmob.bronze_player AS p
-INNER JOIN fotmob.bronze_general AS g
+FROM bronze.player AS p
+INNER JOIN bronze.general AS g
     ON p.match_id = g.match_id
 WHERE
     -- Finished matches with elite chance creation and xA.

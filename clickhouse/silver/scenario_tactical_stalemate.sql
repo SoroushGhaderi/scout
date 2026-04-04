@@ -1,5 +1,5 @@
 -- scenario_tactical_stalemate: finished matches with very low combined xG
-INSERT INTO fotmob.silver_scenario_tactical_stalemate
+INSERT INTO silver.scenario_tactical_stalemate
 (
     match_id,
     home_team_id,
@@ -37,8 +37,8 @@ SELECT
         ELSE 'Draw'
     END AS match_result,
     g.match_time_utc_date
-FROM fotmob.bronze_general AS g
-INNER JOIN fotmob.bronze_period AS p
+FROM bronze.general AS g
+INNER JOIN bronze.period AS p
     ON g.match_id = p.match_id
     AND p.period = 'All'
 WHERE

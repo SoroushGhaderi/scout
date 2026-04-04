@@ -1,5 +1,5 @@
 -- scenario_route_one_masterclass: low-possession teams using direct long-ball routes to generate threat and avoid defeat
-INSERT INTO fotmob.silver_scenario_route_one_masterclass
+INSERT INTO silver.scenario_route_one_masterclass
 (
     match_id,
     home_team_id,
@@ -52,9 +52,9 @@ WITH parsed_metrics AS (
         coalesce(p.total_shots_away, 0) AS total_shots_away,
         coalesce(p.big_chances_home, 0) AS big_chances_home,
         coalesce(p.big_chances_away, 0) AS big_chances_away
-    FROM fotmob.bronze_period AS p
+    FROM bronze.period AS p
     FINAL
-    INNER JOIN fotmob.bronze_general AS g
+    INNER JOIN bronze.general AS g
         FINAL ON p.match_id = g.match_id
     WHERE
         g.match_finished = 1

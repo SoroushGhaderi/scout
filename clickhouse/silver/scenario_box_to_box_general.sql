@@ -1,5 +1,5 @@
 -- scenario_box_to_box_general: complete outfield performances across attack and defense
-INSERT INTO fotmob.silver_scenario_box_to_box_general
+INSERT INTO silver.scenario_box_to_box_general
 (
     match_id,
     home_team_id,
@@ -51,8 +51,8 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side
-FROM fotmob.bronze_player AS p
-INNER JOIN fotmob.bronze_general AS g
+FROM bronze.player AS p
+INNER JOIN bronze.general AS g
     ON p.match_id = g.match_id
 WHERE
     g.match_finished = 1

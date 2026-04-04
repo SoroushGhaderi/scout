@@ -15,7 +15,7 @@ logger = get_logger()
 
 
 SQL_FILE = project_root / "clickhouse" / "silver" / "scenario_war_zone.sql"
-TARGET_TABLE = "fotmob.silver_scenario_war_zone"
+TARGET_TABLE = "silver.scenario_war_zone"
 
 
 def parse_args(argv=None) -> argparse.Namespace:

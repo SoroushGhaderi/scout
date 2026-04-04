@@ -2,27 +2,27 @@
 
 Scout is a FotMob-only football data pipeline with an explicit medallion architecture.
 
-- Bronze: raw FotMob API responses stored on disk and loaded into ClickHouse `bronze_*` tables
-- Silver: cleaned ClickHouse `silver_*` views built from Bronze
-- Gold: analytics-ready ClickHouse `gold_*` tables built from Silver
+- Bronze: raw FotMob API responses stored on disk and loaded into ClickHouse `bronze.*` tables
+- Silver: cleaned ClickHouse `silver.*` tables built from Bronze
+- Gold: analytics-ready ClickHouse `gold.*` tables built from Silver
 
 ## Architecture
 
 ```text
 FotMob API
   -> data/fotmob/                   raw Bronze files
-  -> fotmob.bronze_*               ClickHouse Bronze tables
-  -> fotmob.silver_*               ClickHouse Silver views
-  -> fotmob.gold_*                 ClickHouse Gold tables
+  -> bronze.*                       ClickHouse Bronze tables
+  -> silver.*                       ClickHouse Silver tables
+  -> gold.*                         ClickHouse Gold tables
 ```
 
 ## Layer Rules
 
 - Bronze is the only filesystem-backed layer
 - Silver and Gold exist only in ClickHouse
-- Bronze warehouse tables are always prefixed with `bronze_`
-- Silver warehouse views are always prefixed with `silver_`
-- Gold warehouse tables are always prefixed with `gold_`
+- Bronze warehouse tables live in the `bronze` schema
+- Silver warehouse tables live in the `silver` schema
+- Gold warehouse tables live in the `gold` schema
 - Scout currently supports FotMob only
 
 ## Prerequisites
@@ -49,6 +49,20 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestr
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py 20251208
 ```
 
+## ClickHouse Only (No Scraper)
+
+Use this when you only want the database container:
+
+```bash
+docker-compose -f docker/docker-compose.clickhouse.yml up -d
+```
+
+Open a ClickHouse client session:
+
+```bash
+docker-compose -f docker/docker-compose.clickhouse.yml exec clickhouse clickhouse-client
+```
+
 ## Required Configuration
 
 ### `.env`
@@ -61,7 +75,6 @@ CLICKHOUSE_HOST=clickhouse
 CLICKHOUSE_PORT=8123
 CLICKHOUSE_USER=fotmob_user
 CLICKHOUSE_PASSWORD=fotmob_pass
-CLICKHOUSE_DB_FOTMOB=fotmob
 ```
 
 ### `config.yaml`
@@ -117,36 +130,36 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/l
 
 This creates or appends records in tables such as:
 
-- `fotmob.bronze_general`
-- `fotmob.bronze_player`
-- `fotmob.bronze_shotmap`
-- `fotmob.bronze_goal`
-- `fotmob.bronze_period`
+- `bronze.general`
+- `bronze.player`
+- `bronze.shotmap`
+- `bronze.goal`
+- `bronze.period`
 
-### 5. Build Silver views
+### 5. Build Silver tables
 
 ```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/process.py --date 20251208
 ```
 
-This refreshes views such as:
+This refreshes tables such as:
 
-- `fotmob.silver_general`
-- `fotmob.silver_player`
-- `fotmob.silver_shotmap`
-- `fotmob.silver_period`
-- `fotmob.silver_venue`
+- `silver.general`
+- `silver.player`
+- `silver.shotmap`
+- `silver.period`
+- `silver.venue`
 
 It also refreshes silver scenario tables (via `scripts/silver/scenario_*.py`), including:
 
-- `fotmob.silver_scenario_high_intensity_engine`
-- `fotmob.silver_scenario_the_black_hole`
-- `fotmob.silver_scenario_high_line_trap`
-- `fotmob.silver_scenario_the_ghost_poacher`
-- `fotmob.silver_scenario_route_one_masterclass`
-- `fotmob.silver_scenario_total_suffocation`
-- `fotmob.silver_scenario_territorial_suffocation`
-- `fotmob.silver_scenario_clinical_pivot`
+- `silver.scenario_high_intensity_engine`
+- `silver.scenario_the_black_hole`
+- `silver.scenario_high_line_trap`
+- `silver.scenario_the_ghost_poacher`
+- `silver.scenario_route_one_masterclass`
+- `silver.scenario_total_suffocation`
+- `silver.scenario_territorial_suffocation`
+- `silver.scenario_clinical_pivot`
 
 ### 6. Build Gold tables
 
@@ -156,9 +169,9 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/pro
 
 This refreshes tables such as:
 
-- `fotmob.gold_player_match_stats`
-- `fotmob.gold_match_summary`
-- `fotmob.gold_team_season_stats`
+- `gold.player_match_stats`
+- `gold.match_summary`
+- `gold.team_season_stats`
 
 ## Full Pipeline Modes
 
@@ -287,7 +300,7 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestr
 
 - Scout is currently FotMob-only
 - Silver and Gold are warehouse layers, not local directories
-- Bare ClickHouse table names like `general` or `player` should not be introduced for warehouse objects
+- Always use schema-qualified names like `bronze.general`, `silver.scenario_demolition`, or `gold.match_summary`
 
 ## Repo Hygiene
 

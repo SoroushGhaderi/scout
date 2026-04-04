@@ -334,7 +334,6 @@ CLICKHOUSE_HOST=clickhouse
 CLICKHOUSE_PORT=8123
 CLICKHOUSE_USER=fotmob_user
 CLICKHOUSE_PASSWORD=fotmob_pass
-CLICKHOUSE_DB_FOTMOB=fotmob
 
 LOG_LEVEL=INFO
 ```
@@ -409,7 +408,7 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/s
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/load_clickhouse.py --scraper fotmob --date 20251208
 ```
 
-#### Step 5: build Silver views
+#### Step 5: build Silver tables
 
 ```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/process.py --date 20251208
@@ -489,34 +488,34 @@ These are mandatory for ClickHouse objects used by Scout.
 
 ### Bronze
 
-- `fotmob.bronze_general`
-- `fotmob.bronze_timeline`
-- `fotmob.bronze_venue`
-- `fotmob.bronze_player`
-- `fotmob.bronze_shotmap`
-- `fotmob.bronze_goal`
-- `fotmob.bronze_cards`
-- `fotmob.bronze_red_card`
-- `fotmob.bronze_period`
-- `fotmob.bronze_momentum`
-- `fotmob.bronze_starters`
-- `fotmob.bronze_substitutes`
-- `fotmob.bronze_coaches`
-- `fotmob.bronze_team_form`
+- `bronze.general`
+- `bronze.timeline`
+- `bronze.venue`
+- `bronze.player`
+- `bronze.shotmap`
+- `bronze.goal`
+- `bronze.cards`
+- `bronze.red_card`
+- `bronze.period`
+- `bronze.momentum`
+- `bronze.starters`
+- `bronze.substitutes`
+- `bronze.coaches`
+- `bronze.team_form`
 
 ### Silver
 
-- `fotmob.silver_general`
-- `fotmob.silver_player`
-- `fotmob.silver_shotmap`
-- `fotmob.silver_period`
-- `fotmob.silver_venue`
+- `silver.general`
+- `silver.player`
+- `silver.shotmap`
+- `silver.period`
+- `silver.venue`
 
 ### Gold
 
-- `fotmob.gold_player_match_stats`
-- `fotmob.gold_match_summary`
-- `fotmob.gold_team_season_stats`
+- `gold.player_match_stats`
+- `gold.match_summary`
+- `gold.team_season_stats`
 
 Bare warehouse names like `general`, `player`, or `timeline` should not be used for persisted ClickHouse objects.
 
@@ -607,7 +606,7 @@ Bronze is the raw ingestion layer.
 - Input: raw FotMob API responses
 - Storage: local filesystem under `data/fotmob/`
 - Backup: optional S3 archive upload
-- ClickHouse representation: `fotmob.bronze_*` tables
+- ClickHouse representation: `bronze.*` tables
 - Responsibility:
   `scripts/bronze/scrape_fotmob.py`
   `scripts/bronze/load_clickhouse.py`
@@ -620,7 +619,7 @@ Silver is the cleaned relational layer inside ClickHouse.
 
 - Input: ClickHouse Bronze tables
 - Storage: ClickHouse only
-- ClickHouse representation: `fotmob.silver_*` views
+- ClickHouse representation: `silver.*` tables
 - Responsibility:
   `scripts/silver/process.py`
   `src/storage/silver/`
@@ -630,9 +629,9 @@ Silver is the cleaned relational layer inside ClickHouse.
 
 Gold is the analytics-ready aggregation layer inside ClickHouse.
 
-- Input: ClickHouse Silver views
+- Input: ClickHouse Silver tables
 - Storage: ClickHouse only
-- ClickHouse representation: `fotmob.gold_*` tables
+- ClickHouse representation: `gold.*` tables
 - Responsibility:
   `scripts/gold/process.py`
   `src/storage/gold/`
@@ -642,11 +641,11 @@ Gold is the analytics-ready aggregation layer inside ClickHouse.
 
 These rules should be treated as required, not optional.
 
-- Bronze ClickHouse tables must be named `bronze_*`
-- Silver ClickHouse views must be named `silver_*`
-- Gold ClickHouse tables must be named `gold_*`
-- No new warehouse object should use bare names like `general`, `player`, or `timeline`
-- Bare logical names are acceptable only as internal Python mapping keys before conversion to physical table names
+- Bronze ClickHouse tables must be created in the `bronze` schema
+- Silver ClickHouse tables must be created in the `silver` schema
+- Gold ClickHouse tables must be created in the `gold` schema
+- No new warehouse object should use unqualified names like `general`, `player`, or `timeline`
+- Bare logical names are acceptable only as internal Python mapping keys before applying a schema qualifier
 - Python entry points should use explicit layer-aware names where possible, for example `FotMobBronzeStorage` and `FotMobBronzeMatchProcessor`
 
 ## 4. Storage Rules
@@ -668,12 +667,12 @@ These rules should be treated as required, not optional.
 ### Silver
 
 - Silver objects should remain deterministic transformations from Bronze
-- Silver objects should be created as `silver_*` views unless there is a deliberate reason to materialize them differently
+- Silver objects should be created in the `silver` schema unless there is a deliberate reason to use a different schema
 
 ### Gold
 
 - Gold objects should be explicitly business-facing or analytics-facing aggregates
-- Gold objects must read from `silver_*`, not directly from raw Bronze tables
+- Gold objects must read from `silver.*`, not directly from raw Bronze tables
 
 ## 6. Script Boundaries
 
@@ -681,7 +680,7 @@ Scripts should map to one responsibility each.
 
 - `scripts/bronze/scrape_fotmob.py`: scrape raw FotMob data into Bronze filesystem storage
 - `scripts/bronze/load_clickhouse.py`: parse Bronze files and insert into ClickHouse Bronze tables
-- `scripts/silver/process.py`: create or refresh Silver views
+- `scripts/silver/process.py`: create or refresh Silver tables
 - `scripts/gold/process.py`: create or refresh Gold tables
 - `scripts/bronze/setup_clickhouse.py`: create Bronze schema only
 - `scripts/silver/setup_clickhouse.py`: create Silver schema only
@@ -695,7 +694,7 @@ Scripts should map to one responsibility each.
 FotMob API
   -> local Bronze files
   -> ClickHouse Bronze tables
-  -> ClickHouse Silver views
+  -> ClickHouse Silver tables
   -> ClickHouse Gold tables
 ```
 
@@ -704,14 +703,14 @@ Operational order:
 1. Create schema
 2. Scrape FotMob raw data into Bronze files
 3. Load Bronze files into ClickHouse Bronze tables
-4. Build Silver views
+4. Build Silver tables
 5. Build Gold tables
 6. Run Bronze table optimization when needed
 
 ## 8. Guardrails For Future Changes
 
 - Do not reintroduce mixed-source abstractions unless the repo truly becomes multi-source again
-- Do not add generic warehouse table names without a layer prefix
+- Do not add generic warehouse table names without a layer schema qualifier
 - Do not let Silver or Gold depend on local filesystem artifacts
 - Do not bypass Bronze and load raw scraper responses directly into Silver or Gold
 - Do not add temporary references to other data sources back into docs or scripts
@@ -723,8 +722,8 @@ The architecture is now aligned with these rules in the main runtime paths:
 - FotMob-only scope is enforced in docs and active scripts
 - Bronze config is the only filesystem-backed layer config
 - Bronze setup, Silver setup, and Gold setup have separate script entry points
-- Bronze warehouse tables are layer-prefixed and use `ReplacingMergeTree(inserted_at)`
-- Silver and Gold warehouse objects are layer-prefixed
+- Bronze warehouse tables are stored in `bronze.*` and use `ReplacingMergeTree(inserted_at)`
+- Silver and Gold warehouse objects are stored in `silver.*` and `gold.*`
 
 Any future changes should preserve this contract.
 

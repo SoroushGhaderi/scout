@@ -1,5 +1,5 @@
 -- scenario_sterile_control: high-control teams with sterile attacking output
-INSERT INTO fotmob.silver_scenario_sterile_control
+INSERT INTO silver.scenario_sterile_control
 (
     match_id,
     home_team_id,
@@ -55,8 +55,8 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side
-FROM fotmob.bronze_general AS g
-INNER JOIN fotmob.bronze_period AS p
+FROM bronze.general AS g
+INNER JOIN bronze.period AS p
     ON g.match_id = p.match_id
 WHERE
     g.match_finished = 1

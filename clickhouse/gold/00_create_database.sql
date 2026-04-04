@@ -1,2 +1,2 @@
--- Ensure the single database for all medallion layers exists
-CREATE DATABASE IF NOT EXISTS fotmob;
+-- Create Gold schema (database) for analytics-ready aggregates
+CREATE DATABASE IF NOT EXISTS gold;

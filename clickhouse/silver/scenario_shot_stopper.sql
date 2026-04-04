@@ -1,5 +1,5 @@
 -- scenario_shot_stopper: goalkeepers with high expected-goals prevented
-INSERT INTO fotmob.silver_scenario_shot_stopper
+INSERT INTO silver.scenario_shot_stopper
 (
     -- 1. Match Identity
     match_id,
@@ -48,10 +48,10 @@ SELECT
         ELSE 'Draw'
     END AS LowCardinality(String)) AS match_result,
     g.match_time_utc_date
-FROM fotmob.bronze_shotmap AS s
-INNER JOIN fotmob.bronze_general AS g
+FROM bronze.shotmap AS s
+INNER JOIN bronze.general AS g
     ON s.match_id = g.match_id
-INNER JOIN fotmob.bronze_player AS p
+INNER JOIN bronze.player AS p
     ON s.match_id = p.match_id
     AND s.keeper_id = p.player_id
 WHERE

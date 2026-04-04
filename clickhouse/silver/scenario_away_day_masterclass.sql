@@ -1,5 +1,5 @@
 -- scenario_away_day_masterclass: away wins with strong possession and xG edge
-INSERT INTO fotmob.silver_scenario_away_day_masterclass
+INSERT INTO silver.scenario_away_day_masterclass
 (
     -- 1. Match Identity
     match_id,
@@ -39,8 +39,8 @@ SELECT
     -- 3. Match Result Logic
     CAST('Away Win' AS LowCardinality(String)) AS match_result,
     g.match_time_utc_date
-FROM fotmob.bronze_general AS g
-INNER JOIN fotmob.bronze_period AS p
+FROM bronze.general AS g
+INNER JOIN bronze.period AS p
     ON g.match_id = p.match_id
     AND p.period = 'All'
 WHERE

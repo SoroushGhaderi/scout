@@ -1,5 +1,5 @@
 -- scenario_touchline_terror: wide attackers dominating isolation duels and box entries
-INSERT INTO fotmob.silver_scenario_touchline_terror
+INSERT INTO silver.scenario_touchline_terror
 (
     -- 1. Match Identity
     match_id,
@@ -63,8 +63,8 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side
-FROM fotmob.bronze_player AS p
-INNER JOIN fotmob.bronze_general AS g
+FROM bronze.player AS p
+INNER JOIN bronze.general AS g
     ON p.match_id = g.match_id
 WHERE
     -- Outfield players with enough minutes to influence wing play.

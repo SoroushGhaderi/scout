@@ -1,5 +1,5 @@
 -- scenario_defensive_shutdown_win: winning side concedes very low xG (<0.3)
-INSERT INTO fotmob.silver_scenario_defensive_shutdown_win
+INSERT INTO silver.scenario_defensive_shutdown_win
 (
     -- 1. Match Identity
     match_id,
@@ -52,8 +52,8 @@ SELECT
         WHEN g.away_score > g.home_score THEN p.expected_goals_home
     END AS xg_conceded,
     g.match_time_utc_date
-FROM fotmob.bronze_general AS g
-INNER JOIN fotmob.bronze_period AS p
+FROM bronze.general AS g
+INNER JOIN bronze.period AS p
     ON g.match_id = p.match_id
     AND p.period = 'All'
 WHERE

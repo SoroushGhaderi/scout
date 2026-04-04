@@ -1,5 +1,5 @@
 -- scenario_elite_shot_stopper: primary goalkeepers with elite save volume and high xG faced in clean sheets
-INSERT INTO fotmob.silver_scenario_elite_shot_stopper
+INSERT INTO silver.scenario_elite_shot_stopper
 (
     -- 1. Match Identity
     match_id,
@@ -62,10 +62,10 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side
-FROM fotmob.bronze_player AS p
-INNER JOIN fotmob.bronze_general AS g
+FROM bronze.player AS p
+INNER JOIN bronze.general AS g
     ON p.match_id = g.match_id
-INNER JOIN fotmob.bronze_period AS per
+INNER JOIN bronze.period AS per
     ON p.match_id = per.match_id
 WHERE
     -- Ensure primary full-match goalkeeper rows.

@@ -110,11 +110,12 @@ INT64_COLUMNS = {
 }
 
 INT32_RANGE = (2147483647, -2147483648)
+BRONZE_DATABASE = "bronze"
 
 
 def to_bronze_table_name(logical_table_name: str) -> str:
     """Map logical table names to physical bronze table names."""
-    return f"bronze_{logical_table_name}"
+    return logical_table_name
 
 
 # ============================================================================
@@ -147,7 +148,7 @@ def get_unique_key_columns(table_name: str) -> List[str]:
     return UNIQUE_KEY_COLUMNS.get(table_name, ["match_id"])
 
 
-def table_exists(client: ClickHouseClient, table_name: str, database: str = "fotmob") -> bool:
+def table_exists(client: ClickHouseClient, table_name: str, database: str = BRONZE_DATABASE) -> bool:
     """Check if a table exists in ClickHouse."""
     try:
         client.execute(f"DESCRIBE TABLE {database}.{table_name}")
@@ -623,9 +624,9 @@ def process_fotmob_table(
     physical_table = to_bronze_table_name(clickhouse_table)
 
     # Check table exists
-    if not table_exists(client, physical_table, database="fotmob"):
+    if not table_exists(client, physical_table, database=BRONZE_DATABASE):
         logger.error(
-            f"Table fotmob.{physical_table} does not exist. "
+            f"Table {BRONZE_DATABASE}.{physical_table} does not exist. "
             f"Please run 'python scripts/orchestration/setup_clickhouse.py' to create all required tables."
         )
         return 0
@@ -642,8 +643,8 @@ def process_fotmob_table(
     combined_df = prepare_int64_columns(combined_df, clickhouse_table)
     combined_df = prepare_nullable_numeric_columns(combined_df)
 
-    table_has_inserted_at = check_table_has_inserted_at(client, physical_table, "fotmob")
-    combined_df = validate_and_fix_schema(combined_df, client, physical_table, "fotmob", logger)
+    table_has_inserted_at = check_table_has_inserted_at(client, physical_table, BRONZE_DATABASE)
+    combined_df = validate_and_fix_schema(combined_df, client, physical_table, BRONZE_DATABASE, logger)
     combined_df = add_inserted_at_column(combined_df, table_has_inserted_at)
 
     # Insert data
@@ -652,7 +653,7 @@ def process_fotmob_table(
             client,
             combined_df,
             physical_table,
-            "fotmob",
+            BRONZE_DATABASE,
             date_str,
             logger,
             {"source_files_count": len(df_list)},
@@ -674,7 +675,7 @@ def process_fotmob_table(
         if "does not exist" in error_str or "unknown_table" in error_str:
             logger.error(
                 "Table does not exist. Run setup_clickhouse.py to create required tables.",
-                extra={"database": "fotmob", "table_name": physical_table},
+                extra={"database": BRONZE_DATABASE, "table_name": physical_table},
             )
         else:
             logger.error(
@@ -792,12 +793,12 @@ def _process_special_fotmob_table(
     # Check table exists
     try:
         physical_table = to_bronze_table_name(table_name)
-        client.execute(f"DESCRIBE TABLE fotmob.{physical_table}")
+        client.execute(f"DESCRIBE TABLE {BRONZE_DATABASE}.{physical_table}")
     except Exception as e:
         error_str = str(e).lower()
         if "does not exist" in error_str or "unknown_table" in error_str:
             logger.error(
-                f"Table fotmob.{physical_table} does not exist. "
+                f"Table {BRONZE_DATABASE}.{physical_table} does not exist. "
                 f"Please run 'python scripts/orchestration/setup_clickhouse.py' to create all required tables."
             )
             return 0
@@ -811,7 +812,7 @@ def _process_special_fotmob_table(
 
     combined_df = prepare_int64_columns(combined_df, table_name)
     combined_df = prepare_nullable_numeric_columns(combined_df)
-    combined_df = validate_and_fix_schema(combined_df, client, physical_table, "fotmob", logger)
+    combined_df = validate_and_fix_schema(combined_df, client, physical_table, BRONZE_DATABASE, logger)
 
     # Add inserted_at only for tables that have it
     if table_name in TABLES_WITH_INSERTED_AT and "inserted_at" not in combined_df.columns:
@@ -823,7 +824,7 @@ def _process_special_fotmob_table(
 
     try:
         rows_inserted = insert_dataframe_with_dlq(
-            client, combined_df, physical_table, "fotmob", date_str, logger
+            client, combined_df, physical_table, BRONZE_DATABASE, date_str, logger
         )
 
         record_lineage(
@@ -1058,7 +1059,8 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     validate_arguments(parser, args)
 
-    database = args.scraper
+    database = BRONZE_DATABASE
+    scraper = args.scraper
 
     logger = setup_logging(
         name="clickhouse_loader",
@@ -1106,13 +1108,16 @@ def main(argv: Optional[List[str]] = None) -> int:
         # Load data for each date
         total_stats: Dict[str, int] = {}
         for date_str in dates:
-            logger.info("Loading data for date", extra={"database": database, "date": date_str})
+            logger.info(
+                "Loading data for date",
+                extra={"database": database, "scraper": scraper, "date": date_str},
+            )
 
             try:
-                if database == "fotmob":
+                if scraper == "fotmob":
                     stats = load_fotmob_data(client, date_str, args.force, logger)
                 else:
-                    logger.error("Unknown scraper", extra={"database": database})
+                    logger.error("Unknown scraper", extra={"scraper": scraper})
                     continue
 
                 for table, count in stats.items():
@@ -1120,18 +1125,19 @@ def main(argv: Optional[List[str]] = None) -> int:
             except Exception as e:
                 logger.error(
                     "Failed to load data for date",
-                    extra={"database": database, "date": date_str, "error": str(e)},
+                    extra={"database": database, "scraper": scraper, "date": date_str, "error": str(e)},
                     exc_info=True,
                 )
                 alert_manager = get_alert_manager()
                 alert_manager.send_alert(
                     level=AlertLevel.ERROR,
-                    title=f"ClickHouse Loading Failed - {database.upper()} - {date_str}",
-                    message=f"Failed to load {database} data to ClickHouse for date {date_str}.\n\nError: {str(e)}",
+                    title=f"ClickHouse Loading Failed - {scraper.upper()} - {date_str}",
+                    message=f"Failed to load {scraper} data to ClickHouse for date {date_str}.\n\nError: {str(e)}",
                     context={
                         "date": date_str,
-                        "scraper": database,
-                        "step": f"ClickHouse Loading - {database}",
+                        "scraper": scraper,
+                        "database": database,
+                        "step": f"ClickHouse Loading - {scraper}",
                         "error": str(e),
                     },
                 )

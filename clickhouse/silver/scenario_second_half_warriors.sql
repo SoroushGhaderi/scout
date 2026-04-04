@@ -1,5 +1,5 @@
 -- scenario_second_half_warriors: teams recovering from halftime deficits
-INSERT INTO fotmob.silver_scenario_second_half_warriors
+INSERT INTO silver.scenario_second_half_warriors
 (
     match_id,
     home_team_id,
@@ -25,7 +25,7 @@ WITH ht_score AS (
         match_id,
         sumIf(is_home = 1, shot_period = 'FirstHalf') AS home_score_ht,
         sumIf(is_home = 0, shot_period = 'FirstHalf') AS away_score_ht
-    FROM fotmob.bronze_goal
+    FROM bronze.goal
     GROUP BY match_id
 )
 SELECT
@@ -62,7 +62,7 @@ SELECT
         WHEN ht.away_score_ht < ht.home_score_ht AND g.away_score = g.home_score THEN 'draw'
     END AS comeback_type,
     g.match_time_utc_date
-FROM fotmob.bronze_general AS g
+FROM bronze.general AS g
 INNER JOIN ht_score AS ht
     ON g.match_id = ht.match_id
 WHERE

@@ -14,7 +14,7 @@ logger = get_logger(__name__)
 class FotMobGoldStorage:
     """Executes gold SQL scripts for FotMob."""
 
-    def __init__(self, client: ClickHouseClient, database: str = "fotmob"):
+    def __init__(self, client: ClickHouseClient, database: str = "gold"):
         self.client = client
         self.database = database
 

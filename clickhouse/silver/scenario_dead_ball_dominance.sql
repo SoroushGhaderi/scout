@@ -1,5 +1,5 @@
 -- scenario_dead_ball_dominance: winner scores at least two set-piece goals
-INSERT INTO fotmob.silver_scenario_dead_ball_dominance
+INSERT INTO silver.scenario_dead_ball_dominance
 (
     -- 1. Match Identity
     match_id,
@@ -47,8 +47,8 @@ SELECT
         ELSE 'draw'
     END AS winning_side,
     g.match_time_utc_date
-FROM fotmob.bronze_general AS g
-INNER JOIN fotmob.bronze_goal AS gl
+FROM bronze.general AS g
+INNER JOIN bronze.goal AS gl
     ON g.match_id = gl.match_id
 WHERE
     -- Finished non-draw matches only.

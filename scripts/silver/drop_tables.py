@@ -17,12 +17,12 @@ logger = get_logger()
 
 def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Drop all silver tables (silver_*) from the FotMob ClickHouse database"
+        description="Drop all tables from the silver ClickHouse schema"
     )
     parser.add_argument(
         "--database",
-        default=settings.clickhouse_db_fotmob,
-        help=f"Target database name (default: {settings.clickhouse_db_fotmob})",
+        default="silver",
+        help="Target database name (default: silver)",
     )
     parser.add_argument(
         "--dry-run",
@@ -37,7 +37,6 @@ def _find_silver_tables(client: ClickHouseClient, database: str) -> list[str]:
         SELECT name
         FROM system.tables
         WHERE database = %(database)s
-          AND startsWith(name, 'silver_')
         ORDER BY name
     """
     result = client.execute(query, {"database": database})
@@ -66,7 +65,7 @@ def main(argv=None) -> int:
         find_elapsed_seconds = time.perf_counter() - find_start
         logger.info("Silver table discovery completed in %.2f seconds", find_elapsed_seconds)
         if not tables:
-            logger.info("No tables found with prefix silver_ in %s", database)
+            logger.info("No tables found in %s", database)
             return 0
 
         total_tables = len(tables)

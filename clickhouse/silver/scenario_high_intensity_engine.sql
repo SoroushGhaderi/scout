@@ -1,5 +1,5 @@
 -- scenario_high_intensity_engine: high-work-rate outfield players with elite defensive volume and event density
-INSERT INTO fotmob.silver_scenario_high_intensity_engine
+INSERT INTO silver.scenario_high_intensity_engine
 (
     match_id,
     home_team_id,
@@ -85,11 +85,11 @@ SELECT
     p.pass_accuracy,
     p.expected_goals,
     p.expected_assists
-FROM fotmob.bronze_player AS p
+FROM bronze.player AS p
 FINAL
-INNER JOIN fotmob.bronze_general AS g
+INNER JOIN bronze.general AS g
     FINAL ON p.match_id = g.match_id
-INNER JOIN fotmob.bronze_starters AS s
+INNER JOIN bronze.starters AS s
     FINAL
     ON p.match_id = s.match_id
     AND p.player_id = s.player_id
