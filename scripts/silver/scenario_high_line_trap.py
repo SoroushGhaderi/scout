@@ -1,4 +1,4 @@
-"""Run the scenario_the_flying_wingback silver query against ClickHouse."""
+"""Run the scenario_high_line_trap silver query against ClickHouse."""
 
 import argparse
 import sys
@@ -14,13 +14,13 @@ from src.utils.logging_utils import get_logger
 logger = get_logger()
 
 
-SQL_FILE = project_root / "clickhouse" / "silver" / "scenario_the_flying_wingback.sql"
-TARGET_TABLE = "fotmob.silver_scenario_the_flying_wingback"
+SQL_FILE = project_root / "clickhouse" / "silver" / "scenario_high_line_trap.sql"
+TARGET_TABLE = "fotmob.silver_scenario_high_line_trap"
 
 
 def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run the-flying-wingback scenario query from silver SQL folder"
+        description="Run high-line-trap scenario query from silver SQL folder"
     )
     return parser.parse_args(argv)
 
@@ -48,7 +48,7 @@ def main(argv=None) -> int:
 
     try:
         client.execute(insert_query)
-        logger.info("scenario_the_flying_wingback insert completed successfully")
+        logger.info("scenario_high_line_trap insert completed successfully")
 
         optimize_sql = f"OPTIMIZE TABLE {TARGET_TABLE} FINAL DEDUPLICATE"
         client.execute(optimize_sql)

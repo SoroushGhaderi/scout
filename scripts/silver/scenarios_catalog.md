@@ -875,29 +875,6 @@ python3 scripts/silver/scenario_touchline_terror.py
 
 ---
 
-## 🪽 Scenario: The Flying Wingback (`scenario_the_flying_wingback`)
-
-### 🎯 Purpose
-Find outfield wide players who combine repeated take-on success with high box-touch activity.
-
-### 🧠 Tactical & Statistical Logic
-
-- **Dribble Volume (≥ 5 successful):** Captures players repeatedly winning isolation duels, not one-off moments.
-- **Dribble Efficiency (≥ 60%):** Ensures attacking volume is productive rather than wasteful.
-- **Box Presence (≥ 4 touches in opp box):** Confirms wide progression turns into danger-zone involvement.
-
-### 📂 Technical Assets
-- **SQL Transformation:** `clickhouse/silver/scenario_the_flying_wingback.sql`
-- **Python Runner:** `scripts/silver/scenario_the_flying_wingback.py`
-- **Target Table:** `fotmob.silver_scenario_the_flying_wingback`
-
-### 🚀 Execution
-```bash
-python3 scripts/silver/scenario_the_flying_wingback.py
-```
-
----
-
 ## 🎯 Scenario: The Line Breaker (`scenario_the_line_breaker`)
 
 ### 🎯 Purpose
@@ -1063,6 +1040,81 @@ Find late-match collapses driven by goal surges, shot escalation, and aggressive
 ### 🚀 Execution
 ```bash
 python3 scripts/silver/scenario_tired_legs.py
+```
+
+---
+
+## 🕳️ Scenario: The Black Hole (`scenario_the_black_hole`)
+
+### 🎯 Purpose
+Find high-volume shooters who absorb a very large share of their team's attempts while consistently selecting low-quality shots and producing zero goals.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Shot Volume Gate (total shots ≥ 6):** Requires sustained individual shooting activity, filtering out one-off low-quality efforts.
+- **Shot Quality Floor (avg xG per shot < 0.08):** Isolates poor shot selection by targeting consistently low-probability attempts.
+- **Zero End Product (goals = 0):** Ensures the profile captures truly unproductive finishing output.
+- **Team Shot Monopoly (shot share ≥ 40%):** Keeps only players who heavily concentrated team attacking volume through themselves.
+- **Outfield + Finished Match Integrity:** Excludes goalkeepers and limits to completed fixtures to maintain stable match context.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_the_black_hole.sql`
+- **Python Runner:** `scripts/silver/scenario_the_black_hole.py`
+- **Target Table:** `fotmob.silver_scenario_the_black_hole`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_the_black_hole.py
+```
+
+---
+
+## 🪤 Scenario: High Line Trap (`scenario_high_line_trap`)
+
+### 🎯 Purpose
+Find teams whose defensive line repeatedly catches opponents offside while still suppressing chance quality and restricting final-third access.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Offside Trap Volume (opponent offsides caught ≥ 6):** Requires sustained trap execution, not isolated offside events.
+- **Threat Suppression (opponent xG < 0.8):** Ensures the offside pressure translated into low overall chance danger.
+- **Final-Third Access Constraint (opponent final-third passes < 75):** Captures matches where territorial entry was structurally limited.
+- **Dual-Side Modeling:** Evaluates both home and away teams as potential trapping units using a unioned team-performance view.
+- **Shot Quality Context:** Adds opponent xG-per-shot and shot profile fields to separate low-volume threat from truly low-quality attacking output.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_high_line_trap.sql`
+- **Python Runner:** `scripts/silver/scenario_high_line_trap.py`
+- **Target Table:** `fotmob.silver_scenario_high_line_trap`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_high_line_trap.py
+```
+
+---
+
+## 👻 Scenario: The Ghost Poacher (`scenario_the_ghost_poacher`)
+
+### 🎯 Purpose
+Find starting attackers with very low overall involvement but extreme penalty-box touch concentration and high-end finishing threat.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Low Involvement Gate (touches ≤ 25):** Isolates players largely absent from buildup phases.
+- **Box Concentration Rule (≥ 20% touches in opp box):** Ensures limited touches are concentrated in dangerous scoring zones.
+- **Lethal Output Trigger (xG > 0.8 or goals ≥ 1):** Keeps only ghost profiles that still generate meaningful end-product.
+- **Starter + Minutes Integrity (starting XI and minutes ≥ 60):** Removes cameo substitute noise and enforces sustained match presence.
+- **Finishing Context:** Adds xG per shot, non-penalty xG, and supporting creation fields (xA, assists, chances created, xg_plus_xa).
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_the_ghost_poacher.sql`
+- **Python Runner:** `scripts/silver/scenario_the_ghost_poacher.py`
+- **Target Table:** `fotmob.silver_scenario_the_ghost_poacher`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_the_ghost_poacher.py
 ```
 
 ---

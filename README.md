@@ -137,6 +137,12 @@ This refreshes views such as:
 - `fotmob.silver_period`
 - `fotmob.silver_venue`
 
+It also refreshes silver scenario tables (via `scripts/silver/scenario_*.py`), including:
+
+- `fotmob.silver_scenario_the_black_hole`
+- `fotmob.silver_scenario_high_line_trap`
+- `fotmob.silver_scenario_the_ghost_poacher`
+
 ### 6. Build Gold tables
 
 ```bash
