@@ -66,6 +66,7 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/scenario_the_black_hole.py`
 - `scripts/silver/scenario_high_line_trap.py`
 - `scripts/silver/scenario_the_ghost_poacher.py`
+- `scripts/silver/scenario_route_one_masterclass.py`
 - `scripts/silver/scenario_chaos_engine.py`
 - `scripts/silver/scenario_tired_legs.py`
 - `scripts/silver/scenarios_catalog.md`

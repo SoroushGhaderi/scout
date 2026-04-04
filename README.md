@@ -142,6 +142,7 @@ It also refreshes silver scenario tables (via `scripts/silver/scenario_*.py`), i
 - `fotmob.silver_scenario_the_black_hole`
 - `fotmob.silver_scenario_high_line_trap`
 - `fotmob.silver_scenario_the_ghost_poacher`
+- `fotmob.silver_scenario_route_one_masterclass`
 
 ### 6. Build Gold tables
 

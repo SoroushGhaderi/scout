@@ -1162,3 +1162,32 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_the_ghost_poacher (
 ) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, assumeNotNull(player_id))
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
+
+CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_route_one_masterclass (
+    match_id Int32,
+    home_team_id Nullable(Int32),
+    away_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    league_name Nullable(String),
+    match_time_utc_date Nullable(String),
+    long_balls_accurate_home Nullable(Int32),
+    long_ball_pct_home Nullable(Int32),
+    long_balls_accurate_away Nullable(Int32),
+    long_ball_pct_away Nullable(Int32),
+    possession_home Nullable(Int32),
+    possession_away Nullable(Int32),
+    passes_home Nullable(Int32),
+    passes_away Nullable(Int32),
+    xg_home Nullable(Float64),
+    xg_away Nullable(Float64),
+    total_shots_home Nullable(Int32),
+    total_shots_away Nullable(Int32),
+    big_chances_home Nullable(Int32),
+    big_chances_away Nullable(Int32),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id)
+PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));

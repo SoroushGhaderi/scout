@@ -1119,6 +1119,31 @@ python3 scripts/silver/scenario_the_ghost_poacher.py
 
 ---
 
+## 🎯 Scenario: Route One Masterclass (`scenario_route_one_masterclass`)
+
+### 🎯 Purpose
+Find low-possession teams that leaned heavily on direct long-ball progression, still generated meaningful threat, and avoided defeat.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Directness Ratio (> 20% long-ball share of total passes):** Uses parsed long-ball accuracy strings to reconstruct attempted long balls and measure true route-one reliance.
+- **Adverse Possession Context (< 45%):** Ensures the profile reflects territorial disadvantage rather than possession-dominant circulation.
+- **Threat Conversion Gate (xG > 1.2 or goals ≥ 2):** Keeps only direct-game plans that produced substantial attacking outcome.
+- **Result Integrity (did not lose):** Filters to matches where direct style was at least result-neutral.
+- **All-Period Match Frame:** Uses full-match period aggregates (`period = 'All'`) in finished matches only.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/silver/scenario_route_one_masterclass.sql`
+- **Python Runner:** `scripts/silver/scenario_route_one_masterclass.py`
+- **Target Table:** `fotmob.silver_scenario_route_one_masterclass`
+
+### 🚀 Execution
+```bash
+python3 scripts/silver/scenario_route_one_masterclass.py
+```
+
+---
+
 ## Template For Future Scenarios
 
 ```markdown
