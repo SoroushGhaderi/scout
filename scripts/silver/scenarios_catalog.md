@@ -730,15 +730,15 @@ python3 scripts/silver/scenario_second_half_warriors.py
 ## 🌪️ Scenario: Against The Grain (`scenario_against_the_grain`)
 
 ### 🎯 Purpose
-Finds elite individual passing performances delivered in adverse team possession contexts — the player who provides control and quality on the ball in matches where their team is out-possessed, functioning as the lone calm presence in a side under sustained pressure.
+Find elite passing-control performances delivered under adverse possession context, where a player drives progression and quality despite their team being out-possessed.
 
 ### 🧠 Tactical & Statistical Logic
 
-- **Individual Control Profile (≥ 50 Accurate Passes at ≥ 95% Accuracy):** Fifty accurate passes at 95%+ success in a single match is an elite ball-circulation threshold under any conditions. At this level, the player is not only involved but is operating as an immaculate possession asset — missing only one or two passes across a full-game passing involvement. Below 50 passes would allow a player who attempted only a few to qualify artificially on accuracy alone.
-
-- **Adverse Team Context (Team Possession < 45%):** The player's team must hold less than 45% of the overall possession in the match. This ensures the individual performance is genuinely "against the grain" — the team as a whole is being outplayed territorially, yet this one player is delivering elite possession quality within that constrained environment. Passing at 95% when your team has 65% possession is simply good — doing it when the team has 38% is exceptional.
-
-- **Why Individual vs Team Filter Separation?:** Team possession filters without individual performance checks would capture any match where a side is outpossessed. Individual performance filters without the team context would miss the adverse-context narrative. The combination is what makes this scenario distinctive — it requires personal excellence against structural adversity.
+- **Volume + Precision Gate (accurate passes ≥ 50, pass accuracy ≥ 95, minutes ≥ 60):** Filters for sustained high-quality ball circulation rather than small-sample pass completion.
+- **Adverse Context Gate (team possession < 45%):** Requires the player’s team to be out-possessed, so control output is produced against match flow.
+- **Possession-Gap Modeling:** Captures team possession, opponent possession, and possession gap to quantify adversity level.
+- **Against-The-Grain Score:** Combines passing volume/accuracy, final-third progression, long-ball quality, and chance creation, then boosts score by possession adversity.
+- **Contextual Productivity Layer:** Adds passes-per-possession unit, touches, dribbling, goals/assists, and xG/xA to profile broader contribution.
 
 ### 📂 Technical Assets
 - **SQL Transformation:** `clickhouse/silver/scenario_against_the_grain.sql`

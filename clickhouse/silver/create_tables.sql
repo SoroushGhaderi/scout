@@ -674,19 +674,40 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_against_the_grain (
     away_team_name Nullable(String),
     home_score Nullable(Int32),
     away_score Nullable(Int32),
-    match_time_utc_date Nullable(String),
+    player_id Nullable(Int32),
     player_name Nullable(String),
-    player_team Nullable(String),
+    team_id Nullable(Int32),
+    team_name Nullable(String),
     accurate_passes Nullable(Int32),
-    pass_accuracy Nullable(Float32),
+    total_passes Nullable(Int32),
+    pass_accuracy Nullable(Float64),
+    passes_final_third Nullable(Int32),
+    accurate_long_balls Nullable(Int32),
+    long_ball_attempts Nullable(Int32),
+    long_ball_success_rate Nullable(Float64),
+    accurate_crosses Nullable(Int32),
+    cross_attempts Nullable(Int32),
+    chances_created Nullable(Int32),
     team_possession Nullable(Float32),
+    opponent_possession Nullable(Float32),
+    possession_gap Nullable(Float32),
+    against_grain_score Nullable(Float64),
+    passes_per_possession_unit Nullable(Float64),
+    touches Nullable(Int32),
+    touches_opp_box Nullable(Int32),
+    successful_dribbles Nullable(Int32),
+    goals Nullable(Int32),
+    assists Nullable(Int32),
+    xg Nullable(Float64),
+    xa Nullable(Float64),
     fotmob_rating Nullable(Float32),
-    winning_team Nullable(String),
+    minutes_played Nullable(Int32),
+    team_side Nullable(String),
     match_result LowCardinality(String),
-    winning_side LowCardinality(String),
+    match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
-ORDER BY (match_id, winning_side)
+ORDER BY (match_id, assumeNotNull(player_id))
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
 CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_unpunished_aggression (
@@ -795,7 +816,7 @@ CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_the_hollow_dominance (
     match_time_utc_date Nullable(String),
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
-ORDER BY (match_id, siege_side)
+ORDER BY (match_id, ifNull(siege_side, ''))
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
 CREATE TABLE IF NOT EXISTS fotmob.silver_scenario_touchline_terror (
