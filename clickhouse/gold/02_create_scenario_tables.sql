@@ -596,7 +596,7 @@ CREATE TABLE IF NOT EXISTS gold.scenario_defensive_masterclass (
 ORDER BY (match_id, winning_side)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
-CREATE TABLE IF NOT EXISTS gold.scenario_the_metronome (
+CREATE TABLE IF NOT EXISTS gold.scenario_metronome (
     match_id Int32,
     home_team_id Nullable(Int32),
     away_team_id Nullable(Int32),
@@ -798,7 +798,7 @@ CREATE TABLE IF NOT EXISTS gold.scenario_elite_shot_stopper (
 ORDER BY (match_id, winning_side)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
-CREATE TABLE IF NOT EXISTS gold.scenario_the_hollow_dominance (
+CREATE TABLE IF NOT EXISTS gold.scenario_hollow_dominance (
     match_id Int32,
     home_team_id Nullable(Int32),
     away_team_id Nullable(Int32),
@@ -864,7 +864,7 @@ CREATE TABLE IF NOT EXISTS gold.scenario_touchline_terror (
 ORDER BY (match_id, winning_side)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
-CREATE TABLE IF NOT EXISTS gold.scenario_the_line_breaker (
+CREATE TABLE IF NOT EXISTS gold.scenario_line_breaker (
     match_id Int32,
     home_team_id Nullable(Int32),
     away_team_id Nullable(Int32),
@@ -889,7 +889,7 @@ CREATE TABLE IF NOT EXISTS gold.scenario_the_line_breaker (
 ORDER BY (match_id, winning_side)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
-CREATE TABLE IF NOT EXISTS gold.scenario_the_basketball_match (
+CREATE TABLE IF NOT EXISTS gold.scenario_basketball_match (
     match_id Int32,
     home_team_id Nullable(Int32),
     away_team_id Nullable(Int32),
@@ -928,7 +928,7 @@ CREATE TABLE IF NOT EXISTS gold.scenario_the_basketball_match (
 ORDER BY (match_id, ifNull(chaos_type, ''))
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
-CREATE TABLE IF NOT EXISTS gold.scenario_the_lightning_rod (
+CREATE TABLE IF NOT EXISTS gold.scenario_lightning_rod (
     match_id Int32,
     home_team_id Nullable(Int32),
     away_team_id Nullable(Int32),
@@ -951,7 +951,7 @@ CREATE TABLE IF NOT EXISTS gold.scenario_the_lightning_rod (
 ORDER BY (match_id, winning_side)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
-CREATE TABLE IF NOT EXISTS gold.scenario_the_human_shield (
+CREATE TABLE IF NOT EXISTS gold.scenario_human_shield (
     match_id Int32,
     home_team_id Nullable(Int32),
     away_team_id Nullable(Int32),
@@ -985,7 +985,7 @@ CREATE TABLE IF NOT EXISTS gold.scenario_the_human_shield (
 ORDER BY (match_id, assumeNotNull(player_id))
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
-CREATE TABLE IF NOT EXISTS gold.scenario_the_golden_touch (
+CREATE TABLE IF NOT EXISTS gold.scenario_golden_touch (
     match_id Int32,
     home_team_id Nullable(Int32),
     away_team_id Nullable(Int32),
@@ -1093,7 +1093,7 @@ CREATE TABLE IF NOT EXISTS gold.scenario_tired_legs (
 ORDER BY (match_id, winning_side)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
-CREATE TABLE IF NOT EXISTS gold.scenario_the_black_hole (
+CREATE TABLE IF NOT EXISTS gold.scenario_black_hole (
     match_id Int32,
     player_id Nullable(Int32),
     player_name Nullable(String),
@@ -1149,7 +1149,7 @@ CREATE TABLE IF NOT EXISTS gold.scenario_high_line_trap (
 ORDER BY (match_id, trapping_team_side)
 PARTITION BY toYYYYMM(assumeNotNull(toDateOrZero(match_time_utc_date)));
 
-CREATE TABLE IF NOT EXISTS gold.scenario_the_ghost_poacher (
+CREATE TABLE IF NOT EXISTS gold.scenario_ghost_poacher (
     match_id Int32,
     home_team_id Nullable(Int32),
     away_team_id Nullable(Int32),

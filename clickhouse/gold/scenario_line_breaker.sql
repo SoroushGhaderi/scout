@@ -1,5 +1,5 @@
--- scenario_the_line_breaker: deep distributors breaking lines with high-volume accurate long passing
-INSERT INTO gold.scenario_the_line_breaker
+-- scenario_line_breaker: deep distributors breaking lines with high-volume accurate long passing
+INSERT INTO gold.scenario_line_breaker
 (
     -- 1. Match Identity & Result Context
     match_id,

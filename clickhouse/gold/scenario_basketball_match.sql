@@ -1,5 +1,5 @@
--- scenario_the_basketball_match: high-volume shootouts ranked by composite chaos intensity
-INSERT INTO gold.scenario_the_basketball_match
+-- scenario_basketball_match: high-volume shootouts ranked by composite chaos intensity
+INSERT INTO gold.scenario_basketball_match
 (
     match_id,
     home_team_id,

@@ -1,5 +1,5 @@
--- scenario_the_golden_touch: late-substitute low-touch contributions ranked by impact efficiency
-INSERT INTO gold.scenario_the_golden_touch
+-- scenario_golden_touch: late-substitute low-touch contributions ranked by impact efficiency
+INSERT INTO gold.scenario_golden_touch
 (
     match_id,
     home_team_id,

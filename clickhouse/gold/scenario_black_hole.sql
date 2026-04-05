@@ -1,5 +1,5 @@
--- scenario_the_black_hole: high-volume, low-quality shooters who dominate team shot share without scoring
-INSERT INTO gold.scenario_the_black_hole
+-- scenario_black_hole: high-volume, low-quality shooters who dominate team shot share without scoring
+INSERT INTO gold.scenario_black_hole
 (
     match_id,
     player_id,

@@ -1,4 +1,4 @@
-"""Run the scenario_the_hollow_dominance gold query against ClickHouse."""
+"""Run the scenario_ghost_poacher gold query against ClickHouse."""
 
 import argparse
 import sys
@@ -14,13 +14,13 @@ from src.utils.logging_utils import get_logger
 logger = get_logger()
 
 
-SQL_FILE = project_root / "clickhouse" / "gold" / "scenario_the_hollow_dominance.sql"
-TARGET_TABLE = "gold.scenario_the_hollow_dominance"
+SQL_FILE = project_root / "clickhouse" / "gold" / "scenario_ghost_poacher.sql"
+TARGET_TABLE = "gold.scenario_ghost_poacher"
 
 
 def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run the-hollow-dominance scenario query from gold SQL folder"
+        description="Run the-ghost-poacher scenario query from gold SQL folder"
     )
     return parser.parse_args(argv)
 
@@ -48,7 +48,7 @@ def main(argv=None) -> int:
 
     try:
         client.execute(insert_query)
-        logger.info("scenario_the_hollow_dominance insert completed successfully")
+        logger.info("scenario_ghost_poacher insert completed successfully")
 
         optimize_sql = f"OPTIMIZE TABLE {TARGET_TABLE} FINAL DEDUPLICATE"
         client.execute(optimize_sql)

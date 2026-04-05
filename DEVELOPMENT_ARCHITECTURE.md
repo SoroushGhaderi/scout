@@ -158,7 +158,7 @@ Keep your existing shape and evolve it incrementally.
 - Full refresh, partition refresh, or incremental append
 
 4. Run locally:
-- `python scripts/gold/process.py --month YYYYMM`
+- `python scripts/gold/process.py`
 
 5. Validate row counts, keys, and metric sanity
 
@@ -194,7 +194,7 @@ python scripts/orchestration/pipeline.py 20251113 --gold-only
 
 # Direct layer runs
 python scripts/silver/process.py --date 20251113
-python scripts/gold/process.py --month 202511
+python scripts/gold/process.py
 ```
 
 ### Incident Basics
@@ -417,7 +417,7 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/p
 #### Step 6: build Gold tables
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/process.py --date 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/process.py
 ```
 
 ### Full orchestration

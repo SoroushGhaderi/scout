@@ -153,7 +153,7 @@ This refreshes tables such as:
 ### 6. Build Gold tables
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/process.py --date 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/process.py
 ```
 
 This refreshes tables such as:
@@ -165,9 +165,9 @@ This refreshes tables such as:
 It also refreshes scenario narrative tables (via `scripts/gold/scenario_*.py`), including:
 
 - `gold.scenario_high_intensity_engine`
-- `gold.scenario_the_black_hole`
+- `gold.scenario_black_hole`
 - `gold.scenario_high_line_trap`
-- `gold.scenario_the_ghost_poacher`
+- `gold.scenario_ghost_poacher`
 - `gold.scenario_route_one_masterclass`
 - `gold.scenario_total_suffocation`
 - `gold.scenario_territorial_suffocation`

@@ -1,5 +1,5 @@
--- scenario_the_human_shield: outfield defenders absorbing heavy fire via blocks, clearances, and defensive volume
-INSERT INTO gold.scenario_the_human_shield
+-- scenario_human_shield: outfield defenders absorbing heavy fire via blocks, clearances, and defensive volume
+INSERT INTO gold.scenario_human_shield
 (
     match_id,
     home_team_id,
@@ -32,13 +32,13 @@ INSERT INTO gold.scenario_the_human_shield
 )
 WITH team_shots_faced AS (
     SELECT
-        match_id,
-        team_id,
-        count()                                             AS shots_faced
-    FROM bronze.shotmap
-    WHERE
-        is_own_goal != 1
-    GROUP BY match_id, team_id
+        g.match_id,
+        countIf(s.team_id = g.home_team_id AND coalesce(s.is_own_goal, 0) != 1) AS home_team_shots,
+        countIf(s.team_id = g.away_team_id AND coalesce(s.is_own_goal, 0) != 1) AS away_team_shots
+    FROM bronze.general AS g
+    LEFT JOIN bronze.shotmap AS s
+        ON g.match_id = s.match_id
+    GROUP BY g.match_id, g.home_team_id, g.away_team_id
 )
 
 SELECT
@@ -66,9 +66,19 @@ SELECT
         + (coalesce(p.interceptions, 0) * 1.2)
         + (coalesce(p.tackles_won, 0)  * 1.0)
     , 2)                                                    AS shield_score,
-    tsf.shots_faced,
+    CASE
+        WHEN p.team_id = g.home_team_id THEN tsf.away_team_shots
+        WHEN p.team_id = g.away_team_id THEN tsf.home_team_shots
+        ELSE 0
+    END                                                   AS shots_faced,
     round(p.blocked_shots
-        / nullIf(tsf.shots_faced, 0) * 100, 1)             AS block_share_pct,
+        / nullIf(
+            CASE
+                WHEN p.team_id = g.home_team_id THEN tsf.away_team_shots
+                WHEN p.team_id = g.away_team_id THEN tsf.home_team_shots
+                ELSE 0
+            END
+        , 0) * 100, 1)                                     AS block_share_pct,
     p.fotmob_rating,
     p.minutes_played,
     p.fouls_committed,
@@ -95,7 +105,6 @@ INNER JOIN bronze.player AS p
     ON g.match_id = p.match_id
 INNER JOIN team_shots_faced AS tsf
     ON g.match_id = tsf.match_id
-    AND tsf.team_id != p.team_id
 INNER JOIN bronze.period AS p_period
     ON g.match_id = p_period.match_id
     AND p_period.period = 'All'
@@ -104,6 +113,12 @@ WHERE
     AND p.is_goalkeeper = 0
     AND coalesce(p.blocked_shots, 0) >= 4
     AND coalesce(p.clearances, 0) >= 5
-    AND tsf.shots_faced >= 15
+    AND (
+        CASE
+            WHEN p.team_id = g.home_team_id THEN tsf.away_team_shots
+            WHEN p.team_id = g.away_team_id THEN tsf.home_team_shots
+            ELSE 0
+        END
+    ) >= 15
     AND p.minutes_played >= 60
 ORDER BY shield_score DESC, p.blocked_shots DESC;

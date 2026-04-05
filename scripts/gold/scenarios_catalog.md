@@ -496,7 +496,7 @@ python3 scripts/gold/scenario_defensive_masterclass.py
 
 ---
 
-## 🎼 Scenario: The Metronome (`scenario_the_metronome`)
+## 🎼 Scenario: Metronome (`scenario_metronome`)
 
 ### 🎯 Purpose
 Identifies tempo controllers who combined elite touch volume with passing precision and complete ball security — the archetypal deep-lying playmaker or holding midfielder who orchestrates the team's rhythm without ever surrendering possession under pressure.
@@ -510,13 +510,13 @@ Identifies tempo controllers who combined elite touch volume with passing precis
 - **Ball Security (Not Dribbled Past, 100% Dribble Success or No Dribble Attempts):** The metronome cannot be a liability when pressed. The ball security layer requires the player was never successfully dribbled past in the match. Additionally, if they attempted any dribbles, they must have completed all of them. A player receiving 100 touches who is regularly dispossessed is not a metronome — they are a ball-magnet who loses it. Zero losses under pressure is the defining security requirement.
 
 ### 📂 Technical Assets
-- **SQL Transformation:** `clickhouse/gold/scenario_the_metronome.sql`
-- **Python Runner:** `scripts/gold/scenario_the_metronome.py`
-- **Target Table:** `gold.scenario_the_metronome`
+- **SQL Transformation:** `clickhouse/gold/scenario_metronome.sql`
+- **Python Runner:** `scripts/gold/scenario_metronome.py`
+- **Target Table:** `gold.scenario_metronome`
 
 ### 🚀 Execution
 ```bash
-python3 scripts/gold/scenario_the_metronome.py
+python3 scripts/gold/scenario_metronome.py
 ```
 
 ---
@@ -829,7 +829,7 @@ python3 scripts/gold/scenario_elite_shot_stopper.py
 
 ---
 
-## 🕳️ Scenario: The Hollow Dominance (`scenario_the_hollow_dominance`)
+## 🕳️ Scenario: Hollow Dominance (`scenario_hollow_dominance`)
 
 ### 🎯 Purpose
 Find matches where one side lays siege with elite shot and xG volume, but still fails to score more than once or win.
@@ -843,13 +843,13 @@ Find matches where one side lays siege with elite shot and xG volume, but still 
 - **Chance-Profile Context:** Includes on-target shots, inside-box shots, blocked shots, open-play xG, and non-penalty xG splits.
 
 ### 📂 Technical Assets
-- **SQL Transformation:** `clickhouse/gold/scenario_the_hollow_dominance.sql`
-- **Python Runner:** `scripts/gold/scenario_the_hollow_dominance.py`
-- **Target Table:** `gold.scenario_the_hollow_dominance`
+- **SQL Transformation:** `clickhouse/gold/scenario_hollow_dominance.sql`
+- **Python Runner:** `scripts/gold/scenario_hollow_dominance.py`
+- **Target Table:** `gold.scenario_hollow_dominance`
 
 ### 🚀 Execution
 ```bash
-python3 scripts/gold/scenario_the_hollow_dominance.py
+python3 scripts/gold/scenario_hollow_dominance.py
 ```
 
 ---
@@ -877,7 +877,7 @@ python3 scripts/gold/scenario_touchline_terror.py
 
 ---
 
-## 🎯 Scenario: The Line Breaker (`scenario_the_line_breaker`)
+## 🎯 Scenario: Line Breaker (`scenario_line_breaker`)
 
 ### 🎯 Purpose
 Find deep distributors who repeatedly break lines through accurate long progression while maintaining elite passing security.
@@ -889,18 +889,18 @@ Find deep distributors who repeatedly break lines through accurate long progress
 - **Deep-Role Confirmation (≤ 1 touch in opp box):** Filters out advanced attackers and keeps the profile anchored to deep build-up zones.
 
 ### 📂 Technical Assets
-- **SQL Transformation:** `clickhouse/gold/scenario_the_line_breaker.sql`
-- **Python Runner:** `scripts/gold/scenario_the_line_breaker.py`
-- **Target Table:** `gold.scenario_the_line_breaker`
+- **SQL Transformation:** `clickhouse/gold/scenario_line_breaker.sql`
+- **Python Runner:** `scripts/gold/scenario_line_breaker.py`
+- **Target Table:** `gold.scenario_line_breaker`
 
 ### 🚀 Execution
 ```bash
-python3 scripts/gold/scenario_the_line_breaker.py
+python3 scripts/gold/scenario_line_breaker.py
 ```
 
 ---
 
-## 🏀 Scenario: The Basketball Match (`scenario_the_basketball_match`)
+## 🏀 Scenario: Basketball Match (`scenario_basketball_match`)
 
 ### 🎯 Purpose
 Find end-to-end shootouts where both teams produce elite attacking volume, then rank matches by a composite chaos score.
@@ -914,18 +914,18 @@ Find end-to-end shootouts where both teams produce elite attacking volume, then 
 - **Context Enrichment:** Adds on-target volume, inside-box shots, possession split, and open-play xG split for tactical interpretation.
 
 ### 📂 Technical Assets
-- **SQL Transformation:** `clickhouse/gold/scenario_the_basketball_match.sql`
-- **Python Runner:** `scripts/gold/scenario_the_basketball_match.py`
-- **Target Table:** `gold.scenario_the_basketball_match`
+- **SQL Transformation:** `clickhouse/gold/scenario_basketball_match.sql`
+- **Python Runner:** `scripts/gold/scenario_basketball_match.py`
+- **Target Table:** `gold.scenario_basketball_match`
 
 ### 🚀 Execution
 ```bash
-python3 scripts/gold/scenario_the_basketball_match.py
+python3 scripts/gold/scenario_basketball_match.py
 ```
 
 ---
 
-## ⚡ Scenario: The Lightning Rod (`scenario_the_lightning_rod`)
+## ⚡ Scenario: Lightning Rod (`scenario_lightning_rod`)
 
 ### 🎯 Purpose
 Find attackers who repeatedly draw fouls while actively carrying the ball or receiving in dangerous areas.
@@ -937,18 +937,18 @@ Find attackers who repeatedly draw fouls while actively carrying the ball or rec
 - **Minutes Floor (≥ 45):** Ensures the profile represents stable match influence rather than brief substitute volatility.
 
 ### 📂 Technical Assets
-- **SQL Transformation:** `clickhouse/gold/scenario_the_lightning_rod.sql`
-- **Python Runner:** `scripts/gold/scenario_the_lightning_rod.py`
-- **Target Table:** `gold.scenario_the_lightning_rod`
+- **SQL Transformation:** `clickhouse/gold/scenario_lightning_rod.sql`
+- **Python Runner:** `scripts/gold/scenario_lightning_rod.py`
+- **Target Table:** `gold.scenario_lightning_rod`
 
 ### 🚀 Execution
 ```bash
-python3 scripts/gold/scenario_the_lightning_rod.py
+python3 scripts/gold/scenario_lightning_rod.py
 ```
 
 ---
 
-## 🛡️ Scenario: The Human Shield (`scenario_the_human_shield`)
+## 🛡️ Scenario: Human Shield (`scenario_human_shield`)
 
 ### 🎯 Purpose
 Find outfield defenders who protect their box under heavy shot pressure, combining blocking, clearances, and defensive interventions into a composite shield profile.
@@ -962,18 +962,18 @@ Find outfield defenders who protect their box under heavy shot pressure, combini
 - **Opposition xG Faced:** Adds opponent expected-goals context from full-match period data (`period = 'All'`).
 
 ### 📂 Technical Assets
-- **SQL Transformation:** `clickhouse/gold/scenario_the_human_shield.sql`
-- **Python Runner:** `scripts/gold/scenario_the_human_shield.py`
-- **Target Table:** `gold.scenario_the_human_shield`
+- **SQL Transformation:** `clickhouse/gold/scenario_human_shield.sql`
+- **Python Runner:** `scripts/gold/scenario_human_shield.py`
+- **Target Table:** `gold.scenario_human_shield`
 
 ### 🚀 Execution
 ```bash
-python3 scripts/gold/scenario_the_human_shield.py
+python3 scripts/gold/scenario_human_shield.py
 ```
 
 ---
 
-## ✨ Scenario: The Golden Touch (`scenario_the_golden_touch`)
+## ✨ Scenario: Golden Touch (`scenario_golden_touch`)
 
 ### 🎯 Purpose
 Find late substitutes who deliver direct scoreline impact on very low touch volume, then rank them by contribution efficiency.
@@ -987,13 +987,13 @@ Find late substitutes who deliver direct scoreline impact on very low touch volu
 - **Chance Quality Context:** Adds xG, xA, xG+xA, and xG-per-shot for quality-adjusted impact profiling.
 
 ### 📂 Technical Assets
-- **SQL Transformation:** `clickhouse/gold/scenario_the_golden_touch.sql`
-- **Python Runner:** `scripts/gold/scenario_the_golden_touch.py`
-- **Target Table:** `gold.scenario_the_golden_touch`
+- **SQL Transformation:** `clickhouse/gold/scenario_golden_touch.sql`
+- **Python Runner:** `scripts/gold/scenario_golden_touch.py`
+- **Target Table:** `gold.scenario_golden_touch`
 
 ### 🚀 Execution
 ```bash
-python3 scripts/gold/scenario_the_golden_touch.py
+python3 scripts/gold/scenario_golden_touch.py
 ```
 
 ---
@@ -1046,7 +1046,7 @@ python3 scripts/gold/scenario_tired_legs.py
 
 ---
 
-## 🕳️ Scenario: The Black Hole (`scenario_the_black_hole`)
+## 🕳️ Scenario: Black Hole (`scenario_black_hole`)
 
 ### 🎯 Purpose
 Find high-volume shooters who absorb a very large share of their team's attempts while consistently selecting low-quality shots and producing zero goals.
@@ -1060,13 +1060,13 @@ Find high-volume shooters who absorb a very large share of their team's attempts
 - **Outfield + Finished Match Integrity:** Excludes goalkeepers and limits to completed fixtures to maintain stable match context.
 
 ### 📂 Technical Assets
-- **SQL Transformation:** `clickhouse/gold/scenario_the_black_hole.sql`
-- **Python Runner:** `scripts/gold/scenario_the_black_hole.py`
-- **Target Table:** `gold.scenario_the_black_hole`
+- **SQL Transformation:** `clickhouse/gold/scenario_black_hole.sql`
+- **Python Runner:** `scripts/gold/scenario_black_hole.py`
+- **Target Table:** `gold.scenario_black_hole`
 
 ### 🚀 Execution
 ```bash
-python3 scripts/gold/scenario_the_black_hole.py
+python3 scripts/gold/scenario_black_hole.py
 ```
 
 ---
@@ -1096,7 +1096,7 @@ python3 scripts/gold/scenario_high_line_trap.py
 
 ---
 
-## 👻 Scenario: The Ghost Poacher (`scenario_the_ghost_poacher`)
+## 👻 Scenario: Ghost Poacher (`scenario_ghost_poacher`)
 
 ### 🎯 Purpose
 Find starting attackers with very low overall involvement but extreme penalty-box touch concentration and high-end finishing threat.
@@ -1110,13 +1110,13 @@ Find starting attackers with very low overall involvement but extreme penalty-bo
 - **Finishing Context:** Adds xG per shot, non-penalty xG, and supporting creation fields (xA, assists, chances created, xg_plus_xa).
 
 ### 📂 Technical Assets
-- **SQL Transformation:** `clickhouse/gold/scenario_the_ghost_poacher.sql`
-- **Python Runner:** `scripts/gold/scenario_the_ghost_poacher.py`
-- **Target Table:** `gold.scenario_the_ghost_poacher`
+- **SQL Transformation:** `clickhouse/gold/scenario_ghost_poacher.sql`
+- **Python Runner:** `scripts/gold/scenario_ghost_poacher.py`
+- **Target Table:** `gold.scenario_ghost_poacher`
 
 ### 🚀 Execution
 ```bash
-python3 scripts/gold/scenario_the_ghost_poacher.py
+python3 scripts/gold/scenario_ghost_poacher.py
 ```
 
 ---

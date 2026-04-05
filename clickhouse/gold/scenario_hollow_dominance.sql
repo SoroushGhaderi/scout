@@ -1,5 +1,5 @@
--- scenario_the_hollow_dominance: high-volume siege performances that fail to turn dominance into a win
-INSERT INTO gold.scenario_the_hollow_dominance
+-- scenario_hollow_dominance: high-volume siege performances that fail to turn dominance into a win
+INSERT INTO gold.scenario_hollow_dominance
 (
     match_id,
     home_team_id,

@@ -498,11 +498,10 @@ def run_gold_process(
     """Run gold processing for a date."""
     import process_gold
 
-    argv = ["--date", date_str]
     return run_step(
         f"Gold Process - {date_str}",
-        f"process_gold.main({' '.join(argv)})",
-        lambda: process_gold.main(argv),
+        "process_gold.main()",
+        process_gold.main,
         continue_on_error=True,
         date_str=date_str,
     )
@@ -514,11 +513,10 @@ def run_gold_process_month(
     """Run gold processing for a month."""
     import process_gold
 
-    argv = ["--month", month_str]
     return run_step(
         f"Gold Process - Month {month_str}",
-        f"process_gold.main({' '.join(argv)})",
-        lambda: process_gold.main(argv),
+        "process_gold.main()",
+        process_gold.main,
         continue_on_error=True,
         date_str=month_str,
     )
