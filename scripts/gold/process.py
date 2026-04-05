@@ -1,7 +1,9 @@
 """Process FotMob gold layer in ClickHouse."""
 
 import argparse
+import subprocess
 import sys
+import time
 from pathlib import Path
 
 project_root = Path(__file__).resolve().parents[2]
@@ -136,6 +138,53 @@ def refresh_gold_tables(client: ClickHouseClient, args: argparse.Namespace) -> N
     )
 
 
+def _scenario_scripts() -> list[Path]:
+    gold_dir = Path(__file__).resolve().parent
+    return sorted(path for path in gold_dir.glob("scenario*.py") if path.is_file())
+
+
+def _build_command(script_path: Path) -> list[str]:
+    return [sys.executable, str(script_path)]
+
+
+def _run_scenario_scripts() -> int:
+    scenario_scripts = _scenario_scripts()
+    if not scenario_scripts:
+        logger.warning("No gold scenario scripts found in %s", Path(__file__).resolve().parent)
+        return 0
+
+    total_scripts = len(scenario_scripts)
+    for index, script_path in enumerate(scenario_scripts, start=1):
+        command = _build_command(script_path)
+        logger.info(
+            "Running gold scenario script %s/%s: %s",
+            index,
+            total_scripts,
+            script_path.name,
+        )
+        script_start = time.perf_counter()
+        result = subprocess.run(command, cwd=project_root)
+        elapsed_seconds = time.perf_counter() - script_start
+        if result.returncode != 0:
+            logger.error(
+                "Gold scenario script failed %s/%s: %s (exit code %s) after %.2f seconds",
+                index,
+                total_scripts,
+                script_path.name,
+                result.returncode,
+                elapsed_seconds,
+            )
+            return 1
+        logger.info(
+            "Completed gold scenario script %s/%s: %s in %.2f seconds",
+            index,
+            total_scripts,
+            script_path.name,
+            elapsed_seconds,
+        )
+    return 0
+
+
 def main(argv=None) -> int:
     args = parse_args(argv)
     if args.date:
@@ -172,6 +221,9 @@ def main(argv=None) -> int:
             return 1
 
         storage.execute_sql_files(sql_files)
+        scenario_exit_code = _run_scenario_scripts()
+        if scenario_exit_code != 0:
+            return scenario_exit_code
         refresh_gold_tables(client, args)
         logger.info("Gold processing completed successfully")
         return 0

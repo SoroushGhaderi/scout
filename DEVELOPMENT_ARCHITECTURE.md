@@ -680,8 +680,8 @@ Scripts should map to one responsibility each.
 
 - `scripts/bronze/scrape_fotmob.py`: scrape raw FotMob data into Bronze filesystem storage
 - `scripts/bronze/load_clickhouse.py`: parse Bronze files and insert into ClickHouse Bronze tables
-- `scripts/silver/process.py`: create or refresh Silver tables
-- `scripts/gold/process.py`: create or refresh Gold tables
+- `scripts/silver/process.py`: Silver stage placeholder (scenario classifications moved to Gold)
+- `scripts/gold/process.py`: create or refresh Gold tables and scenario narrative tables
 - `scripts/bronze/setup_clickhouse.py`: create Bronze schema only
 - `scripts/silver/setup_clickhouse.py`: create Silver schema only
 - `scripts/gold/setup_clickhouse.py`: create Gold schema only

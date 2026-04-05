@@ -150,17 +150,6 @@ This refreshes tables such as:
 - `silver.period`
 - `silver.venue`
 
-It also refreshes silver scenario tables (via `scripts/silver/scenario_*.py`), including:
-
-- `silver.scenario_high_intensity_engine`
-- `silver.scenario_the_black_hole`
-- `silver.scenario_high_line_trap`
-- `silver.scenario_the_ghost_poacher`
-- `silver.scenario_route_one_masterclass`
-- `silver.scenario_total_suffocation`
-- `silver.scenario_territorial_suffocation`
-- `silver.scenario_clinical_pivot`
-
 ### 6. Build Gold tables
 
 ```bash
@@ -172,6 +161,17 @@ This refreshes tables such as:
 - `gold.player_match_stats`
 - `gold.match_summary`
 - `gold.team_season_stats`
+
+It also refreshes scenario narrative tables (via `scripts/gold/scenario_*.py`), including:
+
+- `gold.scenario_high_intensity_engine`
+- `gold.scenario_the_black_hole`
+- `gold.scenario_high_line_trap`
+- `gold.scenario_the_ghost_poacher`
+- `gold.scenario_route_one_masterclass`
+- `gold.scenario_total_suffocation`
+- `gold.scenario_territorial_suffocation`
+- `gold.scenario_clinical_pivot`
 
 ## Full Pipeline Modes
 
@@ -300,7 +300,7 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestr
 
 - Scout is currently FotMob-only
 - Silver and Gold are warehouse layers, not local directories
-- Always use schema-qualified names like `bronze.general`, `silver.scenario_demolition`, or `gold.match_summary`
+- Always use schema-qualified names like `bronze.general`, `gold.scenario_demolition`, or `gold.match_summary`
 
 ## Repo Hygiene
 

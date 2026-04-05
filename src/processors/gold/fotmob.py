@@ -12,4 +12,6 @@ class FotMobGoldProcessor:
 
     def sql_files(self) -> List[Path]:
         """Return ordered SQL files for gold aggregations."""
-        return sorted(self.sql_dir.glob("*.sql"))
+        return sorted(
+            path for path in self.sql_dir.glob("*.sql") if not path.name.startswith("scenario_")
+        )
