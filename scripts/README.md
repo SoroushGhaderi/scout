@@ -6,11 +6,12 @@ Use these for all new documentation, automation, and daily runs:
 
 - `scripts/bronze/scrape_fotmob.py`
 - `scripts/bronze/load_clickhouse.py`
+- `scripts/bronze/drop_tables.py`
 - `scripts/bronze/setup_clickhouse.py`
 - `scripts/silver/process.py`
-- `scripts/silver/drop_tables.py`
 - `scripts/silver/setup_clickhouse.py`
 - `scripts/gold/process.py`
+- `scripts/gold/drop_tables.py`
 - `scripts/gold/setup_clickhouse.py`
 - `scripts/orchestration/pipeline.py`
 - `scripts/orchestration/setup_clickhouse.py`

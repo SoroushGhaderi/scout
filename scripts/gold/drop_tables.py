@@ -1,4 +1,4 @@
-"""Drop all FotMob silver tables in ClickHouse."""
+"""Drop all FotMob gold tables in ClickHouse."""
 
 import argparse
 import sys
@@ -17,12 +17,12 @@ logger = get_logger()
 
 def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Drop all tables from the silver ClickHouse schema"
+        description="Drop all tables from the gold ClickHouse schema"
     )
     parser.add_argument(
         "--database",
-        default="silver",
-        help="Target database name (default: silver)",
+        default="gold",
+        help="Target database name (default: gold)",
     )
     parser.add_argument(
         "--dry-run",
@@ -32,7 +32,7 @@ def parse_args(argv=None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def _find_silver_tables(client: ClickHouseClient, database: str) -> list[str]:
+def _find_tables(client: ClickHouseClient, database: str) -> list[str]:
     query = """
         SELECT name
         FROM system.tables
@@ -61,20 +61,22 @@ def main(argv=None) -> int:
 
     try:
         find_start = time.perf_counter()
-        tables = _find_silver_tables(client, database)
+        tables = _find_tables(client, database)
         find_elapsed_seconds = time.perf_counter() - find_start
-        logger.info("Silver table discovery completed in %.2f seconds", find_elapsed_seconds)
+        logger.info("Gold table discovery completed in %.2f seconds", find_elapsed_seconds)
+
         if not tables:
             logger.info("No tables found in %s", database)
             return 0
 
         total_tables = len(tables)
-        logger.info("Found %s silver table(s) in %s", total_tables, database)
+        logger.info("Found %s gold table(s) in %s", total_tables, database)
+
         for index, table in enumerate(tables, start=1):
             full_table = f"{database}.{table}"
             if args.dry_run:
                 logger.info(
-                    "[dry-run] Would drop silver table %s/%s: %s",
+                    "[dry-run] Would drop gold table %s/%s: %s",
                     index,
                     total_tables,
                     full_table,
@@ -82,7 +84,7 @@ def main(argv=None) -> int:
                 continue
 
             logger.info(
-                "Dropping silver table %s/%s: %s",
+                "Dropping gold table %s/%s: %s",
                 index,
                 total_tables,
                 full_table,
@@ -91,7 +93,7 @@ def main(argv=None) -> int:
             client.execute(f"DROP TABLE IF EXISTS {full_table}")
             drop_elapsed_seconds = time.perf_counter() - drop_start
             logger.info(
-                "Dropped silver table %s/%s: %s in %.2f seconds",
+                "Dropped gold table %s/%s: %s in %.2f seconds",
                 index,
                 total_tables,
                 full_table,
@@ -101,7 +103,7 @@ def main(argv=None) -> int:
         if args.dry_run:
             logger.info("Dry-run completed")
         else:
-            logger.info("All silver tables dropped successfully")
+            logger.info("All gold tables dropped successfully")
         return 0
     finally:
         client.disconnect()
