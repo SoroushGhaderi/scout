@@ -55,17 +55,17 @@ WITH late_goals AS (
 shot_volumes AS (
     SELECT
         match_id,
-        countIf(min >= 75) AS late_shots,
-        countIf(min >= 75 AND is_on_target = 1) AS late_shots_on_target,
+        countIf(minute >= 75) AS late_shots,
+        countIf(minute >= 75 AND is_on_target = 1) AS late_shots_on_target,
         count() AS total_shots,
-        round(countIf(min >= 75) / nullIf(count(), 0) * 100, 2) AS late_shot_pct
+        round(countIf(minute >= 75) / nullIf(count(), 0) * 100, 2) AS late_shot_pct
     FROM bronze.shotmap
     GROUP BY match_id
 ),
 late_xg AS (
     SELECT
         match_id,
-        round(sumIf(expected_goals, min >= 75), 3) AS late_xg_total,
+        round(sumIf(expected_goals, minute >= 75), 3) AS late_xg_total,
         round(sum(expected_goals), 3) AS total_xg
     FROM bronze.shotmap
     WHERE expected_goals IS NOT NULL
