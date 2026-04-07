@@ -232,7 +232,7 @@ Run optimization periodically:
 ```bash
 docker-compose -f docker/docker-compose.yml exec -T clickhouse clickhouse-client \
   --user fotmob_user --password fotmob_pass \
-  < clickhouse/bronze/02_optimize.sql
+  < clickhouse/bronze/99_optimize_tables.sql
 ```
 
 ## Project Structure

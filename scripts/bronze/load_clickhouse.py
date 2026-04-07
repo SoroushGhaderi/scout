@@ -18,7 +18,7 @@ Usage:
 
     Note:
     Table optimization is handled separately via SQL scripts.
-    Run clickhouse/bronze/02_optimize.sql to optimize and deduplicate tables.
+    Run clickhouse/bronze/99_optimize_tables.sql to optimize and deduplicate tables.
 """
 
 import argparse
@@ -86,7 +86,7 @@ UNIQUE_KEY_COLUMNS = {
     "timeline": ["match_id"],
     "venue": ["match_id"],
     "player": ["match_id", "player_id"],
-    "shotmap": ["match_id", "id"],
+    "shotmap": ["match_id", "shot_id"],
     "goal": ["match_id", "event_id", "player_id", "goal_time"],
     "cards": ["match_id", "event_id"],
     "red_card": ["match_id", "event_id"],
@@ -94,7 +94,7 @@ UNIQUE_KEY_COLUMNS = {
     "momentum": ["match_id", "minute"],
     "starters": ["match_id", "player_id"],
     "substitutes": ["match_id", "player_id"],
-    "coaches": ["match_id", "id"],
+    "coaches": ["match_id", "coach_id"],
     "team_form": ["match_id", "team_id", "form_position"],
 }
 
@@ -104,9 +104,9 @@ INT64_COLUMNS = {
     "red_card": ["event_id"],
     "starters": ["player_id"],
     "substitutes": ["player_id"],
-    "coaches": ["id"],
+    "coaches": ["coach_id"],
     "team_form": ["team_id"],
-    "shotmap": ["id"],
+    "shotmap": ["shot_id"],
 }
 
 INT32_RANGE = (2147483647, -2147483648)
@@ -205,6 +205,21 @@ def rename_columns_for_table(
             column_renames["id"] = "player_id"
         if "name" in df.columns:
             column_renames["name"] = "player_name"
+    elif table_name == "cards":
+        if "time" in df.columns:
+            column_renames["time"] = "event_time"
+        if "score" in df.columns:
+            column_renames["score"] = "score_at_event"
+    elif table_name == "shotmap":
+        if "id" in df.columns:
+            column_renames["id"] = "shot_id"
+        if "min" in df.columns:
+            column_renames["min"] = "minute"
+        if "min_added" in df.columns:
+            column_renames["min_added"] = "minute_added"
+    elif table_name == "coaches":
+        if "id" in df.columns:
+            column_renames["id"] = "coach_id"
 
     if column_renames:
         df = df.rename(columns=column_renames)
@@ -810,6 +825,7 @@ def _process_special_fotmob_table(
         )
         combined_df = pd.concat(non_empty_dfs, ignore_index=True, sort=False)
 
+    combined_df = rename_columns_for_table(combined_df, table_name, logger)
     combined_df = prepare_int64_columns(combined_df, table_name)
     combined_df = prepare_nullable_numeric_columns(combined_df)
     combined_df = validate_and_fix_schema(combined_df, client, physical_table, BRONZE_DATABASE, logger)

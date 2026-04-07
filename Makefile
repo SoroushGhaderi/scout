@@ -63,7 +63,7 @@ load-fotmob: ## Load FotMob data to ClickHouse (usage: make load-fotmob DATE=202
 # ClickHouse optimization
 optimize-tables: ## Optimize and deduplicate all ClickHouse tables
 	@echo "Optimizing ClickHouse tables..."
-	docker-compose $(COMPOSE_FILE) exec -T clickhouse clickhouse-client --user fotmob_user --password fotmob_pass < clickhouse/bronze/02_optimize.sql
+	docker-compose $(COMPOSE_FILE) exec -T clickhouse clickhouse-client --user fotmob_user --password fotmob_pass < clickhouse/bronze/99_optimize_tables.sql
 	@echo "Table optimization complete!"
 
 # Status checks

@@ -193,6 +193,9 @@ def get_layer_sql_files(layer_name: str, clickhouse_root: Optional[Path] = None)
 
     def _sort_key(sql_file: Path) -> tuple[int, int, str]:
         name = sql_file.name
+        if "optimize" in name.lower():
+            # Always run optimization scripts last, after table creation files.
+            return (9, 0, name)
         number_prefix = re.match(r"^(\d+)_", name)
         if number_prefix:
             return (0, int(number_prefix.group(1)), name)
