@@ -28,6 +28,17 @@ CREATE TABLE IF NOT EXISTS bronze.period
     sprinting_distance_away             Nullable(Float32),
     number_of_sprints_home              Nullable(Int32),
     number_of_sprints_away              Nullable(Int32),
+    -- Physical / tracking (source-style aliases kept for compatibility)
+    physical_metrics_distance_covered_home Nullable(Float32),
+    physical_metrics_distance_covered_away Nullable(Float32),
+    physical_metrics_walking_home       Nullable(Float32),
+    physical_metrics_walking_away       Nullable(Float32),
+    physical_metrics_running_home       Nullable(Float32),
+    physical_metrics_running_away       Nullable(Float32),
+    physical_metrics_sprinting_home     Nullable(Float32),
+    physical_metrics_sprinting_away     Nullable(Float32),
+    physical_metrics_number_of_sprints_home Nullable(Int32),
+    physical_metrics_number_of_sprints_away Nullable(Int32),
     top_speed_home                      Nullable(Float32),
     top_speed_away                      Nullable(Float32),
     -- Shots

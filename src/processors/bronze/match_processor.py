@@ -34,7 +34,9 @@ PERIOD_STAT_KEY_MAPPING: Dict[str, Tuple[str, str]] = {
     "accurate_passes": ("accurate_passes_home", "accurate_passes_away"),
     "fouls": ("fouls_home", "fouls_away"),
     "corners": ("corners_home", "corners_away"),
-    "shots": ("shots_home", "shots_away"),
+    # API sometimes emits "shots" as an alias of total shots.
+    # Map directly to total_shots_* to align with bronze.period schema.
+    "shots": ("total_shots_home", "total_shots_away"),
     "ShotsOffTarget": ("shots_off_target_home", "shots_off_target_away"),
     "blocked_shots": ("blocked_shots_home", "blocked_shots_away"),
     "shots_woodwork": ("shots_woodwork_home", "shots_woodwork_away"),
@@ -51,6 +53,12 @@ PERIOD_STAT_KEY_MAPPING: Dict[str, Tuple[str, str]] = {
     "physical_metrics_sprinting": ("sprinting_distance_home", "sprinting_distance_away"),
     "physical_metrics_number_of_sprints": ("number_of_sprints_home", "number_of_sprints_away"),
     "physical_metrics_topspeed": ("top_speed_home", "top_speed_away"),
+    # Aliases seen in some payload variants (without physical_metrics_ prefix).
+    "distance_covered": ("distance_covered_home", "distance_covered_away"),
+    "walking": ("walking_distance_home", "walking_distance_away"),
+    "running": ("running_distance_home", "running_distance_away"),
+    "sprinting": ("sprinting_distance_home", "sprinting_distance_away"),
+    "number_of_sprints": ("number_of_sprints_home", "number_of_sprints_away"),
     "passes": ("passes_home", "passes_away"),
     "own_half_passes": ("own_half_passes_home", "own_half_passes_away"),
     "opposition_half_passes": ("opposition_half_passes_home", "opposition_half_passes_away"),
@@ -682,9 +690,34 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                             home_field, away_field = PERIOD_STAT_KEY_MAPPING[key]
                             flat_data[home_field] = values[0]
                             flat_data[away_field] = values[1]
+
+                # FotMob commonly emits `shots_inside_box` but not `shots_sidebox`.
+                # Keep legacy `shots_sidebox_*` populated for schema compatibility.
+                if "shots_sidebox_home" not in flat_data and "shots_inside_box_home" in flat_data:
+                    flat_data["shots_sidebox_home"] = flat_data.get("shots_inside_box_home")
+                if "shots_sidebox_away" not in flat_data and "shots_inside_box_away" in flat_data:
+                    flat_data["shots_sidebox_away"] = flat_data.get("shots_inside_box_away")
+
+                # Populate source-style physical metric aliases from normalized fields.
+                alias_pairs = (
+                    ("distance_covered_home", "physical_metrics_distance_covered_home"),
+                    ("distance_covered_away", "physical_metrics_distance_covered_away"),
+                    ("walking_distance_home", "physical_metrics_walking_home"),
+                    ("walking_distance_away", "physical_metrics_walking_away"),
+                    ("running_distance_home", "physical_metrics_running_home"),
+                    ("running_distance_away", "physical_metrics_running_away"),
+                    ("sprinting_distance_home", "physical_metrics_sprinting_home"),
+                    ("sprinting_distance_away", "physical_metrics_sprinting_away"),
+                    ("number_of_sprints_home", "physical_metrics_number_of_sprints_home"),
+                    ("number_of_sprints_away", "physical_metrics_number_of_sprints_away"),
+                )
+                for source_field, alias_field in alias_pairs:
+                    if alias_field not in flat_data and source_field in flat_data:
+                        flat_data[alias_field] = flat_data.get(source_field)
                 try:
                     validated = PeriodStats(**flat_data)
-                    results.append(validated.model_dump())
+                    # Avoid emitting deprecated/unused optional fields as null columns.
+                    results.append(validated.model_dump(exclude_none=True))
                 except ValidationError as e:
                     self.logger.error(f"Validation error for period stats: {e}")
         except Exception as e:
