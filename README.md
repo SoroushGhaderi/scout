@@ -162,7 +162,7 @@ This refreshes tables such as:
 - `gold.match_summary`
 - `gold.team_season_stats`
 
-It also refreshes scenario narrative tables (via `scripts/gold/scenario_*.py`), including:
+It also refreshes scenario narrative tables (via `scripts/gold/scenario/scenario_*.py`), including:
 
 - `gold.scenario_high_intensity_engine`
 - `gold.scenario_black_hole`
