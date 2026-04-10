@@ -53,7 +53,6 @@ from src.utils.date_utils import (
     extract_year_month,
     format_date_compact_to_display,
 )
-from src.utils.lineage import LineageTracker
 from src.utils.logging_utils import get_logger, setup_logging
 
 # ============================================================================
@@ -524,40 +523,6 @@ def insert_dataframe_with_dlq(
         raise
 
 
-def record_lineage(
-    lineage_tracker: LineageTracker,
-    scraper: str,
-    date_str: str,
-    table_name: str,
-    rows_inserted: int,
-    source_files_count: int,
-    logger: logging.Logger,
-) -> None:
-    """Record data lineage for a table load."""
-    try:
-        lineage_tracker.record_load(
-            scraper=scraper,
-            source_id=f"batch_{date_str}",
-            date=date_str,
-            destination_table=table_name,
-            metadata={
-                "rows_inserted": rows_inserted,
-                "source_files_count": source_files_count,
-                "table_name": table_name,
-            },
-        )
-    except Exception as e:
-        logger.warning(
-            "Could not record lineage",
-            extra={"table_name": table_name, "date": date_str, "error": str(e)},
-        )
-
-
-# ============================================================================
-# FotMob Data Loading
-# ============================================================================
-
-
 def load_match_files_from_tar(
     archive_path: Path, processor: FotMobBronzeMatchProcessor, logger: logging.Logger
 ) -> Dict[str, List]:
@@ -696,7 +661,6 @@ def process_fotmob_table(
     table_name: str,
     df_list: List[pd.DataFrame],
     date_str: str,
-    lineage_tracker: LineageTracker,
     logger: logging.Logger,
 ) -> int:
     """Process and load a single FotMob table."""
@@ -752,16 +716,6 @@ def process_fotmob_table(
             {"source_files_count": len(df_list)},
         )
 
-        record_lineage(
-            lineage_tracker,
-            "fotmob",
-            date_str,
-            physical_table,
-            rows_inserted,
-            len(df_list),
-            logger,
-        )
-
         return rows_inserted
     except Exception as e:
         error_str = str(e).lower()
@@ -790,8 +744,6 @@ def load_fotmob_data(
         logger = get_logger()
 
     stats = {}
-    lineage_tracker = LineageTracker()
-
     try:
         config = FotMobConfig()
         bronze_storage = FotMobBronzeStorage(config.storage.bronze_path)
@@ -849,7 +801,7 @@ def load_fotmob_data(
             if table_name in TABLES_HANDLED_SEPARATELY:
                 continue
             stats[table_name] = process_fotmob_table(
-                client, table_name, df_list, date_str, lineage_tracker, logger
+                client, table_name, df_list, date_str, logger
             )
 
         # Process separately handled tables
@@ -860,7 +812,6 @@ def load_fotmob_data(
                     table_name,
                     all_dataframes[table_name],
                     date_str,
-                    lineage_tracker,
                     logger,
                 )
 
@@ -875,7 +826,6 @@ def _process_special_fotmob_table(
     table_name: str,
     df_list: List[pd.DataFrame],
     date_str: str,
-    lineage_tracker: LineageTracker,
     logger: logging.Logger,
 ) -> int:
     """Process special FotMob tables (starters, substitutes, coaches)."""
@@ -919,16 +869,6 @@ def _process_special_fotmob_table(
     try:
         rows_inserted = insert_dataframe_with_dlq(
             client, combined_df, physical_table, BRONZE_DATABASE, date_str, logger
-        )
-
-        record_lineage(
-            lineage_tracker,
-            "fotmob",
-            date_str,
-            physical_table,
-            rows_inserted,
-            len(non_empty_dfs),
-            logger,
         )
 
         return rows_inserted

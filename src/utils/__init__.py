@@ -4,7 +4,6 @@ Utils package - Shared utilities
 from .logging_utils import get_logger
 from .metrics import ScraperMetrics
 from .validation import DataQualityChecker
-from .lineage import DataLineage, LineageTracker
 from .date_utils import (
     DATE_FORMAT_COMPACT,
     DATE_FORMAT_DISPLAY,
@@ -32,7 +31,6 @@ from .alerting import (
 )
 __all__ = [
     'get_logger', 'ScraperMetrics', 'DataQualityChecker',
-    'DataLineage', 'LineageTracker',
     'DATE_FORMAT_COMPACT', 'DATE_FORMAT_DISPLAY', 'DATE_FORMAT_MONTH',
     'format_date_compact_to_display', 'format_date_compact_to_display_partial',
     'format_date_display_to_compact', 'parse_compact_date', 'extract_year_month',

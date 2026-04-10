@@ -28,7 +28,6 @@ except ImportError:
     Timeout = None
 
 from ...core import StorageProtocol, StorageError, StorageWriteError, StorageReadError
-from ...utils.lineage import LineageTracker
 from ...utils.logging_utils import get_logger
 
 
@@ -44,14 +43,10 @@ class BaseBronzeStorage(StorageProtocol, ABC):
             │   └── YYYYMMDD/
             │       ├── match_{id}.json
             │       └── match_{id}.json
-            └── lineage/
-                └── YYYYMMDD/
-                    └── lineage.json
             └── daily_listings/
                 └── YYYYMMDD/
                     └── matches.json
 
-    Data lineage is tracked separately in: data/{scraper}/lineage/{date}/lineage.json
     Daily listings track match IDs to prevent duplicate API requests.
 
     Subclasses must implement:
@@ -79,8 +74,6 @@ class BaseBronzeStorage(StorageProtocol, ABC):
         """
         self.base_dir = Path(base_dir)
         self.logger = get_logger(self.__class__.__name__)
-
-        self.lineage_tracker = LineageTracker(base_path=str(self.base_dir))
 
         # Validate and create base directory
         if self.base_dir.exists() and self.base_dir.is_file():
@@ -202,22 +195,6 @@ class BaseBronzeStorage(StorageProtocol, ABC):
                 temp_path.rename(file_path)
 
                 file_size_kb = os.path.getsize(file_path) / 1024
-
-                # Record lineage
-                try:
-                    self.lineage_tracker.record_scrape(
-                        scraper=self.scraper_name,
-                        source=self.source_name,
-                        source_id=match_id,
-                        date=date_str_normalized,
-                        file_path=file_path,
-                        metadata={
-                            "file_size_kb": round(file_size_kb, 2),
-                            "scraped_at": scraped_at
-                        }
-                    )
-                except Exception as e:
-                    self.logger.warning(f"Could not record lineage for {match_id}: {e}")
 
                 self.logger.debug(
                     f"Saved raw data for match {match_id} to {file_path} ({file_size_kb:.2f} KB)"
@@ -349,22 +326,6 @@ class BaseBronzeStorage(StorageProtocol, ABC):
                 temp_path.rename(file_path)
 
                 file_size_kb = os.path.getsize(file_path) / 1024
-
-                try:
-                    self.lineage_tracker.record_scrape(
-                        scraper=self.scraper_name,
-                        source=self.source_name,
-                        source_id=match_id,
-                        date=date_str_normalized,
-                        file_path=file_path,
-                        metadata={
-                            "file_size_kb": round(file_size_kb, 2),
-                            "scraped_at": scraped_at,
-                            "batch_operation": True
-                        }
-                    )
-                except Exception as e:
-                    self.logger.warning(f"Could not record lineage for {match_id}: {e}")
 
                 saved_paths.append(file_path)
                 self.logger.debug(f"Saved match {match_id} ({file_size_kb:.2f} KB)")

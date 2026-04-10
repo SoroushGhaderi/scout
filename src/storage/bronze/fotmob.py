@@ -40,14 +40,10 @@ class FotMobBronzeStorage(BaseBronzeStorage):
             │   └── YYYYMMDD/
             │       ├── match_4193494.json
             │       └── match_4193495.json
-            └── lineage/
-                └── YYYYMMDD/
-                    └── lineage.json
             └── daily_listings/
                 └── YYYYMMDD/
                     └── matches.json
 
-    Data lineage is tracked separately in: data/fotmob/lineage/{date}/lineage.json
     Daily listings track match IDs to prevent duplicate API requests.
     """
 
