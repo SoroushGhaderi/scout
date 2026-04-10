@@ -1,0 +1,45 @@
+-- silver.shot
+CREATE TABLE IF NOT EXISTS silver.shot
+(
+    match_id                    Int32,
+    match_date                  Date,
+    shot_id                     Int64,
+    event_type                  LowCardinality(Nullable(String)),
+    team_id                     Nullable(Int32),
+    player_id                   Nullable(Int32),
+    player_name                 Nullable(String),
+    keeper_id                   Nullable(Int32),
+    minute                      Nullable(Int32),
+    minute_added                Nullable(Int32),
+    period                      LowCardinality(Nullable(String)),
+    x                           Nullable(Float32),
+    y                           Nullable(Float32),
+    shot_type                   LowCardinality(Nullable(String)),
+    situation                   LowCardinality(Nullable(String)),
+    is_on_target                Nullable(UInt8),
+    is_blocked                  Nullable(UInt8),
+    is_saved_off_line           Nullable(UInt8),
+    is_from_inside_box          Nullable(UInt8),
+    blocked_x                   Nullable(Float32),
+    blocked_y                   Nullable(Float32),
+    goal_crossed_y              Nullable(Float32),
+    goal_crossed_z              Nullable(Float32),
+    on_goal_shot_x              Nullable(Float32),
+    on_goal_shot_y              Nullable(Float32),
+    expected_goals              Nullable(Float32),
+    expected_goals_on_target    Nullable(Float32),
+    is_goal                     UInt8 DEFAULT 0,
+    is_own_goal                 UInt8 DEFAULT 0,
+    goal_time                   Nullable(Int32),
+    goal_overload_time          Nullable(Int32),
+    home_score_after            Nullable(Int32),
+    away_score_after            Nullable(Int32),
+    is_home_goal                Nullable(UInt8),
+    goal_description            Nullable(String),
+    assist_player_id            Nullable(Int32),
+    assist_player_name          Nullable(String),
+    _loaded_at                  DateTime DEFAULT now()
+)
+ENGINE = ReplacingMergeTree(_loaded_at)
+PARTITION BY toYYYYMM(match_date)
+ORDER BY (match_id, shot_id);

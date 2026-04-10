@@ -107,13 +107,13 @@ def main() -> int:
         return 1
 
     try:
-        sql_dir = project_root / "clickhouse" / "silver"
+        sql_dir = project_root / "clickhouse" / "silver" / "create"
         processor = FotMobSilverProcessor(sql_dir=sql_dir)
         storage = FotMobSilverStorage(client, database="silver")
 
         sql_files = processor.sql_files()
         if not sql_files:
-            logger.error("No silver SQL files found in %s", sql_dir)
+            logger.error("No silver create SQL files found in %s", sql_dir)
             return 1
 
         storage.execute_sql_files(sql_files)
