@@ -185,7 +185,7 @@ class FotMobConfig(BaseConfig):
 
         fotmob_metrics = yaml_fotmob.get('metrics', {})
         self.metrics = MetricsConfig(
-            enabled=fotmob_metrics.get('enabled', True),
+            enabled=fotmob_metrics.get('enabled', False),
             export_path=fotmob_metrics.get('export_path', 'metrics'),
             export_format=fotmob_metrics.get('export_format', 'json'),
         )

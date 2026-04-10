@@ -68,14 +68,13 @@ class LoggingConfig:
 @dataclass
 class MetricsConfig:
     """Standardized metrics configuration."""
-    enabled: bool = True
+    enabled: bool = False
     export_path: str = "metrics"
     export_format: str = "json"
 
     def ensure_directories(self):
-        """Create metrics directory if it doesn't exist."""
-        if self.enabled:
-            Path(self.export_path).mkdir(parents=True, exist_ok=True)
+        """Metrics persistence is disabled; do not create directories."""
+        return
 
 
 @dataclass
@@ -231,9 +230,7 @@ class BaseConfig(ABC):
                     raise
 
         for field_name, field_value in self.__dict__.items():
-            if isinstance(
-                field_value, (StorageConfig, LoggingConfig, MetricsConfig)
-            ):
+            if isinstance(field_value, (StorageConfig, LoggingConfig)):
                 field_value.ensure_directories()
 
     def to_dict(self) -> Dict[str, Any]:

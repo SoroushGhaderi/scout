@@ -12,13 +12,13 @@ python scripts/orchestration/setup_clickhouse.py
 python scripts/bronze/scrape_fotmob.py 20251208
 
 # 3) bronze load
-python scripts/bronze/load_clickhouse.py --scraper fotmob --date 20251208
+python scripts/bronze/load_clickhouse.py --date 20251208
 
 # 4) silver
-python scripts/silver/process.py --date 20251208
+python scripts/silver/load_clickhouse.py
 
 # 5) gold
-python scripts/gold/process.py --date 20251208
+python scripts/gold/load_clickhouse_scenarios.py
 
 # or full orchestration
 python scripts/orchestration/pipeline.py 20251208

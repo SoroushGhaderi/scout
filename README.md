@@ -111,7 +111,7 @@ Or create one layer at a time:
 ```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/setup_clickhouse.py
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/setup_clickhouse.py
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/setup_clickhouse.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/setup_clickhouse_gold.py
 ```
 
 ### 3. Scrape Bronze files
@@ -125,7 +125,7 @@ This writes raw FotMob match responses into `data/fotmob/`.
 ### 4. Load Bronze files into ClickHouse Bronze tables
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/load_clickhouse.py --scraper fotmob --date 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/load_clickhouse.py --date 20251208
 ```
 
 This creates or appends records in tables such as:
@@ -139,28 +139,28 @@ This creates or appends records in tables such as:
 ### 5. Build Silver tables
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/process.py --date 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/load_clickhouse.py
 ```
 
 This refreshes tables such as:
 
-- `silver.general`
-- `silver.player`
-- `silver.shotmap`
-- `silver.period`
-- `silver.venue`
+- `silver.match`
+- `silver.period_stat`
+- `silver.player_match_stat`
+- `silver.momentum`
+- `silver.team_form`
 
 ### 6. Build Gold tables
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/process.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py
 ```
 
 This refreshes tables such as:
 
-- `gold.player_match_stats`
-- `gold.match_summary`
-- `gold.team_season_stats`
+- `gold.scenario_demolition`
+- `gold.scenario_route_one_masterclass`
+- `gold.scenario_pressing_masterclass`
 
 It also refreshes scenario narrative tables (via `scripts/gold/scenario/scenario_*.py`), including:
 
@@ -250,11 +250,11 @@ scout/
 │   │   ├── load_clickhouse.py
 │   │   └── setup_clickhouse.py
 │   ├── silver/
-│   │   ├── process.py
+│   │   ├── load_clickhouse.py
 │   │   └── setup_clickhouse.py
 │   ├── gold/
-│   │   ├── process.py
-│   │   └── setup_clickhouse.py
+│   │   ├── load_clickhouse_scenarios.py
+│   │   └── setup_clickhouse_gold.py
 │   ├── orchestration/
 │   │   ├── pipeline.py
 │   │   └── setup_clickhouse.py

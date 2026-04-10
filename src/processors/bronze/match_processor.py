@@ -1,4 +1,5 @@
 """Match data processor: converts raw API data to structured format."""
+import hashlib
 import logging
 import re
 from typing import Dict, Any, List, Optional, Tuple
@@ -91,6 +92,9 @@ RATIO_STAT_FIELDS = frozenset({
 class FotMobBronzeMatchProcessor(ProcessorProtocol):
     """Process raw FotMob bronze data into structured bronze tables."""
 
+    _INT64_MIN = -(2 ** 63)
+    _INT64_MAX = (2 ** 63) - 1
+
     def __init__(
         self,
         validator: Optional[FotMobValidator] = None,
@@ -139,6 +143,46 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             return None, None
 
         return int(match.group(1)), int(match.group(2))
+
+    @staticmethod
+    def _stable_numeric_code(value: Any) -> int:
+        """Convert any value into a deterministic numeric code."""
+        normalized = str(value or "").strip().lower()
+        if not normalized:
+            return 0
+        return int(hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:12], 16)
+
+    @staticmethod
+    def _team_side_code(team_side: str) -> int:
+        """Map team side to numeric code for synthetic keys."""
+        if team_side == "home":
+            return 1
+        if team_side == "away":
+            return 2
+        return 0
+
+    def _generate_synthetic_lineup_player_id(
+        self,
+        match_id: int,
+        team_side: str,
+        shirt_number: Any,
+        used_ids: set,
+    ) -> Tuple[int, str]:
+        """Generate deterministic synthetic Int64 id from numeric-only key components."""
+        team_code = self._team_side_code(team_side)
+        shirt_code = self._stable_numeric_code(shirt_number)
+        base_key = f"{int(match_id)}_{team_code}_{shirt_code}"
+
+        salt = 0
+        while True:
+            key = base_key if salt == 0 else f"{base_key}_{salt}"
+            digest_value = int(hashlib.sha256(key.encode("utf-8")).hexdigest()[:16], 16)
+            # Keep synthetic IDs in signed Int64 range and negative to avoid overlap with real IDs.
+            synthetic_id = -((digest_value % self._INT64_MAX) + 1)
+            if synthetic_id not in used_ids:
+                used_ids.add(synthetic_id)
+                return synthetic_id, key
+            salt += 1
 
     def process_all(
         self, 
@@ -293,7 +337,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             
             validated_timeline = MatchTimeline(**timeline_dict)
             return validated_timeline.model_dump()
-        except ValidationError as e:
+        except PydanticValidationError as e:
             self.logger.error(f"Validation failed for timeline: {e}")
             self.logger.debug(f"Timeline data: {timeline_dict}")
         except Exception as e:
@@ -342,7 +386,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             }
             validated_stats = GeneralMatchStats(**processed_data)
             return validated_stats.model_dump()
-        except ValidationError as e:
+        except PydanticValidationError as e:
             self.logger.error(f"Validation failed for general stats: {e}")
         except Exception as e:
             self.logger.exception(f"Error processing general stats: {e}")
@@ -426,7 +470,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                             validated_event = GoalEventHeader(**flat_goal_data)
                             goal_dict = validated_event.model_dump()
                             all_goal_dicts.append(goal_dict)
-                        except ValidationError as e:
+                        except PydanticValidationError as e:
                             self.logger.warning(f"Validation error for goal event (match {match_id}, event_id {scorer_stat.get('eventId')}): {e}")
                             self.logger.debug(f"Goal data that failed validation: {flat_goal_data}")
                         except Exception as e:
@@ -476,7 +520,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                         try:
                             validated_event = RedCardEvent(**flat_data)
                             all_red_cards.append(validated_event.model_dump())
-                        except ValidationError as e:
+                        except PydanticValidationError as e:
                             self.logger.error(f"Validation error for red card: {e}")
                         except Exception as e:
                             self.logger.exception(f"Error processing red cards: {e}")
@@ -527,7 +571,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     try:
                         validated = GoalEventMatchFacts(**goal_data)
                         results["goals"].append(validated.model_dump())
-                    except ValidationError as e:
+                    except PydanticValidationError as e:
                         self.logger.error(f"Validation error for goal: {e}")
                 elif event_type == "Card":
                     card_description = event.get("cardDescription")
@@ -551,7 +595,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     try:
                         validated = CardEventMatchFacts(**card_data)
                         results["cards"].append(validated.model_dump())
-                    except ValidationError as e:
+                    except PydanticValidationError as e:
                         self.logger.error(f"Validation error for card: {e}")
                 elif event_type == "Substitution":
                     swap = event.get("swap", [{}, {}])
@@ -574,7 +618,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     try:
                         validated = SubstitutionEvent(**sub_data)
                         results["substitutions"].append(validated.model_dump())
-                    except ValidationError as e:
+                    except PydanticValidationError as e:
                         self.logger.error(f"Validation error for substitution: {e}")
         except Exception as e:
             self.logger.exception(f"Error processing match facts events: {e}")
@@ -614,7 +658,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 try:
                     validated_data = MomentumDataPoint(**processed_data)
                     processed_points.append(validated_data.model_dump())
-                except ValidationError as e:
+                except PydanticValidationError as e:
                     self.logger.error(f"Validation error for momentum point: {e}")
         except Exception as e:
             self.logger.exception(f"Error processing momentum data: {e}")
@@ -718,7 +762,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     validated = PeriodStats(**flat_data)
                     # Avoid emitting deprecated/unused optional fields as null columns.
                     results.append(validated.model_dump(exclude_none=True))
-                except ValidationError as e:
+                except PydanticValidationError as e:
                     self.logger.error(f"Validation error for period stats: {e}")
         except Exception as e:
             self.logger.exception(f"Error processing period stats: {e}")
@@ -878,7 +922,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     if 'name' in player_dict:
                         player_dict['player_name'] = player_dict.pop('name')
                     all_player_stats.append(player_dict)
-                except ValidationError as e:
+                except PydanticValidationError as e:
                     match_id = flat_data.get('match_id', 'unknown')
                     player_id = flat_data.get('id', 'unknown')
                     self.logger.warning(f"Validation error for player {player_id} match {match_id}: {e}")
@@ -958,7 +1002,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     validated_shot = ShotEvent(**processed_shot)
                     shot_dict = validated_shot.model_dump()
                     processed_shots.append(shot_dict)
-                except ValidationError as e:
+                except PydanticValidationError as e:
                     self.logger.warning(f"Validation error for shot event (match {match_id}, shot id {shot_raw.get('id')}): {e}")
                     self.logger.debug(f"Shot data that failed validation: {processed_shot}")
                 except Exception as e:
@@ -1039,13 +1083,34 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
         processed_players = []
         if not isinstance(players_raw, list):
             return processed_players
+        used_ids = set()
+        for existing_player_raw in players_raw:
+            if isinstance(existing_player_raw, dict):
+                existing_id = existing_player_raw.get("id")
+                if isinstance(existing_id, int):
+                    used_ids.add(existing_id)
+                elif isinstance(existing_id, str) and existing_id.isdigit():
+                    used_ids.add(int(existing_id))
         for player_raw in players_raw:
             if not isinstance(player_raw, dict):
                 continue
+            player_id = player_raw.get("id")
+            if player_id is None:
+                synthetic_id, synthetic_key = self._generate_synthetic_lineup_player_id(
+                    match_id=match_id,
+                    team_side=team_side,
+                    shirt_number=player_raw.get("shirtNumber"),
+                    used_ids=used_ids,
+                )
+                player_id = synthetic_id
+                self.logger.warning(
+                    f"Missing lineup player id; assigned synthetic id {player_id} using key {synthetic_key} "
+                    f"(match {match_id}, team_side {team_side}, name {player_raw.get('name')})"
+                )
             player_data = {
                 "match_id": match_id,
                 "team_side": team_side,
-                "player_id": player_raw.get("id"),
+                "player_id": player_id,
                 "name": player_raw.get("name"),
                 "age": player_raw.get("age"),
                 "shirt_number": player_raw.get("shirtNumber"),
@@ -1090,7 +1155,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             try:
                 validated_player = player_model(**player_data)
                 processed_players.append(validated_player.model_dump())
-            except ValidationError as e:
+            except PydanticValidationError as e:
                 self.logger.error(f"Validation error for player {player_raw.get('id')}: {e}")
         return processed_players
 
@@ -1119,7 +1184,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             }
             validated_coach = TeamCoach(**coach_data)
             return validated_coach.model_dump()
-        except ValidationError as e:
+        except PydanticValidationError as e:
             self.logger.error(f"Validation error for coach {coach_raw.get('id')}: {e}")
             return {}
         except Exception as e:
@@ -1190,7 +1255,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             }
             validated_venue = MatchVenue(**venue_data)
             return validated_venue.model_dump()
-        except ValidationError as e:
+        except PydanticValidationError as e:
             self.logger.error(f"Validation error for venue data: {e}")
             return {}
         except Exception as e:
@@ -1288,7 +1353,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     try:
                         validated_form = TeamFormMatch(**form_match_data)
                         processed_form.append(validated_form.model_dump())
-                    except ValidationError as e:
+                    except PydanticValidationError as e:
                         self.logger.error(f"Validation error for team form match: {e}")
         except Exception as e:
             self.logger.exception(f"Error processing team form data: {e}")

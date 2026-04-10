@@ -5,16 +5,16 @@ PURPOSE: Transform raw bronze files (JSON/JSON.gz/TAR) into ClickHouse bronze ta
 
 Usage:
     # Load FotMob data for a date
-    python scripts/bronze/load_clickhouse.py --scraper fotmob --date 20251113
+    python scripts/bronze/load_clickhouse.py --date 20251113
 
     # Load date range
-    python scripts/bronze/load_clickhouse.py --scraper fotmob --start-date 20251101 --end-date 20251107
+    python scripts/bronze/load_clickhouse.py --start-date 20251101 --end-date 20251107
 
     # Load entire month
-    python scripts/bronze/load_clickhouse.py --scraper fotmob --month 202511
+    python scripts/bronze/load_clickhouse.py --month 202511
 
     # Show table statistics
-    python scripts/bronze/load_clickhouse.py --scraper fotmob --stats
+    python scripts/bronze/load_clickhouse.py --stats
 
     Note:
     Table optimization is handled separately via SQL scripts.
@@ -110,6 +110,7 @@ INT64_COLUMNS = {
 }
 
 INT32_RANGE = (2147483647, -2147483648)
+INT64_RANGE = (9223372036854775807, -9223372036854775808)
 BRONZE_DATABASE = "bronze"
 
 
@@ -170,10 +171,38 @@ def prepare_int64_columns(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
     if table_name not in INT64_COLUMNS:
         return df
 
+    local_logger = logging.getLogger(__name__)
+    int64_max, int64_min = INT64_RANGE
+
     for col_name in INT64_COLUMNS[table_name]:
         if col_name in df.columns:
-            df[col_name] = pd.to_numeric(df[col_name], errors="coerce")
-            df[col_name] = df[col_name].astype("Int64")
+            numeric_col = pd.to_numeric(df[col_name], errors="coerce")
+
+            overflow_mask = (numeric_col > int64_max) | (numeric_col < int64_min)
+            if overflow_mask.any():
+                local_logger.warning(
+                    "Found Int64 overflow values; clipping to Int64 bounds",
+                    extra={
+                        "table_name": table_name,
+                        "column_name": col_name,
+                        "overflow_count": int(overflow_mask.sum()),
+                    },
+                )
+                numeric_col = numeric_col.clip(lower=int64_min, upper=int64_max)
+
+            fractional_mask = numeric_col.notna() & ((numeric_col % 1) != 0)
+            if fractional_mask.any():
+                local_logger.warning(
+                    "Found non-integer values in Int64 column; rounding before cast",
+                    extra={
+                        "table_name": table_name,
+                        "column_name": col_name,
+                        "fractional_count": int(fractional_mask.sum()),
+                    },
+                )
+                numeric_col = numeric_col.round()
+
+            df[col_name] = numeric_col.astype("Int64")
 
     return df
 
@@ -917,39 +946,27 @@ def create_argument_parser() -> argparse.ArgumentParser:
         epilog="""
 Examples:
   # Load FotMob data for a date
-  python scripts/bronze/load_clickhouse.py --scraper fotmob --date 20251113
+  python scripts/bronze/load_clickhouse.py --date 20251113
   
   # Load date range
-  python scripts/bronze/load_clickhouse.py --scraper fotmob --start-date 20251101 --end-date 20251107
+  python scripts/bronze/load_clickhouse.py --start-date 20251101 --end-date 20251107
   
   # Load entire month
-  python scripts/bronze/load_clickhouse.py --scraper fotmob --month 202511
+  python scripts/bronze/load_clickhouse.py --month 202511
   
   # Show table statistics
-  python scripts/bronze/load_clickhouse.py --scraper fotmob --stats
+  python scripts/bronze/load_clickhouse.py --stats
   
   # Truncate and reload
-  python scripts/bronze/load_clickhouse.py --scraper fotmob --date 20251113 --truncate
+  python scripts/bronze/load_clickhouse.py --date 20251113 --truncate
         """,
     )
 
-    _add_scraper_argument(parser)
     _add_date_arguments(parser)
     _add_connection_arguments(parser)
     _add_option_arguments(parser)
 
     return parser
-
-
-def _add_scraper_argument(parser: argparse.ArgumentParser) -> None:
-    """Add scraper argument."""
-    parser.add_argument(
-        "--scraper",
-        type=str,
-        choices=["fotmob"],
-        required=True,
-        help="Scraper to load data for (fotmob)",
-    )
 
 
 def _add_date_arguments(parser: argparse.ArgumentParser) -> None:
@@ -1094,7 +1111,6 @@ def main(argv: Optional[List[str]] = None) -> int:
     validate_arguments(parser, args)
 
     database = BRONZE_DATABASE
-    scraper = args.scraper
 
     logger = setup_logging(
         name="clickhouse_loader",
@@ -1144,34 +1160,30 @@ def main(argv: Optional[List[str]] = None) -> int:
         for date_str in dates:
             logger.info(
                 "Loading data for date",
-                extra={"database": database, "scraper": scraper, "date": date_str},
+                extra={"database": database, "date": date_str},
             )
 
             try:
-                if scraper == "fotmob":
-                    stats = load_fotmob_data(client, date_str, args.force, logger)
-                else:
-                    logger.error("Unknown scraper", extra={"scraper": scraper})
-                    continue
+                stats = load_fotmob_data(client, date_str, args.force, logger)
 
                 for table, count in stats.items():
                     total_stats[table] = total_stats.get(table, 0) + count
             except Exception as e:
                 logger.error(
                     "Failed to load data for date",
-                    extra={"database": database, "scraper": scraper, "date": date_str, "error": str(e)},
+                    extra={"database": database, "date": date_str, "error": str(e)},
                     exc_info=True,
                 )
                 alert_manager = get_alert_manager()
                 alert_manager.send_alert(
                     level=AlertLevel.ERROR,
-                    title=f"ClickHouse Loading Failed - {scraper.upper()} - {date_str}",
-                    message=f"Failed to load {scraper} data to ClickHouse for date {date_str}.\n\nError: {str(e)}",
+                    title=f"ClickHouse Loading Failed - FOTMOB - {date_str}",
+                    message=f"Failed to load fotmob data to ClickHouse for date {date_str}.\n\nError: {str(e)}",
                     context={
                         "date": date_str,
-                        "scraper": scraper,
+                        "scraper": "fotmob",
                         "database": database,
-                        "step": f"ClickHouse Loading - {scraper}",
+                        "step": "ClickHouse Loading - fotmob",
                         "error": str(e),
                     },
                 )

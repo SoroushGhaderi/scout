@@ -1,11 +1,7 @@
 """Metrics tracking for scraper performance."""
-import json
-import logging
-import os
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-from pathlib import Path
 from .logging_utils import get_logger
 
 logger = get_logger(__name__)
@@ -94,12 +90,10 @@ class ScraperMetrics:
         return data
 
     def save_metrics(self, output_dir: str = "metrics"):
-        """Save metrics to JSON file."""
-        Path(output_dir).mkdir(parents=True, exist_ok=True)
-        filepath = Path(output_dir) / f"metrics_{self.date}.json"
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(self.to_dict(), f, indent=2, ensure_ascii=False)
-        return filepath
+        """Metrics persistence is disabled; do not write metrics files."""
+        _ = output_dir
+        logger.debug("Metrics persistence disabled; skipping save_metrics()")
+        return None
 
     def print_summary(self):
         """Log a summary of the metrics."""

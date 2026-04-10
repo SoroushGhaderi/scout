@@ -24,8 +24,8 @@ This document defines the engineering standard for Bronze, Silver, and Gold laye
 Current pipeline entrypoint: `scripts/orchestration/pipeline.py`
 
 Current layer runners:
-- `scripts/silver/process.py`
-- `scripts/gold/process.py`
+- `scripts/silver/load_clickhouse.py`
+- `scripts/gold/load_clickhouse_scenarios.py`
 
 Current shared SQL execution helper:
 - `src/storage/clickhouse_sql_executor.py`
@@ -123,7 +123,7 @@ Keep your existing shape and evolve it incrementally.
 ### Improve Next
 
 1. Update processors to discover SQL in both `ddl/` and `dml/` folders
-2. Add optional `--dry-run` in `scripts/silver/process.py` and `scripts/gold/process.py`
+2. Add optional `--dry-run` in `scripts/silver/load_clickhouse.py` and `scripts/gold/load_clickhouse_scenarios.py`
 3. Add execution summary object (files run, statements run, elapsed seconds, failed file)
 4. Add query-level metrics/logging for better observability
 
@@ -139,7 +139,7 @@ Keep your existing shape and evolve it incrementally.
 3. Ensure idempotency and safe rerun behavior
 
 4. Run locally:
-- `python scripts/silver/process.py --date YYYYMMDD`
+- `python scripts/silver/load_clickhouse.py --date YYYYMMDD`
 
 5. Validate outputs with explicit checks in ClickHouse
 
@@ -158,7 +158,7 @@ Keep your existing shape and evolve it incrementally.
 - Full refresh, partition refresh, or incremental append
 
 4. Run locally:
-- `python scripts/gold/process.py`
+- `python scripts/gold/load_clickhouse_scenarios.py`
 
 5. Validate row counts, keys, and metric sanity
 
@@ -193,8 +193,8 @@ python scripts/orchestration/pipeline.py 20251113 --silver-only
 python scripts/orchestration/pipeline.py 20251113 --gold-only
 
 # Direct layer runs
-python scripts/silver/process.py --date 20251113
-python scripts/gold/process.py
+python scripts/silver/load_clickhouse.py
+python scripts/gold/load_clickhouse_scenarios.py
 ```
 
 ### Incident Basics
@@ -393,7 +393,7 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/s
 Only Gold:
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/setup_clickhouse.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/setup_clickhouse_gold.py
 ```
 
 #### Step 3: scrape raw Bronze files
@@ -405,19 +405,19 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/s
 #### Step 4: load Bronze files into ClickHouse Bronze tables
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/load_clickhouse.py --scraper fotmob --date 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/load_clickhouse.py --date 20251208
 ```
 
 #### Step 5: build Silver tables
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/process.py --date 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/load_clickhouse.py
 ```
 
 #### Step 6: build Gold tables
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/process.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py
 ```
 
 ### Full orchestration
@@ -621,7 +621,7 @@ Silver is the cleaned relational layer inside ClickHouse.
 - Storage: ClickHouse only
 - ClickHouse representation: `silver.*` tables
 - Responsibility:
-  `scripts/silver/process.py`
+  `scripts/silver/load_clickhouse.py`
   `src/storage/silver/`
   `src/processors/silver/`
 
@@ -633,7 +633,7 @@ Gold is the analytics-ready aggregation layer inside ClickHouse.
 - Storage: ClickHouse only
 - ClickHouse representation: `gold.*` tables
 - Responsibility:
-  `scripts/gold/process.py`
+  `scripts/gold/load_clickhouse_scenarios.py`
   `src/storage/gold/`
   `src/processors/gold/`
 
@@ -680,11 +680,11 @@ Scripts should map to one responsibility each.
 
 - `scripts/bronze/scrape_fotmob.py`: scrape raw FotMob data into Bronze filesystem storage
 - `scripts/bronze/load_clickhouse.py`: parse Bronze files and insert into ClickHouse Bronze tables
-- `scripts/silver/process.py`: Silver stage placeholder (scenario classifications moved to Gold)
-- `scripts/gold/process.py`: create or refresh Gold tables and scenario narrative tables
+- `scripts/silver/load_clickhouse.py`: Silver stage placeholder (scenario classifications moved to Gold)
+- `scripts/gold/load_clickhouse_scenarios.py`: create or refresh Gold tables and scenario narrative tables
 - `scripts/bronze/setup_clickhouse.py`: create Bronze schema only
 - `scripts/silver/setup_clickhouse.py`: create Silver schema only
-- `scripts/gold/setup_clickhouse.py`: create Gold schema only
+- `scripts/gold/setup_clickhouse_gold.py`: create Gold schema only
 - `scripts/orchestration/setup_clickhouse.py`: convenience wrapper that runs the three layer setup scripts in order
 - `scripts/orchestration/pipeline.py`: orchestration wrapper, not a place to hide layer-specific logic
 
