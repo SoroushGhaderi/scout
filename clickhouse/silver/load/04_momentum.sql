@@ -1,7 +1,7 @@
 INSERT INTO silver.momentum
 SELECT
     m.match_id,
-    ifNull(toDateOrNull(g.match_time_utc_date), toDate('1970-01-01')) AS match_date,
+    ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc_date)), ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc)), toDate('1970-01-01'))) AS match_date,
     m.minute,
     m.value,
     m.momentum_team,

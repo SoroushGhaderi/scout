@@ -1,7 +1,7 @@
 INSERT INTO silver.shot
 SELECT
     s.match_id,
-    ifNull(toDateOrNull(g.match_time_utc_date), toDate('1970-01-01')) AS match_date,
+    ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc_date)), ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc)), toDate('1970-01-01'))) AS match_date,
     s.shot_id,
     s.event_type,
     s.team_id, s.player_id, s.player_name, s.keeper_id,

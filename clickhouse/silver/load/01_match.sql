@@ -1,8 +1,8 @@
 INSERT INTO silver.match
 SELECT
     g.match_id,
-    ifNull(toDateOrNull(g.match_time_utc_date), toDate('1970-01-01')) AS match_date,
-    toDateTimeOrNull(g.match_time_utc) AS match_time_utc,
+    ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc_date)), ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc)), toDate('1970-01-01'))) AS match_date,
+    parseDateTimeBestEffortOrNull(g.match_time_utc) AS match_time_utc,
     g.match_started,
     g.match_finished,
     g.match_round,

@@ -1,7 +1,7 @@
 INSERT INTO silver.card
 SELECT
     c.match_id,
-    ifNull(toDateOrNull(g.match_time_utc_date), toDate('1970-01-01')) AS match_date,
+    ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc_date)), ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc)), toDate('1970-01-01'))) AS match_date,
     c.event_id,
     c.event_time AS card_minute,
     c.added_time,

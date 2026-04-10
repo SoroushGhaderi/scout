@@ -1,7 +1,7 @@
 INSERT INTO silver.period_stat
 SELECT
     p.match_id,
-    ifNull(toDateOrNull(g.match_time_utc_date), toDate('1970-01-01')) AS match_date,
+    ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc_date)), ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc)), toDate('1970-01-01'))) AS match_date,
     p.period,
     p.ball_possession_home, p.ball_possession_away,
     p.expected_goals_home, p.expected_goals_away,

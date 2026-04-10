@@ -1,7 +1,7 @@
 INSERT INTO silver.match_personnel
 SELECT
     s.match_id,
-    ifNull(toDateOrNull(g.match_time_utc_date), toDate('1970-01-01')) AS match_date,
+    ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc_date)), ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc)), toDate('1970-01-01'))) AS match_date,
     s.team_side,
     'starter' AS role,
     s.player_id AS person_id,
@@ -19,7 +19,7 @@ LEFT JOIN bronze.general AS g FINAL ON s.match_id = g.match_id;
 INSERT INTO silver.match_personnel
 SELECT
     s.match_id,
-    ifNull(toDateOrNull(g.match_time_utc_date), toDate('1970-01-01')) AS match_date,
+    ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc_date)), ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc)), toDate('1970-01-01'))) AS match_date,
     s.team_side,
     'substitute' AS role,
     s.player_id AS person_id,
@@ -39,7 +39,7 @@ LEFT JOIN bronze.general AS g FINAL ON s.match_id = g.match_id;
 INSERT INTO silver.match_personnel
 SELECT
     c.match_id,
-    ifNull(toDateOrNull(g.match_time_utc_date), toDate('1970-01-01')) AS match_date,
+    ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc_date)), ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc)), toDate('1970-01-01'))) AS match_date,
     c.team_side,
     'coach' AS role,
     c.coach_id AS person_id,

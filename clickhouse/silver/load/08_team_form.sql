@@ -1,7 +1,7 @@
 INSERT INTO silver.team_form
 SELECT
     tf.match_id,
-    ifNull(toDateOrNull(g.match_time_utc_date), toDate('1970-01-01')) AS match_date,
+    ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc_date)), ifNull(toDate(parseDateTimeBestEffortOrNull(g.match_time_utc)), toDate('1970-01-01'))) AS match_date,
     tf.team_side, tf.team_id, tf.team_name, tf.form_position,
     tf.result AS result_code,
     tf.result_string,
