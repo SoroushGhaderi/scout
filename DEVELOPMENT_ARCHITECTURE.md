@@ -58,7 +58,7 @@ clickhouse/
       000_create_database.sql
       010_create_or_replace_views.sql
     dml/
-      100_backfill_entities.sql
+      100_load_entities.sql
       110_refresh_incremental.sql
   gold/
     ddl/
@@ -131,7 +131,7 @@ Keep your existing shape and evolve it incrementally.
 
 1. Identify query type:
 - Schema/view change -> `clickhouse/silver/ddl/`
-- Data refresh/backfill -> `clickhouse/silver/dml/`
+- Data refresh/load -> `clickhouse/silver/dml/`
 
 2. Add file with next ordered prefix:
 - Example: `120_player_quality_rules.sql`
