@@ -23,6 +23,11 @@ This document defines the engineering standard for Bronze, Silver, and Gold laye
 
 Current pipeline entrypoint: `scripts/orchestration/pipeline.py`
 
+Current schema setup runners:
+- `scripts/bronze/setup_clickhouse.py`
+- `scripts/silver/setup_clickhouse.py`
+- `scripts/gold/setup_clickhouse_gold.py`
+
 Current layer runners:
 - `scripts/silver/load_clickhouse.py`
 - `scripts/gold/load_clickhouse_scenarios.py`
@@ -47,32 +52,37 @@ Current shared SQL execution helper:
 - Optimize for BI/reporting/product use cases
 - Keep business logic explicit and testable
 
-## 3. Professional SQL Folder Structure
+## 3. SQL Folder Structure (Current + Target)
 
-Use layer-specific query folders, separated by intent.
+Current repository structure:
 
 ```text
 clickhouse/
   silver/
-    ddl/
-      000_create_database.sql
-      010_create_or_replace_views.sql
-    dml/
-      100_load_entities.sql
-      110_refresh_incremental.sql
+    create/
+      00_create_database.sql
+      01_match.sql
+      ...
+    load/
+      01_match.sql
+      02_period_stat.sql
+      ...
   gold/
-    ddl/
-      000_create_database.sql
-      010_create_tables.sql
-    dml/
-      100_refresh_match_summary.sql
-      110_refresh_player_stats.sql
+    00_create_database.sql
+    01_create_scenario_tables.sql
+    scenario/
+      scenario_*.sql
 ```
+
+Target structure (future refactor):
+- move toward `ddl/` + `dml/` folders for both Silver and Gold
+- keep behavior unchanged during migration
 
 ### Naming Standard
 
-- Format: `NNN_<domain>_<action>.sql`
-- `NNN` controls order, lexical sort is execution order
+- Silver create/load format: `NN_<entity>.sql`
+- Gold scenario format: `scenario_<name>.sql`
+- Numeric prefixes control order; lexical sort is execution order
 - Keep one concern per file (avoid very large mixed scripts)
 
 ### SQL Authoring Rules
@@ -80,7 +90,7 @@ clickhouse/
 - Prefer idempotent statements:
   - `CREATE TABLE IF NOT EXISTS`
   - `CREATE OR REPLACE VIEW`
-- Keep DDL and DML separated by folder
+- Keep schema creation SQL separate from data load SQL
 - Keep SQL deterministic and re-runnable
 - Use comments for business intent, not obvious syntax
 
@@ -90,7 +100,7 @@ Python is orchestration, SQL is transformation logic.
 
 ### Runner Responsibilities
 
-- Discover SQL files by layer and stage (`ddl`, `dml`)
+- Discover SQL files by layer/stage (`create`, `load`, `scenario`)
 - Execute in deterministic order
 - Log query file, statement count, elapsed time, success/failure
 - Stop on failure with clear context
@@ -122,7 +132,7 @@ Keep your existing shape and evolve it incrementally.
 
 ### Improve Next
 
-1. Update processors to discover SQL in both `ddl/` and `dml/` folders
+1. Migrate folder conventions from `create/load` to `ddl/dml` without changing runtime behavior
 2. Add optional `--dry-run` in `scripts/silver/load_clickhouse.py` and `scripts/gold/load_clickhouse_scenarios.py`
 3. Add execution summary object (files run, statements run, elapsed seconds, failed file)
 4. Add query-level metrics/logging for better observability
@@ -130,16 +140,17 @@ Keep your existing shape and evolve it incrementally.
 ## 6. How to Add a New Silver Query
 
 1. Identify query type:
-- Schema/view change -> `clickhouse/silver/ddl/`
-- Data refresh/load -> `clickhouse/silver/dml/`
+- Schema/table change -> `clickhouse/silver/create/`
+- Data refresh/load -> `clickhouse/silver/load/`
 
 2. Add file with next ordered prefix:
-- Example: `120_player_quality_rules.sql`
+- Example: `09_player_quality_rules.sql`
 
 3. Ensure idempotency and safe rerun behavior
 
-4. Run locally:
-- `python scripts/silver/load_clickhouse.py --date YYYYMMDD`
+4. Run locally (Python scripts directly; no Makefile required):
+- `python scripts/silver/setup_clickhouse.py` (only if `create/` changed)
+- `python scripts/silver/load_clickhouse.py` (data load only)
 
 5. Validate outputs with explicit checks in ClickHouse
 
@@ -148,8 +159,8 @@ Keep your existing shape and evolve it incrementally.
 ## 7. How to Add a New Gold Query
 
 1. Decide object type:
-- New serving table/materialization -> `clickhouse/gold/ddl/`
-- Aggregate population/refresh -> `clickhouse/gold/dml/`
+- Schema/table change -> top-level `clickhouse/gold/*.sql`
+- Scenario logic -> `clickhouse/gold/scenario/`
 
 2. Add ordered SQL file:
 - Example: `130_refresh_team_form.sql`
@@ -169,7 +180,7 @@ Keep your existing shape and evolve it incrementally.
 - SQL discovery order tests
 - SQL splitting and statement execution tests
 - Runner failure behavior tests (fail-fast with file context)
-- CLI argument validation tests (`--date`, `--month`)
+- CLI argument validation tests for pipeline entrypoints
 
 ### Data Quality Checks
 
@@ -183,6 +194,9 @@ Keep your existing shape and evolve it incrementally.
 ### Core Commands
 
 ```bash
+# One-time (or when schema SQL changes)
+python scripts/orchestration/setup_clickhouse.py
+
 # Full pipeline
 python scripts/orchestration/pipeline.py 20251113
 
@@ -208,7 +222,8 @@ python scripts/gold/load_clickhouse_scenarios.py
 
 ### P0
 
-- Introduce `ddl/` and `dml/` folder split for Silver and Gold
+- Keep `setup_clickhouse` as the only place for schema creation
+- Keep `load_clickhouse` scripts data-only for Silver and Gold
 - Standardize SQL naming and ordering convention
 - Keep transformation logic in SQL files, not embedded Python
 
@@ -228,12 +243,36 @@ python scripts/gold/load_clickhouse_scenarios.py
 
 Use this checklist for each PR touching Silver/Gold:
 
-- Query file is in correct layer and stage (`ddl` or `dml`)
-- Naming follows `NNN_<domain>_<action>.sql`
+- Query file is in correct layer and stage (`create`, `load`, or `scenario`)
+- Naming follows the active layer convention (`NN_<entity>.sql` or `scenario_<name>.sql`)
 - SQL is idempotent or rerun strategy is explicit
 - Python changes are orchestration-only
 - Tests updated for behavior changes
 - Documentation updated when structure changes
+
+## 12. Future Working Plan
+
+Use this as the default roadmap for the next iterations.
+
+### Phase 1 (Now)
+
+1. Keep boundaries strict:
+- `setup_clickhouse` scripts create/alter schema objects
+- `load_clickhouse` scripts insert/refresh data only
+2. Add a CI check that fails if `scripts/silver/load_clickhouse.py` imports or executes `clickhouse/silver/create/*.sql`
+3. Add a short runbook section in PR templates: setup first, then load
+
+### Phase 2 (Next)
+
+1. Add `--dry-run` to Silver and Gold loaders
+2. Emit execution summary per run (files, statements, duration, failed file)
+3. Add data quality checks for key Silver tables (nulls, duplicates, freshness)
+
+### Phase 3 (Later)
+
+1. Migrate folder naming from `create/load` to `ddl/dml` gradually
+2. Add backward-compatible loader discovery during migration
+3. Remove legacy path support only after all SQL files and scripts are migrated
 
 ---
 
@@ -680,7 +719,7 @@ Scripts should map to one responsibility each.
 
 - `scripts/bronze/scrape_fotmob.py`: scrape raw FotMob data into Bronze filesystem storage
 - `scripts/bronze/load_clickhouse.py`: parse Bronze files and insert into ClickHouse Bronze tables
-- `scripts/silver/load_clickhouse.py`: Silver stage placeholder (scenario classifications moved to Gold)
+- `scripts/silver/load_clickhouse.py`: load Silver data into existing `silver.*` tables only (no schema creation)
 - `scripts/gold/load_clickhouse_scenarios.py`: create or refresh Gold tables and scenario narrative tables
 - `scripts/bronze/setup_clickhouse.py`: create Bronze schema only
 - `scripts/silver/setup_clickhouse.py`: create Silver schema only
