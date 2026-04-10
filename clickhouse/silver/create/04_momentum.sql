@@ -1,5 +1,5 @@
--- silver.match_momentum
-CREATE TABLE IF NOT EXISTS silver.match_momentum
+-- silver.momentum
+CREATE TABLE IF NOT EXISTS silver.momentum
 (
     match_id      Int32,
     match_date    Date,

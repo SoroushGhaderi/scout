@@ -111,12 +111,25 @@ class DeadLetterQueue:
 
     def _replace_nan(self, value: Any) -> Any:
         """Recursively convert NaN values to None for strict JSON compatibility."""
+        import pandas as pd
+
         if isinstance(value, dict):
             return {k: self._replace_nan(v) for k, v in value.items()}
         if isinstance(value, list):
             return [self._replace_nan(item) for item in value]
+        if isinstance(value, (datetime,)):
+            return value.isoformat()
+        if isinstance(value, pd.Timestamp):
+            return value.isoformat()
+        if value is pd.NaT:
+            return None
         if isinstance(value, float) and math.isnan(value):
             return None
+        try:
+            if pd.isna(value):
+                return None
+        except Exception:
+            pass
         return value
 
     def _get_row_count(self, data: Any) -> int:

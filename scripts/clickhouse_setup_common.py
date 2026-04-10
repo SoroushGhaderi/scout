@@ -187,9 +187,22 @@ def get_layer_sql_files(layer_name: str, clickhouse_root: Optional[Path] = None)
     layer_dir = root / layer_name
     if not layer_dir.exists():
         raise FileNotFoundError(f"Missing SQL directory for layer '{layer_name}': {layer_dir}")
-    sql_files = [sql_file for sql_file in layer_dir.glob("*.sql") if not sql_file.name.startswith("scenario_")]
+
+    candidate_dirs = [layer_dir / "create", layer_dir]
+    sql_files: list[Path] = []
+    for candidate_dir in candidate_dirs:
+        if not candidate_dir.exists():
+            continue
+        candidate_sql_files = [
+            sql_file for sql_file in candidate_dir.glob("*.sql") if not sql_file.name.startswith("scenario_")
+        ]
+        if candidate_sql_files:
+            sql_files = candidate_sql_files
+            break
+
     if not sql_files:
-        raise FileNotFoundError(f"No SQL files found in {layer_dir}")
+        searched = ", ".join(str(path) for path in candidate_dirs)
+        raise FileNotFoundError(f"No SQL files found for layer '{layer_name}'. Searched: {searched}")
 
     def _sort_key(sql_file: Path) -> tuple[int, int, str]:
         name = sql_file.name

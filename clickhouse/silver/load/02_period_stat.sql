@@ -1,4 +1,4 @@
-INSERT INTO silver.match_period_stat
+INSERT INTO silver.period_stat
 SELECT
     p.match_id,
     ifNull(toDateOrNull(g.match_time_utc_date), toDate('1970-01-01')) AS match_date,

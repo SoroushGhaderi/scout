@@ -1,4 +1,4 @@
-INSERT INTO silver.match_momentum
+INSERT INTO silver.momentum
 SELECT
     m.match_id,
     ifNull(toDateOrNull(g.match_time_utc_date), toDate('1970-01-01')) AS match_date,

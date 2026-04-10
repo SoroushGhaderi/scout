@@ -27,6 +27,7 @@ import io
 import json
 import logging
 import os
+import re
 import sys
 import tarfile
 import warnings
@@ -261,6 +262,50 @@ def _extract_describe_rows(table_info) -> List:
     return []
 
 
+def _int_bounds_from_clickhouse_type(col_type: str) -> Optional[tuple[int, int, str]]:
+    """Return integer bounds for a ClickHouse Int/UInt type."""
+    match = re.search(r"\b(U?Int)(8|16|32|64|128|256)\b", col_type)
+    if not match:
+        return None
+
+    family = match.group(1)
+    bits = int(match.group(2))
+    type_label = f"{family}{bits}"
+
+    if family == "UInt":
+        min_val = 0
+        max_val = (1 << bits) - 1
+    else:
+        max_val = (1 << (bits - 1)) - 1
+        min_val = -(1 << (bits - 1))
+
+    return min_val, max_val, type_label
+
+
+def _normalize_string_value(value: Any, nullable: bool) -> Optional[str]:
+    """Normalize value to a ClickHouse-compatible string."""
+    if _is_null_like(value):
+        return None if nullable else ""
+    if isinstance(value, str):
+        return value
+    if hasattr(value, "isoformat"):
+        return value.isoformat()
+    return str(value)
+
+
+def _is_null_like(value: Any) -> bool:
+    """Return True for scalar null-like values without array truth-value warnings."""
+    if value is None:
+        return True
+    if isinstance(value, (list, tuple, dict, set)):
+        return False
+
+    null_check = pd.isna(value)
+    if hasattr(null_check, "size"):
+        return bool(null_check.all()) if null_check.size > 0 else False
+    return bool(null_check)
+
+
 def validate_and_fix_schema(
     df: pd.DataFrame,
     client: ClickHouseClient,
@@ -280,12 +325,19 @@ def validate_and_fix_schema(
         nullable_int_cols = []
         nullable_float_cols = []
         nullable_string_cols = []
+        integer_col_bounds: Dict[str, tuple[int, int, str]] = {}
+        table_columns = set()
 
         for row in rows:
             if not row or len(row) < 2:
                 continue
             col_name = row[0] if isinstance(row, (list, tuple)) else str(row)
             col_type = str(row[1] if isinstance(row, (list, tuple)) else row)
+            table_columns.add(col_name)
+
+            bounds = _int_bounds_from_clickhouse_type(col_type)
+            if bounds:
+                integer_col_bounds[col_name] = bounds
 
             if col_name not in df.columns:
                 continue
@@ -308,7 +360,14 @@ def validate_and_fix_schema(
                 elif "String" in col_type:
                     non_nullable_string_cols.append(col_name)
 
-        int32_max, int32_min = INT32_RANGE
+        # Drop columns not present in target table schema to avoid insert failures.
+        unknown_columns = [col for col in df.columns if col not in table_columns]
+        if unknown_columns:
+            logger.warning(
+                "Dropping columns not present in target schema",
+                extra={"table_name": table_name, "columns": unknown_columns},
+            )
+            df = df.drop(columns=unknown_columns)
 
         # Handle non-nullable columns
         for col in (
@@ -330,28 +389,47 @@ def validate_and_fix_schema(
                     df.loc[null_mask, col] = 0
 
         for col in non_nullable_int_cols:
+            min_val, max_val, type_label = integer_col_bounds.get(
+                col, (INT32_RANGE[1], INT32_RANGE[0], "Int32")
+            )
             df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
-            overflow_mask = (df[col] < int32_min) | (df[col] > int32_max)
+            overflow_mask = (df[col] < min_val) | (df[col] > max_val)
             if overflow_mask.any():
                 logger.error(
-                    f"Found {overflow_mask.sum()} Int32 overflow values in {table_name}.{col}. Clipping."
+                    f"Found {overflow_mask.sum()} {type_label} overflow values in {table_name}.{col}. Clipping."
                 )
-                df.loc[overflow_mask & (df[col] > int32_max), col] = int32_max
-                df.loc[overflow_mask & (df[col] < int32_min), col] = int32_min
+                df.loc[overflow_mask & (df[col] > max_val), col] = max_val
+                df.loc[overflow_mask & (df[col] < min_val), col] = min_val
             df[col] = df[col].astype("int64")
 
         for col in non_nullable_uint_cols:
+            min_val, max_val, type_label = integer_col_bounds.get(col, (0, INT32_RANGE[0], "UInt32"))
             df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
-            negative_mask = df[col] < 0
-            if negative_mask.any():
+            below_min_mask = df[col] < min_val
+            above_max_mask = df[col] > max_val
+            if below_min_mask.any():
                 logger.error(
-                    f"Found {negative_mask.sum()} negative values in unsigned column {table_name}.{col}. Clamping to 0."
+                    f"Found {below_min_mask.sum()} negative values in unsigned column {table_name}.{col}. Clamping to {min_val}."
                 )
-                df.loc[negative_mask, col] = 0
+                df.loc[below_min_mask, col] = min_val
+            if above_max_mask.any():
+                logger.error(
+                    f"Found {above_max_mask.sum()} {type_label} overflow values in {table_name}.{col}. Clipping to {max_val}."
+                )
+                df.loc[above_max_mask, col] = max_val
             df[col] = df[col].astype("int64")
 
         for col in non_nullable_float_cols:
             df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0).astype("float64")
+
+        for col in non_nullable_string_cols:
+            try:
+                df[col] = df[col].map(lambda v: _normalize_string_value(v, nullable=False))
+            except Exception as col_err:
+                logger.debug(
+                    "Could not normalize non-nullable string column",
+                    extra={"table_name": table_name, "column_name": col, "error": str(col_err)},
+                )
 
         # Handle nullable integer columns - convert all types to Int64 to properly handle NaN/None
         for col in nullable_int_cols:
@@ -379,7 +457,7 @@ def validate_and_fix_schema(
 
         for col in nullable_string_cols:
             try:
-                df[col] = df[col].astype(object).where(df[col].notna(), None)
+                df[col] = df[col].map(lambda v: _normalize_string_value(v, nullable=True))
             except Exception as col_err:
                 logger.debug(
                     "Could not normalize nullable string column",
