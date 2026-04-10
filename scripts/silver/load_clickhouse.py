@@ -1,4 +1,4 @@
-"""Process FotMob silver layer in ClickHouse."""
+"""Load FotMob silver data into ClickHouse tables."""
 
 import sys
 import time
@@ -10,10 +10,8 @@ sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(scripts_dir))
 
 from config.settings import settings
-from src.processors.silver.fotmob import FotMobSilverProcessor
 from src.storage.clickhouse_client import ClickHouseClient
 from src.storage.clickhouse_sql_executor import split_sql_statements
-from src.storage.silver.fotmob import FotMobSilverStorage
 from src.utils.logging_utils import get_logger
 
 logger = get_logger()
@@ -107,21 +105,11 @@ def main() -> int:
         return 1
 
     try:
-        sql_dir = project_root / "clickhouse" / "silver" / "create"
-        processor = FotMobSilverProcessor(sql_dir=sql_dir)
-        storage = FotMobSilverStorage(client, database="silver")
-
-        sql_files = processor.sql_files()
-        if not sql_files:
-            logger.error("No silver create SQL files found in %s", sql_dir)
-            return 1
-
-        storage.execute_sql_files(sql_files)
         load_exit_code = _run_load_jobs(client)
         if load_exit_code != 0:
             return load_exit_code
 
-        logger.info("Silver processing completed successfully")
+        logger.info("Silver load completed successfully")
         return 0
     finally:
         client.disconnect()
