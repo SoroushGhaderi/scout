@@ -1,8 +1,10 @@
 """Load FotMob silver data into ClickHouse tables."""
 
+import argparse
 import sys
 import time
 from pathlib import Path
+from typing import Optional
 
 project_root = Path(__file__).resolve().parents[2]
 scripts_dir = Path(__file__).resolve().parents[1]
@@ -11,7 +13,7 @@ sys.path.insert(0, str(scripts_dir))
 
 from config.settings import settings
 from src.storage.clickhouse_client import ClickHouseClient
-from src.storage.clickhouse_sql_executor import split_sql_statements
+from src.storage.clickhouse_sql_executor import execute_sql_statements, split_sql_statements
 from src.utils.logging_utils import get_logger
 
 logger = get_logger()
@@ -57,7 +59,17 @@ def _load_jobs() -> list[tuple[Path, str]]:
     return jobs
 
 
-def _run_load_sql(client: ClickHouseClient, sql_file: Path, target_table: str) -> int:
+def parse_args(argv=None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Load FotMob silver SQL into ClickHouse")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview silver load jobs without executing SQL or optimizing tables",
+    )
+    return parser.parse_args(argv)
+
+
+def _run_load_sql(client: ClickHouseClient, sql_file: Path, target_table: str, dry_run: bool = False) -> int:
     if not sql_file.exists():
         logger.error("Load SQL file not found: %s", sql_file)
         return 1
@@ -68,8 +80,21 @@ def _run_load_sql(client: ClickHouseClient, sql_file: Path, target_table: str) -
         logger.error("No executable SQL found in %s", sql_file)
         return 1
 
-    for statement in statements:
-        client.execute(statement)
+    if dry_run:
+        logger.info(
+            "[dry-run] Would execute %s SQL statement(s) and optimize %s using %s",
+            len(statements),
+            target_table,
+            sql_file.name,
+        )
+        return 0
+
+    execute_sql_statements(
+        client=client,
+        statements=statements,
+        layer_name="silver_load",
+        source_name=sql_file.name,
+    )
     logger.info("Load insert completed for %s", target_table)
 
     client.execute(f"OPTIMIZE TABLE {target_table} FINAL DEDUPLICATE")
@@ -77,11 +102,14 @@ def _run_load_sql(client: ClickHouseClient, sql_file: Path, target_table: str) -
     return 0
 
 
-def _run_load_jobs(client: ClickHouseClient) -> int:
+def _run_load_jobs(client: Optional[ClickHouseClient], dry_run: bool = False) -> int:
     load_jobs = _load_jobs()
     if not load_jobs:
         logger.warning("No silver DML SQL files found in %s", project_root / "clickhouse" / "silver")
         return 0
+
+    if dry_run:
+        logger.info("[dry-run] Planned silver load jobs: %s", len(load_jobs))
 
     total_jobs = len(load_jobs)
     for index, (sql_path, target_table) in enumerate(load_jobs, start=1):
@@ -93,7 +121,10 @@ def _run_load_jobs(client: ClickHouseClient) -> int:
             target_table,
         )
         started_at = time.perf_counter()
-        result = _run_load_sql(client, sql_path, target_table)
+        if not dry_run and client is None:
+            logger.error("ClickHouse client is required when not running dry-run")
+            return 1
+        result = _run_load_sql(client, sql_path, target_table, dry_run=dry_run)
         elapsed_seconds = time.perf_counter() - started_at
         if result != 0:
             logger.error(
@@ -117,7 +148,15 @@ def _run_load_jobs(client: ClickHouseClient) -> int:
     return 0
 
 
-def main() -> int:
+def main(argv=None) -> int:
+    args = parse_args(argv)
+    if args.dry_run:
+        logger.info("Running silver loader in dry-run mode (no SQL will be executed)")
+        load_exit_code = _run_load_jobs(None, dry_run=True)
+        if load_exit_code == 0:
+            logger.info("Silver dry-run completed successfully")
+        return load_exit_code
+
     client = ClickHouseClient(
         host=settings.clickhouse_host,
         port=settings.clickhouse_port,
@@ -130,7 +169,7 @@ def main() -> int:
         return 1
 
     try:
-        load_exit_code = _run_load_jobs(client)
+        load_exit_code = _run_load_jobs(client, dry_run=False)
         if load_exit_code != 0:
             return load_exit_code
 

@@ -1,5 +1,6 @@
 """Process FotMob gold layer in ClickHouse."""
 
+import argparse
 import subprocess
 import sys
 import time
@@ -28,21 +29,37 @@ def _build_command(script_path: Path) -> list[str]:
     return [sys.executable, str(script_path)]
 
 
-def _run_scenario_scripts() -> int:
+def parse_args(argv=None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Process FotMob gold layer in ClickHouse")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Preview gold SQL/scenario jobs without executing SQL or subprocesses",
+    )
+    return parser.parse_args(argv)
+
+
+def _run_scenario_scripts(dry_run: bool = False) -> int:
     scenario_scripts = _scenario_scripts()
     if not scenario_scripts:
         logger.warning("No gold scenario scripts found in %s", Path(__file__).resolve().parent / "scenario")
         return 0
 
+    if dry_run:
+        logger.info("[dry-run] Planned gold scenario scripts: %s", len(scenario_scripts))
+
     total_scripts = len(scenario_scripts)
     for index, script_path in enumerate(scenario_scripts, start=1):
-        command = _build_command(script_path)
         logger.info(
             "Running gold scenario script %s/%s: %s",
             index,
             total_scripts,
             script_path.name,
         )
+        if dry_run:
+            logger.info("[dry-run] Would execute scenario script: %s", script_path)
+            continue
+        command = _build_command(script_path)
         script_start = time.perf_counter()
         result = subprocess.run(command, cwd=project_root)
         elapsed_seconds = time.perf_counter() - script_start
@@ -67,7 +84,24 @@ def _run_scenario_scripts() -> int:
 
 
 def main(argv=None) -> int:
-    _ = argv
+    args = parse_args(argv)
+    if args.dry_run:
+        logger.info("Running gold loader in dry-run mode (no SQL will be executed)")
+        sql_dir = project_root / "clickhouse" / "gold"
+        processor = FotMobGoldProcessor(sql_dir=sql_dir)
+        sql_files = processor.sql_files()
+        if not sql_files:
+            logger.error("No gold SQL files found in %s", sql_dir)
+            return 1
+        logger.info("[dry-run] Planned gold SQL files: %s", len(sql_files))
+        for sql_file in sql_files:
+            logger.info("[dry-run] Would execute SQL file: %s", sql_file)
+        scenario_exit_code = _run_scenario_scripts(dry_run=True)
+        if scenario_exit_code != 0:
+            return scenario_exit_code
+        logger.info("Gold dry-run completed successfully")
+        return 0
+
     client = ClickHouseClient(
         host=settings.clickhouse_host,
         port=settings.clickhouse_port,
@@ -91,7 +125,7 @@ def main(argv=None) -> int:
             return 1
 
         storage.execute_sql_files(sql_files)
-        scenario_exit_code = _run_scenario_scripts()
+        scenario_exit_code = _run_scenario_scripts(dry_run=False)
         if scenario_exit_code != 0:
             return scenario_exit_code
         logger.info("Gold processing completed successfully")
