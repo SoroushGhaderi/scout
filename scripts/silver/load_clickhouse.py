@@ -94,11 +94,10 @@ def _run_load_sql(client: ClickHouseClient, sql_file: Path, target_table: str, d
         statements=statements,
         layer_name="silver_load",
         source_name=sql_file.name,
+        log_each_query=False,
     )
-    logger.info("Load insert completed for %s", target_table)
 
     client.execute(f"OPTIMIZE TABLE {target_table} FINAL DEDUPLICATE")
-    logger.info("Optimization completed for %s", target_table)
     return 0
 
 

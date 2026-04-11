@@ -2,6 +2,8 @@
 
 import logging
 import re
+import time
+from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 
@@ -11,6 +13,23 @@ from ..utils.health_check import check_clickhouse_connection
 from ..utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
+
+
+@dataclass
+class QueryExecutionSummary:
+    """Normalized summary emitted for every ClickHouse query execution."""
+
+    query_type: str
+    duration_ms: float
+    success: bool
+    database: str
+    has_parameters: bool
+    error: Optional[str] = None
+
+    def as_log_fields(self) -> Dict[str, Any]:
+        """Return compact structured fields suitable for structured logs."""
+        fields = asdict(self)
+        return {key: value for key, value in fields.items() if value is not None}
 
 
 class ClickHouseClient:
@@ -129,6 +148,15 @@ class ClickHouseClient:
         return table
 
     _SAFE_IDENT = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
+    _QUERY_TYPE_RE = re.compile(r"^\s*([a-zA-Z]+)")
+
+    @classmethod
+    def summarize_query(cls, query: str, max_preview_length: int = 160) -> Dict[str, Any]:
+        """Build a lightweight summary for a raw SQL query string."""
+        query_clean = " ".join(query.split())
+        query_type_match = cls._QUERY_TYPE_RE.match(query_clean)
+        query_type = query_type_match.group(1).upper() if query_type_match else "UNKNOWN"
+        return {"query_type": query_type}
 
     def _validate_identifier(self, value: str, kind: str = "identifier") -> str:
         """Validate database/table identifier to prevent SQL injection.
@@ -175,19 +203,52 @@ class ClickHouseClient:
             self.client = None
 
     def execute(
-        self, query: str, parameters: Optional[Dict[str, Any]] = None
+        self,
+        query: str,
+        parameters: Optional[Dict[str, Any]] = None,
+        *,
+        log_query: bool = True,
     ) -> Any:
         """Execute a query."""
         if not self.client:
             raise RuntimeError("Not connected to ClickHouse. Call connect() first.")
 
+        query_summary = self.summarize_query(query)
+        started_at = time.perf_counter()
+
         try:
             if parameters:
-                return self.client.query(query, parameters=parameters)
+                result = self.client.query(query, parameters=parameters)
             else:
-                return self.client.query(query)
+                result = self.client.query(query)
+
+            execution_summary = QueryExecutionSummary(
+                query_type=query_summary["query_type"],
+                duration_ms=round((time.perf_counter() - started_at) * 1000, 2),
+                success=True,
+                database=self.database,
+                has_parameters=bool(parameters),
+            )
+            if log_query:
+                self.logger.info(
+                    "ClickHouse query executed",
+                    **execution_summary.as_log_fields(),
+                )
+            return result
         except Exception as e:
-            self.logger.error(f"Query execution failed: {e}\nQuery: {query[:200]}")
+            execution_summary = QueryExecutionSummary(
+                query_type=query_summary["query_type"],
+                duration_ms=round((time.perf_counter() - started_at) * 1000, 2),
+                success=False,
+                database=self.database,
+                has_parameters=bool(parameters),
+                error=str(e),
+            )
+            if log_query:
+                self.logger.error(
+                    "ClickHouse query failed",
+                    **execution_summary.as_log_fields(),
+                )
             raise
 
     def insert_dataframe(self, table: str, df, database: Optional[str] = None) -> int:
