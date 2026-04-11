@@ -188,19 +188,31 @@ def get_layer_sql_files(layer_name: str, clickhouse_root: Optional[Path] = None)
     if not layer_dir.exists():
         raise FileNotFoundError(f"Missing SQL directory for layer '{layer_name}': {layer_dir}")
 
-    candidate_dirs = [layer_dir / "create", layer_dir]
-    sql_files: list[Path] = []
+    # Gradual folder migration support:
+    # - prefer new `ddl/`
+    # - fall back to legacy `create/`
+    # - finally support flat layer directory for existing bronze/gold layouts
+    candidate_dirs = [layer_dir / "ddl", layer_dir / "create", layer_dir]
+    sql_by_name: dict[str, Path] = {}
     for candidate_dir in candidate_dirs:
         if not candidate_dir.exists():
             continue
         candidate_sql_files = [
             sql_file for sql_file in candidate_dir.glob("*.sql") if not sql_file.name.startswith("scenario_")
         ]
-        if candidate_sql_files:
-            sql_files = candidate_sql_files
-            break
+        for sql_file in sorted(candidate_sql_files, key=lambda path: path.name):
+            if sql_file.name in sql_by_name:
+                logger.warning(
+                    "Skipping duplicate %s SQL file %s from %s; using %s",
+                    layer_name,
+                    sql_file.name,
+                    candidate_dir,
+                    sql_by_name[sql_file.name],
+                )
+                continue
+            sql_by_name[sql_file.name] = sql_file
 
-    if not sql_files:
+    if not sql_by_name:
         searched = ", ".join(str(path) for path in candidate_dirs)
         raise FileNotFoundError(f"No SQL files found for layer '{layer_name}'. Searched: {searched}")
 
@@ -216,7 +228,7 @@ def get_layer_sql_files(layer_name: str, clickhouse_root: Optional[Path] = None)
             return (1, 0, name)
         return (2, 0, name)
 
-    return sorted(sql_files, key=_sort_key)
+    return sorted(sql_by_name.values(), key=_sort_key)
 
 
 def execute_sql_file(client: ClickHouseClient, sql_file: Path, database: Optional[str] = None) -> bool:

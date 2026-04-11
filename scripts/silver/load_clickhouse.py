@@ -17,22 +17,47 @@ from src.utils.logging_utils import get_logger
 logger = get_logger()
 
 
-def _load_jobs() -> list[tuple[str, str]]:
-    load_sql_dir = project_root / "clickhouse" / "silver" / "load"
-    jobs: list[tuple[str, str]] = []
-    for sql_path in sorted(path for path in load_sql_dir.glob("*.sql") if path.is_file()):
+def _load_sql_dirs() -> list[Path]:
+    silver_root = project_root / "clickhouse" / "silver"
+    dml_dir = silver_root / "dml"
+    load_dir = silver_root / "load"
+    sql_dirs = [path for path in (dml_dir, load_dir) if path.exists() and path.is_dir()]
+    if dml_dir.exists():
+        if load_dir.exists():
+            logger.info("Using silver DML SQL from both %s (preferred) and %s (fallback)", dml_dir, load_dir)
+        else:
+            logger.info("Using silver DML SQL from %s", dml_dir)
+    elif load_dir.exists():
+        logger.warning("Using legacy silver load SQL directory: %s (consider migrating to dml/)", load_dir)
+    return sql_dirs
+
+
+def _load_jobs() -> list[tuple[Path, str]]:
+    sql_by_name: dict[str, Path] = {}
+    for sql_dir in _load_sql_dirs():
+        for sql_path in sorted(path for path in sql_dir.glob("*.sql") if path.is_file()):
+            if sql_path.name in sql_by_name:
+                logger.warning(
+                    "Skipping duplicate silver DML SQL %s from %s; using %s",
+                    sql_path.name,
+                    sql_dir,
+                    sql_by_name[sql_path.name],
+                )
+                continue
+            sql_by_name[sql_path.name] = sql_path
+
+    jobs: list[tuple[Path, str]] = []
+    for sql_path in sorted(sql_by_name.values(), key=lambda path: path.name):
         stem_parts = sql_path.stem.split("_", 1)
         if len(stem_parts) != 2:
             logger.warning("Skipping silver load SQL with unexpected name: %s", sql_path.name)
             continue
         table_name = stem_parts[1]
-        jobs.append((sql_path.name, f"silver.{table_name}"))
+        jobs.append((sql_path, f"silver.{table_name}"))
     return jobs
 
 
-def _run_load_sql(client: ClickHouseClient, sql_filename: str, target_table: str) -> int:
-    load_sql_dir = project_root / "clickhouse" / "silver" / "load"
-    sql_file = load_sql_dir / sql_filename
+def _run_load_sql(client: ClickHouseClient, sql_file: Path, target_table: str) -> int:
     if not sql_file.exists():
         logger.error("Load SQL file not found: %s", sql_file)
         return 1
@@ -55,27 +80,27 @@ def _run_load_sql(client: ClickHouseClient, sql_filename: str, target_table: str
 def _run_load_jobs(client: ClickHouseClient) -> int:
     load_jobs = _load_jobs()
     if not load_jobs:
-        logger.warning("No silver load SQL files found in %s", project_root / "clickhouse" / "silver" / "load")
+        logger.warning("No silver DML SQL files found in %s", project_root / "clickhouse" / "silver")
         return 0
 
     total_jobs = len(load_jobs)
-    for index, (sql_file, target_table) in enumerate(load_jobs, start=1):
+    for index, (sql_path, target_table) in enumerate(load_jobs, start=1):
         logger.info(
             "Running silver load job %s/%s: %s -> %s",
             index,
             total_jobs,
-            sql_file,
+            sql_path.name,
             target_table,
         )
         started_at = time.perf_counter()
-        result = _run_load_sql(client, sql_file, target_table)
+        result = _run_load_sql(client, sql_path, target_table)
         elapsed_seconds = time.perf_counter() - started_at
         if result != 0:
             logger.error(
                 "Silver load job failed %s/%s: %s -> %s (exit code %s) after %.2f seconds",
                 index,
                 total_jobs,
-                sql_file,
+                sql_path.name,
                 target_table,
                 result,
                 elapsed_seconds,
@@ -85,7 +110,7 @@ def _run_load_jobs(client: ClickHouseClient) -> int:
             "Completed silver load job %s/%s: %s -> %s in %.2f seconds",
             index,
             total_jobs,
-            sql_file,
+            sql_path.name,
             target_table,
             elapsed_seconds,
         )
