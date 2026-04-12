@@ -31,6 +31,7 @@ Use these for all new documentation, automation, and daily runs:
 ## Scenario Scripts
 
 These `scripts/gold/scenario/scenario_*.py` runners are discovered and executed by `scripts/gold/load_clickhouse_scenarios.py`.
+Scenario standards are defined in `scripts/gold/scenario/SCENARIOS_CONTRACT.md`.
 
 - `scripts/gold/scenario/scenario_demolition.py`
 - `scripts/gold/scenario/scenario_defensive_shutdown_win.py`
@@ -80,4 +81,4 @@ These `scripts/gold/scenario/scenario_*.py` runners are discovered and executed 
 - `scripts/gold/scenario/scenario_clinical_pivot.py`
 - `scripts/gold/scenario/scenario_chaos_engine.py`
 - `scripts/gold/scenario/scenario_tired_legs.py`
-- `scripts/gold/scenario/scenarios_catalog.md`
+- `scripts/gold/scenario/SCENARIOS_CATALOG.md`

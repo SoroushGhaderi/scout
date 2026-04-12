@@ -20,14 +20,17 @@ python scripts/silver/load_clickhouse.py
 # 5) gold
 python scripts/gold/load_clickhouse_scenarios.py
 
+# 6) quality gates
+python scripts/quality/check_bronze_to_silver_reconciliation.py --strict
+
 # or full orchestration
 python scripts/orchestration/pipeline.py 20251208
 ```
 
 ## Stability Rules
 
-1. Layer entrypoints in `scripts/bronze|silver|gold|orchestration` are canonical.
+1. Layer entrypoints in `scripts/bronze|silver|gold|orchestration|quality` are canonical.
 2. Root-level layer scripts are removed.
 3. Utility scripts (`ensure_directories`, `health_check`, `refresh_turnstile`) are allowed at root.
 4. Do not add new root-level layer scripts.
-5. Any new script must be documented in `scripts/README.md` and `SCRIPTS_AUDIT.md`.
+5. Any new script must be documented in `scripts/README.md` and architecture docs when command surface changes.
