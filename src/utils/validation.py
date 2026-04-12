@@ -177,6 +177,10 @@ class DataQualityChecker:
             'goal_events': DataQualityChecker.check_goal_events,
             'goals': DataQualityChecker.check_goal_events,
             'shotmap_data': DataQualityChecker.check_shot_events,
+            'general': DataQualityChecker.check_general_stats,
+            'player': DataQualityChecker.check_player_stats,
+            'goal': DataQualityChecker.check_goal_events,
+            'shotmap': DataQualityChecker.check_shot_events,
         }
         for df_name, df in dataframes.items():
             if not isinstance(df, pd.DataFrame):
@@ -186,7 +190,7 @@ class DataQualityChecker:
         return results
     @staticmethod
     def _basic_check(df: pd.DataFrame) -> Dict[str, Any]:
-        """Basic validation for an in y dataframe."""
+        """Basic validation for any dataframe."""
         issues = []
         if df.empty:
             issues.append("DataFrame is empty")

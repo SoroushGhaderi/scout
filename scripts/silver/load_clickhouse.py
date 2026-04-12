@@ -14,6 +14,7 @@ sys.path.insert(0, str(scripts_dir))
 from config.settings import settings
 from src.storage.clickhouse_client import ClickHouseClient
 from src.storage.clickhouse_sql_executor import execute_sql_statements, split_sql_statements
+from src.utils.layer_contracts import LayerContractError, assert_silver_layer_contracts
 from src.utils.logging_utils import get_logger
 
 logger = get_logger()
@@ -94,7 +95,6 @@ def _run_load_sql(client: ClickHouseClient, sql_file: Path, target_table: str, d
         statements=statements,
         layer_name="silver_load",
         source_name=sql_file.name,
-        log_each_query=False,
     )
 
     client.execute(f"OPTIMIZE TABLE {target_table} FINAL DEDUPLICATE")
@@ -172,8 +172,12 @@ def main(argv=None) -> int:
         if load_exit_code != 0:
             return load_exit_code
 
+        assert_silver_layer_contracts(client, database="silver", log=logger)
         logger.info("Silver load completed successfully")
         return 0
+    except LayerContractError as contract_error:
+        logger.error("Silver layer contract assertion failed", error=str(contract_error))
+        return 1
     finally:
         client.disconnect()
 

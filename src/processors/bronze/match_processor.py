@@ -144,45 +144,140 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
 
         return int(match.group(1)), int(match.group(2))
 
-    @staticmethod
-    def _stable_numeric_code(value: Any) -> int:
-        """Convert any value into a deterministic numeric code."""
-        normalized = str(value or "").strip().lower()
-        if not normalized:
-            return 0
-        return int(hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:12], 16)
-
-    @staticmethod
-    def _team_side_code(team_side: str) -> int:
-        """Map team side to numeric code for synthetic keys."""
-        if team_side == "home":
-            return 1
-        if team_side == "away":
-            return 2
-        return 0
-
     def _generate_synthetic_lineup_player_id(
         self,
         match_id: int,
         team_side: str,
-        shirt_number: Any,
+        player_raw: Dict[str, Any],
         used_ids: set,
     ) -> Tuple[int, str]:
-        """Generate deterministic synthetic Int64 id from numeric-only key components."""
-        team_code = self._team_side_code(team_side)
-        shirt_code = self._stable_numeric_code(shirt_number)
-        base_key = f"{int(match_id)}_{team_code}_{shirt_code}"
+        """Generate deterministic synthetic Int64 id from stable player attributes."""
+        base_key = (
+            f"match:{int(match_id)}|"
+            f"team_side:{team_side}|"
+            f"shirt_number:{player_raw.get('shirtNumber')}|"
+            f"name:{(player_raw.get('name') or '').strip().lower()}|"
+            f"first_name:{(player_raw.get('firstName') or '').strip().lower()}|"
+            f"last_name:{(player_raw.get('lastName') or '').strip().lower()}|"
+            f"country_code:{(player_raw.get('countryCode') or '').strip().lower()}|"
+            f"position:{player_raw.get('usualPlayingPositionId')}"
+        )
 
         salt = 0
         while True:
             key = base_key if salt == 0 else f"{base_key}_{salt}"
             digest_value = int(hashlib.sha256(key.encode("utf-8")).hexdigest()[:16], 16)
-            # Keep synthetic IDs in signed Int64 range and negative to avoid overlap with real IDs.
-            synthetic_id = -((digest_value % self._INT64_MAX) + 1)
+            # Keep synthetic IDs in high positive Int64 range to satisfy key contracts.
+            synthetic_id = self._INT64_MAX - (digest_value % 1_000_000_000_000_000)
             if synthetic_id not in used_ids:
                 used_ids.add(synthetic_id)
                 return synthetic_id, key
             salt += 1
+
+    @staticmethod
+    def _resolve_numeric_id(raw_id: Any) -> Optional[int]:
+        """Resolve integer ids from mixed raw values."""
+        if isinstance(raw_id, int):
+            return raw_id
+        if isinstance(raw_id, str) and raw_id.isdigit():
+            return int(raw_id)
+        return None
+
+    def _collect_used_lineup_player_ids(self, lineup_raw: Dict[str, Any]) -> set:
+        """Collect all valid positive lineup ids across home/away starters+subs."""
+        used_ids = set()
+        for team_key in ("homeTeam", "awayTeam"):
+            team_raw = lineup_raw.get(team_key, {})
+            if not isinstance(team_raw, dict):
+                continue
+            for section_key in ("starters", "subs"):
+                section_raw = team_raw.get(section_key, [])
+                if not isinstance(section_raw, list):
+                    continue
+                for player_raw in section_raw:
+                    if not isinstance(player_raw, dict):
+                        continue
+                    resolved_id = self._resolve_numeric_id(player_raw.get("id"))
+                    if resolved_id is not None and resolved_id > 0:
+                        used_ids.add(resolved_id)
+        return used_ids
+
+    def _generate_synthetic_goal_event_id(
+        self,
+        match_id: int,
+        goal_time: Any,
+        goal_overload_time: Any,
+        home_score: Any,
+        away_score: Any,
+        is_home: Any,
+        player_id: Any,
+        player_name: Any,
+        assist_player_id: Any,
+        goal_description: Any,
+    ) -> int:
+        """Generate deterministic positive Int64 id for goal events without valid event ids."""
+        raw_key = (
+            f"{int(match_id)}|{goal_time}|{goal_overload_time}|{home_score}|{away_score}|"
+            f"{is_home}|{player_id}|{player_name}|{assist_player_id}|{goal_description}"
+        )
+        digest_value = int(hashlib.sha256(raw_key.encode("utf-8")).hexdigest()[:16], 16)
+        return (digest_value % self._INT64_MAX) + 1
+
+    def _resolve_positive_event_id(
+        self,
+        raw_event_id: Any,
+        synthetic_seed: str,
+        table_name: str,
+        match_id: Any,
+        id_field: str = "event_id",
+        fallback_source_field: Optional[str] = None,
+        fallback_source_value: Any = None,
+        event_time: Any = None,
+        player_id: Any = None,
+    ) -> int:
+        """Return a positive event_id, generating deterministic fallback when needed."""
+        resolved_source_event_id = self._resolve_numeric_id(raw_event_id)
+        if resolved_source_event_id is not None and resolved_source_event_id > 0:
+            return resolved_source_event_id
+
+        resolved_fallback_id = self._resolve_numeric_id(fallback_source_value)
+        if resolved_fallback_id is not None and resolved_fallback_id > 0:
+            self.logger.warning(
+                "Filled invalid source id using fallback id",
+                table_name=table_name,
+                id_field=id_field,
+                match_id=match_id,
+                source_id=raw_event_id,
+                resolved_id=resolved_fallback_id,
+                strategy="fallback",
+                fallback_source_field=fallback_source_field,
+                fallback_source_value=fallback_source_value,
+                event_time=event_time,
+                player_id=player_id,
+            )
+            return resolved_fallback_id
+
+        digest_value = int(hashlib.sha256(synthetic_seed.encode("utf-8")).hexdigest()[:16], 16)
+        event_id = (digest_value % self._INT64_MAX) + 1
+        self.logger.warning(
+            "Filled invalid source id using synthetic id",
+            table_name=table_name,
+            id_field=id_field,
+            match_id=match_id,
+            source_id=raw_event_id,
+            resolved_id=event_id,
+            strategy="synthetic",
+            synthetic_seed=synthetic_seed,
+            event_time=event_time,
+            player_id=player_id,
+        )
+        return event_id
+
+    def _generate_synthetic_player_id_int32(self, seed: str) -> int:
+        """Generate deterministic positive Int32 player id."""
+        digest_value = int(hashlib.sha256(seed.encode("utf-8")).hexdigest()[:8], 16)
+        # Keep synthetic ids in a high positive Int32 range.
+        return 1_500_000_000 + (digest_value % 647_483_647)
 
     def process_all(
         self, 
@@ -424,13 +519,36 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                         if goal_time is None:
                             goal_time = shotmap_data.get("min")
 
-                        event_id = scorer_stat.get("eventId")
-                        if event_id is None:
-                            event_id = 0
+                        raw_event_id = scorer_stat.get("eventId")
 
                         player_id = player_data.get("id")
                         if player_id is None:
                             player_id = scorer_stat.get("playerId")
+
+                        shot_event_id = shotmap_data.get("id")
+                        shot_event_id = int(shot_event_id) if shot_event_id is not None else None
+                        seed_event_id = self._generate_synthetic_goal_event_id(
+                            match_id=int(match_id),
+                            goal_time=goal_time,
+                            goal_overload_time=scorer_stat.get("overloadTime"),
+                            home_score=scorer_stat.get("homeScore"),
+                            away_score=scorer_stat.get("awayScore"),
+                            is_home=scorer_stat.get("isHome"),
+                            player_id=player_id,
+                            player_name=player_data.get("name"),
+                            assist_player_id=scorer_stat.get("assistPlayerId"),
+                            goal_description=scorer_stat.get("goalDescription"),
+                        )
+                        event_id = self._resolve_positive_event_id(
+                            raw_event_id=raw_event_id,
+                            synthetic_seed=f"goal|{seed_event_id}",
+                            table_name="goal",
+                            match_id=match_id,
+                            fallback_source_field="shot_event_id",
+                            fallback_source_value=shot_event_id,
+                            event_time=goal_time,
+                            player_id=player_id,
+                        )
 
                         flat_goal_data = {
                             "match_id": match_id,
@@ -446,7 +564,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                             "assist_player_name": scorer_stat.get("assistInput"),
                             "player_id": player_id,
                             "player_name": player_data.get("name"),
-                            "shot_event_id": shotmap_data.get("id"),
+                            "shot_event_id": shot_event_id,
                             "shot_x_loc": shotmap_data.get("x"),
                             "shot_y_loc": shotmap_data.get("y"),
                             "shot_minute": (
@@ -506,13 +624,28 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     for player_stat in player_stats_list:
                         if not isinstance(player_stat, dict):
                             continue
+                        player_data = player_stat.get("player", {}) or {}
+                        red_card_time = player_stat.get("time")
+                        player_id = player_data.get("id")
+                        event_id = self._resolve_positive_event_id(
+                            raw_event_id=player_stat.get("eventId"),
+                            synthetic_seed=(
+                                f"red_card|{match_id}|{red_card_time}|{player_stat.get('overloadTime')}|"
+                                f"{player_id}|{player_data.get('name')}|{player_stat.get('homeScore')}|"
+                                f"{player_stat.get('awayScore')}|{player_stat.get('isHome')}"
+                            ),
+                            table_name="red_card",
+                            match_id=match_id,
+                            event_time=red_card_time,
+                            player_id=player_id,
+                        )
                         flat_data = {
                             "match_id": match_id,
-                            "event_id": player_stat.get("eventId"),
-                            "red_card_time": player_stat.get("time"),
+                            "event_id": event_id,
+                            "red_card_time": red_card_time,
                             "red_card_overload_time": player_stat.get("overloadTime"),
-                            "player_id": player_stat.get("player", {}).get("id"),
-                            "player_name": player_stat.get("player", {}).get("name"),
+                            "player_id": player_id,
+                            "player_name": player_data.get("name"),
                             "home_score": player_stat.get("homeScore"),
                             "away_score": player_stat.get("awayScore"),
                             "is_home": player_stat.get("isHome")
@@ -546,11 +679,26 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 if not isinstance(event, dict):
                     continue
                 event_type = event.get("type")
+                # Only cards are materialized from match facts into bronze tables.
+                if event_type in ("Goal", "Substitution"):
+                    continue
                 if event_type == "Goal":
                     shotmap_event = event.get("shotmapEvent", {}) or {}
+                    event_id = self._resolve_positive_event_id(
+                        raw_event_id=event.get("eventId"),
+                        synthetic_seed=(
+                            f"match_facts_goal|{match_id}|{event.get('time')}|{event.get('overloadTime')}|"
+                            f"{event.get('homeScore')}|{event.get('awayScore')}|{event.get('isHome')}|"
+                            f"{event.get('player', {}).get('id')}|{event.get('assistPlayerId')}"
+                        ),
+                        table_name="match_facts_goal",
+                        match_id=match_id,
+                        event_time=event.get("time"),
+                        player_id=event.get("player", {}).get("id"),
+                    )
                     goal_data = {
                         "match_id": match_id,
-                        "event_id": event.get("eventId"),
+                        "event_id": event_id,
                         "time": event.get("time"),
                         "added_time": event.get("overloadTime"),
                         "player_id": event.get("player", {}).get("id"),
@@ -579,9 +727,21 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                         description_text = card_description.get("defaultText") or card_description.get("localizedKey") or None
                     else:
                         description_text = card_description if isinstance(card_description, str) else None
+                    event_id = self._resolve_positive_event_id(
+                        raw_event_id=event.get("eventId"),
+                        synthetic_seed=(
+                            f"match_facts_card|{match_id}|{event.get('time')}|{event.get('overloadTime')}|"
+                            f"{event.get('homeScore')}|{event.get('awayScore')}|{event.get('isHome')}|"
+                            f"{event.get('player', {}).get('id')}|{event.get('card')}"
+                        ),
+                        table_name="cards",
+                        match_id=match_id,
+                        event_time=event.get("time"),
+                        player_id=event.get("player", {}).get("id"),
+                    )
                     card_data = {
                         "match_id": match_id,
-                        "event_id": event.get("eventId"),
+                        "event_id": event_id,
                         "time": event.get("time"),
                         "added_time": event.get("overloadTime"),
                         "player_id": event.get("player", {}).get("id"),
@@ -782,9 +942,39 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             for player_id_str, player_data_raw in player_stats_raw_map.items():
                 if not isinstance(player_data_raw, dict):
                     continue
+                raw_player_id = player_data_raw.get("id")
+                resolved_player_id = None
+                if isinstance(raw_player_id, int):
+                    resolved_player_id = raw_player_id
+                elif isinstance(raw_player_id, str) and raw_player_id.isdigit():
+                    resolved_player_id = int(raw_player_id)
+
+                if (resolved_player_id is None or resolved_player_id <= 0) and isinstance(player_id_str, str) and player_id_str.isdigit():
+                    parsed_key_id = int(player_id_str)
+                    if parsed_key_id > 0:
+                        resolved_player_id = parsed_key_id
+
+                if resolved_player_id is None or resolved_player_id <= 0:
+                    synthetic_seed = (
+                        f"player|{match_id}|{player_id_str}|{player_data_raw.get('name')}|"
+                        f"{player_data_raw.get('teamId')}|{player_data_raw.get('optaId')}"
+                    )
+                    resolved_player_id = self._generate_synthetic_player_id_int32(synthetic_seed)
+                    self.logger.warning(
+                        "Filled invalid source id using synthetic id",
+                        table_name="player",
+                        id_field="player_id",
+                        match_id=match_id,
+                        source_id=raw_player_id,
+                        source_map_key=player_id_str,
+                        resolved_id=resolved_player_id,
+                        strategy="synthetic",
+                        synthetic_seed=synthetic_seed,
+                        player_name=player_data_raw.get("name"),
+                    )
                 flat_data = {
                     "match_id": match_id,
-                    "id": player_data_raw.get("id"),
+                    "id": resolved_player_id,
                     "name": player_data_raw.get("name"),
                     "opta_id": player_data_raw.get("optaId"),
                     "team_id": player_data_raw.get("teamId"),
@@ -1034,13 +1224,22 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             lineup_raw = response_data.get("content", {}).get("lineup", {})
             if not isinstance(lineup_raw, dict):
                 return lineup_output
+            used_lineup_player_ids = self._collect_used_lineup_player_ids(lineup_raw)
             home_team_raw = lineup_raw.get("homeTeam", {})
             if isinstance(home_team_raw, dict):
                 home_starters = self._process_lineup_players(
-                    home_team_raw.get("starters", []), LineupPlayer, match_id, team_side="home"
+                    home_team_raw.get("starters", []),
+                    LineupPlayer,
+                    match_id,
+                    team_side="home",
+                    used_ids=used_lineup_player_ids,
                 )
                 home_substitutes = self._process_lineup_players(
-                    home_team_raw.get("subs", []), SubstitutePlayer, match_id, team_side="home"
+                    home_team_raw.get("subs", []),
+                    SubstitutePlayer,
+                    match_id,
+                    team_side="home",
+                    used_ids=used_lineup_player_ids,
                 )
                 lineup_output["starters"].extend(home_starters)
                 lineup_output["substitutes"].extend(home_substitutes)
@@ -1052,10 +1251,18 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             away_team_raw = lineup_raw.get("awayTeam", {})
             if isinstance(away_team_raw, dict):
                 away_starters = self._process_lineup_players(
-                    away_team_raw.get("starters", []), LineupPlayer, match_id, team_side="away"
+                    away_team_raw.get("starters", []),
+                    LineupPlayer,
+                    match_id,
+                    team_side="away",
+                    used_ids=used_lineup_player_ids,
                 )
                 away_substitutes = self._process_lineup_players(
-                    away_team_raw.get("subs", []), SubstitutePlayer, match_id, team_side="away"
+                    away_team_raw.get("subs", []),
+                    SubstitutePlayer,
+                    match_id,
+                    team_side="away",
+                    used_ids=used_lineup_player_ids,
                 )
                 lineup_output["starters"].extend(away_starters)
                 lineup_output["substitutes"].extend(away_substitutes)
@@ -1073,7 +1280,8 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
         players_raw: List[Dict[str, Any]],
         player_model,
         match_id: int,
-        team_side: str = "home"
+        team_side: str = "home",
+        used_ids: Optional[set] = None,
     ) -> List[Dict[str, Any]]:
         """
         Helper to process lineup players.
@@ -1083,30 +1291,36 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
         processed_players = []
         if not isinstance(players_raw, list):
             return processed_players
-        used_ids = set()
-        for existing_player_raw in players_raw:
-            if isinstance(existing_player_raw, dict):
-                existing_id = existing_player_raw.get("id")
-                if isinstance(existing_id, int):
-                    used_ids.add(existing_id)
-                elif isinstance(existing_id, str) and existing_id.isdigit():
-                    used_ids.add(int(existing_id))
+        if used_ids is None:
+            used_ids = set()
         for player_raw in players_raw:
             if not isinstance(player_raw, dict):
                 continue
-            player_id = player_raw.get("id")
-            if player_id is None:
+            raw_player_id = player_raw.get("id")
+            resolved_player_id = self._resolve_numeric_id(raw_player_id)
+
+            if resolved_player_id is None or resolved_player_id <= 0:
                 synthetic_id, synthetic_key = self._generate_synthetic_lineup_player_id(
                     match_id=match_id,
                     team_side=team_side,
-                    shirt_number=player_raw.get("shirtNumber"),
+                    player_raw=player_raw,
                     used_ids=used_ids,
                 )
                 player_id = synthetic_id
                 self.logger.warning(
-                    f"Missing lineup player id; assigned synthetic id {player_id} using key {synthetic_key} "
-                    f"(match {match_id}, team_side {team_side}, name {player_raw.get('name')})"
+                    "Filled invalid source id using synthetic id",
+                    table_name="lineup",
+                    id_field="player_id",
+                    match_id=match_id,
+                    source_id=raw_player_id,
+                    resolved_id=player_id,
+                    strategy="synthetic",
+                    synthetic_seed=synthetic_key,
+                    team_side=team_side,
+                    player_name=player_raw.get("name"),
                 )
+            else:
+                player_id = resolved_player_id
             player_data = {
                 "match_id": match_id,
                 "team_side": team_side,
@@ -1168,10 +1382,33 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             team_side: "home" or "away" indicates which team this coach belongs to
         """
         try:
+            raw_coach_id = coach_raw.get("id")
+            resolved_coach_id = self._resolve_numeric_id(raw_coach_id)
+            if resolved_coach_id is None or resolved_coach_id <= 0:
+                synthetic_seed = (
+                    f"coach|{match_id}|{team_side}|{coach_raw.get('name')}|"
+                    f"{coach_raw.get('firstName')}|{coach_raw.get('lastName')}|"
+                    f"{coach_raw.get('countryCode')}|{coach_raw.get('primaryTeamId')}"
+                )
+                resolved_coach_id = self._INT64_MAX - (
+                    int(hashlib.sha256(synthetic_seed.encode("utf-8")).hexdigest()[:16], 16) % 1_000_000_000_000_000
+                )
+                self.logger.warning(
+                    "Filled invalid source id using synthetic id",
+                    table_name="coaches",
+                    id_field="coach_id",
+                    match_id=match_id,
+                    source_id=raw_coach_id,
+                    resolved_id=resolved_coach_id,
+                    strategy="synthetic",
+                    synthetic_seed=synthetic_seed,
+                    team_side=team_side,
+                    coach_name=coach_raw.get("name"),
+                )
             coach_data = {
                 "match_id": match_id,
                 "team_side": team_side,
-                "id": coach_raw.get("id"),
+                "id": resolved_coach_id,
                 "age": coach_raw.get("age"),
                 "name": coach_raw.get("name"),
                 "first_name": coach_raw.get("firstName"),

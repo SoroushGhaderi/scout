@@ -22,8 +22,6 @@ class QueryExecutionSummary:
     query_type: str
     duration_ms: float
     success: bool
-    database: str
-    has_parameters: bool
     error: Optional[str] = None
 
     def as_log_fields(self) -> Dict[str, Any]:
@@ -226,8 +224,6 @@ class ClickHouseClient:
                 query_type=query_summary["query_type"],
                 duration_ms=round((time.perf_counter() - started_at) * 1000, 2),
                 success=True,
-                database=self.database,
-                has_parameters=bool(parameters),
             )
             if log_query:
                 self.logger.info(
@@ -240,8 +236,6 @@ class ClickHouseClient:
                 query_type=query_summary["query_type"],
                 duration_ms=round((time.perf_counter() - started_at) * 1000, 2),
                 success=False,
-                database=self.database,
-                has_parameters=bool(parameters),
                 error=str(e),
             )
             if log_query:

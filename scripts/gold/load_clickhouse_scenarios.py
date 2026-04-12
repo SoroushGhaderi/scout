@@ -15,6 +15,7 @@ from config.settings import settings
 from src.processors.gold.fotmob import FotMobGoldProcessor
 from src.storage.clickhouse_client import ClickHouseClient
 from src.storage.gold.fotmob import FotMobGoldStorage
+from src.utils.layer_contracts import LayerContractError, assert_gold_layer_contracts
 from src.utils.logging_utils import get_logger
 
 logger = get_logger()
@@ -128,8 +129,12 @@ def main(argv=None) -> int:
         scenario_exit_code = _run_scenario_scripts(dry_run=False)
         if scenario_exit_code != 0:
             return scenario_exit_code
+        assert_gold_layer_contracts(client, database="gold", log=logger)
         logger.info("Gold processing completed successfully")
         return 0
+    except LayerContractError as contract_error:
+        logger.error("Gold layer contract assertion failed", error=str(contract_error))
+        return 1
     finally:
         client.disconnect()
 

@@ -53,6 +53,12 @@ from src.utils.date_utils import (
     extract_year_month,
     format_date_compact_to_display,
 )
+from src.utils.layer_contracts import (
+    LayerContractError,
+    assert_bronze_dataframe_contract,
+    assert_bronze_layer_contracts,
+    get_bronze_invalid_key_rows,
+)
 from src.utils.logging_utils import get_logger, setup_logging
 
 # ============================================================================
@@ -149,15 +155,22 @@ def get_unique_key_columns(table_name: str) -> List[str]:
     return UNIQUE_KEY_COLUMNS.get(table_name, ["match_id"])
 
 
-def table_exists(client: ClickHouseClient, table_name: str, database: str = BRONZE_DATABASE) -> bool:
-    """Check if a table exists in ClickHouse."""
+def _is_missing_table_error(error: Exception) -> bool:
+    """Return True when an exception indicates a missing ClickHouse table."""
+    error_str = str(error).lower()
+    return "does not exist" in error_str or "unknown_table" in error_str
+
+
+def describe_table_schema_rows(
+    client: ClickHouseClient, table_name: str, database: str = BRONZE_DATABASE
+) -> Optional[List]:
+    """Return DESCRIBE TABLE rows, or None if the table does not exist."""
     try:
-        client.execute(f"DESCRIBE TABLE {database}.{table_name}")
-        return True
-    except Exception as e:
-        error_str = str(e).lower()
-        if "does not exist" in error_str or "unknown_table" in error_str:
-            return False
+        table_info = client.execute(f"DESCRIBE TABLE {database}.{table_name}")
+        return _extract_describe_rows(table_info)
+    except Exception as exc:
+        if _is_missing_table_error(exc):
+            return None
         raise
 
 
@@ -260,21 +273,15 @@ def rename_columns_for_table(
     return df
 
 
-def check_table_has_inserted_at(client: ClickHouseClient, table_name: str, database: str) -> bool:
-    """Check if table has inserted_at column."""
-    try:
-        table_info = client.execute(f"DESCRIBE TABLE {database}.{table_name}")
-        rows = _extract_describe_rows(table_info)
-
-        for row in rows:
-            if not row or len(row) < 2:
-                continue
-            col_name = row[0] if isinstance(row, (list, tuple)) else str(row)
-            if col_name == "inserted_at":
-                return True
-        return False
-    except Exception:
-        return False
+def check_table_has_inserted_at(schema_rows: List) -> bool:
+    """Check if DESCRIBE TABLE rows include inserted_at column."""
+    for row in schema_rows:
+        if not row or len(row) < 2:
+            continue
+        col_name = row[0] if isinstance(row, (list, tuple)) else str(row)
+        if col_name == "inserted_at":
+            return True
+    return False
 
 
 def _extract_describe_rows(table_info) -> List:
@@ -336,15 +343,13 @@ def _is_null_like(value: Any) -> bool:
 
 def validate_and_fix_schema(
     df: pd.DataFrame,
-    client: ClickHouseClient,
     table_name: str,
-    database: str,
     logger: logging.Logger,
+    schema_rows: List,
 ) -> pd.DataFrame:
     """Validate DataFrame against table schema and fix issues."""
     try:
-        table_info = client.execute(f"DESCRIBE TABLE {database}.{table_name}")
-        rows = _extract_describe_rows(table_info)
+        rows = schema_rows
 
         non_nullable_int_cols = []
         non_nullable_uint_cols = []
@@ -710,7 +715,8 @@ def process_fotmob_table(
     physical_table = to_bronze_table_name(clickhouse_table)
 
     # Check table exists
-    if not table_exists(client, physical_table, database=BRONZE_DATABASE):
+    schema_rows = describe_table_schema_rows(client, physical_table, database=BRONZE_DATABASE)
+    if schema_rows is None:
         logger.error(
             f"Table {BRONZE_DATABASE}.{physical_table} does not exist. "
             f"Please run 'python scripts/orchestration/setup_clickhouse.py' to create all required tables."
@@ -729,9 +735,10 @@ def process_fotmob_table(
     combined_df = prepare_int64_columns(combined_df, clickhouse_table)
     combined_df = prepare_nullable_numeric_columns(combined_df)
 
-    table_has_inserted_at = check_table_has_inserted_at(client, physical_table, BRONZE_DATABASE)
-    combined_df = validate_and_fix_schema(combined_df, client, physical_table, BRONZE_DATABASE, logger)
+    table_has_inserted_at = check_table_has_inserted_at(schema_rows)
+    combined_df = validate_and_fix_schema(combined_df, physical_table, logger, schema_rows)
     combined_df = add_inserted_at_column(combined_df, table_has_inserted_at)
+    assert_bronze_dataframe_contract(clickhouse_table, combined_df, log=logger)
 
     # Insert data
     try:
@@ -746,6 +753,8 @@ def process_fotmob_table(
         )
 
         return rows_inserted
+    except LayerContractError:
+        raise
     except Exception as e:
         error_str = str(e).lower()
         if "does not exist" in error_str or "unknown_table" in error_str:
@@ -825,6 +834,17 @@ def load_fotmob_data(
             },
         )
 
+        touched_tables = [
+            to_bronze_table_name(table_name)
+            for table_name in all_dataframes.keys()
+            if table_name in FOTMOB_TABLES
+        ]
+        baseline_invalid_rows_by_table = get_bronze_invalid_key_rows(
+            client,
+            table_names=touched_tables,
+            database=BRONZE_DATABASE,
+        )
+
         # Process main tables
         for table_name, df_list in all_dataframes.items():
             if table_name in TABLES_HANDLED_SEPARATELY:
@@ -844,6 +864,24 @@ def load_fotmob_data(
                     logger,
                 )
 
+        inserted_rows_by_table: Dict[str, int] = {}
+        for table_name, inserted_rows in stats.items():
+            if table_name == "cards_only":
+                inserted_rows_by_table["cards"] = inserted_rows_by_table.get("cards", 0) + inserted_rows
+            else:
+                inserted_rows_by_table[to_bronze_table_name(table_name)] = (
+                    inserted_rows_by_table.get(to_bronze_table_name(table_name), 0) + inserted_rows
+                )
+        assert_bronze_layer_contracts(
+            client,
+            inserted_rows_by_table=inserted_rows_by_table,
+            baseline_invalid_rows_by_table=baseline_invalid_rows_by_table,
+            database=BRONZE_DATABASE,
+            log=logger,
+        )
+
+    except LayerContractError:
+        raise
     except Exception as e:
         logger.error("Error loading FotMob data", extra={"date": date_str, "error": str(e)}, exc_info=True)
 
@@ -862,19 +900,14 @@ def _process_special_fotmob_table(
     if not non_empty_dfs:
         return 0
 
-    # Check table exists
-    try:
-        physical_table = to_bronze_table_name(table_name)
-        client.execute(f"DESCRIBE TABLE {BRONZE_DATABASE}.{physical_table}")
-    except Exception as e:
-        error_str = str(e).lower()
-        if "does not exist" in error_str or "unknown_table" in error_str:
-            logger.error(
-                f"Table {BRONZE_DATABASE}.{physical_table} does not exist. "
-                f"Please run 'python scripts/orchestration/setup_clickhouse.py' to create all required tables."
-            )
-            return 0
-        raise
+    physical_table = to_bronze_table_name(table_name)
+    schema_rows = describe_table_schema_rows(client, physical_table, database=BRONZE_DATABASE)
+    if schema_rows is None:
+        logger.error(
+            f"Table {BRONZE_DATABASE}.{physical_table} does not exist. "
+            f"Please run 'python scripts/orchestration/setup_clickhouse.py' to create all required tables."
+        )
+        return 0
 
     with warnings.catch_warnings():
         warnings.filterwarnings(
@@ -885,7 +918,8 @@ def _process_special_fotmob_table(
     combined_df = rename_columns_for_table(combined_df, table_name, logger)
     combined_df = prepare_int64_columns(combined_df, table_name)
     combined_df = prepare_nullable_numeric_columns(combined_df)
-    combined_df = validate_and_fix_schema(combined_df, client, physical_table, BRONZE_DATABASE, logger)
+    combined_df = validate_and_fix_schema(combined_df, physical_table, logger, schema_rows)
+    assert_bronze_dataframe_contract(table_name, combined_df, log=logger)
 
     # Add inserted_at only for tables that have it
     if table_name in TABLES_WITH_INSERTED_AT and "inserted_at" not in combined_df.columns:
@@ -901,6 +935,8 @@ def _process_special_fotmob_table(
         )
 
         return rows_inserted
+    except LayerContractError:
+        raise
     except Exception:
         return 0
 
@@ -1168,6 +1204,12 @@ def main(argv: Optional[List[str]] = None) -> int:
 
                 for table, count in stats.items():
                     total_stats[table] = total_stats.get(table, 0) + count
+            except LayerContractError as e:
+                logger.error(
+                    "Bronze layer contract assertion failed",
+                    extra={"database": database, "date": date_str, "error": str(e)},
+                )
+                return 1
             except Exception as e:
                 logger.error(
                     "Failed to load data for date",

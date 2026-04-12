@@ -635,7 +635,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
             quality_issues = None
             if self.processor and self.config.enable_data_quality_checks:
                 try:
-                    dataframes = self.processor.process_all(raw_data)
+                    dataframes, _ = self.processor.process_all(raw_data)
                     validation_results = DataQualityChecker.validate_all_dataframes(dataframes)
                     quality_issues = [
                         issue

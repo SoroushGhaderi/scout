@@ -14,7 +14,10 @@ SELECT
     NULL AS primary_team_id, NULL AS primary_team_name,
     now() AS _loaded_at
 FROM bronze.starters AS s FINAL
-LEFT JOIN bronze.general AS g FINAL ON s.match_id = g.match_id;
+LEFT JOIN bronze.general AS g FINAL ON s.match_id = g.match_id
+WHERE s.match_id > 0
+  AND s.player_id > 0
+  AND length(trim(BOTH ' ' FROM s.team_side)) > 0;
 
 INSERT INTO silver.match_personnel
 SELECT
@@ -34,7 +37,10 @@ SELECT
     NULL AS primary_team_id, NULL AS primary_team_name,
     now() AS _loaded_at
 FROM bronze.substitutes AS s FINAL
-LEFT JOIN bronze.general AS g FINAL ON s.match_id = g.match_id;
+LEFT JOIN bronze.general AS g FINAL ON s.match_id = g.match_id
+WHERE s.match_id > 0
+  AND s.player_id > 0
+  AND length(trim(BOTH ' ' FROM s.team_side)) > 0;
 
 INSERT INTO silver.match_personnel
 SELECT
@@ -56,4 +62,7 @@ SELECT
     c.primary_team_id, c.primary_team_name,
     now() AS _loaded_at
 FROM bronze.coaches AS c FINAL
-LEFT JOIN bronze.general AS g FINAL ON c.match_id = g.match_id;
+LEFT JOIN bronze.general AS g FINAL ON c.match_id = g.match_id
+WHERE c.match_id > 0
+  AND c.coach_id > 0
+  AND length(trim(BOTH ' ' FROM c.team_side)) > 0;
