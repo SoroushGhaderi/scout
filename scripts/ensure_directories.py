@@ -16,7 +16,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.utils.logging_utils import initialize_logging
+from src.utils.logging_utils import get_logger, initialize_logging
 
 logger = get_logger(__name__)
 

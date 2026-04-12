@@ -12,7 +12,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.utils.health_check import health_check
-from src.utils.logging_utils import setup_logging
+from src.utils.logging_utils import get_logger, setup_logging
 
 logger = get_logger(__name__)
 

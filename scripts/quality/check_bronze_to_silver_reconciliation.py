@@ -23,15 +23,25 @@ logger = get_logger()
 
 
 @dataclass(frozen=True)
-class CheckSpec:
-    """Defines one bronze->silver parity check."""
+class CheckDefinition:
+    """Entity-level reconciliation definition."""
 
     name: str
+    keys: List[str]
+    bronze_dataset_sql: str
+    silver_dataset_sql: str
+
+
+@dataclass(frozen=True)
+class CheckQueries:
+    """Generated SQL for a reconciliation check."""
+
+    name: str
+    keys: List[str]
     bronze_count_sql: str
     silver_count_sql: str
     missing_count_sql: str
     sample_sql: str
-    sample_fields: List[str]
 
 
 def _result_rows(result: Any) -> List[List[Any]]:
@@ -43,8 +53,7 @@ def _result_rows(result: Any) -> List[List[Any]]:
 
 
 def _query_scalar(client: ClickHouseClient, sql: str) -> int:
-    result = client.execute(sql, log_query=False)
-    rows = _result_rows(result)
+    rows = _result_rows(client.execute(sql, log_query=False))
     if not rows:
         return 0
     return int(rows[0][0])
@@ -58,333 +67,138 @@ def _format_row(row: List[Any]) -> str:
     return ", ".join(str(value) for value in row)
 
 
-def _build_specs(sample_limit: int) -> Dict[str, CheckSpec]:
+def _distinct_dataset_sql(table: str, keys: List[str], where: str = "") -> str:
+    where_clause = f"\nWHERE {where}" if where else ""
+    return (
+        "SELECT DISTINCT "
+        + ", ".join(keys)
+        + f"\nFROM {table} FINAL"
+        + where_clause
+    )
+
+
+def _personnel_bronze_dataset_sql() -> str:
+    return """
+        SELECT DISTINCT match_id, team_side, role, person_id
+        FROM (
+            SELECT
+                match_id,
+                team_side,
+                'starter' AS role,
+                player_id AS person_id
+            FROM bronze.starters FINAL
+            WHERE match_id > 0
+              AND player_id > 0
+              AND length(trim(BOTH ' ' FROM team_side)) > 0
+
+            UNION ALL
+
+            SELECT
+                match_id,
+                team_side,
+                'substitute' AS role,
+                player_id AS person_id
+            FROM bronze.substitutes FINAL
+            WHERE match_id > 0
+              AND player_id > 0
+              AND length(trim(BOTH ' ' FROM team_side)) > 0
+
+            UNION ALL
+
+            SELECT
+                match_id,
+                team_side,
+                'coach' AS role,
+                coach_id AS person_id
+            FROM bronze.coaches FINAL
+            WHERE match_id > 0
+              AND coach_id > 0
+              AND length(trim(BOTH ' ' FROM team_side)) > 0
+        )
+    """
+
+
+def _build_definitions() -> Dict[str, CheckDefinition]:
     return {
-        "match": CheckSpec(
+        "match": CheckDefinition(
             name="match",
-            bronze_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id
-                    FROM bronze.general FINAL
-                )
-            """,
-            silver_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id
-                    FROM silver.match FINAL
-                )
-            """,
-            missing_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id
-                    FROM bronze.general FINAL
-                ) AS b
-                LEFT JOIN (
-                    SELECT DISTINCT match_id
-                    FROM silver.match FINAL
-                ) AS s USING (match_id)
-                WHERE s.match_id IS NULL
-            """,
-            sample_sql=f"""
-                SELECT b.match_id
-                FROM (
-                    SELECT DISTINCT match_id
-                    FROM bronze.general FINAL
-                ) AS b
-                LEFT JOIN (
-                    SELECT DISTINCT match_id
-                    FROM silver.match FINAL
-                ) AS s USING (match_id)
-                WHERE s.match_id IS NULL
-                ORDER BY b.match_id
-                LIMIT {sample_limit}
-            """,
-            sample_fields=["match_id"],
+            keys=["match_id"],
+            bronze_dataset_sql=_distinct_dataset_sql("bronze.general", ["match_id"]),
+            silver_dataset_sql=_distinct_dataset_sql("silver.match", ["match_id"]),
         ),
-        "player": CheckSpec(
+        "player": CheckDefinition(
             name="player",
-            bronze_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id, player_id
-                    FROM bronze.player FINAL
-                    WHERE team_id IS NOT NULL
-                )
-            """,
-            silver_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id, player_id
-                    FROM silver.player_match_stat FINAL
-                )
-            """,
-            missing_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id, player_id
-                    FROM bronze.player FINAL
-                    WHERE team_id IS NOT NULL
-                ) AS b
-                LEFT JOIN (
-                    SELECT DISTINCT match_id, player_id
-                    FROM silver.player_match_stat FINAL
-                ) AS s USING (match_id, player_id)
-                WHERE s.match_id IS NULL
-            """,
-            sample_sql=f"""
-                SELECT b.match_id, b.player_id
-                FROM (
-                    SELECT DISTINCT match_id, player_id
-                    FROM bronze.player FINAL
-                    WHERE team_id IS NOT NULL
-                ) AS b
-                LEFT JOIN (
-                    SELECT DISTINCT match_id, player_id
-                    FROM silver.player_match_stat FINAL
-                ) AS s USING (match_id, player_id)
-                WHERE s.match_id IS NULL
-                ORDER BY b.match_id, b.player_id
-                LIMIT {sample_limit}
-            """,
-            sample_fields=["match_id", "player_id"],
+            keys=["match_id", "player_id"],
+            bronze_dataset_sql=_distinct_dataset_sql(
+                "bronze.player",
+                ["match_id", "player_id"],
+                where="team_id IS NOT NULL",
+            ),
+            silver_dataset_sql=_distinct_dataset_sql(
+                "silver.player_match_stat",
+                ["match_id", "player_id"],
+            ),
         ),
-        "shot": CheckSpec(
+        "shot": CheckDefinition(
             name="shot",
-            bronze_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id, shot_id
-                    FROM bronze.shotmap FINAL
-                )
-            """,
-            silver_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id, shot_id
-                    FROM silver.shot FINAL
-                )
-            """,
-            missing_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id, shot_id
-                    FROM bronze.shotmap FINAL
-                ) AS b
-                LEFT JOIN (
-                    SELECT DISTINCT match_id, shot_id
-                    FROM silver.shot FINAL
-                ) AS s USING (match_id, shot_id)
-                WHERE s.match_id IS NULL
-            """,
-            sample_sql=f"""
-                SELECT b.match_id, b.shot_id
-                FROM (
-                    SELECT DISTINCT match_id, shot_id
-                    FROM bronze.shotmap FINAL
-                ) AS b
-                LEFT JOIN (
-                    SELECT DISTINCT match_id, shot_id
-                    FROM silver.shot FINAL
-                ) AS s USING (match_id, shot_id)
-                WHERE s.match_id IS NULL
-                ORDER BY b.match_id, b.shot_id
-                LIMIT {sample_limit}
-            """,
-            sample_fields=["match_id", "shot_id"],
+            keys=["match_id", "shot_id"],
+            bronze_dataset_sql=_distinct_dataset_sql("bronze.shotmap", ["match_id", "shot_id"]),
+            silver_dataset_sql=_distinct_dataset_sql("silver.shot", ["match_id", "shot_id"]),
         ),
-        "card": CheckSpec(
+        "card": CheckDefinition(
             name="card",
-            bronze_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id, event_id
-                    FROM bronze.cards FINAL
-                )
-            """,
-            silver_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id, event_id
-                    FROM silver.card FINAL
-                )
-            """,
-            missing_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id, event_id
-                    FROM bronze.cards FINAL
-                ) AS b
-                LEFT JOIN (
-                    SELECT DISTINCT match_id, event_id
-                    FROM silver.card FINAL
-                ) AS s USING (match_id, event_id)
-                WHERE s.match_id IS NULL
-            """,
-            sample_sql=f"""
-                SELECT b.match_id, b.event_id
-                FROM (
-                    SELECT DISTINCT match_id, event_id
-                    FROM bronze.cards FINAL
-                ) AS b
-                LEFT JOIN (
-                    SELECT DISTINCT match_id, event_id
-                    FROM silver.card FINAL
-                ) AS s USING (match_id, event_id)
-                WHERE s.match_id IS NULL
-                ORDER BY b.match_id, b.event_id
-                LIMIT {sample_limit}
-            """,
-            sample_fields=["match_id", "event_id"],
+            keys=["match_id", "event_id"],
+            bronze_dataset_sql=_distinct_dataset_sql("bronze.cards", ["match_id", "event_id"]),
+            silver_dataset_sql=_distinct_dataset_sql("silver.card", ["match_id", "event_id"]),
         ),
-        "personnel": CheckSpec(
+        "personnel": CheckDefinition(
             name="personnel",
-            bronze_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id, team_side, role, person_id
-                    FROM (
-                        SELECT
-                            match_id,
-                            team_side,
-                            'starter' AS role,
-                            player_id AS person_id
-                        FROM bronze.starters FINAL
-                        WHERE match_id > 0
-                          AND player_id > 0
-                          AND length(trim(BOTH ' ' FROM team_side)) > 0
-
-                        UNION ALL
-
-                        SELECT
-                            match_id,
-                            team_side,
-                            'substitute' AS role,
-                            player_id AS person_id
-                        FROM bronze.substitutes FINAL
-                        WHERE match_id > 0
-                          AND player_id > 0
-                          AND length(trim(BOTH ' ' FROM team_side)) > 0
-
-                        UNION ALL
-
-                        SELECT
-                            match_id,
-                            team_side,
-                            'coach' AS role,
-                            coach_id AS person_id
-                        FROM bronze.coaches FINAL
-                        WHERE match_id > 0
-                          AND coach_id > 0
-                          AND length(trim(BOTH ' ' FROM team_side)) > 0
-                    )
-                )
-            """,
-            silver_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id, team_side, role, person_id
-                    FROM silver.match_personnel FINAL
-                )
-            """,
-            missing_count_sql="""
-                SELECT count()
-                FROM (
-                    SELECT DISTINCT match_id, team_side, role, person_id
-                    FROM (
-                        SELECT
-                            match_id,
-                            team_side,
-                            'starter' AS role,
-                            player_id AS person_id
-                        FROM bronze.starters FINAL
-                        WHERE match_id > 0
-                          AND player_id > 0
-                          AND length(trim(BOTH ' ' FROM team_side)) > 0
-
-                        UNION ALL
-
-                        SELECT
-                            match_id,
-                            team_side,
-                            'substitute' AS role,
-                            player_id AS person_id
-                        FROM bronze.substitutes FINAL
-                        WHERE match_id > 0
-                          AND player_id > 0
-                          AND length(trim(BOTH ' ' FROM team_side)) > 0
-
-                        UNION ALL
-
-                        SELECT
-                            match_id,
-                            team_side,
-                            'coach' AS role,
-                            coach_id AS person_id
-                        FROM bronze.coaches FINAL
-                        WHERE match_id > 0
-                          AND coach_id > 0
-                          AND length(trim(BOTH ' ' FROM team_side)) > 0
-                    )
-                ) AS b
-                LEFT JOIN (
-                    SELECT DISTINCT match_id, team_side, role, person_id
-                    FROM silver.match_personnel FINAL
-                ) AS s USING (match_id, team_side, role, person_id)
-                WHERE s.match_id IS NULL
-            """,
-            sample_sql=f"""
-                SELECT b.match_id, b.team_side, b.role, b.person_id
-                FROM (
-                    SELECT DISTINCT match_id, team_side, role, person_id
-                    FROM (
-                        SELECT
-                            match_id,
-                            team_side,
-                            'starter' AS role,
-                            player_id AS person_id
-                        FROM bronze.starters FINAL
-                        WHERE match_id > 0
-                          AND player_id > 0
-                          AND length(trim(BOTH ' ' FROM team_side)) > 0
-
-                        UNION ALL
-
-                        SELECT
-                            match_id,
-                            team_side,
-                            'substitute' AS role,
-                            player_id AS person_id
-                        FROM bronze.substitutes FINAL
-                        WHERE match_id > 0
-                          AND player_id > 0
-                          AND length(trim(BOTH ' ' FROM team_side)) > 0
-
-                        UNION ALL
-
-                        SELECT
-                            match_id,
-                            team_side,
-                            'coach' AS role,
-                            coach_id AS person_id
-                        FROM bronze.coaches FINAL
-                        WHERE match_id > 0
-                          AND coach_id > 0
-                          AND length(trim(BOTH ' ' FROM team_side)) > 0
-                    )
-                ) AS b
-                LEFT JOIN (
-                    SELECT DISTINCT match_id, team_side, role, person_id
-                    FROM silver.match_personnel FINAL
-                ) AS s USING (match_id, team_side, role, person_id)
-                WHERE s.match_id IS NULL
-                ORDER BY b.match_id, b.team_side, b.role, b.person_id
-                LIMIT {sample_limit}
-            """,
-            sample_fields=["match_id", "team_side", "role", "person_id"],
+            keys=["match_id", "team_side", "role", "person_id"],
+            bronze_dataset_sql=_personnel_bronze_dataset_sql(),
+            silver_dataset_sql=_distinct_dataset_sql(
+                "silver.match_personnel",
+                ["match_id", "team_side", "role", "person_id"],
+            ),
         ),
+    }
+
+
+def _build_queries(defn: CheckDefinition, sample_limit: int) -> CheckQueries:
+    keys_csv = ", ".join(defn.keys)
+    first_key = defn.keys[0]
+    order_by_csv = ", ".join(f"b.{key}" for key in defn.keys)
+    select_keys_csv = ", ".join(f"b.{key}" for key in defn.keys)
+
+    bronze_subquery = f"(\n{defn.bronze_dataset_sql}\n)"
+    silver_subquery = f"(\n{defn.silver_dataset_sql}\n)"
+
+    return CheckQueries(
+        name=defn.name,
+        keys=defn.keys,
+        bronze_count_sql=f"SELECT count() FROM {bronze_subquery} AS b",
+        silver_count_sql=f"SELECT count() FROM {silver_subquery} AS s",
+        missing_count_sql=(
+            "SELECT count()\n"
+            f"FROM {bronze_subquery} AS b\n"
+            f"LEFT JOIN {silver_subquery} AS s USING ({keys_csv})\n"
+            f"WHERE s.{first_key} IS NULL"
+        ),
+        sample_sql=(
+            f"SELECT {select_keys_csv}\n"
+            f"FROM {bronze_subquery} AS b\n"
+            f"LEFT JOIN {silver_subquery} AS s USING ({keys_csv})\n"
+            f"WHERE s.{first_key} IS NULL\n"
+            f"ORDER BY {order_by_csv}\n"
+            f"LIMIT {sample_limit}"
+        ),
+    )
+
+
+def _build_all_queries(sample_limit: int) -> Dict[str, CheckQueries]:
+    definitions = _build_definitions()
+    return {
+        check_name: _build_queries(defn, sample_limit=sample_limit)
+        for check_name, defn in definitions.items()
     }
 
 
@@ -432,7 +246,7 @@ def main(argv: List[str] = None) -> int:
         logger.error("sample-limit must be a positive integer", sample_limit=args.sample_limit)
         return 2
 
-    specs = _build_specs(sample_limit=args.sample_limit)
+    specs = _build_all_queries(sample_limit=args.sample_limit)
 
     try:
         selected_checks = _resolve_requested_checks(args.checks, list(specs.keys()))
@@ -491,7 +305,7 @@ def main(argv: List[str] = None) -> int:
                 "[FAIL] Missing entities found",
                 check=spec.name,
                 missing_count=missing_count,
-                sample_fields=spec.sample_fields,
+                sample_fields=spec.keys,
             )
 
             sample_rows = _query_rows(client, spec.sample_sql)

@@ -22,7 +22,11 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/ensure_directories.py`
 - `scripts/health_check.py`
 - `scripts/refresh_turnstile.py`
-- `scripts/check_logging_style.py`
+
+## Quality Check Scripts
+
+- `scripts/quality/check_bronze_to_silver_reconciliation.py`
+- `scripts/quality/check_logging_style.py`
 
 ## Scenario Scripts
 

@@ -32,6 +32,10 @@ Current layer runners:
 - `scripts/silver/load_clickhouse.py`
 - `scripts/gold/load_clickhouse_scenarios.py`
 
+Current quality runners:
+- `scripts/quality/check_bronze_to_silver_reconciliation.py`
+- `scripts/quality/check_logging_style.py`
+
 Current shared SQL execution helper:
 - `src/storage/clickhouse_sql_executor.py`
 
@@ -52,21 +56,22 @@ Current shared SQL execution helper:
 - Optimize for BI/reporting/product use cases
 - Keep business logic explicit and testable
 
-## 3. SQL Folder Structure (Current + Target)
+## 3. SQL Folder Structure (Current)
 
 Current repository structure:
 
 ```text
 clickhouse/
   silver/
-    create/
+    ddl/
       00_create_database.sql
       01_match.sql
       ...
-    load/
+    dml/
       01_match.sql
       02_period_stat.sql
       ...
+    load/ (legacy fallback, read only if `dml/` files are missing)
   gold/
     00_create_database.sql
     01_create_scenario_tables.sql
@@ -74,13 +79,9 @@ clickhouse/
       scenario_*.sql
 ```
 
-Target structure (future refactor):
-- move toward `ddl/` + `dml/` folders for both Silver and Gold
-- keep behavior unchanged during migration
-
 ### Naming Standard
 
-- Silver create/load format: `NN_<entity>.sql`
+- Silver DDL/DML format: `NN_<entity>.sql`
 - Gold scenario format: `scenario_<name>.sql`
 - Numeric prefixes control order; lexical sort is execution order
 - Keep one concern per file (avoid very large mixed scripts)
@@ -100,10 +101,11 @@ Python is orchestration, SQL is transformation logic.
 
 ### Runner Responsibilities
 
-- Discover SQL files by layer/stage (`create`, `load`, `scenario`)
+- Discover SQL files by layer/stage (`ddl`, `dml`, `scenario`)
 - Execute in deterministic order
 - Log query file, statement count, elapsed time, success/failure
 - Stop on failure with clear context
+- Support `--dry-run` for plan/preview without SQL execution
 
 ### Runner Must Not
 
@@ -132,16 +134,16 @@ Keep your existing shape and evolve it incrementally.
 
 ### Improve Next
 
-1. Migrate folder conventions from `create/load` to `ddl/dml` without changing runtime behavior
-2. Add optional `--dry-run` in `scripts/silver/load_clickhouse.py` and `scripts/gold/load_clickhouse_scenarios.py`
-3. Add execution summary object (files run, statements run, elapsed seconds, failed file)
-4. Add query-level metrics/logging for better observability
+1. Add dedicated tests for `silver/dml` discovery + `silver/load` fallback behavior
+2. Add an explicit quality-check orchestration step in the pipeline after Silver load
+3. Add execution summary artifact output (files run, statements run, elapsed seconds, failed file)
+4. Expand query-level metrics/logging for better observability
 
 ## 6. How to Add a New Silver Query
 
 1. Identify query type:
-- Schema/table change -> `clickhouse/silver/create/`
-- Data refresh/load -> `clickhouse/silver/load/`
+- Schema/table change -> `clickhouse/silver/ddl/`
+- Data refresh/load -> `clickhouse/silver/dml/`
 
 2. Add file with next ordered prefix:
 - Example: `09_player_quality_rules.sql`
@@ -149,7 +151,7 @@ Keep your existing shape and evolve it incrementally.
 3. Ensure idempotency and safe rerun behavior
 
 4. Run locally (Python scripts directly; no Makefile required):
-- `python scripts/silver/setup_clickhouse.py` (only if `create/` changed)
+- `python scripts/silver/setup_clickhouse.py` (only if `ddl/` changed)
 - `python scripts/silver/load_clickhouse.py` (data load only)
 
 5. Validate outputs with explicit checks in ClickHouse
@@ -188,6 +190,7 @@ Keep your existing shape and evolve it incrementally.
 - Duplicate key checks on expected unique keys
 - Freshness checks for latest processed dates
 - Aggregate reconciliation checks (Silver vs Gold)
+- Bronze-to-Silver key reconciliation checks (match/player/shot/card/personnel)
 
 ## 9. Operational Runbook
 
@@ -209,6 +212,10 @@ python scripts/orchestration/pipeline.py 20251113 --gold-only
 # Direct layer runs
 python scripts/silver/load_clickhouse.py
 python scripts/gold/load_clickhouse_scenarios.py
+
+# Quality checks
+python scripts/quality/check_bronze_to_silver_reconciliation.py --strict
+python scripts/quality/check_logging_style.py
 ```
 
 ### Incident Basics
@@ -229,21 +236,21 @@ python scripts/gold/load_clickhouse_scenarios.py
 
 ### P1
 
-- Add `--dry-run` support for Silver/Gold runners
 - Add query execution summaries and consistent structured logs
 - Add tests around SQL discovery and failure semantics
+- Add tests for quality scripts and failure exit-code semantics
 
 ### P2
 
-- Add lightweight data contracts and quality assertions per layer
 - Add incremental refresh strategy per Gold table
 - Add layer-level performance dashboards (duration, success rate)
+- Add quality trend metrics (coverage %, missing keys over time)
 
 ## 11. Final Standards Checklist
 
 Use this checklist for each PR touching Silver/Gold:
 
-- Query file is in correct layer and stage (`create`, `load`, or `scenario`)
+- Query file is in correct layer and stage (`ddl`, `dml`, or `scenario`)
 - Naming follows the active layer convention (`NN_<entity>.sql` or `scenario_<name>.sql`)
 - SQL is idempotent or rerun strategy is explicit
 - Python changes are orchestration-only
@@ -259,20 +266,20 @@ Use this as the default roadmap for the next iterations.
 1. Keep boundaries strict:
 - `setup_clickhouse` scripts create/alter schema objects
 - `load_clickhouse` scripts insert/refresh data only
-2. Add a CI check that fails if `scripts/silver/load_clickhouse.py` imports or executes `clickhouse/silver/create/*.sql`
-3. Add a short runbook section in PR templates: setup first, then load
+2. Keep Silver loader reading `clickhouse/silver/dml/` first with `load/` as legacy fallback
+3. Run reconciliation checks after Silver loads in operational workflows
 
 ### Phase 2 (Next)
 
-1. Add `--dry-run` to Silver and Gold loaders
-2. Emit execution summary per run (files, statements, duration, failed file)
-3. Add data quality checks for key Silver tables (nulls, duplicates, freshness)
+1. Emit execution summary per run (files, statements, duration, failed file)
+2. Add data quality checks for key Silver tables (nulls, duplicates, freshness)
+3. Add CI execution for quality scripts
 
 ### Phase 3 (Later)
 
-1. Migrate folder naming from `create/load` to `ddl/dml` gradually
-2. Add backward-compatible loader discovery during migration
-3. Remove legacy path support only after all SQL files and scripts are migrated
+1. Remove legacy `clickhouse/silver/load/` support after migration window closes
+2. Add richer reconciliation dimensions (period/momentum/team_form)
+3. Remove transitional docs once all pipelines depend on quality gates
 
 ---
 
@@ -544,17 +551,19 @@ These are mandatory for ClickHouse objects used by Scout.
 
 ### Silver
 
-- `silver.general`
-- `silver.player`
-- `silver.shotmap`
-- `silver.period`
-- `silver.venue`
+- `silver.match`
+- `silver.period_stat`
+- `silver.player_match_stat`
+- `silver.momentum`
+- `silver.shot`
+- `silver.card`
+- `silver.match_personnel`
+- `silver.team_form`
 
 ### Gold
 
-- `gold.player_match_stats`
-- `gold.match_summary`
-- `gold.team_season_stats`
+- `gold.scenario_*` (many scenario-specific tables created by scenario SQL/scripts)
+- Additional Gold summary tables should be documented only after they are created in ClickHouse DDL.
 
 Bare warehouse names like `general`, `player`, or `timeline` should not be used for persisted ClickHouse objects.
 
@@ -587,6 +596,13 @@ Check health:
 ```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py --json
+```
+
+Run quality checks:
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/quality/check_logging_style.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/quality/check_bronze_to_silver_reconciliation.py --strict
 ```
 
 ## 11. Troubleshooting
@@ -624,7 +640,7 @@ Scout is currently FotMob-only.
 ## Part 3: Architecture Suggestions
 
 
-> Updated: 2026-03-25
+> Updated: 2026-04-12
 > Scope: FotMob-only medallion pipeline
 
 This document reflects the current target architecture for Scout after the layer-separation cleanup.
@@ -726,6 +742,8 @@ Scripts should map to one responsibility each.
 - `scripts/gold/setup_clickhouse_gold.py`: create Gold schema only
 - `scripts/orchestration/setup_clickhouse.py`: convenience wrapper that runs the three layer setup scripts in order
 - `scripts/orchestration/pipeline.py`: orchestration wrapper, not a place to hide layer-specific logic
+- `scripts/quality/check_bronze_to_silver_reconciliation.py`: validate bronze-vs-silver entity parity and counts
+- `scripts/quality/check_logging_style.py`: validate logging style conventions across Python modules
 
 ## 7. Recommended End-to-End Flow
 

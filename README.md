@@ -258,10 +258,13 @@ scout/
 │   ├── orchestration/
 │   │   ├── pipeline.py
 │   │   └── setup_clickhouse.py
+│   ├── quality/
+│   │   ├── check_bronze_to_silver_reconciliation.py
+│   │   └── check_logging_style.py
 │   ├── ensure_directories.py
 │   ├── health_check.py
 │   ├── refresh_turnstile.py
-│   └── check_logging_style.py
+│   └── utils/
 ├── src/
 │   ├── processors/
 │   │   ├── bronze/
@@ -294,6 +297,13 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_c
 
 ```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/setup_clickhouse.py
+```
+
+### Run quality checks
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/quality/check_logging_style.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/quality/check_bronze_to_silver_reconciliation.py --strict
 ```
 
 ## Notes
