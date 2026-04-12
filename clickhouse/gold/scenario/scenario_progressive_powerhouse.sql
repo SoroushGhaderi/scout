@@ -50,9 +50,9 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side,
-    g.match_time_utc_date
-FROM bronze.player AS p
-INNER JOIN bronze.general AS g
+    toString(g.match_date)
+FROM silver.player_match_stat AS p
+INNER JOIN silver.match AS g
     ON p.match_id = g.match_id
 WHERE
     g.match_finished = 1

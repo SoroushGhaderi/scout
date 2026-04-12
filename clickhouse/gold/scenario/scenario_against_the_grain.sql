@@ -45,7 +45,7 @@ WITH team_possession AS (
         match_id,
         ball_possession_home,
         ball_possession_away
-    FROM bronze.period
+    FROM silver.period_stat
     WHERE period = 'All'
 )
 
@@ -135,10 +135,10 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away_win'
         ELSE 'draw'
     END AS match_result,
-    g.match_time_utc_date
+    toString(g.match_date)
 
-FROM bronze.general AS g
-INNER JOIN bronze.player AS p
+FROM silver.match AS g
+INNER JOIN silver.player_match_stat AS p
     ON g.match_id = p.match_id
 INNER JOIN team_possession AS tp
     ON g.match_id = tp.match_id

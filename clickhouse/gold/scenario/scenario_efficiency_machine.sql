@@ -64,9 +64,9 @@ SELECT
         WHEN g.home_score > g.away_score THEN round(avgIf(s.expected_goals, s.team_id = g.home_team_id), 3)
         WHEN g.away_score > g.home_score THEN round(avgIf(s.expected_goals, s.team_id = g.away_team_id), 3)
     END AS winner_avg_xg_per_shot,
-    g.match_time_utc_date
-FROM bronze.shotmap AS s
-INNER JOIN bronze.general AS g
+    toString(g.match_date)
+FROM silver.shot AS s
+INNER JOIN silver.match AS g
     ON s.match_id = g.match_id
 WHERE
     -- Finished non-draw matches with valid xG and shot data.
@@ -82,7 +82,7 @@ GROUP BY
     g.away_team_name,
     g.home_score,
     g.away_score,
-    g.match_time_utc_date
+    toString(g.match_date)
 HAVING
     -- Winner must combine low shot volume with high average xG per shot.
     (g.home_score > g.away_score AND home_total_shots <= 5 AND home_avg_xg_per_shot > 0.25)

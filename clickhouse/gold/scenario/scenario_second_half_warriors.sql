@@ -23,9 +23,9 @@ INSERT INTO gold.scenario_second_half_warriors
 WITH ht_score AS (
     SELECT
         match_id,
-        sumIf(is_home = 1, shot_period = 'FirstHalf') AS home_score_ht,
-        sumIf(is_home = 0, shot_period = 'FirstHalf') AS away_score_ht
-    FROM bronze.goal
+        sumIf(is_home_goal = 1, is_goal = 1 AND period = 'FirstHalf') AS home_score_ht,
+        sumIf(is_home_goal = 0, is_goal = 1 AND period = 'FirstHalf') AS away_score_ht
+    FROM silver.shot
     GROUP BY match_id
 )
 SELECT
@@ -61,8 +61,8 @@ SELECT
         WHEN ht.away_score_ht < ht.home_score_ht AND g.away_score > g.home_score THEN 'win'
         WHEN ht.away_score_ht < ht.home_score_ht AND g.away_score = g.home_score THEN 'draw'
     END AS comeback_type,
-    g.match_time_utc_date
-FROM bronze.general AS g
+    toString(g.match_date)
+FROM silver.match AS g
 INNER JOIN ht_score AS ht
     ON g.match_id = ht.match_id
 WHERE

@@ -55,9 +55,9 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'Away Win'
         ELSE 'Draw'
     END AS LowCardinality(String)) AS match_result,
-    g.match_time_utc_date
-FROM bronze.player AS p
-INNER JOIN bronze.general AS g
+    toString(g.match_date)
+FROM silver.player_match_stat AS p
+INNER JOIN silver.match AS g
     ON p.match_id = g.match_id
 WHERE
     -- Finished matches with high direct goal involvement by one player.

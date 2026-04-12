@@ -47,9 +47,9 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'Away Win'
         ELSE 'Draw'
     END AS LowCardinality(String)) AS match_result,
-    g.match_time_utc_date
-FROM bronze.shotmap AS s
-INNER JOIN bronze.general AS g
+    toString(g.match_date)
+FROM silver.shot AS s
+INNER JOIN silver.match AS g
     ON s.match_id = g.match_id
 WHERE
     -- Finished matches only with valid non-own-goal shot quality data.
@@ -67,7 +67,7 @@ GROUP BY
     s.player_id,
     s.player_name,
     s.team_id,
-    g.match_time_utc_date
+    toString(g.match_date)
 HAVING
     -- Efficient multi-goal output from low volume/low xG chance creation.
     goals >= 2

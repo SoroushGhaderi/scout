@@ -35,8 +35,8 @@ WITH team_shots_faced AS (
         g.match_id,
         countIf(s.team_id = g.home_team_id AND coalesce(s.is_own_goal, 0) != 1) AS home_team_shots,
         countIf(s.team_id = g.away_team_id AND coalesce(s.is_own_goal, 0) != 1) AS away_team_shots
-    FROM bronze.general AS g
-    LEFT JOIN bronze.shotmap AS s
+    FROM silver.match AS g
+    LEFT JOIN silver.shot AS s
         ON g.match_id = s.match_id
     GROUP BY g.match_id, g.home_team_id, g.away_team_id
 )
@@ -98,14 +98,14 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'Away Win'
         ELSE 'Draw'
     END AS match_result,
-    g.match_time_utc_date
+    toString(g.match_date)
 
-FROM bronze.general AS g
-INNER JOIN bronze.player AS p
+FROM silver.match AS g
+INNER JOIN silver.player_match_stat AS p
     ON g.match_id = p.match_id
 INNER JOIN team_shots_faced AS tsf
     ON g.match_id = tsf.match_id
-INNER JOIN bronze.period AS p_period
+INNER JOIN silver.period_stat AS p_period
     ON g.match_id = p_period.match_id
     AND p_period.period = 'All'
 WHERE

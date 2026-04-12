@@ -30,7 +30,7 @@ SELECT
     g.away_team_name,
     g.home_score,
     g.away_score,
-    g.match_time_utc_date,
+    toString(g.match_date),
     p.period,
     p.ball_possession_home,
     p.ball_possession_away,
@@ -55,8 +55,8 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side
-FROM bronze.general AS g
-INNER JOIN bronze.period AS p
+FROM silver.match AS g
+INNER JOIN silver.period_stat AS p
     ON g.match_id = p.match_id
 WHERE
     g.match_finished = 1
@@ -66,4 +66,4 @@ WHERE
         OR
         (p.ball_possession_away > 65 AND p.passes_away > 600 AND (p.expected_goals_away < 0.75 OR p.shots_on_target_away < 2))
     )
-ORDER BY g.match_time_utc_date DESC;
+ORDER BY toString(g.match_date) DESC;

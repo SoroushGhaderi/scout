@@ -49,7 +49,7 @@ SELECT
     g.home_score,
     g.away_score,
     g.league_name,
-    g.match_time_utc_date,
+    toString(g.match_date),
     p.player_id,
     p.player_name,
     p.team_id,
@@ -85,16 +85,17 @@ SELECT
     p.pass_accuracy,
     p.expected_goals,
     p.expected_assists
-FROM bronze.player AS p
+FROM silver.player_match_stat AS p
 FINAL
-INNER JOIN bronze.general AS g
+INNER JOIN silver.match AS g
     FINAL ON p.match_id = g.match_id
-INNER JOIN bronze.starters AS s
+INNER JOIN silver.match_personnel AS s
     FINAL
     ON p.match_id = s.match_id
-    AND p.player_id = s.player_id
+    AND p.player_id = s.person_id
 WHERE
     g.match_finished = 1
+    AND s.role = 'starter'
     AND p.is_goalkeeper = 0
     AND (
         coalesce(p.tackles_won, 0)

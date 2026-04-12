@@ -27,15 +27,16 @@ WITH final_score_goals AS (
         match_id,
         goal_time,
         goal_overload_time,
-        is_home,
-        home_score,
-        away_score,
-        if(is_home = 1, home_score - 1, home_score) AS home_score_before,
-        if(is_home = 0, away_score - 1, away_score) AS away_score_before,
+        is_home_goal,
+        home_score_after,
+        away_score_after,
+        if(is_home_goal = 1, home_score_after - 1, home_score_after) AS home_score_before,
+        if(is_home_goal = 0, away_score_after - 1, away_score_after) AS away_score_before,
         player_id,
         player_name,
         row_number() OVER (PARTITION BY match_id ORDER BY goal_time DESC, goal_overload_time DESC) AS rn
-    FROM bronze.goal
+    FROM silver.shot
+    WHERE is_goal = 1
 )
 SELECT
     -- 1. Match Identity
@@ -69,8 +70,8 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side,
-    g.match_time_utc_date
-FROM bronze.general AS g
+    toString(g.match_date)
+FROM silver.match AS g
 INNER JOIN final_score_goals AS wg
     ON g.match_id = wg.match_id
     AND wg.rn = 1
@@ -80,8 +81,8 @@ WHERE
     AND g.home_score != g.away_score
     AND wg.goal_time >= 85
     AND (
-        (g.home_score > g.away_score AND wg.is_home = 1 AND wg.home_score_before <= wg.away_score_before)
+        (g.home_score > g.away_score AND wg.is_home_goal = 1 AND wg.home_score_before <= wg.away_score_before)
         OR
-        (g.away_score > g.home_score AND wg.is_home = 0 AND wg.away_score_before <= wg.home_score_before)
+        (g.away_score > g.home_score AND wg.is_home_goal = 0 AND wg.away_score_before <= wg.home_score_before)
     )
 ORDER BY wg.goal_time DESC, wg.goal_overload_time DESC;

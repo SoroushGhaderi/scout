@@ -38,8 +38,8 @@ SELECT
         WHEN away_score - home_score >= 3 THEN 'away'
         ELSE 'draw'
     END AS winning_side,
-    match_time_utc_date
-FROM bronze.general FINAL
+    toString(match_date) AS match_time_utc_date
+FROM silver.match FINAL
 WHERE
     -- Finished matches with a 3+ goal winning margin.
     match_finished = 1

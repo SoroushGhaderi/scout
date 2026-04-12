@@ -36,7 +36,7 @@ SELECT
     g.away_team_name,
     g.home_score,
     g.away_score,
-    g.match_time_utc_date,
+    toString(g.match_date),
 
     -- 2. Aggression Metrics (home + away combined)
     (ifNull(p.fouls_home, 0) + ifNull(p.fouls_away, 0)) AS total_match_fouls,
@@ -68,8 +68,8 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side
-FROM bronze.general AS g
-INNER JOIN bronze.period AS p
+FROM silver.match AS g
+INNER JOIN silver.period_stat AS p
     ON g.match_id = p.match_id
 WHERE
     -- Full-match team aggregates only.

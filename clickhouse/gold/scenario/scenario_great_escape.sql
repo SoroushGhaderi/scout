@@ -22,9 +22,9 @@ INSERT INTO gold.scenario_great_escape
 WITH goals_at_60 AS (
     SELECT
         match_id,
-        sumIf(is_home = 1, goal_time <= 60) AS home_score_at_60,
-        sumIf(is_home = 0, goal_time <= 60) AS away_score_at_60
-    FROM bronze.goal
+        sumIf(is_home_goal = 1, is_goal = 1 AND goal_time <= 60) AS home_score_at_60,
+        sumIf(is_home_goal = 0, is_goal = 1 AND goal_time <= 60) AS away_score_at_60
+    FROM silver.shot
     GROUP BY match_id
 )
 SELECT
@@ -56,8 +56,8 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side,
-    g.match_time_utc_date
-FROM bronze.general AS g
+    toString(g.match_date)
+FROM silver.match AS g
 INNER JOIN goals_at_60 AS s
     ON g.match_id = s.match_id
 WHERE

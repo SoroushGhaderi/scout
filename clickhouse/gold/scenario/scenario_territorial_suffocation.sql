@@ -36,7 +36,7 @@ SELECT
     g.home_score,
     g.away_score,
     g.league_name,
-    g.match_time_utc_date,
+    toString(g.match_date),
     coalesce(p.ball_possession_home, 0) AS possession_home,
     coalesce(p.ball_possession_away, 0) AS possession_away,
     coalesce(p.shots_on_target_home, 0) AS shots_on_target_home,
@@ -53,9 +53,9 @@ SELECT
     coalesce(p.passes_away, 0) AS passes_away,
     coalesce(p.corners_home, 0) AS corners_home,
     coalesce(p.corners_away, 0) AS corners_away
-FROM bronze.period AS p
+FROM silver.period_stat AS p
 FINAL
-INNER JOIN bronze.general AS g
+INNER JOIN silver.match AS g
     FINAL ON p.match_id = g.match_id
 WHERE
     g.match_finished = 1
@@ -74,4 +74,4 @@ WHERE
         )
     )
 ORDER BY
-    g.match_time_utc_date DESC;
+    toString(g.match_date) DESC;

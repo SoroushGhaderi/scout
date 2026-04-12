@@ -51,9 +51,9 @@ SELECT
         WHEN g.home_score > g.away_score THEN p.expected_goals_away
         WHEN g.away_score > g.home_score THEN p.expected_goals_home
     END AS xg_conceded,
-    g.match_time_utc_date
-FROM bronze.general AS g
-INNER JOIN bronze.period AS p
+    toString(g.match_date)
+FROM silver.match AS g
+INNER JOIN silver.period_stat AS p
     ON g.match_id = p.match_id
     AND p.period = 'All'
 WHERE

@@ -28,7 +28,7 @@ WITH team_shots_cte AS (
         match_id,
         team_id,
         sum(coalesce(total_shots, 0)) AS team_total_shots
-    FROM bronze.player
+    FROM silver.player_match_stat
     FINAL
     WHERE is_goalkeeper = 0
     GROUP BY
@@ -56,16 +56,16 @@ SELECT
     ts.team_total_shots,
     round(p.total_shots / nullIf(ts.team_total_shots, 0) * 100, 1) AS shot_share_pct,
     g.league_name,
-    g.match_time_utc_date,
+    toString(g.match_date),
     g.home_team_id,
     g.away_team_id,
     g.home_team_name,
     g.away_team_name,
     g.home_score,
     g.away_score
-FROM bronze.player AS p
+FROM silver.player_match_stat AS p
 FINAL
-INNER JOIN bronze.general AS g
+INNER JOIN silver.match AS g
     FINAL ON p.match_id = g.match_id
 INNER JOIN team_shots_cte AS ts
     ON p.match_id = ts.match_id

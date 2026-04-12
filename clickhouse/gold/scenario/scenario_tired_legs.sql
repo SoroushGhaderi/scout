@@ -45,11 +45,11 @@ INSERT INTO gold.scenario_tired_legs
 WITH late_goals AS (
     SELECT
         match_id,
-        countIf(goal_time >= 75) AS late_goals,
-        countIf(goal_time >= 75 AND is_home = 1) AS late_goals_home,
-        countIf(goal_time >= 75 AND is_home = 0) AS late_goals_away,
-        count() AS total_goals
-    FROM bronze.goal
+        countIf(is_goal = 1 AND goal_time >= 75) AS late_goals,
+        countIf(is_goal = 1 AND goal_time >= 75 AND is_home_goal = 1) AS late_goals_home,
+        countIf(is_goal = 1 AND goal_time >= 75 AND is_home_goal = 0) AS late_goals_away,
+        countIf(is_goal = 1) AS total_goals
+    FROM silver.shot
     GROUP BY match_id
 ),
 shot_volumes AS (
@@ -59,7 +59,7 @@ shot_volumes AS (
         countIf(minute >= 75 AND is_on_target = 1) AS late_shots_on_target,
         count() AS total_shots,
         round(countIf(minute >= 75) / nullIf(count(), 0) * 100, 2) AS late_shot_pct
-    FROM bronze.shotmap
+    FROM silver.shot
     GROUP BY match_id
 ),
 late_xg AS (
@@ -67,7 +67,7 @@ late_xg AS (
         match_id,
         round(sumIf(expected_goals, minute >= 75), 3) AS late_xg_total,
         round(sum(expected_goals), 3) AS total_xg
-    FROM bronze.shotmap
+    FROM silver.shot
     WHERE expected_goals IS NOT NULL
     GROUP BY match_id
 ),
@@ -78,9 +78,10 @@ attacking_subs AS (
         countIf(substitution_time >= 60 AND substitution_time <= 75) AS attacking_subs_60_75,
         countIf(substitution_time >= 75) AS subs_after_75,
         count() AS total_subs
-    FROM bronze.substitutes
-    WHERE substitution_time IS NOT NULL
-    GROUP BY match_id, team_side
+FROM silver.match_personnel
+WHERE substitution_time IS NOT NULL
+  AND role = 'substitute'
+GROUP BY match_id, team_side
 ),
 subs_per_match AS (
     SELECT
@@ -101,7 +102,7 @@ SELECT
     g.home_score,
     g.away_score,
     abs(g.home_score - g.away_score) AS goal_diff,
-    g.match_time_utc_date,
+    toString(g.match_date),
 
     -- 2. Late Goal Metrics
     lg.total_goals,
@@ -159,7 +160,7 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side
-FROM bronze.general AS g
+FROM silver.match AS g
 INNER JOIN late_goals AS lg
     ON g.match_id = lg.match_id
 INNER JOIN shot_volumes AS sv

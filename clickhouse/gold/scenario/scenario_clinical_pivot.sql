@@ -40,7 +40,7 @@ SELECT
     g.home_score,
     g.away_score,
     g.league_name,
-    g.match_time_utc_date,
+    toString(g.match_date),
     p.player_id,
     p.player_name,
     p.team_id,
@@ -61,9 +61,9 @@ SELECT
     p.recoveries,
     p.defensive_actions,
     p.xg_plus_xa
-FROM bronze.player AS p
+FROM silver.player_match_stat AS p
 FINAL
-INNER JOIN bronze.general AS g
+INNER JOIN silver.match AS g
     FINAL ON p.match_id = g.match_id
 WHERE
     g.match_finished = 1

@@ -40,7 +40,7 @@ WITH team_shots AS (
         count()                                             AS team_total_shots,
         countIf(is_on_target = 1)                          AS team_shots_on_target,
         round(sum(expected_goals), 3)                      AS team_xg
-    FROM bronze.shotmap
+    FROM silver.shot
     WHERE
         is_own_goal != 1
         AND expected_goals IS NOT NULL
@@ -81,7 +81,7 @@ player_disruption AS (
         p.fotmob_rating,
         p.minutes_played,
         p.passes_final_third
-    FROM bronze.player AS p
+    FROM silver.player_match_stat AS p
     WHERE
         p.minutes_played >= 45
         AND (
@@ -132,9 +132,9 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'Away Win'
         ELSE 'Draw'
     END AS match_result,
-    g.match_time_utc_date
+    toString(g.match_date)
 
-FROM bronze.general AS g
+FROM silver.match AS g
 INNER JOIN player_disruption AS pd
     ON g.match_id = pd.match_id
 INNER JOIN team_shots AS ts

@@ -47,11 +47,11 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'Away Win'
         ELSE 'Draw'
     END AS LowCardinality(String)) AS match_result,
-    g.match_time_utc_date
-FROM bronze.shotmap AS s
-INNER JOIN bronze.general AS g
+    toString(g.match_date)
+FROM silver.shot AS s
+INNER JOIN silver.match AS g
     ON s.match_id = g.match_id
-INNER JOIN bronze.player AS p
+INNER JOIN silver.player_match_stat AS p
     ON s.match_id = p.match_id
     AND s.keeper_id = p.player_id
 WHERE
@@ -73,6 +73,6 @@ GROUP BY
     p.player_name,
     p.team_id,
     p.team_name,
-    g.match_time_utc_date
+    toString(g.match_date)
 HAVING xg_saved >= 1.5
 ORDER BY xg_saved DESC;

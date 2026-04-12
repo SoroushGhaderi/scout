@@ -34,7 +34,7 @@ SELECT
     g.home_score,
     g.away_score,
     CASE
-        WHEN notEmpty(assumeNotNull(t.first_extra_half_started)) THEN 120
+        WHEN g.first_extra_half_started IS NOT NULL THEN 120
         ELSE 90
     END AS match_duration,
     countIf(s.situation = 'Penalty') AS total_penalties,
@@ -59,12 +59,10 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'Away Win'
         ELSE 'Draw'
     END AS match_result,
-    g.match_time_utc_date
-FROM bronze.shotmap AS s
-INNER JOIN bronze.general AS g
+    toString(g.match_date)
+FROM silver.shot AS s
+INNER JOIN silver.match AS g
     ON s.match_id = g.match_id
-LEFT JOIN bronze.timeline AS t
-    ON g.match_id = t.match_id
 WHERE
     g.match_finished = 1
     AND s.situation = 'Penalty'
@@ -77,8 +75,8 @@ GROUP BY
     g.away_team_name,
     g.home_score,
     g.away_score,
-    t.first_extra_half_started,
-    g.match_time_utc_date
+    g.first_extra_half_started,
+    toString(g.match_date)
 HAVING
     total_penalties >= 2
 ORDER BY total_penalties DESC, penalties_missed DESC;

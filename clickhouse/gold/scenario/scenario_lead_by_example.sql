@@ -31,7 +31,7 @@ INSERT INTO gold.scenario_lead_by_example
 )
 WITH avg_rating AS (
     SELECT avg(fotmob_rating) AS overall_avg_rating
-    FROM bronze.player
+    FROM silver.player_match_stat
     WHERE fotmob_rating IS NOT NULL
 )
 SELECT
@@ -45,7 +45,7 @@ SELECT
     g.away_score,
     -- 2. Captain Impact Metrics
     abs(g.home_score - g.away_score) AS goal_diff,
-    st.player_id,
+    st.person_id,
     st.name AS captain_name,
     st.team_side,
     p.goals,
@@ -73,17 +73,18 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side,
-    g.match_time_utc_date
-FROM bronze.starters AS st
-INNER JOIN bronze.general AS g
+    toString(g.match_date)
+FROM silver.match_personnel AS st
+INNER JOIN silver.match AS g
     ON st.match_id = g.match_id
-INNER JOIN bronze.player AS p
+INNER JOIN silver.player_match_stat AS p
     ON st.match_id = p.match_id
-    AND st.player_id = p.player_id
+    AND st.person_id = p.player_id
 CROSS JOIN avg_rating AS ar
 WHERE
     -- Winning captains with above-average impact and direct output.
     g.match_finished = 1
+    AND st.role = 'starter'
     AND g.home_score != g.away_score
     AND st.is_captain = 1
     AND p.fotmob_rating > ar.overall_avg_rating

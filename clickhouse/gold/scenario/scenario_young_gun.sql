@@ -28,7 +28,7 @@ INSERT INTO gold.scenario_young_gun
 )
 WITH avg_rating AS (
     SELECT avg(fotmob_rating) AS overall_avg_rating
-    FROM bronze.player
+    FROM silver.player_match_stat
     WHERE fotmob_rating IS NOT NULL
 )
 SELECT
@@ -39,7 +39,7 @@ SELECT
     g.away_team_name,
     g.home_score,
     g.away_score,
-    st.player_id,
+    st.person_id,
     st.name AS player_name,
     st.age,
     st.team_side,
@@ -63,16 +63,17 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'Away Win'
         ELSE 'Draw'
     END AS match_result,
-    g.match_time_utc_date
-FROM bronze.starters AS st
-INNER JOIN bronze.general AS g
+    toString(g.match_date)
+FROM silver.match_personnel AS st
+INNER JOIN silver.match AS g
     ON st.match_id = g.match_id
-INNER JOIN bronze.player AS p
+INNER JOIN silver.player_match_stat AS p
     ON st.match_id = p.match_id
-    AND st.player_id = p.player_id
+    AND st.person_id = p.player_id
 CROSS JOIN avg_rating AS ar
 WHERE
     g.match_finished = 1
+    AND st.role = 'starter'
     AND st.age <= 21
     AND p.fotmob_rating > ar.overall_avg_rating
     AND (p.goals >= 1 OR p.assists >= 1)

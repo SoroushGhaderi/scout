@@ -28,8 +28,8 @@ SELECT
     g.home_score,
     g.away_score,
     -- 2. Set-Piece Metrics
-    countIf(gl.is_home = 1 AND gl.shot_situation IN ('SetPiece', 'FromCorner', 'FreeKick')) AS home_set_piece_goals,
-    countIf(gl.is_home = 0 AND gl.shot_situation IN ('SetPiece', 'FromCorner', 'FreeKick')) AS away_set_piece_goals,
+    countIf(gl.is_home_goal = 1 AND gl.is_goal = 1 AND gl.situation IN ('SetPiece', 'FromCorner', 'FreeKick')) AS home_set_piece_goals,
+    countIf(gl.is_home_goal = 0 AND gl.is_goal = 1 AND gl.situation IN ('SetPiece', 'FromCorner', 'FreeKick')) AS away_set_piece_goals,
     -- 3. Match Result Logic
     CASE
         WHEN g.home_score > g.away_score THEN g.home_team_name
@@ -46,9 +46,9 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side,
-    g.match_time_utc_date
-FROM bronze.general AS g
-INNER JOIN bronze.goal AS gl
+    toString(g.match_date)
+FROM silver.match AS g
+INNER JOIN silver.shot AS gl
     ON g.match_id = gl.match_id
 WHERE
     -- Finished non-draw matches only.
@@ -62,7 +62,7 @@ GROUP BY
     g.away_team_name,
     g.home_score,
     g.away_score,
-    g.match_time_utc_date
+    toString(g.match_date)
 HAVING
     -- Winning side must score at least two set-piece goals.
     (g.home_score > g.away_score AND home_set_piece_goals >= 2)

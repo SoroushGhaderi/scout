@@ -31,7 +31,7 @@ SELECT
     g.away_team_name,
     g.home_score,
     g.away_score,
-    g.match_time_utc_date,
+    toString(g.match_date),
 
     -- 2. Aggregated Pressing Metrics (team totals within each match)
     sumIf(p.recoveries, p.team_id = g.home_team_id) AS total_recoveries_home,
@@ -58,8 +58,8 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side
-FROM bronze.general AS g
-INNER JOIN bronze.player AS p
+FROM silver.match AS g
+INNER JOIN silver.player_match_stat AS p
     ON g.match_id = p.match_id
 WHERE
     g.match_finished = 1
@@ -71,7 +71,7 @@ GROUP BY
     g.away_team_name,
     g.home_score,
     g.away_score,
-    g.match_time_utc_date
+    toString(g.match_date)
 HAVING
     -- One side crosses elite pressing thresholds and wins the match.
     (total_recoveries_home >= 65 AND total_interceptions_home >= 15 AND g.home_score > g.away_score)

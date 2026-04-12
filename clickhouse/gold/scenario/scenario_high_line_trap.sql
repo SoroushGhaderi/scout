@@ -44,7 +44,7 @@ WITH period_all_cte AS (
         coalesce(passes_away, 0) AS passes_away,
         coalesce(shots_on_target_home, 0) AS shots_on_target_home,
         coalesce(shots_on_target_away, 0) AS shots_on_target_away
-    FROM bronze.period
+    FROM silver.period_stat
     FINAL
     WHERE period = 'All'
 ),
@@ -58,7 +58,7 @@ team_performances_cte AS (
         g.home_score,
         g.away_score,
         g.league_name,
-        g.match_time_utc_date,
+        toString(g.match_date) AS match_time_utc_date,
         'home' AS trapping_team_side,
         g.home_team_name AS trapping_team_name,
         g.away_team_name AS opponent_name,
@@ -73,7 +73,7 @@ team_performances_cte AS (
         p.xg_home AS team_xg,
         p.total_shots_home AS team_total_shots
     FROM period_all_cte AS p
-    INNER JOIN bronze.general AS g
+    INNER JOIN silver.match AS g
         FINAL ON p.match_id = g.match_id
     WHERE g.match_finished = 1
 
@@ -88,7 +88,7 @@ team_performances_cte AS (
         g.home_score,
         g.away_score,
         g.league_name,
-        g.match_time_utc_date,
+        toString(g.match_date) AS match_time_utc_date,
         'away' AS trapping_team_side,
         g.away_team_name AS trapping_team_name,
         g.home_team_name AS opponent_name,
@@ -103,7 +103,7 @@ team_performances_cte AS (
         p.xg_away AS team_xg,
         p.total_shots_away AS team_total_shots
     FROM period_all_cte AS p
-    INNER JOIN bronze.general AS g
+    INNER JOIN silver.match AS g
         FINAL ON p.match_id = g.match_id
     WHERE g.match_finished = 1
 )

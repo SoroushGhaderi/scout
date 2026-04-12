@@ -33,7 +33,7 @@ SELECT
     g.away_team_name,
     g.home_score,
     g.away_score,
-    g.match_time_utc_date,
+    toString(g.match_date),
 
     -- 2. Goalkeeper Performance
     p.player_name,
@@ -62,10 +62,10 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'away'
         ELSE 'draw'
     END AS winning_side
-FROM bronze.player AS p
-INNER JOIN bronze.general AS g
+FROM silver.player_match_stat AS p
+INNER JOIN silver.match AS g
     ON p.match_id = g.match_id
-INNER JOIN bronze.period AS per
+INNER JOIN silver.period_stat AS per
     ON p.match_id = per.match_id
 WHERE
     -- Ensure primary full-match goalkeeper rows.

@@ -38,9 +38,9 @@ SELECT
     round(p.expected_goals_away - p.expected_goals_home, 3) AS xg_diff,
     -- 3. Match Result Logic
     CAST('Away Win' AS LowCardinality(String)) AS match_result,
-    g.match_time_utc_date
-FROM bronze.general AS g
-INNER JOIN bronze.period AS p
+    toString(g.match_date)
+FROM silver.match AS g
+INNER JOIN silver.period_stat AS p
     ON g.match_id = p.match_id
     AND p.period = 'All'
 WHERE

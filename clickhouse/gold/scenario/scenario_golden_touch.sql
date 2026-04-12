@@ -35,12 +35,14 @@ INSERT INTO gold.scenario_golden_touch
 WITH late_subs AS (
     SELECT
         match_id,
-        player_id,
+        person_id,
         team_side,
         substitution_time,
         substitution_reason
-    FROM bronze.substitutes
+    FROM silver.match_personnel
     WHERE
+        role = 'substitute'
+        AND
         substitution_time >= 70
         AND substitution_time IS NOT NULL
 )
@@ -53,7 +55,7 @@ SELECT
     g.away_team_name,
     g.home_score,
     g.away_score,
-    ls.player_id,
+    ls.person_id,
     p.player_name,
     p.team_id,
     p.team_name,
@@ -85,14 +87,14 @@ SELECT
         WHEN g.away_score > g.home_score THEN 'Away Win'
         ELSE 'Draw'
     END AS match_result,
-    g.match_time_utc_date
+    toString(g.match_date)
 
-FROM bronze.general AS g
+FROM silver.match AS g
 INNER JOIN late_subs AS ls
     ON g.match_id = ls.match_id
-INNER JOIN bronze.player AS p
+INNER JOIN silver.player_match_stat AS p
     ON g.match_id = p.match_id
-    AND ls.player_id = p.player_id
+    AND ls.person_id = p.player_id
 WHERE
     g.match_finished = 1
     AND p.touches <= 12
