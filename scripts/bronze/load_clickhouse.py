@@ -51,7 +51,6 @@ from src.utils.alerting import AlertLevel, get_alert_manager
 from src.utils.date_utils import (
     DATE_FORMAT_COMPACT,
     extract_year_month,
-    format_date_compact_to_display,
 )
 from src.utils.layer_contracts import (
     LayerContractError,
@@ -436,7 +435,9 @@ def validate_and_fix_schema(
             df[col] = df[col].astype("int64")
 
         for col in non_nullable_uint_cols:
-            min_val, max_val, type_label = integer_col_bounds.get(col, (0, INT32_RANGE[0], "UInt32"))
+            min_val, max_val, type_label = integer_col_bounds.get(
+                col, (0, INT32_RANGE[0], "UInt32")
+            )
             df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
             below_min_mask = df[col] < min_val
             above_max_mask = df[col] > max_val
@@ -800,7 +801,9 @@ def load_fotmob_data(
         all_dataframes = load_fotmob_match_files(matches_dir, date_str, processor, logger)
 
         if not all_dataframes:
-            logger.warning("No match files found", extra={"matches_dir": str(matches_dir), "date": date_str})
+            logger.warning(
+                "No match files found", extra={"matches_dir": str(matches_dir), "date": date_str}
+            )
             return stats
 
         logger.info(
@@ -849,9 +852,7 @@ def load_fotmob_data(
         for table_name, df_list in all_dataframes.items():
             if table_name in TABLES_HANDLED_SEPARATELY:
                 continue
-            stats[table_name] = process_fotmob_table(
-                client, table_name, df_list, date_str, logger
-            )
+            stats[table_name] = process_fotmob_table(client, table_name, df_list, date_str, logger)
 
         # Process separately handled tables
         for table_name in TABLES_HANDLED_SEPARATELY:
@@ -867,7 +868,9 @@ def load_fotmob_data(
         inserted_rows_by_table: Dict[str, int] = {}
         for table_name, inserted_rows in stats.items():
             if table_name == "cards_only":
-                inserted_rows_by_table["cards"] = inserted_rows_by_table.get("cards", 0) + inserted_rows
+                inserted_rows_by_table["cards"] = (
+                    inserted_rows_by_table.get("cards", 0) + inserted_rows
+                )
             else:
                 inserted_rows_by_table[to_bronze_table_name(table_name)] = (
                     inserted_rows_by_table.get(to_bronze_table_name(table_name), 0) + inserted_rows
@@ -883,7 +886,9 @@ def load_fotmob_data(
     except LayerContractError:
         raise
     except Exception as e:
-        logger.error("Error loading FotMob data", extra={"date": date_str, "error": str(e)}, exc_info=True)
+        logger.error(
+            "Error loading FotMob data", extra={"date": date_str, "error": str(e)}, exc_info=True
+        )
 
     return stats
 
@@ -1058,7 +1063,7 @@ def validate_arguments(parser: argparse.ArgumentParser, args: argparse.Namespace
         if len(args.month) != 6 or not args.month.isdigit():
             parser.error(f"Invalid month format: {args.month}. Use YYYYMM")
 
-        year, month = int(args.month[:4]), int(args.month[4:6])
+        month = int(args.month[4:6])
         if not (1 <= month <= 12):
             parser.error(f"Invalid month: {month}")
 

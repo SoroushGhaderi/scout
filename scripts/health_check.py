@@ -2,7 +2,6 @@
 
 import argparse
 import json
-import logging
 import os
 import sys
 from pathlib import Path
@@ -38,7 +37,11 @@ Examples:
     parser.add_argument("--clickhouse-database", type=str, default="default")
     parser.add_argument("--no-clickhouse", action="store_true", help="Skip ClickHouse health check")
     parser.add_argument("--storage", nargs="+", default=None, help="Storage paths to check")
-    parser.add_argument("--storage-only", action="store_true", help="Skip ClickHouse and use only storage/disk checks")
+    parser.add_argument(
+        "--storage-only",
+        action="store_true",
+        help="Skip ClickHouse and use only storage/disk checks",
+    )
     parser.add_argument("--disk-path", type=str, default=".")
     parser.add_argument("--disk-threshold", type=float, default=1.0)
     parser.add_argument("--json", action="store_true", help="Output JSON")

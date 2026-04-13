@@ -40,7 +40,7 @@ from utils.script_utils import (
 
 add_project_to_path()
 from src.utils.alerting import AlertLevel, get_alert_manager
-from src.utils.logging_utils import setup_logging
+from src.utils.logging_utils import get_logger, setup_logging
 
 RESULT_CATEGORIES = {
     "fotmob_bronze": "FotMob Bronze",
@@ -400,9 +400,7 @@ def _send_step_failure_alert(result: StepResult) -> None:
     )
 
 
-def run_fotmob_bronze(
-    date_str: str, config: PipelineConfig
-) -> StepResult:
+def run_fotmob_bronze(date_str: str, config: PipelineConfig) -> StepResult:
     """Run FotMob bronze scraping for a date."""
     import scrape_fotmob
 
@@ -587,9 +585,7 @@ def process_clickhouse_loading_monthly(
     logger.info("# Loading to ClickHouse (Monthly Mode)")
     logger.info(f"{'#' * 80}\n")
     if not config.skip_fotmob:
-        result = run_clickhouse_load_month(
-            "fotmob", month_str, config
-        )
+        result = run_clickhouse_load_month("fotmob", month_str, config)
         results.add_result("fotmob_clickhouse", result)
 
 
@@ -714,9 +710,7 @@ def run_pipeline(args: argparse.Namespace) -> int:
         and not config.silver_only
         and not config.gold_only
     ):
-        process_clickhouse_loading_monthly(
-            args.month, config, results, logger
-        )
+        process_clickhouse_loading_monthly(args.month, config, results, logger)
     if args.month and not config.skip_silver and not config.bronze_only and not config.gold_only:
         process_silver_monthly(args.month, config, results)
     if args.month and not config.skip_gold and not config.bronze_only and not config.silver_only:

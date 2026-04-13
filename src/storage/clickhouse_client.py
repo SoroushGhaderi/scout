@@ -1,11 +1,9 @@
 """ClickHouse client for Bronze, Silver, and Gold warehouse operations."""
 
-import logging
 import re
 import time
-from dataclasses import dataclass, asdict
-from pathlib import Path
-from typing import Optional, Dict, Any, List
+from dataclasses import asdict, dataclass
+from typing import Any, Dict, Optional
 
 import clickhouse_connect
 
@@ -34,71 +32,71 @@ class ClickHouseClient:
     """ClickHouse client for data warehouse operations."""
 
     ALLOWED_TABLES = {
-        'general',
-        'timeline',
-        'venue',
-        'player',
-        'shotmap',
-        'goal',
-        'cards',
-        'red_card',
-        'period',
-        'momentum',
-        'starters',
-        'substitutes',
-        'coaches',
-        'team_form',
-        'scenario_demolition',
-        'scenario_defensive_shutdown_win',
-        'scenario_underdog_heist',
-        'scenario_dead_ball_dominance',
-        'scenario_low_block_heist',
-        'scenario_tactical_stalemate',
-        'scenario_great_escape',
-        'scenario_one_man_army',
-        'scenario_last_gasp',
-        'scenario_shot_stopper',
-        'scenario_war_zone',
-        'scenario_clinical_finisher',
-        'scenario_russian_roulette',
-        'scenario_efficiency_machine',
-        'scenario_away_day_masterclass',
-        'scenario_key_pass_king',
-        'scenario_wildcard',
-        'scenario_lead_by_example',
-        'scenario_young_gun',
-        'scenario_second_half_warriors',
-        'scenario_big_chance_killer',
-        'scenario_ten_men_stand',
-        'scenario_progressive_powerhouse',
-        'scenario_sterile_control',
-        'scenario_defensive_masterclass',
-        'scenario_metronome',
-        'scenario_high_intensity_engine',
-        'scenario_box_to_box_general',
-        'scenario_against_the_grain',
-        'scenario_unpunished_aggression',
-        'scenario_pressing_masterclass',
-        'scenario_elite_shot_stopper',
-        'scenario_hollow_dominance',
-        'scenario_touchline_terror',
-        'scenario_line_breaker',
-        'scenario_basketball_match',
-        'scenario_lightning_rod',
-        'scenario_human_shield',
-        'scenario_golden_touch',
-        'scenario_chaos_engine',
-        'scenario_tired_legs',
-        'scenario_black_hole',
-        'scenario_high_line_trap',
-        'scenario_ghost_poacher',
-        'scenario_route_one_masterclass',
-        'scenario_total_suffocation',
-        'scenario_territorial_suffocation',
-        'scenario_clinical_pivot',
-        'player_match_stats',
-        'match_summary',
-        'team_season_stats',
+        "general",
+        "timeline",
+        "venue",
+        "player",
+        "shotmap",
+        "goal",
+        "cards",
+        "red_card",
+        "period",
+        "momentum",
+        "starters",
+        "substitutes",
+        "coaches",
+        "team_form",
+        "scenario_demolition",
+        "scenario_defensive_shutdown_win",
+        "scenario_underdog_heist",
+        "scenario_dead_ball_dominance",
+        "scenario_low_block_heist",
+        "scenario_tactical_stalemate",
+        "scenario_great_escape",
+        "scenario_one_man_army",
+        "scenario_last_gasp",
+        "scenario_shot_stopper",
+        "scenario_war_zone",
+        "scenario_clinical_finisher",
+        "scenario_russian_roulette",
+        "scenario_efficiency_machine",
+        "scenario_away_day_masterclass",
+        "scenario_key_pass_king",
+        "scenario_wildcard",
+        "scenario_lead_by_example",
+        "scenario_young_gun",
+        "scenario_second_half_warriors",
+        "scenario_big_chance_killer",
+        "scenario_ten_men_stand",
+        "scenario_progressive_powerhouse",
+        "scenario_sterile_control",
+        "scenario_defensive_masterclass",
+        "scenario_metronome",
+        "scenario_high_intensity_engine",
+        "scenario_box_to_box_general",
+        "scenario_against_the_grain",
+        "scenario_unpunished_aggression",
+        "scenario_pressing_masterclass",
+        "scenario_elite_shot_stopper",
+        "scenario_hollow_dominance",
+        "scenario_touchline_terror",
+        "scenario_line_breaker",
+        "scenario_basketball_match",
+        "scenario_lightning_rod",
+        "scenario_human_shield",
+        "scenario_golden_touch",
+        "scenario_chaos_engine",
+        "scenario_tired_legs",
+        "scenario_black_hole",
+        "scenario_high_line_trap",
+        "scenario_ghost_poacher",
+        "scenario_route_one_masterclass",
+        "scenario_total_suffocation",
+        "scenario_territorial_suffocation",
+        "scenario_clinical_pivot",
+        "player_match_stats",
+        "match_summary",
+        "team_season_stats",
     }
 
     def __init__(
@@ -107,7 +105,7 @@ class ClickHouseClient:
         port: int = 8123,
         username: str = "default",
         password: str = "",
-        database: str = "default"
+        database: str = "default",
     ):
         """Initialize ClickHouse client.
 
@@ -145,13 +143,18 @@ class ClickHouseClient:
             )
         return table
 
-    _SAFE_IDENT = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
+    _SAFE_IDENT = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
     _QUERY_TYPE_RE = re.compile(r"^\s*([a-zA-Z]+)")
+    _LEADING_SQL_COMMENTS_RE = re.compile(
+        r"^\s*(?:(?:--[^\n]*(?:\n|$))|(?:/\*.*?\*/\s*))*",
+        re.DOTALL,
+    )
 
     @classmethod
     def summarize_query(cls, query: str, max_preview_length: int = 160) -> Dict[str, Any]:
         """Build a lightweight summary for a raw SQL query string."""
-        query_clean = " ".join(query.split())
+        query_without_leading_comments = cls._LEADING_SQL_COMMENTS_RE.sub("", query, count=1)
+        query_clean = " ".join(query_without_leading_comments.split())
         query_type_match = cls._QUERY_TYPE_RE.match(query_clean)
         query_type = query_type_match.group(1).upper() if query_type_match else "UNKNOWN"
         return {"query_type": query_type}
@@ -181,13 +184,11 @@ class ClickHouseClient:
                 port=self.port,
                 username=self.username,
                 password=self.password,
-                database=self.database
+                database=self.database,
             )
 
-            result = self.client.query("SELECT 1")
-            self.logger.info(
-                f"Connected to ClickHouse: {self.host}:{self.port}/{self.database}"
-            )
+            self.client.query("SELECT 1")
+            self.logger.info(f"Connected to ClickHouse: {self.host}:{self.port}/{self.database}")
             return True
 
         except Exception as e:
@@ -281,9 +282,7 @@ class ClickHouseClient:
             self.logger.error(f"Failed to insert to {table}: {e}")
             raise
 
-    def get_table_stats(
-        self, table: str, database: Optional[str] = None
-    ) -> Dict[str, Any]:
+    def get_table_stats(self, table: str, database: Optional[str] = None) -> Dict[str, Any]:
         """Get table statistics with SQL injection protection.
 
         Args:
@@ -314,15 +313,13 @@ class ClickHouseClient:
                 f"FROM system.parts WHERE database = '{db}' AND table = '{table}' AND active"
             )
             size_result = self.execute(size_query)
-            size_info = (
-                size_result.result_rows[0] if size_result.result_rows else ("0 B", 0)
-            )
+            size_info = size_result.result_rows[0] if size_result.result_rows else ("0 B", 0)
 
             return {
                 "table": full_table,
                 "row_count": row_count,
                 "size": size_info[0],
-                "rows_in_parts": size_info[1]
+                "rows_in_parts": size_info[1],
             }
 
         except Exception as e:
@@ -375,5 +372,5 @@ class ClickHouseClient:
             port=self.port,
             username=self.username,
             password=self.password,
-            database=self.database
+            database=self.database,
         )

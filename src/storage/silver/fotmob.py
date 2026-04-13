@@ -1,14 +1,9 @@
 """Run FotMob silver SQL transformations in ClickHouse."""
-
-import logging
 from pathlib import Path
 from typing import Iterable
 
 from ..clickhouse_client import ClickHouseClient
 from ..clickhouse_sql_executor import execute_sql_script
-from ...utils.logging_utils import get_logger
-
-logger = get_logger(__name__)
 
 
 class FotMobSilverStorage:

@@ -8,7 +8,6 @@ Requirements: Chrome must be open and you must have visited fotmob.com recently.
 The scraper hot-reloads credentials.json on every request — no restart needed.
 """
 import json
-import logging
 import sys
 import time
 from pathlib import Path

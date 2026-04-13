@@ -5,11 +5,11 @@ Stores failed records that couldn't be inserted to ClickHouse for later analysis
 """
 
 import json
-import logging
 import math
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, Optional, List
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 from ..utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
@@ -30,11 +30,7 @@ class DeadLetterQueue:
         self.logger = logger
 
     def send_to_dlq(
-        self,
-        table: str,
-        data: Any,
-        error: str,
-        context: Optional[Dict[str, Any]] = None
+        self, table: str, data: Any, error: str, context: Optional[Dict[str, Any]] = None
     ) -> Path:
         """
         Send failed record to DLQ.
@@ -48,7 +44,7 @@ class DeadLetterQueue:
         Returns:
             Path to DLQ file where record was written
         """
-        today = datetime.now().strftime('%Y%m%d')
+        today = datetime.now().strftime("%Y%m%d")
         dlq_file = self.dlq_path / f"{table}_{today}.jsonl"
 
         data_serializable = self._serialize_data(data)
@@ -59,11 +55,11 @@ class DeadLetterQueue:
             "error": str(error),
             "context": context or {},
             "data": data_serializable,
-            "row_count": self._get_row_count(data)
+            "row_count": self._get_row_count(data),
         }
 
         try:
-            with open(dlq_file, "a", encoding='utf-8') as f:
+            with open(dlq_file, "a", encoding="utf-8") as f:
                 f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
             self.logger.warning(
@@ -85,8 +81,9 @@ class DeadLetterQueue:
         Returns:
             Serialized data
         """
+        from datetime import date, datetime
+
         import pandas as pd
-        from datetime import datetime, date
         from pandas import Timestamp
 
         if isinstance(data, pd.DataFrame):
@@ -96,10 +93,10 @@ class DeadLetterQueue:
             for col in df_copy.columns:
                 if pd.api.types.is_datetime64_any_dtype(df_copy[col]):
                     df_copy[col] = df_copy[col].astype(str)
-            return self._replace_nan(df_copy.to_dict('records'))
+            return self._replace_nan(df_copy.to_dict("records"))
 
         if isinstance(data, (datetime, date, Timestamp)):
-            return data.isoformat() if hasattr(data, 'isoformat') else str(data)
+            return data.isoformat() if hasattr(data, "isoformat") else str(data)
 
         if isinstance(data, dict):
             return {k: self._serialize_data(v) for k, v in data.items()}
@@ -159,9 +156,7 @@ class DeadLetterQueue:
         return 1
 
     def get_dlq_records(
-        self,
-        table: Optional[str] = None,
-        date: Optional[str] = None
+        self, table: Optional[str] = None, date: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Read records from DLQ files.
@@ -186,7 +181,7 @@ class DeadLetterQueue:
 
         for dlq_file in self.dlq_path.glob(pattern):
             try:
-                with open(dlq_file, 'r', encoding='utf-8') as f:
+                with open(dlq_file, "r", encoding="utf-8") as f:
                     for line in f:
                         if line.strip():
                             records.append(json.loads(line))
@@ -207,7 +202,7 @@ class DeadLetterQueue:
             "total_records": 0,
             "total_size_bytes": 0,
             "by_table": {},
-            "by_date": {}
+            "by_date": {},
         }
 
         for dlq_file in self.dlq_path.glob("*.jsonl"):
@@ -216,7 +211,7 @@ class DeadLetterQueue:
                 stats["total_size_bytes"] += file_size
                 stats["total_files"] += 1
 
-                parts = dlq_file.stem.split('_', 1)
+                parts = dlq_file.stem.split("_", 1)
                 if len(parts) == 2:
                     table_name = parts[0]
                     file_date = parts[1]

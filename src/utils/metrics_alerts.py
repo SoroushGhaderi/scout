@@ -34,71 +34,64 @@ Usage:
 
 import os
 from datetime import datetime
-from typing import Optional, Dict, Any, List
+from typing import Any, Dict, Optional
 
 try:
     import requests
 except ImportError:
     requests = None
 
-from .logging_utils import get_logger
 from ..storage import get_s3_uploader
-
+from .logging_utils import get_logger
 
 EMOJI_MAP = {
-    'success': '✅',
-    'error': '❌',
-    'warning': '⚠️',
-    'info': 'ℹ️',
-    
-    'matches': '⚽',
-    'matches_scraped': '✨',
-    'matches_found': '🔍',
-    'errors': '❌',
-    'skipped': '⏭️',
-    'empty': '⬜',
-    'rate_limited': '🚫',
-    'data_quality_issues': '📊',
-    'duration': '⏱️',
-    'start_time': '🕐',
-    'end_time': '🕥',
-    'success_rate': '📈',
-    
-    'teams': '🏆',
-    'leagues': '🌍',
-    'players': '👥',
-    'players_new': '🆕',
-    'shots': '🎯',
-    'events': '📝',
-    'stats': '📊',
-    
-    'odds': '💰',
-    'betting_data': '🎲',
-    'links_scraped': '🔗',
-    'bookmarks': '🔖',
-    'odds_sources': '📡',
-    
-    'database': '🗄️',
-    'storage': '💾',
-    'bronze': '🏠',
-    's3': '☁️',
-    'clickhouse': '⚡',
-    'network': '🌐',
-    'retry': '🔄',
-    'timeout': '⏲️',
-    'progress': '📊',
-    'cache': '🚀',
-    'cache_hit': '💨',
-    
-    'performance': '⚡',
-    'avg_time': '⏱️',
-    'max_time': '📉',
-    'retries': '🔁',
-    
-    'data': '📦',
-    'new': '🆕',
-    'total': '📊',
-    'issues': '🔴',
+    "success": "✅",
+    "error": "❌",
+    "warning": "⚠️",
+    "info": "ℹ️",
+    "matches": "⚽",
+    "matches_scraped": "✨",
+    "matches_found": "🔍",
+    "errors": "❌",
+    "skipped": "⏭️",
+    "empty": "⬜",
+    "rate_limited": "🚫",
+    "data_quality_issues": "📊",
+    "duration": "⏱️",
+    "start_time": "🕐",
+    "end_time": "🕥",
+    "success_rate": "📈",
+    "teams": "🏆",
+    "leagues": "🌍",
+    "players": "👥",
+    "players_new": "🆕",
+    "shots": "🎯",
+    "events": "📝",
+    "stats": "📊",
+    "odds": "💰",
+    "betting_data": "🎲",
+    "links_scraped": "🔗",
+    "bookmarks": "🔖",
+    "odds_sources": "📡",
+    "database": "🗄️",
+    "storage": "💾",
+    "bronze": "🏠",
+    "s3": "☁️",
+    "clickhouse": "⚡",
+    "network": "🌐",
+    "retry": "🔄",
+    "timeout": "⏲️",
+    "progress": "📊",
+    "cache": "🚀",
+    "cache_hit": "💨",
+    "performance": "⚡",
+    "avg_time": "⏱️",
+    "max_time": "📉",
+    "retries": "🔁",
+    "data": "📦",
+    "new": "🆕",
+    "total": "📊",
+    "issues": "🔴",
 }
 
 
@@ -109,12 +102,12 @@ class TelegramMetricsReporter:
         self,
         bot_token: Optional[str] = None,
         chat_id: Optional[str] = None,
-        environment: Optional[str] = None
+        environment: Optional[str] = None,
     ):
-        self.bot_token = bot_token or os.getenv('TELEGRAM_BOT_TOKEN')
-        self.chat_id = chat_id or os.getenv('TELEGRAM_CHAT_ID')
-        self.environment = environment or os.getenv('ENVIRONMENT', 'production')
-        self.server_name = os.getenv('SERVER_NAME', 'scout')
+        self.bot_token = bot_token or os.getenv("TELEGRAM_BOT_TOKEN")
+        self.chat_id = chat_id or os.getenv("TELEGRAM_CHAT_ID")
+        self.environment = environment or os.getenv("ENVIRONMENT", "production")
+        self.server_name = os.getenv("SERVER_NAME", "scout")
         self.logger = get_logger()
         self.api_url = f"https://api.telegram.org/bot{self.bot_token}" if self.bot_token else None
 
@@ -133,11 +126,11 @@ class TelegramMetricsReporter:
                 "chat_id": self.chat_id,
                 "text": text,
                 "parse_mode": "HTML",
-                "disable_notification": silent
+                "disable_notification": silent,
             }
-            
+
             response = requests.post(f"{self.api_url}/sendMessage", json=payload, timeout=10)
-            
+
             if response.status_code == 200:
                 self.logger.info("Telegram message sent successfully")
                 return True
@@ -170,21 +163,23 @@ class TelegramMetricsReporter:
     def _check_s3_backup(self, scraper: str, date: str) -> str:
         """Check if backup exists in S3 and return meaningful status message."""
         s3_uploader = get_s3_uploader()
-        
+
         if not s3_uploader:
             return "S3: ⚠️ Not configured"
-        
+
         year_month = date[:6] if len(date) >= 6 else date
         s3_key = f"bronze/{scraper}/{year_month}/{date}.tar.gz"
-        
+
         if s3_uploader.object_exists(s3_key):
             size_bytes = s3_uploader.get_object_size(s3_key)
             if size_bytes:
                 size_mb = size_bytes / (1024 * 1024)
-                size_str = f" ({size_mb:.1f} MB)" if size_mb < 1024 else f" ({size_mb / 1024:.2f} GB)"
+                size_str = (
+                    f" ({size_mb:.1f} MB)" if size_mb < 1024 else f" ({size_mb / 1024:.2f} GB)"
+                )
                 return f"S3: ✅ {date}.tar.gz{size_str}"
             return f"S3: ✅ {date}.tar.gz"
-        
+
         return f"S3: ⚠️ Missing ({date}.tar.gz)"
 
     def _build_progress_bar(self, value: int, total: int, width: int = 10) -> str:
@@ -198,42 +193,40 @@ class TelegramMetricsReporter:
 
     def _format_issue(self, issue: str, count: int) -> str:
         """Format a single issue line."""
-        emoji = EMOJI_MAP['error'] if count > 0 else EMOJI_MAP['success']
+        emoji = EMOJI_MAP["error"] if count > 0 else EMOJI_MAP["success"]
         return f"  {emoji} {issue}: <b>{count}</b>"
 
     def report_fotmob_daily(self, date: str, **kwargs) -> bool:
         """Send enriched FotMob daily scraping report."""
-        
-        matches_scraped = kwargs.get('matches_scraped', 0)
-        matches_found = kwargs.get('matches_found', matches_scraped)
-        errors = kwargs.get('errors', 0)
-        skipped = kwargs.get('skipped', 0)
-        empty_responses = kwargs.get('empty_responses', 0)
-        rate_limited = kwargs.get('rate_limited', 0)
-        cache_hits = kwargs.get('cache_hits', 0)
-        retries = kwargs.get('retries', 0)
-        avg_response_time = kwargs.get('avg_response_time', 0)
-        max_response_time = kwargs.get('max_response_time', 0)
-        duration_seconds = kwargs.get('duration_seconds', 0)
-        
-        teams = kwargs.get('teams', 0)
-        leagues = kwargs.get('leagues', 0)
-        players_new = kwargs.get('players_new', 0)
-        players_total = kwargs.get('players_total', 0)
-        shots = kwargs.get('shots', 0)
-        events = kwargs.get('events', 0)
-        
-        bronze_files = kwargs.get('bronze_files', 0)
-        bronze_size_mb = kwargs.get('bronze_size_mb', 0)
-        s3_backup = kwargs.get('s3_backup', False)
-        clickhouse_rows = kwargs.get('clickhouse_rows', 0)
-        
-        context = kwargs.get('context', {})
+
+        matches_scraped = kwargs.get("matches_scraped", 0)
+        matches_found = kwargs.get("matches_found", matches_scraped)
+        errors = kwargs.get("errors", 0)
+        skipped = kwargs.get("skipped", 0)
+        empty_responses = kwargs.get("empty_responses", 0)
+        rate_limited = kwargs.get("rate_limited", 0)
+        cache_hits = kwargs.get("cache_hits", 0)
+        retries = kwargs.get("retries", 0)
+        avg_response_time = kwargs.get("avg_response_time", 0)
+        max_response_time = kwargs.get("max_response_time", 0)
+        duration_seconds = kwargs.get("duration_seconds", 0)
+
+        teams = kwargs.get("teams", 0)
+        players_new = kwargs.get("players_new", 0)
+        players_total = kwargs.get("players_total", 0)
+        shots = kwargs.get("shots", 0)
+        events = kwargs.get("events", 0)
+
+        bronze_files = kwargs.get("bronze_files", 0)
+        bronze_size_mb = kwargs.get("bronze_size_mb", 0)
+        clickhouse_rows = kwargs.get("clickhouse_rows", 0)
+
+        context = kwargs.get("context", {})
 
         success_rate = (matches_scraped / matches_found * 100) if matches_found > 0 else 0
         cache_rate = (cache_hits / matches_found * 100) if matches_found > 0 else 0
         failed_permanent = errors - retries if errors > retries else 0
-        
+
         no_matches = matches_found == 0 and skipped > 0
 
         formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
@@ -241,18 +234,20 @@ class TelegramMetricsReporter:
         message = f"<b>{EMOJI_MAP['matches']} FotMob Daily Report - {formatted_date}</b>\n"
         message += f"<i>Environment: {self.environment} | Server: {self.server_name}</i>\n\n"
 
-        message += f"<b>📊 SCAN SUMMARY</b>\n"
+        message += "<b>📊 SCAN SUMMARY</b>\n"
         message += f"{'─' * 40}\n"
-        
+
         if no_matches:
             message += f"{EMOJI_MAP['info']} Matches: No matches scheduled for this date\n"
             message += f"{EMOJI_MAP['skipped']} Checked: <b>{skipped}</b> dates (already scraped)\n"
         else:
             message += f"{EMOJI_MAP['matches_found']} Matches: <b>{matches_scraped}/{matches_found}</b> scraped {self._build_progress_bar(matches_scraped, matches_found)}\n"
-        
+
         if cache_hits > 0:
-            message += f"{EMOJI_MAP['cache_hit']} Cache: <b>{cache_hits}</b> hits ({cache_rate:.1f}%)\n"
-        
+            message += (
+                f"{EMOJI_MAP['cache_hit']} Cache: <b>{cache_hits}</b> hits ({cache_rate:.1f}%)\n"
+            )
+
         error_details = []
         if errors > 0:
             error_details.append(f"{errors} errors")
@@ -262,19 +257,23 @@ class TelegramMetricsReporter:
             error_details.append(f"{rate_limited} rate limited")
         if skipped > 0:
             error_details.append(f"{skipped} skipped")
-        
+
         if error_details:
             message += f"{EMOJI_MAP['warning']} Issues: {', '.join(error_details)}\n"
-        
+
         message += f"{EMOJI_MAP['duration']} Duration: <b>{self._format_duration(duration_seconds)}</b>\n\n"
 
         if avg_response_time > 0 or max_response_time > 0:
-            message += f"<b>⚡ PERFORMANCE</b>\n"
+            message += "<b>⚡ PERFORMANCE</b>\n"
             message += f"{'─' * 40}\n"
             if avg_response_time > 0:
-                message += f"{EMOJI_MAP['avg_time']} Avg Response: <b>{avg_response_time:.2f}s</b>\n"
+                message += (
+                    f"{EMOJI_MAP['avg_time']} Avg Response: <b>{avg_response_time:.2f}s</b>\n"
+                )
             if max_response_time > 0:
-                message += f"{EMOJI_MAP['max_time']} Max Response: <b>{max_response_time:.2f}s</b>\n"
+                message += (
+                    f"{EMOJI_MAP['max_time']} Max Response: <b>{max_response_time:.2f}s</b>\n"
+                )
             if retries > 0:
                 message += f"{EMOJI_MAP['retries']} Retries: <b>{retries}</b>"
                 if failed_permanent > 0:
@@ -291,42 +290,43 @@ class TelegramMetricsReporter:
             data_parts.append(f"{EMOJI_MAP['shots']} {shots:,}")
         if events > 0:
             data_parts.append(f"{EMOJI_MAP['events']} {events:,}")
-        
+
         if data_parts:
-            message += f"<b>📦 DATA COLLECTED</b>\n"
+            message += "<b>📦 DATA COLLECTED</b>\n"
             message += f"{'─' * 40}\n"
             message += " | ".join(data_parts) + "\n"
             if players_new > 0:
                 message += f"{EMOJI_MAP['new']} +{players_new:,} new players\n"
             message += "\n"
 
-        message += f"<b>💾 STORAGE</b>\n"
+        message += "<b>💾 STORAGE</b>\n"
         message += f"{'─' * 40}\n"
-        
+
         storage_parts = []
         if bronze_files > 0:
-            size_str = self._format_size(bronze_size_mb) if bronze_size_mb > 0 else ""
             storage_parts.append(f"{EMOJI_MAP['bronze']} Bronze: <b>{bronze_files}</b> files")
             if bronze_size_mb > 0:
                 storage_parts[-1] += f" ({self._format_size(bronze_size_mb)})"
-        
+
         storage_parts.append(f"{EMOJI_MAP['s3']} {self._check_s3_backup('fotmob', date)}")
-        
+
         if clickhouse_rows > 0:
-            storage_parts.append(f"{EMOJI_MAP['clickhouse']} ClickHouse: <b>{clickhouse_rows}</b> rows")
-        
+            storage_parts.append(
+                f"{EMOJI_MAP['clickhouse']} ClickHouse: <b>{clickhouse_rows}</b> rows"
+            )
+
         message += "\n".join(storage_parts) + "\n\n"
 
         issues_list = []
         if empty_responses > 0:
-            issues_list.append(f"Empty response data")
+            issues_list.append("Empty response data")
         if rate_limited > 0:
             issues_list.append(f"API rate limited ({rate_limited} times)")
         if failed_permanent > 0:
             issues_list.append(f"Permanent failures ({failed_permanent})")
-        
+
         if issues_list:
-            message += f"<b>🔴 ISSUES</b>\n"
+            message += "<b>🔴 ISSUES</b>\n"
             message += f"{'─' * 40}\n"
             for issue in issues_list:
                 message += f"  • {issue}\n"
@@ -339,32 +339,34 @@ class TelegramMetricsReporter:
         elif success_rate >= 90:
             message += f"{EMOJI_MAP['info']} Completed with minor issues"
         else:
-            message += f"{EMOJI_MAP['warning']} <b>Review required</b> - Success rate: {success_rate:.1f}%"
+            message += (
+                f"{EMOJI_MAP['warning']} <b>Review required</b> - Success rate: {success_rate:.1f}%"
+            )
 
         if context:
-            message += f"\n\n<b>📋 CONTEXT</b>\n"
+            message += "\n\n<b>📋 CONTEXT</b>\n"
             message += f"{'─' * 40}\n"
             for key, value in context.items():
-                emoji = EMOJI_MAP.get(key, '•')
+                emoji = EMOJI_MAP.get(key, "•")
                 message += f"{emoji} <b>{key}:</b> {value}\n"
 
         return self._send_message(message, silent=no_matches)
 
     def report_fotmob_monthly(self, month: str, **kwargs) -> bool:
         """Send enriched FotMob monthly scraping report."""
-        
-        dates_processed = kwargs.get('dates_processed', 0)
-        dates_total = kwargs.get('dates_total', 0)
-        total_matches = kwargs.get('total_matches', 0)
-        matches_scraped = kwargs.get('matches_scraped', 0)
-        errors = kwargs.get('errors', 0)
-        skipped = kwargs.get('skipped', 0)
-        duration_seconds = kwargs.get('duration_seconds', 0)
-        
-        bronze_files = kwargs.get('bronze_files', 0)
-        bronze_size_mb = kwargs.get('bronze_size_mb', 0)
-        
-        context = kwargs.get('context', {})
+
+        dates_processed = kwargs.get("dates_processed", 0)
+        dates_total = kwargs.get("dates_total", 0)
+        total_matches = kwargs.get("total_matches", 0)
+        matches_scraped = kwargs.get("matches_scraped", 0)
+        errors = kwargs.get("errors", 0)
+        skipped = kwargs.get("skipped", 0)
+        duration_seconds = kwargs.get("duration_seconds", 0)
+
+        bronze_files = kwargs.get("bronze_files", 0)
+        bronze_size_mb = kwargs.get("bronze_size_mb", 0)
+
+        context = kwargs.get("context", {})
 
         success_rate = (matches_scraped / total_matches * 100) if total_matches > 0 else 0
 
@@ -373,43 +375,49 @@ class TelegramMetricsReporter:
         message = f"<b>{EMOJI_MAP['matches']} FotMob Monthly Report - {formatted_month}</b>\n"
         message += f"<i>Environment: {self.environment} | Server: {self.server_name}</i>\n\n"
 
-        message += f"<b>📊 MONTH SUMMARY</b>\n"
+        message += "<b>📊 MONTH SUMMARY</b>\n"
         message += f"{'─' * 40}\n"
         message += f"{EMOJI_MAP['matches_found']} Dates: <b>{dates_processed}/{dates_total}</b> processed\n"
         message += f"{EMOJI_MAP['matches_scraped']} Matches: <b>{matches_scraped}/{total_matches}</b> scraped {self._build_progress_bar(matches_scraped, total_matches)}\n"
-        
+
         error_details = []
         if errors > 0:
             error_details.append(f"{errors} errors")
         if skipped > 0:
             error_details.append(f"{skipped} skipped")
-        
+
         if error_details:
             message += f"{EMOJI_MAP['warning']} Issues: {', '.join(error_details)}\n"
-        
+
         message += f"{EMOJI_MAP['duration']} Total Duration: <b>{self._format_duration(duration_seconds)}</b>\n\n"
 
-        message += f"<b>💾 STORAGE</b>\n"
+        message += "<b>💾 STORAGE</b>\n"
         message += f"{'─' * 40}\n"
-        
+
         storage_parts = []
         if bronze_files > 0:
-            storage_parts.append(f"{EMOJI_MAP['bronze']} Bronze: <b>{bronze_files}</b> files ({self._format_size(bronze_size_mb)})")
-        
+            storage_parts.append(
+                f"{EMOJI_MAP['bronze']} Bronze: <b>{bronze_files}</b> files ({self._format_size(bronze_size_mb)})"
+            )
+
         message += "\n".join(storage_parts) + "\n\n"
 
         if success_rate >= 95 and errors == 0:
-            message += f"{EMOJI_MAP['success']} <b>Excellent month! All matches scraped successfully!</b>"
+            message += (
+                f"{EMOJI_MAP['success']} <b>Excellent month! All matches scraped successfully!</b>"
+            )
         elif success_rate >= 90:
             message += f"{EMOJI_MAP['info']} Good month with minor issues"
         else:
-            message += f"{EMOJI_MAP['warning']} <b>Review required</b> - Success rate: {success_rate:.1f}%"
+            message += (
+                f"{EMOJI_MAP['warning']} <b>Review required</b> - Success rate: {success_rate:.1f}%"
+            )
 
         if context:
-            message += f"\n\n<b>📋 CONTEXT</b>\n"
+            message += "\n\n<b>📋 CONTEXT</b>\n"
             message += f"{'─' * 40}\n"
             for key, value in context.items():
-                emoji = EMOJI_MAP.get(key, '•')
+                emoji = EMOJI_MAP.get(key, "•")
                 message += f"{emoji} <b>{key}:</b> {value}\n"
 
         return self._send_message(message)
@@ -455,46 +463,46 @@ def send_daily_report(
     bronze_size_mb: float = 0,
     s3_backup: bool = False,
     clickhouse_rows: int = 0,
-    context: Optional[Dict[str, Any]] = None
+    context: Optional[Dict[str, Any]] = None,
 ) -> bool:
     """Send an enriched daily scraping report via Telegram."""
-    
+
     if not date:
-        date = datetime.now().strftime('%Y%m%d')
-    
+        date = datetime.now().strftime("%Y%m%d")
+
     reporter = get_metrics_reporter()
-    
+
     kwargs = {
-        'matches_scraped': matches_scraped,
-        'matches_found': matches_found or matches_scraped,
-        'errors': errors,
-        'skipped': skipped,
-        'empty_responses': empty_responses,
-        'rate_limited': rate_limited,
-        'odds_scraped': odds_scraped,
-        'odds_sources': odds_sources,
-        'odds_sources_total': odds_sources_total,
-        'duration_seconds': duration_seconds,
-        'cache_hits': cache_hits,
-        'retries': retries,
-        'avg_response_time': avg_response_time,
-        'max_response_time': max_response_time,
-        'teams': teams,
-        'leagues': leagues,
-        'players_new': players_new,
-        'players_total': players_total,
-        'shots': shots,
-        'events': events,
-        'links_scraped': links_scraped,
-        'bookmarks': bookmarks,
-        'bronze_files': bronze_files,
-        'bronze_size_mb': bronze_size_mb,
-        's3_backup': s3_backup,
-        'clickhouse_rows': clickhouse_rows,
-        'context': context or {},
+        "matches_scraped": matches_scraped,
+        "matches_found": matches_found or matches_scraped,
+        "errors": errors,
+        "skipped": skipped,
+        "empty_responses": empty_responses,
+        "rate_limited": rate_limited,
+        "odds_scraped": odds_scraped,
+        "odds_sources": odds_sources,
+        "odds_sources_total": odds_sources_total,
+        "duration_seconds": duration_seconds,
+        "cache_hits": cache_hits,
+        "retries": retries,
+        "avg_response_time": avg_response_time,
+        "max_response_time": max_response_time,
+        "teams": teams,
+        "leagues": leagues,
+        "players_new": players_new,
+        "players_total": players_total,
+        "shots": shots,
+        "events": events,
+        "links_scraped": links_scraped,
+        "bookmarks": bookmarks,
+        "bronze_files": bronze_files,
+        "bronze_size_mb": bronze_size_mb,
+        "s3_backup": s3_backup,
+        "clickhouse_rows": clickhouse_rows,
+        "context": context or {},
     }
-    
-    if scraper.lower() == 'fotmob':
+
+    if scraper.lower() == "fotmob":
         return reporter.report_fotmob_daily(date=date, **kwargs)
     else:
         reporter.logger.warning(f"Unknown scraper: {scraper}")
@@ -513,29 +521,29 @@ def send_monthly_report(
     duration_seconds: float = 0,
     bronze_files: int = 0,
     bronze_size_mb: float = 0,
-    context: Optional[Dict[str, Any]] = None
+    context: Optional[Dict[str, Any]] = None,
 ) -> bool:
     """Send an enriched monthly scraping report via Telegram."""
-    
+
     if not month:
-        month = datetime.now().strftime('%Y%m')
-    
+        month = datetime.now().strftime("%Y%m")
+
     reporter = get_metrics_reporter()
-    
+
     kwargs = {
-        'dates_processed': dates_processed,
-        'dates_total': dates_total,
-        'total_matches': total_matches,
-        'matches_scraped': matches_scraped,
-        'errors': errors,
-        'skipped': skipped,
-        'duration_seconds': duration_seconds,
-        'bronze_files': bronze_files,
-        'bronze_size_mb': bronze_size_mb,
-        'context': context or {},
+        "dates_processed": dates_processed,
+        "dates_total": dates_total,
+        "total_matches": total_matches,
+        "matches_scraped": matches_scraped,
+        "errors": errors,
+        "skipped": skipped,
+        "duration_seconds": duration_seconds,
+        "bronze_files": bronze_files,
+        "bronze_size_mb": bronze_size_mb,
+        "context": context or {},
     }
-    
-    if scraper.lower() == 'fotmob':
+
+    if scraper.lower() == "fotmob":
         return reporter.report_fotmob_monthly(month=month, **kwargs)
     else:
         reporter.logger.warning(f"Unknown scraper: {scraper}")

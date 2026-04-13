@@ -6,22 +6,22 @@ PURPOSE: Orchestrate the entire scraping and processing pipeline.
          Saves to Bronze layer only. Use load_clickhouse.py to load to ClickHouse.
 """
 
-import logging
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 import requests
 
-from .core import OrchestratorProtocol, OrchestratorError, StorageProtocol
-from .core.constants import Defaults
 from config import FotMobConfig
+
+from .core import OrchestratorError, OrchestratorProtocol
+from .core.constants import Defaults
 from .processors import FotMobBronzeMatchProcessor
-from .scrapers import MatchScraper, DailyScraper
+from .scrapers import DailyScraper, MatchScraper
 from .storage import FotMobBronzeStorage, get_s3_uploader
-from .utils import ScraperMetrics, DataQualityChecker, get_alert_manager
+from .utils import DataQualityChecker, ScraperMetrics, get_alert_manager, get_logger
 from .utils.alerting import AlertLevel
 
 logger = get_logger(__name__)
@@ -77,11 +77,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
         if bronze_only:
             self.logger.info("Note: Use load_clickhouse.py to load data from bronze to ClickHouse")
 
-    def scrape_date(
-        self,
-        date_str: str,
-        force_rescrape: bool = False
-    ) -> ScraperMetrics:
+    def scrape_date(self, date_str: str, force_rescrape: bool = False) -> ScraperMetrics:
         """
         Scrape all matches for a specific date.
 
@@ -101,18 +97,20 @@ class FotMobOrchestrator(OrchestratorProtocol):
         self.logger.info("Running automatic health check...")
         health_status = self.bronze_storage.health_check()
 
-        if health_status['overall_status'] != 'HEALTHY':
+        if health_status["overall_status"] != "HEALTHY":
             critical_failures = [
-                check for check in health_status['checks']
-                if check['status'] == 'FAIL' and check.get('critical', False)
+                check
+                for check in health_status["checks"]
+                if check["status"] == "FAIL" and check.get("critical", False)
             ]
             if critical_failures:
-                error_msg = f"Critical health check failures: {[c['name'] for c in critical_failures]}"
+                error_msg = (
+                    f"Critical health check failures: {[c['name'] for c in critical_failures]}"
+                )
                 self.logger.error(error_msg)
                 metrics.end()
                 raise OrchestratorError(
-                    error_msg,
-                    details={'failed_checks': [c['name'] for c in critical_failures]}
+                    error_msg, details={"failed_checks": [c["name"] for c in critical_failures]}
                 )
             self.logger.warning("Health check warnings detected, but continuing...")
         else:
@@ -131,7 +129,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
 
             completion_pct = self.bronze_storage.get_completion_percentage(date_str)
             already_complete = completion_pct is not None and completion_pct >= 100.0
-            
+
             if already_complete:
                 self.logger.info(
                     "Date already complete, skipping scrape and proceeding with compression/S3",
@@ -155,7 +153,8 @@ class FotMobOrchestrator(OrchestratorProtocol):
                 match_ids_to_scrape = []
             elif not force_rescrape:
                 match_ids_to_scrape = [
-                    str(m) for m in match_ids
+                    str(m)
+                    for m in match_ids
                     if not self.bronze_storage.match_exists(str(m), date_str)
                 ]
                 skipped = len(match_ids) - len(match_ids_to_scrape)
@@ -172,21 +171,27 @@ class FotMobOrchestrator(OrchestratorProtocol):
                 match_ids_to_scrape = [str(m) for m in match_ids]
 
             if self.config.enable_parallel and len(match_ids_to_scrape) > 1:
-                self._scrape_matches_parallel(match_ids_to_scrape, metrics, date_str, scraped_match_ids)
+                self._scrape_matches_parallel(
+                    match_ids_to_scrape, metrics, date_str, scraped_match_ids
+                )
             else:
-                self._scrape_matches_sequential(match_ids_to_scrape, metrics, date_str, scraped_match_ids)
+                self._scrape_matches_sequential(
+                    match_ids_to_scrape, metrics, date_str, scraped_match_ids
+                )
 
         except Exception as e:
-            self.logger.exception("Error during scraping", extra={"date": date_str, "error": str(e)})
+            self.logger.exception(
+                "Error during scraping", extra={"date": date_str, "error": str(e)}
+            )
 
         finally:
             metrics.end()
 
         all_matches_scraped = (
-            metrics.successful_matches + metrics.skipped_matches == metrics.total_matches and 
-            metrics.failed_matches == 0
+            metrics.successful_matches + metrics.skipped_matches == metrics.total_matches
+            and metrics.failed_matches == 0
         )
-        
+
         self.logger.info(
             "Post-scrape summary",
             extra={
@@ -205,13 +210,15 @@ class FotMobOrchestrator(OrchestratorProtocol):
                 extra={"date": date_str, "all_matches_scraped": all_matches_scraped},
             )
             if not all_matches_scraped:
-                missing_count = metrics.total_matches - metrics.successful_matches - metrics.skipped_matches
+                missing_count = (
+                    metrics.total_matches - metrics.successful_matches - metrics.skipped_matches
+                )
                 missing_reason = f"Missing {missing_count} of {metrics.total_matches} matches (failed: {metrics.failed_matches}, skipped: {metrics.skipped_matches})"
                 self.logger.warning(
                     "Skipping compression due to incomplete scraping",
                     extra={"date": date_str, "missing_reason": missing_reason},
                 )
-                
+
                 alert_manager = get_alert_manager()
                 alert_manager.send_alert(
                     level=AlertLevel.WARNING,
@@ -223,17 +230,20 @@ class FotMobOrchestrator(OrchestratorProtocol):
                         "successful": metrics.successful_matches,
                         "failed": metrics.failed_matches,
                         "skipped": metrics.skipped_matches,
-                    }
+                    },
                 )
             else:
                 try:
                     self.logger.debug("Starting compression", extra={"date": date_str})
                     compression_stats = self.bronze_storage.compress_date_files(date_str)
 
-                    if compression_stats.get('status') == 'success' and compression_stats['compressed'] > 0:
-                        saved_mb = compression_stats.get('saved_mb', 0)
-                        saved_pct = compression_stats.get('saved_pct', 0)
-                        compressed = compression_stats.get('compressed', 0)
+                    if (
+                        compression_stats.get("status") == "success"
+                        and compression_stats["compressed"] > 0
+                    ):
+                        saved_mb = compression_stats.get("saved_mb", 0)
+                        saved_pct = compression_stats.get("saved_pct", 0)
+                        compressed = compression_stats.get("compressed", 0)
                         self.logger.info(
                             f"Compressed {compressed} files for {date_str}: "
                             f"saved {saved_mb:.2f} MB ({saved_pct:.0f}% reduction)"
@@ -250,22 +260,30 @@ class FotMobOrchestrator(OrchestratorProtocol):
             if s3_uploader:
                 bronze_dir = f"{self.config.storage.bronze_path}/matches/{date_str}"
                 bronze_path = Path(bronze_dir)
-                
-                self.logger.info("Checking bronze directory", extra={"bronze_dir": bronze_dir, "date": date_str})
-                
+
+                self.logger.info(
+                    "Checking bronze directory", extra={"bronze_dir": bronze_dir, "date": date_str}
+                )
+
                 if bronze_path.exists():
                     files = list(bronze_path.iterdir())
                     self.logger.info(
                         "Bronze directory file count",
-                        extra={"bronze_dir": bronze_dir, "date": date_str, "file_count": len(files)},
+                        extra={
+                            "bronze_dir": bronze_dir,
+                            "date": date_str,
+                            "file_count": len(files),
+                        },
                     )
-                    
+
                     if files:
                         try:
                             if s3_uploader.upload_bronze_backup(bronze_dir, date_str, "fotmob"):
                                 self.logger.info("S3 backup complete", extra={"date": date_str})
                             else:
-                                self.logger.error("Failed to upload date to S3", extra={"date": date_str})
+                                self.logger.error(
+                                    "Failed to upload date to S3", extra={"date": date_str}
+                                )
                         except Exception as e:
                             self.logger.error(
                                 "Error uploading to S3",
@@ -282,15 +300,15 @@ class FotMobOrchestrator(OrchestratorProtocol):
                         extra={"bronze_dir": bronze_dir, "date": date_str},
                     )
             else:
-                self.logger.info("S3 uploader not available (not configured or boto3 not installed)")
+                self.logger.info(
+                    "S3 uploader not available (not configured or boto3 not installed)"
+                )
 
         metrics.print_summary()
 
         return metrics
 
-    def _fetch_match_ids(
-        self, date_str: str, force_refetch: bool = False
-    ) -> List[Union[int, str]]:
+    def _fetch_match_ids(self, date_str: str, force_refetch: bool = False) -> List[Union[int, str]]:
         """
         Fetch match IDs for a date and save daily listing to Bronze.
         Uses daily listing to prevent duplicate API requests.
@@ -328,7 +346,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
                 if not match_ids:
                     self.logger.warning("Empty match list returned", extra={"date": date_str})
                     if attempt < max_retries - 1:
-                        wait_time = 2 ** attempt
+                        wait_time = 2**attempt
                         self.logger.info(
                             "Retrying daily listing fetch",
                             extra={
@@ -367,7 +385,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
 
             except requests.exceptions.RequestException as network_error:
                 if attempt < max_retries - 1:
-                    wait_time = 2 ** attempt
+                    wait_time = 2**attempt
                     self.logger.warning(
                         f"Network error fetching daily listing "
                         f"(attempt {attempt + 1}/{max_retries}): {network_error}. "
@@ -395,11 +413,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
         return []
 
     def _scrape_matches_sequential(
-        self,
-        match_ids: List[str],
-        metrics: ScraperMetrics,
-        date_str: str,
-        scraped_match_ids: set
+        self, match_ids: List[str], metrics: ScraperMetrics, date_str: str, scraped_match_ids: set
     ):
         """Scrape matches sequentially."""
         self.logger.info(
@@ -431,9 +445,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
                     if quality_issues:
                         metrics.record_data_quality_issue(match_id, quality_issues)
                         self.alert_manager.alert_data_quality_issue(
-                            match_id=match_id,
-                            issues=quality_issues,
-                            context={"date": date_str}
+                            match_id=match_id, issues=quality_issues, context={"date": date_str}
                         )
 
                     metrics.record_success(match_id)
@@ -442,15 +454,17 @@ class FotMobOrchestrator(OrchestratorProtocol):
                         extra={"date": date_str, "match_id": match_id},
                     )
                 else:
-                    metrics.record_failure(match_id, error_msg or "Unknown error", "ProcessingError")
+                    metrics.record_failure(
+                        match_id, error_msg or "Unknown error", "ProcessingError"
+                    )
                     self.alert_manager.alert_failed_scrape(
                         match_id=match_id,
                         error=error_msg or "Unknown error",
                         error_type="ProcessingError",
-                        context={"date": date_str}
+                        context={"date": date_str},
                     )
                     consecutive_errors += 1
-                    
+
                     if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
                         error_msg_critical = f"CRITICAL: {MAX_CONSECUTIVE_ERRORS} consecutive errors detected. Interrupting scrape."
                         self.logger.error(error_msg_critical)
@@ -465,7 +479,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
                                 "last_match_id": match_id,
                                 "completed": completed_count,
                                 "total": len(match_ids),
-                            }
+                            },
                         )
                         raise OrchestratorError(error_msg_critical)
 
@@ -486,11 +500,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
                 )
 
     def _scrape_matches_parallel(
-        self,
-        match_ids: List[str],
-        metrics: ScraperMetrics,
-        date_str: str,
-        scraped_match_ids: set
+        self, match_ids: List[str], metrics: ScraperMetrics, date_str: str, scraped_match_ids: set
     ):
         """Scrape matches in parallel using thread pool."""
         self.logger.info(
@@ -583,7 +593,9 @@ class FotMobOrchestrator(OrchestratorProtocol):
                 try:
                     scraper.close()
                 except Exception as e:
-                    self.logger.debug("Failed to close worker scraper session", extra={"error": str(e)})
+                    self.logger.debug(
+                        "Failed to close worker scraper session", extra={"error": str(e)}
+                    )
 
     def _fetch_and_save_match(
         self,
@@ -640,8 +652,8 @@ class FotMobOrchestrator(OrchestratorProtocol):
                     quality_issues = [
                         issue
                         for result in validation_results.values()
-                        if not result.get('passed', True)
-                        for issue in result.get('issues', [])
+                        if not result.get("passed", True)
+                        for issue in result.get("issues", [])
                     ]
 
                     if quality_issues and self.config.fail_on_quality_issues:
@@ -685,14 +697,12 @@ class FotMobOrchestrator(OrchestratorProtocol):
         match_id: str,
         metrics: ScraperMetrics,
         date_str: str,
-        scraped_match_ids: set
+        scraped_match_ids: set,
     ):
         """Process a single match (for sequential execution)."""
         self.logger.info("Processing match", extra={"date": date_str, "match_id": match_id})
 
-        success, error_msg, quality_issues = self._fetch_and_save_match(
-            scraper, match_id, date_str
-        )
+        success, error_msg, quality_issues = self._fetch_and_save_match(scraper, match_id, date_str)
 
         if success:
             scraped_match_ids.add(match_id)
@@ -700,9 +710,7 @@ class FotMobOrchestrator(OrchestratorProtocol):
             if quality_issues:
                 metrics.record_data_quality_issue(match_id, quality_issues)
                 self.alert_manager.alert_data_quality_issue(
-                    match_id=match_id,
-                    issues=quality_issues,
-                    context={"date": date_str}
+                    match_id=match_id, issues=quality_issues, context={"date": date_str}
                 )
 
             metrics.record_success(match_id)
@@ -716,12 +724,10 @@ class FotMobOrchestrator(OrchestratorProtocol):
                 match_id=match_id,
                 error=error_msg or "Unknown error",
                 error_type="ProcessingError",
-                context={"date": date_str}
+                context={"date": date_str},
             )
 
-    def get_match_data(
-        self, match_id: int, date_str: str
-    ) -> Optional[Dict[str, Any]]:
+    def get_match_data(self, match_id: int, date_str: str) -> Optional[Dict[str, Any]]:
         """
         Retrieve raw match data from Bronze layer.
 

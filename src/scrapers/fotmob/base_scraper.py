@@ -1,13 +1,11 @@
-"""Base scraper – uses a headless browser so x-mas tokens are auto-generated."""
-
-import logging
-import time
 import random
-from typing import Optional, Dict, Any
+import time
+from typing import Any, Dict, Optional
+
+from config import FotMobConfig
 
 from ...core import ScraperProtocol
-from ...core.constants import Defaults
-from config import FotMobConfig
+from ...utils.logging_utils import get_logger
 from .playwright_fetcher import PlaywrightFetcher
 
 logger = get_logger(__name__)

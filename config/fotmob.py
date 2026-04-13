@@ -10,19 +10,19 @@ All non-sensitive settings must be defined in config.yaml.
 
 """
 
-import os
 import json
+import os
 import random
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
-from pathlib import Path
+from typing import Dict, List
 
-from .base import BaseConfig, StorageConfig, LoggingConfig, MetricsConfig, RetryConfig
+from .base import BaseConfig, LoggingConfig, MetricsConfig, RetryConfig, StorageConfig
 
 
 @dataclass
 class ApiConfig:
     """FotMob API configuration."""
+
     base_url: str
     user_agent: str
     x_mas_token: str = ""
@@ -62,6 +62,7 @@ class ApiConfig:
 @dataclass
 class RequestConfig:
     """HTTP request configuration."""
+
     timeout: int
     delay_min: float
     delay_max: float
@@ -70,6 +71,7 @@ class RequestConfig:
 @dataclass
 class ScrapingConfig:
     """Scraping behavior configuration."""
+
     max_workers: int
     enable_parallel: bool
     metrics_update_interval: int
@@ -82,6 +84,7 @@ class ScrapingConfig:
 @dataclass
 class DataQualityConfig:
     """Data quality checking configuration."""
+
     enabled: bool
     fail_on_issues: bool
 
@@ -89,6 +92,7 @@ class DataQualityConfig:
 @dataclass
 class ProxyConfig:
     """Proxy configuration."""
+
     enabled: bool
     http: str = ""
     https: str = ""
@@ -116,150 +120,154 @@ class FotMobConfig(BaseConfig):
 
     def __init__(self):
         """Initialize FotMob configuration from config.yaml."""
-        self._yaml_config = self._load_yaml_config(required_keys=['fotmob'])
+        self._yaml_config = self._load_yaml_config(required_keys=["fotmob"])
         self._load_config()
         self._apply_env_overrides()
         self._ensure_directories()
 
     def _load_config(self):
         """Initialize configuration from config.yaml (no defaults)."""
-        yaml_fotmob = self._yaml_config.get('fotmob', {})
-        
-        api_config = yaml_fotmob.get('api', {})
-        if not api_config.get('base_url'):
+        yaml_fotmob = self._yaml_config.get("fotmob", {})
+
+        api_config = yaml_fotmob.get("api", {})
+        if not api_config.get("base_url"):
             raise ValueError("fotmob.api.base_url is required in config.yaml")
-        if not api_config.get('user_agents'):
+        if not api_config.get("user_agents"):
             raise ValueError("fotmob.api.user_agents is required in config.yaml")
-            
+
         self.api = ApiConfig(
-            base_url=api_config['base_url'],
-            user_agent=api_config.get('user_agent', ''),
+            base_url=api_config["base_url"],
+            user_agent=api_config.get("user_agent", ""),
             x_mas_token="",
-            user_agents=api_config['user_agents'],
+            user_agents=api_config["user_agents"],
         )
 
-        request_config = yaml_fotmob.get('request', {})
+        request_config = yaml_fotmob.get("request", {})
         self.request = RequestConfig(
-            timeout=request_config['timeout'],
-            delay_min=request_config['delay_min'],
-            delay_max=request_config['delay_max'],
+            timeout=request_config["timeout"],
+            delay_min=request_config["delay_min"],
+            delay_max=request_config["delay_max"],
         )
 
-        scraping_config = yaml_fotmob.get('scraping', {})
+        scraping_config = yaml_fotmob.get("scraping", {})
         self.scraping = ScrapingConfig(
-            max_workers=scraping_config['max_workers'],
-            enable_parallel=scraping_config['enable_parallel'],
-            enable_caching=scraping_config.get('enable_caching', True),
-            cache_ttl_hours=scraping_config.get('cache_ttl_hours', 24),
-            metrics_update_interval=scraping_config['metrics_update_interval'],
-            filter_by_status=scraping_config['filter_by_status'],
-            allowed_match_statuses=tuple(scraping_config['allowed_match_statuses']),
+            max_workers=scraping_config["max_workers"],
+            enable_parallel=scraping_config["enable_parallel"],
+            enable_caching=scraping_config.get("enable_caching", True),
+            cache_ttl_hours=scraping_config.get("cache_ttl_hours", 24),
+            metrics_update_interval=scraping_config["metrics_update_interval"],
+            filter_by_status=scraping_config["filter_by_status"],
+            allowed_match_statuses=tuple(scraping_config["allowed_match_statuses"]),
         )
 
-        storage_config = yaml_fotmob.get('storage', {})
-        bronze_path = storage_config['bronze_path']
+        storage_config = yaml_fotmob.get("storage", {})
+        bronze_path = storage_config["bronze_path"]
         self.storage = StorageConfig(
             bronze_path=bronze_path,
-            enabled=storage_config.get('enabled', True),
+            enabled=storage_config.get("enabled", True),
         )
 
-        retry_config = yaml_fotmob.get('retry', {})
+        retry_config = yaml_fotmob.get("retry", {})
         self.retry = RetryConfig(
-            max_attempts=retry_config['max_attempts'],
-            initial_wait=retry_config['initial_wait'],
-            max_wait=retry_config['max_wait'],
-            exponential_base=retry_config.get('exponential_base', 2.0),
-            backoff_factor=retry_config.get('backoff_factor', 2.0),
-            status_codes=tuple(retry_config.get('status_codes', [429, 500, 502, 503, 504])),
+            max_attempts=retry_config["max_attempts"],
+            initial_wait=retry_config["initial_wait"],
+            max_wait=retry_config["max_wait"],
+            exponential_base=retry_config.get("exponential_base", 2.0),
+            backoff_factor=retry_config.get("backoff_factor", 2.0),
+            status_codes=tuple(retry_config.get("status_codes", [429, 500, 502, 503, 504])),
         )
 
-        fotmob_logging = yaml_fotmob.get('logging', {})
+        fotmob_logging = yaml_fotmob.get("logging", {})
         self.logging = LoggingConfig(
-            level=fotmob_logging.get('level', 'INFO'),
-            format=fotmob_logging.get('format', '%(asctime)s - %(name)s - %(levelname)s - %(message)s'),
-            file=fotmob_logging.get('file', 'logs/fotmob_scraper.log'),
-            max_bytes=fotmob_logging.get('max_bytes', 10485760),
-            backup_count=fotmob_logging.get('backup_count', 5),
-            dir=fotmob_logging.get('dir', 'logs'),
+            level=fotmob_logging.get("level", "INFO"),
+            format=fotmob_logging.get(
+                "format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            ),
+            file=fotmob_logging.get("file", "logs/fotmob_scraper.log"),
+            max_bytes=fotmob_logging.get("max_bytes", 10485760),
+            backup_count=fotmob_logging.get("backup_count", 5),
+            dir=fotmob_logging.get("dir", "logs"),
         )
 
-        fotmob_metrics = yaml_fotmob.get('metrics', {})
+        fotmob_metrics = yaml_fotmob.get("metrics", {})
         self.metrics = MetricsConfig(
-            enabled=fotmob_metrics.get('enabled', False),
-            export_path=fotmob_metrics.get('export_path', 'metrics'),
-            export_format=fotmob_metrics.get('export_format', 'json'),
+            enabled=fotmob_metrics.get("enabled", False),
+            export_path=fotmob_metrics.get("export_path", "metrics"),
+            export_format=fotmob_metrics.get("export_format", "json"),
         )
 
-        data_quality_config = yaml_fotmob.get('data_quality', {})
+        data_quality_config = yaml_fotmob.get("data_quality", {})
         self.data_quality = DataQualityConfig(
-            enabled=data_quality_config.get('enabled', True),
-            fail_on_issues=data_quality_config.get('fail_on_issues', False),
+            enabled=data_quality_config.get("enabled", True),
+            fail_on_issues=data_quality_config.get("fail_on_issues", False),
         )
 
-        proxy_config = yaml_fotmob.get('proxy', {})
+        proxy_config = yaml_fotmob.get("proxy", {})
         self.proxy = ProxyConfig(
-            enabled=proxy_config.get('enabled', False),
+            enabled=proxy_config.get("enabled", False),
         )
 
     def _apply_env_overrides(self):
         """Apply environment variable overrides for sensitive data."""
         super()._apply_env_overrides()
 
-        if os.getenv('FOTMOB_X_MAS_TOKEN'):
-            self.api.x_mas_token = os.getenv('FOTMOB_X_MAS_TOKEN')
-        if os.getenv('FOTMOB_COOKIES'):
-            self.api.cookies = os.getenv('FOTMOB_COOKIES')
-        if os.getenv('FOTMOB_USER_AGENT'):
-            self.api.user_agent = os.getenv('FOTMOB_USER_AGENT')
-        if os.getenv('FOTMOB_API_BASE_URL'):
-            self.api.base_url = os.getenv('FOTMOB_API_BASE_URL')
+        if os.getenv("FOTMOB_X_MAS_TOKEN"):
+            self.api.x_mas_token = os.getenv("FOTMOB_X_MAS_TOKEN")
+        if os.getenv("FOTMOB_COOKIES"):
+            self.api.cookies = os.getenv("FOTMOB_COOKIES")
+        if os.getenv("FOTMOB_USER_AGENT"):
+            self.api.user_agent = os.getenv("FOTMOB_USER_AGENT")
+        if os.getenv("FOTMOB_API_BASE_URL"):
+            self.api.base_url = os.getenv("FOTMOB_API_BASE_URL")
 
-        if os.getenv('FOTMOB_REQUEST_TIMEOUT'):
-            self.request.timeout = int(os.getenv('FOTMOB_REQUEST_TIMEOUT'))
-        if os.getenv('FOTMOB_DELAY_MIN'):
-            self.request.delay_min = float(os.getenv('FOTMOB_DELAY_MIN'))
-        if os.getenv('FOTMOB_DELAY_MAX'):
-            self.request.delay_max = float(os.getenv('FOTMOB_DELAY_MAX'))
+        if os.getenv("FOTMOB_REQUEST_TIMEOUT"):
+            self.request.timeout = int(os.getenv("FOTMOB_REQUEST_TIMEOUT"))
+        if os.getenv("FOTMOB_DELAY_MIN"):
+            self.request.delay_min = float(os.getenv("FOTMOB_DELAY_MIN"))
+        if os.getenv("FOTMOB_DELAY_MAX"):
+            self.request.delay_max = float(os.getenv("FOTMOB_DELAY_MAX"))
 
-        if os.getenv('FOTMOB_MAX_WORKERS'):
-            self.scraping.max_workers = int(os.getenv('FOTMOB_MAX_WORKERS'))
-        if os.getenv('FOTMOB_ENABLE_PARALLEL'):
-            self.scraping.enable_parallel = os.getenv('FOTMOB_ENABLE_PARALLEL').lower() == 'true'
-        if os.getenv('FOTMOB_ENABLE_CACHING'):
-            self.scraping.enable_caching = os.getenv('FOTMOB_ENABLE_CACHING').lower() == 'true'
-        if os.getenv('FOTMOB_CACHE_TTL_HOURS'):
-            self.scraping.cache_ttl_hours = int(os.getenv('FOTMOB_CACHE_TTL_HOURS'))
-        if os.getenv('FOTMOB_METRICS_UPDATE_INTERVAL'):
-            self.scraping.metrics_update_interval = int(os.getenv('FOTMOB_METRICS_UPDATE_INTERVAL'))
-        if os.getenv('FOTMOB_FILTER_BY_STATUS'):
-            self.scraping.filter_by_status = os.getenv('FOTMOB_FILTER_BY_STATUS').lower() == 'true'
-        if os.getenv('FOTMOB_ALLOWED_MATCH_STATUSES'):
-            statuses = [s.strip() for s in os.getenv('FOTMOB_ALLOWED_MATCH_STATUSES').split(',')]
+        if os.getenv("FOTMOB_MAX_WORKERS"):
+            self.scraping.max_workers = int(os.getenv("FOTMOB_MAX_WORKERS"))
+        if os.getenv("FOTMOB_ENABLE_PARALLEL"):
+            self.scraping.enable_parallel = os.getenv("FOTMOB_ENABLE_PARALLEL").lower() == "true"
+        if os.getenv("FOTMOB_ENABLE_CACHING"):
+            self.scraping.enable_caching = os.getenv("FOTMOB_ENABLE_CACHING").lower() == "true"
+        if os.getenv("FOTMOB_CACHE_TTL_HOURS"):
+            self.scraping.cache_ttl_hours = int(os.getenv("FOTMOB_CACHE_TTL_HOURS"))
+        if os.getenv("FOTMOB_METRICS_UPDATE_INTERVAL"):
+            self.scraping.metrics_update_interval = int(os.getenv("FOTMOB_METRICS_UPDATE_INTERVAL"))
+        if os.getenv("FOTMOB_FILTER_BY_STATUS"):
+            self.scraping.filter_by_status = os.getenv("FOTMOB_FILTER_BY_STATUS").lower() == "true"
+        if os.getenv("FOTMOB_ALLOWED_MATCH_STATUSES"):
+            statuses = [s.strip() for s in os.getenv("FOTMOB_ALLOWED_MATCH_STATUSES").split(",")]
             self.scraping.allowed_match_statuses = tuple(statuses)
 
-        if os.getenv('FOTMOB_BRONZE_PATH'):
-            self.storage.bronze_path = os.getenv('FOTMOB_BRONZE_PATH')
-        if os.getenv('FOTMOB_STORAGE_ENABLED'):
-            self.storage.enabled = os.getenv('FOTMOB_STORAGE_ENABLED').lower() == 'true'
+        if os.getenv("FOTMOB_BRONZE_PATH"):
+            self.storage.bronze_path = os.getenv("FOTMOB_BRONZE_PATH")
+        if os.getenv("FOTMOB_STORAGE_ENABLED"):
+            self.storage.enabled = os.getenv("FOTMOB_STORAGE_ENABLED").lower() == "true"
 
-        if os.getenv('FOTMOB_RETRY_MAX_ATTEMPTS'):
-            self.retry.max_attempts = int(os.getenv('FOTMOB_RETRY_MAX_ATTEMPTS'))
-        if os.getenv('FOTMOB_RETRY_INITIAL_WAIT'):
-            self.retry.initial_wait = float(os.getenv('FOTMOB_RETRY_INITIAL_WAIT'))
-        if os.getenv('FOTMOB_RETRY_MAX_WAIT'):
-            self.retry.max_wait = float(os.getenv('FOTMOB_RETRY_MAX_WAIT'))
+        if os.getenv("FOTMOB_RETRY_MAX_ATTEMPTS"):
+            self.retry.max_attempts = int(os.getenv("FOTMOB_RETRY_MAX_ATTEMPTS"))
+        if os.getenv("FOTMOB_RETRY_INITIAL_WAIT"):
+            self.retry.initial_wait = float(os.getenv("FOTMOB_RETRY_INITIAL_WAIT"))
+        if os.getenv("FOTMOB_RETRY_MAX_WAIT"):
+            self.retry.max_wait = float(os.getenv("FOTMOB_RETRY_MAX_WAIT"))
 
-        if os.getenv('FOTMOB_DATA_QUALITY_ENABLED'):
-            self.data_quality.enabled = os.getenv('FOTMOB_DATA_QUALITY_ENABLED').lower() == 'true'
-        if os.getenv('FOTMOB_DATA_QUALITY_FAIL_ON_ISSUES'):
-            self.data_quality.fail_on_issues = os.getenv('FOTMOB_DATA_QUALITY_FAIL_ON_ISSUES').lower() == 'true'
+        if os.getenv("FOTMOB_DATA_QUALITY_ENABLED"):
+            self.data_quality.enabled = os.getenv("FOTMOB_DATA_QUALITY_ENABLED").lower() == "true"
+        if os.getenv("FOTMOB_DATA_QUALITY_FAIL_ON_ISSUES"):
+            self.data_quality.fail_on_issues = (
+                os.getenv("FOTMOB_DATA_QUALITY_FAIL_ON_ISSUES").lower() == "true"
+            )
 
-        if os.getenv('FOTMOB_PROXY_ENABLED'):
-            self.proxy.enabled = os.getenv('FOTMOB_PROXY_ENABLED').lower() == 'true'
-        if os.getenv('FOTMOB_PROXY_HTTP'):
-            self.proxy.http = os.getenv('FOTMOB_PROXY_HTTP')
-        if os.getenv('FOTMOB_PROXY_HTTPS'):
-            self.proxy.https = os.getenv('FOTMOB_PROXY_HTTPS')
+        if os.getenv("FOTMOB_PROXY_ENABLED"):
+            self.proxy.enabled = os.getenv("FOTMOB_PROXY_ENABLED").lower() == "true"
+        if os.getenv("FOTMOB_PROXY_HTTP"):
+            self.proxy.http = os.getenv("FOTMOB_PROXY_HTTP")
+        if os.getenv("FOTMOB_PROXY_HTTPS"):
+            self.proxy.https = os.getenv("FOTMOB_PROXY_HTTPS")
 
     @property
     def api_base_url(self) -> str:

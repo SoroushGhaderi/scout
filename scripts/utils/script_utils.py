@@ -5,11 +5,17 @@ This module centralizes common operations used across scraping scripts.
 import logging
 import sys
 from calendar import monthrange
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.utils.logging_utils import get_logger
 
 DATE_FORMAT_COMPACT = "%Y%m%d"
 DATE_FORMAT_MONTH = "%Y%m"

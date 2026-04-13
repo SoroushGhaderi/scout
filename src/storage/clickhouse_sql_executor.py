@@ -1,12 +1,11 @@
 """Shared SQL execution helpers for ClickHouse-backed medallion layers."""
 
-import logging
 import time
 from dataclasses import dataclass
 from pathlib import Path
 
-from .clickhouse_client import ClickHouseClient
 from ..utils.logging_utils import get_logger
+from .clickhouse_client import ClickHouseClient
 
 logger = get_logger(__name__)
 

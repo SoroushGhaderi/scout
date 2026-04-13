@@ -136,14 +136,10 @@ def main(argv=None) -> int:
             detail_lines=[
                 f"SQL files planned: <b>{len(sql_files)}</b>",
                 f"Scenario failures: <b>{failed_count}</b>",
-                "Contract checks: <b>skipped (dry-run)</b>",
             ],
             insight_lines=[
                 f"Scenario pass projection: <b>{scenario_success_rate:.1f}%</b>",
-                "Dry-run signal: <b>SQL + scenario execution path validated</b>",
-            ],
-            action_lines=[
-                "Run without --dry-run to populate gold tables and validate contracts.",
+                "Dry-run mode: <b>no writes performed</b>",
             ],
         )
         if failed_count > 0:
@@ -231,10 +227,6 @@ def main(argv=None) -> int:
                     if contracts_checked
                     else "Analytics quality signal: <b>contract check failed or was skipped</b>"
                 ),
-            ],
-            action_lines=[
-                "If any scenarios failed, inspect failed script names in logs and rerun selectively.",
-                "If contracts passed, downstream consumers can safely query gold outputs.",
             ],
         )
 

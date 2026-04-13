@@ -174,14 +174,10 @@ def main(argv=None) -> int:
             detail_lines=[
                 f"Jobs planned: <b>{total_jobs}</b>",
                 f"Jobs completed: <b>{completed_jobs}</b>",
-                "Contract checks: <b>skipped (dry-run)</b>",
             ],
             insight_lines=[
                 f"Transformation completion rate: <b>{completion_rate:.1f}%</b>",
-                "Dry-run signal: <b>execution path validated without writes</b>",
-            ],
-            action_lines=[
-                "Run without --dry-run to materialize silver tables.",
+                "Dry-run mode: <b>no writes performed</b>",
             ],
         )
         if load_exit_code == 0:
@@ -250,10 +246,6 @@ def main(argv=None) -> int:
                     if contracts_checked
                     else "Data quality signal: <b>contract check failed or was skipped</b>"
                 ),
-            ],
-            action_lines=[
-                "If contracts failed, review silver contract violations before running gold.",
-                "If successful, proceed to gold scenario processing.",
             ],
         )
 

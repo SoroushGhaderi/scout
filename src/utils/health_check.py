@@ -1,10 +1,13 @@
 """Health check utilities for ClickHouse, storage access, and disk space."""
 import shutil
-from pathlib import Path
-from typing import Dict, Any, Optional
 from datetime import datetime
-from .logging_utils import get_logger
+from pathlib import Path
+from typing import Any, Dict, Optional
+
 from .alerting import get_alert_manager
+from .logging_utils import get_logger
+
+
 def check_disk_space(path: str = ".", threshold_gb: float = 1.0) -> Dict[str, Any]:
     """
     Check available disk space for a given path.
@@ -36,7 +39,7 @@ def check_disk_space(path: str = ".", threshold_gb: float = 1.0) -> Dict[str, An
             "free_gb": round(free_gb, 2),
             "used_percent": round(used_percent, 2),
             "threshold_gb": threshold_gb,
-            "message": f"Free space: {free_gb:.2f} GB ({free_gb*1024:.0f} MB)"
+            "message": f"Free space: {free_gb:.2f} GB ({free_gb*1024:.0f} MB)",
         }
     except Exception as e:
         logger.error(f"Failed to check disk space for {path}: {e}")
@@ -44,8 +47,10 @@ def check_disk_space(path: str = ".", threshold_gb: float = 1.0) -> Dict[str, An
             "status": "error",
             "path": str(path),
             "error": str(e),
-            "message": f"Failed to check disk space: {e}"
+            "message": f"Failed to check disk space: {e}",
         }
+
+
 def check_storage_access(storage_path: str) -> Dict[str, Any]:
     """
     Check if storage directory is accessible and writable.
@@ -86,7 +91,7 @@ def check_storage_access(storage_path: str) -> Dict[str, Any]:
             "exists": exists,
             "is_directory": is_dir,
             "writable": writable,
-            "message": message
+            "message": message,
         }
     except Exception as e:
         logger.error(f"Failed to check storage access for {storage_path}: {e}")
@@ -94,15 +99,17 @@ def check_storage_access(storage_path: str) -> Dict[str, Any]:
             "status": "error",
             "path": str(storage_path),
             "error": str(e),
-            "message": f"Failed to check storage access: {e}"
+            "message": f"Failed to check storage access: {e}",
         }
+
+
 def check_clickhouse_connection(
     host: str = "localhost",
     port: int = 8123,
     username: str = "default",
     password: str = "",
     database: str = "default",
-    timeout: float = 5.0
+    timeout: float = 5.0,
 ) -> Dict[str, Any]:
     """
     Check ClickHouse connection health.
@@ -118,21 +125,21 @@ def check_clickhouse_connection(
     """
     logger = get_logger()
     try:
-        import clickhouse_connect
         import socket
+
+        import clickhouse_connect
+
         try:
             sock = socket.create_connection((host, port), timeout=timeout)
             sock.close()
-            host_reachable = True
         except (socket.timeout, socket.error, OSError) as e:
-            host_reachable = False
             return {
                 "status": "error",
                 "host": host,
                 "port": port,
                 "host_reachable": False,
                 "error": f"Host unreachable: {e}",
-                "message": f"Cannot reach ClickHouse at {host}:{port}"
+                "message": f"Cannot reach ClickHouse at {host}:{port}",
             }
         try:
             client = clickhouse_connect.get_client(
@@ -141,7 +148,7 @@ def check_clickhouse_connection(
                 username=username,
                 password=password,
                 database=database,
-                connect_timeout=timeout
+                connect_timeout=timeout,
             )
             result = client.query("SELECT 1 as health_check")
             query_successful = result.result_rows[0][0] == 1 if result.result_rows else False
@@ -157,7 +164,7 @@ def check_clickhouse_connection(
                     "host_reachable": True,
                     "connected": True,
                     "version": version,
-                    "message": f"ClickHouse is healthy at {host}:{port}/{database} (version: {version})"
+                    "message": f"ClickHouse is healthy at {host}:{port}/{database} (version: {version})",
                 }
             else:
                 return {
@@ -168,7 +175,7 @@ def check_clickhouse_connection(
                     "host_reachable": True,
                     "connected": True,
                     "query_successful": False,
-                    "message": f"ClickHouse connection successful but query failed"
+                    "message": "ClickHouse connection successful but query failed",
                 }
         except Exception as e:
             return {
@@ -179,7 +186,7 @@ def check_clickhouse_connection(
                 "host_reachable": True,
                 "connected": False,
                 "error": str(e),
-                "message": f"Failed to connect to ClickHouse: {e}"
+                "message": f"Failed to connect to ClickHouse: {e}",
             }
     except ImportError:
         return {
@@ -187,7 +194,7 @@ def check_clickhouse_connection(
             "host": host,
             "port": port,
             "error": "clickhouse_connect not installed",
-            "message": "clickhouse_connect package is not installed"
+            "message": "clickhouse_connect package is not installed",
         }
     except Exception as e:
         logger.error(f"Failed to check ClickHouse connection: {e}")
@@ -196,8 +203,10 @@ def check_clickhouse_connection(
             "host": host,
             "port": port,
             "error": str(e),
-            "message": f"Failed to check ClickHouse connection: {e}"
+            "message": f"Failed to check ClickHouse connection: {e}",
         }
+
+
 def health_check(
     clickhouse_host: Optional[str] = None,
     clickhouse_port: int = 8123,
@@ -206,7 +215,7 @@ def health_check(
     clickhouse_database: str = "default",
     storage_paths: Optional[list[str]] = None,
     disk_path: str = ".",
-    disk_threshold_gb: float = 1.0
+    disk_threshold_gb: float = 1.0,
 ) -> Dict[str, Any]:
     """
     Perform comprehensive health check of all system components.
@@ -228,7 +237,7 @@ def health_check(
     results = {
         "timestamp": datetime.now().isoformat(),
         "overall_status": "unknown",
-        "components": {}
+        "components": {},
     }
     if clickhouse_host:
         logger.info(f"Checking ClickHouse connection: {clickhouse_host}:{clickhouse_port}")
@@ -237,13 +246,13 @@ def health_check(
             port=clickhouse_port,
             username=clickhouse_username,
             password=clickhouse_password,
-            database=clickhouse_database
+            database=clickhouse_database,
         )
         results["components"]["clickhouse"] = clickhouse_result
     else:
         results["components"]["clickhouse"] = {
             "status": "skipped",
-            "message": "ClickHouse check skipped (no host provided)"
+            "message": "ClickHouse check skipped (no host provided)",
         }
     storage_results = {}
     for storage_path in storage_paths:
@@ -283,7 +292,7 @@ def health_check(
                     component=component_name,
                     status=status,
                     message=message,
-                    context=component_result
+                    context=component_result,
                 )
             continue
         for path, path_result in component_result.items():
@@ -296,6 +305,6 @@ def health_check(
                     component=f"{component_name}:{path}",
                     status=status,
                     message=message,
-                    context=path_result
+                    context=path_result,
                 )
     return results

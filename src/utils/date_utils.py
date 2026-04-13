@@ -4,7 +4,7 @@ Date utility functions and constants for consistent date handling.
 Replaces magic numbers and hardcoded string slicing with proper constants and functions.
 """
 from datetime import datetime
-from typing import Optional
+
 DATE_FORMAT_COMPACT = "%Y%m%d"
 DATE_FORMAT_DISPLAY = "%Y-%m-%d"
 DATE_FORMAT_MONTH = "%Y%m"
@@ -14,6 +14,7 @@ MONTH_START = 4
 MONTH_END = 6
 DAY_START = 6
 DAY_END = 8
+
 
 def format_date_compact_to_display(date_str: str) -> str:
     """
@@ -35,6 +36,7 @@ def format_date_compact_to_display(date_str: str) -> str:
     day = date_str[DAY_START:DAY_END]
     return f"{year}-{month}-{day}"
 
+
 def format_date_compact_to_display_partial(date_str: str) -> str:
     """
     Convert date from YYYYMMDD format to YYYY-MM-DD format.
@@ -49,6 +51,7 @@ def format_date_compact_to_display_partial(date_str: str) -> str:
     date_part = date_str[:8]
     return format_date_compact_to_display(date_part)
 
+
 def parse_compact_date(date_str: str) -> datetime:
     """
     Parse date string in YYYYMMDD format to datetime object.
@@ -58,6 +61,7 @@ def parse_compact_date(date_str: str) -> datetime:
         datetime object
     """
     return datetime.strptime(date_str[:8], DATE_FORMAT_COMPACT)
+
 
 def format_date_display_to_compact(date_str: str) -> str:
     """
@@ -69,6 +73,7 @@ def format_date_display_to_compact(date_str: str) -> str:
     """
     dt = datetime.strptime(date_str, DATE_FORMAT_DISPLAY)
     return dt.strftime(DATE_FORMAT_COMPACT)
+
 
 def extract_year_month(date_str: str) -> tuple[str, str]:
     """

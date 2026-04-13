@@ -372,21 +372,11 @@ def main(argv: List[str] = None) -> int:
                 f"Checks passed: <b>{passed_checks}/{total_checks}</b>",
                 f"Total missing in silver: <b>{total_missing}</b>",
                 f"Total extras in silver: <b>{total_extra}</b>",
-                f"Sample limit: <b>{args.sample_limit}</b>",
-                f"Exit code: <b>{exit_code}</b>",
             ],
             insight_lines=[
                 f"Average coverage across checks: <b>{avg_coverage:.2f}%</b>",
                 f"Worst check coverage: <b>{min_coverage:.2f}%</b>",
-                (
-                    "Run mode signal: <b>strict mode enforced</b>"
-                    if args.strict
-                    else "Run mode signal: <b>non-strict mode (findings do not fail exit)</b>"
-                ),
-            ],
-            action_lines=[
-                "If missing entities > 0, review printed missing-key samples and upstream silver logic.",
-                "Rerun with --strict in CI to enforce parity as a hard gate.",
+                f"Strict mode: <b>{'enabled' if args.strict else 'disabled'}</b>",
             ],
         )
 

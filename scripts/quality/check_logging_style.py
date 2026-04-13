@@ -12,9 +12,7 @@ Telegram/email formatting modules are excluded.
 from __future__ import annotations
 
 import re
-import sys
 from pathlib import Path
-
 
 ROOT = Path(__file__).resolve().parent.parent
 CHECK_DIRS = [ROOT / "src", ROOT / "scripts", ROOT / "config"]

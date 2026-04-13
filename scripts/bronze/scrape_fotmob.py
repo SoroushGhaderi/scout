@@ -22,19 +22,16 @@ Usage:
 """
 
 # Load environment variables from .env file FIRST
-import os
-
 from dotenv import load_dotenv
 
 load_dotenv()
 
 import argparse
-import logging
 import sys
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 # Ensure local project imports resolve before importing project modules.
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -53,7 +50,6 @@ from src.utils.logging_utils import get_logger, setup_logging
 from src.utils.metrics_alerts import send_daily_report, send_monthly_report
 from utils import (
     DateRangeInfo,
-    PipelineStats,
     create_date_range_info,
     print_header,
     print_separator,
@@ -484,21 +480,11 @@ def run_scraping(args: argparse.Namespace) -> int:
             f"Dates processed: <b>{stats.dates_processed}/{total_dates}</b>",
             f"Matches scraped: <b>{stats.total_successful}</b>",
             f"Failures: <b>{stats.total_failed}</b>",
-            f"Skipped: <b>{stats.total_skipped}</b>",
-            f"Bronze files: <b>{stats.bronze_files}</b>",
         ],
         insight_lines=[
             f"Date coverage: <b>{date_coverage:.1f}%</b>",
             f"Match scrape success rate: <b>{scrape_success_rate:.1f}%</b>",
-            (
-                "Bronze quality signal: <b>healthy</b>"
-                if exit_code == 0 and stats.total_failed == 0
-                else "Bronze quality signal: <b>review failures before downstream processing</b>"
-            ),
-        ],
-        action_lines=[
-            "Run bronze -> ClickHouse load for this scope if not already executed.",
-            "Inspect failed/skipped matches in logs when success rate is below target.",
+            f"Bronze files generated: <b>{stats.bronze_files}</b>",
         ],
     )
 
@@ -514,6 +500,7 @@ def main() -> int:
     """Main execution function."""
     args = parse_arguments()
     return run_scraping(args)
+
 
 if __name__ == "__main__":
     try:

@@ -1,6 +1,7 @@
 """Scraper for fetching daily match listings."""
 
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 from .base_scraper import BaseScraper
 
 
@@ -70,30 +71,21 @@ class DailyScraper(BaseScraper):
                     status_reason = match_status.get("reason", {})
                     if isinstance(status_reason, dict):
                         status_short = status_reason.get("short", "Unknown")
-                        status_long = status_reason.get("long", "Unknown")
                     else:
                         status_short = "Unknown"
-                        status_long = "Unknown"
                 else:
                     status_text = False
                     status_short = "Unknown"
-                    status_long = "Unknown"
 
-                status_counts[status_short] = (
-                    status_counts.get(status_short, 0) + 1
-                )
+                status_counts[status_short] = status_counts.get(status_short, 0) + 1
 
                 if self.config.scraping.filter_by_status:
-                    if (
-                        status_text
-                        or status_short in self.config.scraping.allowed_match_statuses
-                    ):
+                    if status_text or status_short in self.config.scraping.allowed_match_statuses:
                         match_ids.append(match["id"])
                     else:
                         filtered_count += 1
                         self.logger.debug(
-                            f"Filtered out match {match['id']} "
-                            f"with status: {status_short}"
+                            f"Filtered out match {match['id']} " f"with status: {status_short}"
                         )
                 else:
                     match_ids.append(match["id"])

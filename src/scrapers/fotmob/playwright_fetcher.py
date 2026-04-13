@@ -19,14 +19,15 @@ All HTTP requests are made with `curl_cffi` which impersonates Chrome's TLS
 fingerprint, bypassing Cloudflare's TLS-based bot detection.
 """
 
-import json
-import logging
-import time
-import hashlib
 import base64
+import hashlib
+import json
+import time
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 from urllib.parse import urlencode
+
+from ...utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
 
@@ -68,7 +69,7 @@ _FALLBACK_H_LYRICS = (
     "\n"
     "[Verse 2: David Baddiel]\n"
     "So many jokes, so many sneers\n"
-    "But all those \"Oh, so near\"s wear you down through the years\n"
+    'But all those "Oh, so near"s wear you down through the years\n'
     "But I still see that tackle by Moore and when Lineker scored\n"
     "Bobby belting the ball, and Nobby dancing\n"
     "\n"
@@ -191,14 +192,10 @@ class PlaywrightFetcher:
             )
             if resp.status_code == 200:
                 return resp.json()
-            self.logger.error(
-                f"Request failed {resp.status_code}: {url_path} — {resp.text[:200]}"
-            )
+            self.logger.error(f"Request failed {resp.status_code}: {url_path} — {resp.text[:200]}")
             return None
         except ImportError:
-            self.logger.error(
-                "curl_cffi is not installed. Fix: pip install curl_cffi"
-            )
+            self.logger.error("curl_cffi is not installed. Fix: pip install curl_cffi")
             return None
         except Exception as exc:
             self.logger.error(f"Request error for {url_path}: {exc}")
@@ -224,20 +221,15 @@ class PlaywrightFetcher:
             "foo": f"production:{self._foo_hash}",
         }
         body_json = json.dumps(body, separators=(",", ":"))
-        sig = hashlib.md5(
-            (body_json + self._h_lyrics).encode("utf-8")
-        ).hexdigest().upper()
+        sig = hashlib.md5((body_json + self._h_lyrics).encode("utf-8")).hexdigest().upper()
         token = {"body": body, "signature": sig}
-        return base64.b64encode(
-            json.dumps(token, separators=(",", ":")).encode("utf-8")
-        ).decode("ascii")
+        return base64.b64encode(json.dumps(token, separators=(",", ":")).encode("utf-8")).decode(
+            "ascii"
+        )
 
     def _ensure_signing_params(self):
         """Keep signing params fresh; extract from the live page once per day."""
-        if (
-            self._foo_hash
-            and (time.time() - self._signing_params_ts) < self.SIGNING_PARAMS_TTL
-        ):
+        if self._foo_hash and (time.time() - self._signing_params_ts) < self.SIGNING_PARAMS_TTL:
             return
 
         try:
@@ -245,9 +237,7 @@ class PlaywrightFetcher:
             self._foo_hash = params["foo"]
             self._h_lyrics = params["h"]
             self._signing_params_ts = time.time()
-            self.logger.info(
-                f"x-mas signing params refreshed (foo={self._foo_hash[:12]}…)"
-            )
+            self.logger.info(f"x-mas signing params refreshed (foo={self._foo_hash[:12]}…)")
         except Exception as exc:
             if self._foo_hash:
                 self.logger.warning(

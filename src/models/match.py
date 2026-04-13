@@ -1,15 +1,16 @@
 """Match-related Pydantic models."""
 
 from datetime import datetime
-from typing import Optional, Union
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class MatchTimeline(BaseModel):
     """Represents the timeline and status of a football match."""
 
     model_config = ConfigDict(
-        extra='ignore',
+        extra="ignore",
         validate_assignment=True,
         str_strip_whitespace=True,
     )
@@ -20,8 +21,12 @@ class MatchTimeline(BaseModel):
     first_half_ended: Optional[str] = Field(None, description="First half end time")
     second_half_started: Optional[str] = Field(None, description="Second half start time")
     second_half_ended: Optional[str] = Field(None, description="Second half end time")
-    first_extra_half_started: Optional[str] = Field(None, description="First extra time half start time")
-    second_extra_half_started: Optional[str] = Field(None, description="Second extra time half start time")
+    first_extra_half_started: Optional[str] = Field(
+        None, description="First extra time half start time"
+    )
+    second_extra_half_started: Optional[str] = Field(
+        None, description="Second extra time half start time"
+    )
     game_ended: Optional[str] = Field(None, description="Final match end time")
     game_finished: Optional[bool] = Field(False, description="Whether the match completed normally")
     game_started: Optional[bool] = Field(False, description="Whether the match started")
@@ -32,7 +37,7 @@ class GeneralMatchStats(BaseModel):
     """Represents general statistics and information about a match."""
 
     model_config = ConfigDict(
-        extra='ignore',
+        extra="ignore",
         validate_assignment=True,
         str_strip_whitespace=True,
     )
@@ -41,8 +46,12 @@ class GeneralMatchStats(BaseModel):
     match_round: Optional[str] = Field(None, description="Current round of the match")
     team_color_dark_mode_home: Optional[str] = Field(None, description="Home team color dark mode")
     team_color_dark_mode_away: Optional[str] = Field(None, description="Away team color dark mode")
-    team_color_light_mode_home: Optional[str] = Field(None, description="Home team color light mode")
-    team_color_light_mode_away: Optional[str] = Field(None, description="Away team color light mode")
+    team_color_light_mode_home: Optional[str] = Field(
+        None, description="Home team color light mode"
+    )
+    team_color_light_mode_away: Optional[str] = Field(
+        None, description="Away team color light mode"
+    )
     league_id: Optional[int] = Field(None, description="League ID")
     league_name: Optional[str] = Field(None, description="League name")
     league_round_name: Optional[str] = Field(None, description="Name of the league round")
@@ -50,7 +59,9 @@ class GeneralMatchStats(BaseModel):
     country_code: Optional[str] = Field(None, description="Country code of the league")
     parent_league_name: Optional[str] = Field(None, description="Parent league name")
     parent_league_season: Optional[str] = Field(None, description="Parent league season")
-    parent_league_tournament_id: Optional[int] = Field(None, description="Parent league tournament ID")
+    parent_league_tournament_id: Optional[int] = Field(
+        None, description="Parent league tournament ID"
+    )
     home_team_name: Optional[str] = Field(None, description="Home team name")
     home_team_id: Optional[int] = Field(None, description="Home team ID")
     away_team_name: Optional[str] = Field(None, description="Away team name")
@@ -69,14 +80,16 @@ class InfoBox(BaseModel):
     """Represents general information details about the match, stadium, and referee."""
 
     model_config = ConfigDict(
-        extra='ignore',
+        extra="ignore",
         validate_assignment=True,
         str_strip_whitespace=True,
     )
 
     match_id: Optional[int] = Field(None, description="Unique identifier for the match")
     match_date_utc: Optional[datetime] = Field(None, description="Match date and time UTC")
-    match_date_verified: Optional[bool] = Field(None, description="Flag indicating if date is verified")
+    match_date_verified: Optional[bool] = Field(
+        None, description="Flag indicating if date is verified"
+    )
     tournament_id: Optional[int] = Field(None, description="Tournament ID")
     parent_league_id: Optional[int] = Field(None, description="Parent league ID")
     league_name: Optional[str] = Field(None, description="Name of the league")
@@ -96,7 +109,7 @@ class InfoBox(BaseModel):
 class MomentumDataPoint(BaseModel):
     """Represents a single data point in the match momentum chart."""
 
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra="ignore")
 
     match_id: int = Field(..., description="Unique match identifier")
     minute: Optional[float] = Field(..., description="Match minute timestamp")
@@ -108,7 +121,7 @@ class PeriodStats(BaseModel):
     """Represents aggregated statistics for a specific period of the match."""
 
     model_config = ConfigDict(
-        extra='ignore',
+        extra="ignore",
         validate_assignment=True,
     )
 
@@ -118,34 +131,86 @@ class PeriodStats(BaseModel):
     ball_possession_away: Optional[int] = Field(None, description="Ball possession % for away team")
     expected_goals_home: Optional[float] = Field(None, description="xG for home team")
     expected_goals_away: Optional[float] = Field(None, description="xG for away team")
-    expected_goals_open_play_home: Optional[float] = Field(None, description="xG from open play for home")
-    expected_goals_open_play_away: Optional[float] = Field(None, description="xG from open play for away")
-    expected_goals_set_play_home: Optional[float] = Field(None, description="xG from set play for home")
-    expected_goals_set_play_away: Optional[float] = Field(None, description="xG from set play for away")
-    expected_goals_non_penalty_home: Optional[float] = Field(None, description="xG excluding penalties for home")
-    expected_goals_non_penalty_away: Optional[float] = Field(None, description="xG excluding penalties for away")
+    expected_goals_open_play_home: Optional[float] = Field(
+        None, description="xG from open play for home"
+    )
+    expected_goals_open_play_away: Optional[float] = Field(
+        None, description="xG from open play for away"
+    )
+    expected_goals_set_play_home: Optional[float] = Field(
+        None, description="xG from set play for home"
+    )
+    expected_goals_set_play_away: Optional[float] = Field(
+        None, description="xG from set play for away"
+    )
+    expected_goals_non_penalty_home: Optional[float] = Field(
+        None, description="xG excluding penalties for home"
+    )
+    expected_goals_non_penalty_away: Optional[float] = Field(
+        None, description="xG excluding penalties for away"
+    )
     expected_goals_on_target_home: Optional[float] = Field(None, description="xGOT for home team")
     expected_goals_on_target_away: Optional[float] = Field(None, description="xGOT for away team")
-    distance_covered_home: Optional[float] = Field(None, description="Distance covered by home team (meters)")
-    distance_covered_away: Optional[float] = Field(None, description="Distance covered by away team (meters)")
-    walking_distance_home: Optional[float] = Field(None, description="Walking distance by home team (meters)")
-    walking_distance_away: Optional[float] = Field(None, description="Walking distance by away team (meters)")
-    running_distance_home: Optional[float] = Field(None, description="Running distance by home team (meters)")
-    running_distance_away: Optional[float] = Field(None, description="Running distance by away team (meters)")
-    sprinting_distance_home: Optional[float] = Field(None, description="Sprinting distance by home team (meters)")
-    sprinting_distance_away: Optional[float] = Field(None, description="Sprinting distance by away team (meters)")
-    number_of_sprints_home: Optional[int] = Field(None, description="Number of sprints by home team")
-    number_of_sprints_away: Optional[int] = Field(None, description="Number of sprints by away team")
-    physical_metrics_distance_covered_home: Optional[float] = Field(None, description="Distance covered by home team (source alias)")
-    physical_metrics_distance_covered_away: Optional[float] = Field(None, description="Distance covered by away team (source alias)")
-    physical_metrics_walking_home: Optional[float] = Field(None, description="Walking distance by home team (source alias)")
-    physical_metrics_walking_away: Optional[float] = Field(None, description="Walking distance by away team (source alias)")
-    physical_metrics_running_home: Optional[float] = Field(None, description="Running distance by home team (source alias)")
-    physical_metrics_running_away: Optional[float] = Field(None, description="Running distance by away team (source alias)")
-    physical_metrics_sprinting_home: Optional[float] = Field(None, description="Sprinting distance by home team (source alias)")
-    physical_metrics_sprinting_away: Optional[float] = Field(None, description="Sprinting distance by away team (source alias)")
-    physical_metrics_number_of_sprints_home: Optional[int] = Field(None, description="Number of sprints by home team (source alias)")
-    physical_metrics_number_of_sprints_away: Optional[int] = Field(None, description="Number of sprints by away team (source alias)")
+    distance_covered_home: Optional[float] = Field(
+        None, description="Distance covered by home team (meters)"
+    )
+    distance_covered_away: Optional[float] = Field(
+        None, description="Distance covered by away team (meters)"
+    )
+    walking_distance_home: Optional[float] = Field(
+        None, description="Walking distance by home team (meters)"
+    )
+    walking_distance_away: Optional[float] = Field(
+        None, description="Walking distance by away team (meters)"
+    )
+    running_distance_home: Optional[float] = Field(
+        None, description="Running distance by home team (meters)"
+    )
+    running_distance_away: Optional[float] = Field(
+        None, description="Running distance by away team (meters)"
+    )
+    sprinting_distance_home: Optional[float] = Field(
+        None, description="Sprinting distance by home team (meters)"
+    )
+    sprinting_distance_away: Optional[float] = Field(
+        None, description="Sprinting distance by away team (meters)"
+    )
+    number_of_sprints_home: Optional[int] = Field(
+        None, description="Number of sprints by home team"
+    )
+    number_of_sprints_away: Optional[int] = Field(
+        None, description="Number of sprints by away team"
+    )
+    physical_metrics_distance_covered_home: Optional[float] = Field(
+        None, description="Distance covered by home team (source alias)"
+    )
+    physical_metrics_distance_covered_away: Optional[float] = Field(
+        None, description="Distance covered by away team (source alias)"
+    )
+    physical_metrics_walking_home: Optional[float] = Field(
+        None, description="Walking distance by home team (source alias)"
+    )
+    physical_metrics_walking_away: Optional[float] = Field(
+        None, description="Walking distance by away team (source alias)"
+    )
+    physical_metrics_running_home: Optional[float] = Field(
+        None, description="Running distance by home team (source alias)"
+    )
+    physical_metrics_running_away: Optional[float] = Field(
+        None, description="Running distance by away team (source alias)"
+    )
+    physical_metrics_sprinting_home: Optional[float] = Field(
+        None, description="Sprinting distance by home team (source alias)"
+    )
+    physical_metrics_sprinting_away: Optional[float] = Field(
+        None, description="Sprinting distance by away team (source alias)"
+    )
+    physical_metrics_number_of_sprints_home: Optional[int] = Field(
+        None, description="Number of sprints by home team (source alias)"
+    )
+    physical_metrics_number_of_sprints_away: Optional[int] = Field(
+        None, description="Number of sprints by away team (source alias)"
+    )
     top_speed_home: Optional[float] = Field(None, description="Top speed by home team (km/h)")
     top_speed_away: Optional[float] = Field(None, description="Top speed by away team (km/h)")
     total_shots_home: Optional[int] = Field(None, description="Total shots by home team")
@@ -162,8 +227,12 @@ class PeriodStats(BaseModel):
     shots_sidebox_away: Optional[int] = Field(None, description="Shots from inside box by away")
     shots_inside_box_home: Optional[int] = Field(None, description="Shots from inside box by home")
     shots_inside_box_away: Optional[int] = Field(None, description="Shots from inside box by away")
-    shots_outside_box_home: Optional[int] = Field(None, description="Shots from outside box by home")
-    shots_outside_box_away: Optional[int] = Field(None, description="Shots from outside box by away")
+    shots_outside_box_home: Optional[int] = Field(
+        None, description="Shots from outside box by home"
+    )
+    shots_outside_box_away: Optional[int] = Field(
+        None, description="Shots from outside box by away"
+    )
     big_chances_home: Optional[int] = Field(None, description="Big chances by home")
     big_chances_away: Optional[int] = Field(None, description="Big chances by away")
     big_chances_missed_home: Optional[int] = Field(None, description="Big chances missed by home")
@@ -176,22 +245,42 @@ class PeriodStats(BaseModel):
     shots_away: Optional[int] = Field(None, description="Shots by away (alternative)")
     passes_home: Optional[int] = Field(None, description="Total passes by home")
     passes_away: Optional[int] = Field(None, description="Total passes by away")
-    accurate_passes_home: Optional[str] = Field(None, description="Accurate passes for home (ratio or count)")
-    accurate_passes_away: Optional[str] = Field(None, description="Accurate passes for away (ratio or count)")
+    accurate_passes_home: Optional[str] = Field(
+        None, description="Accurate passes for home (ratio or count)"
+    )
+    accurate_passes_away: Optional[str] = Field(
+        None, description="Accurate passes for away (ratio or count)"
+    )
     own_half_passes_home: Optional[int] = Field(None, description="Passes in own half by home")
     own_half_passes_away: Optional[int] = Field(None, description="Passes in own half by away")
-    opposition_half_passes_home: Optional[int] = Field(None, description="Passes in opposition half by home")
-    opposition_half_passes_away: Optional[int] = Field(None, description="Passes in opposition half by away")
-    long_balls_accurate_home: Optional[str] = Field(None, description="Accurate long balls for home (ratio or count)")
-    long_balls_accurate_away: Optional[str] = Field(None, description="Accurate long balls for away (ratio or count)")
-    accurate_crosses_home: Optional[str] = Field(None, description="Accurate crosses for home (ratio or count)")
-    accurate_crosses_away: Optional[str] = Field(None, description="Accurate crosses for away (ratio or count)")
+    opposition_half_passes_home: Optional[int] = Field(
+        None, description="Passes in opposition half by home"
+    )
+    opposition_half_passes_away: Optional[int] = Field(
+        None, description="Passes in opposition half by away"
+    )
+    long_balls_accurate_home: Optional[str] = Field(
+        None, description="Accurate long balls for home (ratio or count)"
+    )
+    long_balls_accurate_away: Optional[str] = Field(
+        None, description="Accurate long balls for away (ratio or count)"
+    )
+    accurate_crosses_home: Optional[str] = Field(
+        None, description="Accurate crosses for home (ratio or count)"
+    )
+    accurate_crosses_away: Optional[str] = Field(
+        None, description="Accurate crosses for away (ratio or count)"
+    )
     player_throws_home: Optional[int] = Field(None, description="Throw-ins by home")
     player_throws_away: Optional[int] = Field(None, description="Throw-ins by away")
     touches_opp_box_home: Optional[int] = Field(None, description="Touches in opp box by home")
     touches_opp_box_away: Optional[int] = Field(None, description="Touches in opp box by away")
-    tackles_succeeded_home: Optional[str] = Field(None, description="Successful tackles for home (ratio or count)")
-    tackles_succeeded_away: Optional[str] = Field(None, description="Successful tackles for away (ratio or count)")
+    tackles_succeeded_home: Optional[str] = Field(
+        None, description="Successful tackles for home (ratio or count)"
+    )
+    tackles_succeeded_away: Optional[str] = Field(
+        None, description="Successful tackles for away (ratio or count)"
+    )
     interceptions_home: Optional[int] = Field(None, description="Interceptions by home")
     interceptions_away: Optional[int] = Field(None, description="Interceptions by away")
     shot_blocks_home: Optional[int] = Field(None, description="Shot blocks by home")
@@ -202,12 +291,24 @@ class PeriodStats(BaseModel):
     keeper_saves_away: Optional[int] = Field(None, description="Keeper saves by away")
     duels_won_home: Optional[int] = Field(None, description="Duels won by home")
     duels_won_away: Optional[int] = Field(None, description="Duels won by away")
-    ground_duels_won_home: Optional[str] = Field(None, description="Ground duels won by home (ratio or count)")
-    ground_duels_won_away: Optional[str] = Field(None, description="Ground duels won by away (ratio or count)")
-    aerials_won_home: Optional[str] = Field(None, description="Aerials won by home (ratio or count)")
-    aerials_won_away: Optional[str] = Field(None, description="Aerials won by away (ratio or count)")
-    dribbles_succeeded_home: Optional[str] = Field(None, description="Successful dribbles by home (ratio or count)")
-    dribbles_succeeded_away: Optional[str] = Field(None, description="Successful dribbles by away (ratio or count)")
+    ground_duels_won_home: Optional[str] = Field(
+        None, description="Ground duels won by home (ratio or count)"
+    )
+    ground_duels_won_away: Optional[str] = Field(
+        None, description="Ground duels won by away (ratio or count)"
+    )
+    aerials_won_home: Optional[str] = Field(
+        None, description="Aerials won by home (ratio or count)"
+    )
+    aerials_won_away: Optional[str] = Field(
+        None, description="Aerials won by away (ratio or count)"
+    )
+    dribbles_succeeded_home: Optional[str] = Field(
+        None, description="Successful dribbles by home (ratio or count)"
+    )
+    dribbles_succeeded_away: Optional[str] = Field(
+        None, description="Successful dribbles by away (ratio or count)"
+    )
     yellow_cards_home: Optional[int] = Field(None, description="Yellow cards for home")
     yellow_cards_away: Optional[int] = Field(None, description="Yellow cards for away")
     red_cards_home: Optional[int] = Field(None, description="Red cards for home")

@@ -1,24 +1,31 @@
 """Match data processor: converts raw API data to structured format."""
 import hashlib
-import logging
 import re
-from typing import Dict, Any, List, Optional, Tuple
-from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
 from pydantic import ValidationError as PydanticValidationError
 
-from ...core import ProcessorProtocol, ValidationError, ProcessorError
+from ...core import ProcessorProtocol
 from ...models import (
-    MatchTimeline, GeneralMatchStats, GoalEventHeader, RedCardEvent,
-    GoalEventMatchFacts, CardEventMatchFacts, SubstitutionEvent,
-    MomentumDataPoint, PeriodStats,
-    FlatPlayerStats, ShotEvent, LineupPlayer, SubstitutePlayer, TeamCoach,
-    MatchVenue, TeamFormMatch
+    CardEventMatchFacts,
+    FlatPlayerStats,
+    GeneralMatchStats,
+    GoalEventHeader,
+    GoalEventMatchFacts,
+    LineupPlayer,
+    MatchTimeline,
+    MatchVenue,
+    MomentumDataPoint,
+    PeriodStats,
+    RedCardEvent,
+    ShotEvent,
+    SubstitutePlayer,
+    SubstitutionEvent,
+    TeamCoach,
+    TeamFormMatch,
 )
-from ...utils.fotmob_validator import (
-    FotMobValidator, SafeFieldExtractor, ResponseSaver
-)
+from ...utils.fotmob_validator import FotMobValidator, ResponseSaver, SafeFieldExtractor
 from ...utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
@@ -46,7 +53,10 @@ PERIOD_STAT_KEY_MAPPING: Dict[str, Tuple[str, str]] = {
     "shots_outside_box": ("shots_outside_box_home", "shots_outside_box_away"),
     "expected_goals_open_play": ("expected_goals_open_play_home", "expected_goals_open_play_away"),
     "expected_goals_set_play": ("expected_goals_set_play_home", "expected_goals_set_play_away"),
-    "expected_goals_non_penalty": ("expected_goals_non_penalty_home", "expected_goals_non_penalty_away"),
+    "expected_goals_non_penalty": (
+        "expected_goals_non_penalty_home",
+        "expected_goals_non_penalty_away",
+    ),
     "expected_goals_on_target": ("expected_goals_on_target_home", "expected_goals_on_target_away"),
     "physical_metrics_distance_covered": ("distance_covered_home", "distance_covered_away"),
     "physical_metrics_walking": ("walking_distance_home", "walking_distance_away"),
@@ -82,18 +92,24 @@ PERIOD_STAT_KEY_MAPPING: Dict[str, Tuple[str, str]] = {
 }
 
 # Fields that contain ratio values (e.g., "5/10") instead of numeric values
-RATIO_STAT_FIELDS = frozenset({
-    "accurate_passes", "long_balls_accurate", "accurate_crosses",
-    "matchstats.headers.tackles", "ground_duels_won", "aerials_won",
-    "dribbles_succeeded"
-})
+RATIO_STAT_FIELDS = frozenset(
+    {
+        "accurate_passes",
+        "long_balls_accurate",
+        "accurate_crosses",
+        "matchstats.headers.tackles",
+        "ground_duels_won",
+        "aerials_won",
+        "dribbles_succeeded",
+    }
+)
 
 
 class FotMobBronzeMatchProcessor(ProcessorProtocol):
     """Process raw FotMob bronze data into structured bronze tables."""
 
-    _INT64_MIN = -(2 ** 63)
-    _INT64_MAX = (2 ** 63) - 1
+    _INT64_MIN = -(2**63)
+    _INT64_MAX = (2**63) - 1
 
     def __init__(
         self,
@@ -101,7 +117,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
         extractor: Optional[SafeFieldExtractor] = None,
         response_saver: Optional[ResponseSaver] = None,
         save_responses: bool = True,
-        response_output_dir: str = "data/validated_responses"
+        response_output_dir: str = "data/validated_responses",
     ):
         """
         Initialize the match processor with dependency injection.
@@ -280,53 +296,48 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
         return 1_500_000_000 + (digest_value % 647_483_647)
 
     def process_all(
-        self, 
-        raw_response: Dict[str, Any],
-        validate_before_processing: bool = True
+        self, raw_response: Dict[str, Any], validate_before_processing: bool = True
     ) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]]]:
         """
         Process all match data with validation and optional response saving.
-        
+
         Args:
             raw_response: Raw API response
             validate_before_processing: If True, validate response before processing
-        
+
         Returns:
             Tuple of (processed_dataframes, validation_summary)
         """
         match_id = self.extractor.safe_get_nested(
             raw_response, "general", "matchId", default="unknown"
         )
-        
+
         # Validate response
         validation_summary = None
         if validate_before_processing:
             validation_summary = self.validator.get_validation_summary(raw_response)
-            
-            if not validation_summary['is_valid']:
+
+            if not validation_summary["is_valid"]:
                 self.logger.warning(
                     f"Validation failed for match {match_id} with "
                     f"{validation_summary['error_count']} errors. Processing anyway..."
                 )
                 # Log errors
-                for error in validation_summary['errors']:
+                for error in validation_summary["errors"]:
                     self.logger.error(f"  - {error}")
             else:
                 self.logger.debug(f"[OK] Validation passed for match {match_id}")
-        
+
         # Save invalid responses for debugging if enabled
         if self.save_responses and self.response_saver:
             try:
-                if validation_summary and not validation_summary['is_valid']:
+                if validation_summary and not validation_summary["is_valid"]:
                     self.response_saver.save_invalid_response(
-                        raw_response,
-                        str(match_id),
-                        validation_summary,
-                        source="fotmob"
+                        raw_response, str(match_id), validation_summary, source="fotmob"
                     )
             except Exception as e:
                 self.logger.error(f"Failed to save response for match {match_id}: {e}")
-        
+
         # Process data
         self.logger.debug("Processing match payload", match_id=match_id)
         processed_data = {
@@ -353,7 +364,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             )
         else:
             self.logger.debug("Completed processing match", match_id=match_id)
-        
+
         return dataframes, validation_summary
 
     def _convert_to_dataframes(self, processed_data: Dict[str, Any]) -> Dict[str, pd.DataFrame]:
@@ -368,7 +379,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             elif isinstance(value, dict):
                 if key == "cards_only":
                     for event_type, events in value.items():
-                        if events and event_type not in ['goals', 'substitutions']:
+                        if events and event_type not in ["goals", "substitutions"]:
                             dataframes[event_type] = pd.DataFrame(events)
                 elif key == "lineup_data":
                     for lineup_type, lineup_items in value.items():
@@ -389,12 +400,10 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
         """Process match timeline data with safe field extraction."""
         try:
             self.logger.debug("Processing timeline data")
-            
+
             # Use safe extraction
             timeline_dict = {
-                "match_id": self.extractor.safe_get_nested(
-                    response_data, "general", "matchId"
-                ),
+                "match_id": self.extractor.safe_get_nested(response_data, "general", "matchId"),
                 "match_time_utc": self.extractor.safe_get_nested(
                     response_data, "header", "status", "utcTime"
                 ),
@@ -429,7 +438,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     response_data, "header", "status", "cancelled"
                 ),
             }
-            
+
             validated_timeline = MatchTimeline(**timeline_dict)
             return validated_timeline.model_dump()
         except PydanticValidationError as e:
@@ -449,7 +458,9 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 return None
             team_colors_dark = general_data.get("teamColors", {}).get("darkMode", {})
             team_colors_light = general_data.get("teamColors", {}).get("lightMode", {})
-            full_score = self.extractor.safe_get_nested(response_data, "header", "status", "scoreStr")
+            full_score = self.extractor.safe_get_nested(
+                response_data, "header", "status", "scoreStr"
+            )
             home_score, away_score = self._split_full_score(full_score)
             processed_data = {
                 "match_id": general_data.get("matchId"),
@@ -487,7 +498,9 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             self.logger.exception(f"Error processing general stats: {e}")
         return None
 
-    def process_goal_events_from_header(self, response_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def process_goal_events_from_header(
+        self, response_data: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
         """Process goal events from header section."""
         all_goal_dicts = []
         try:
@@ -502,7 +515,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 return all_goal_dicts
             goal_data_sources = [
                 (events.get("homeTeamGoals", {}), "Home"),
-                (events.get("awayTeamGoals", {}), "Away")
+                (events.get("awayTeamGoals", {}), "Away"),
             ]
             for team_goals_data, team_name in goal_data_sources:
                 if not isinstance(team_goals_data, dict):
@@ -578,7 +591,9 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                                 else shotmap_data.get("mAdded")
                             ),
                             "shot_expected_goal": shotmap_data.get("expectedGoals"),
-                            "shot_expected_goal_on_target": shotmap_data.get("expectedGoalsOnTarget"),
+                            "shot_expected_goal_on_target": shotmap_data.get(
+                                "expectedGoalsOnTarget"
+                            ),
                             "shot_type": shotmap_data.get("shotType"),
                             "shot_situation": shotmap_data.get("situation"),
                             "shot_period": shotmap_data.get("period"),
@@ -589,12 +604,18 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                             goal_dict = validated_event.model_dump()
                             all_goal_dicts.append(goal_dict)
                         except PydanticValidationError as e:
-                            self.logger.warning(f"Validation error for goal event (match {match_id}, event_id {scorer_stat.get('eventId')}): {e}")
+                            self.logger.warning(
+                                f"Validation error for goal event (match {match_id}, event_id {scorer_stat.get('eventId')}): {e}"
+                            )
                             self.logger.debug(f"Goal data that failed validation: {flat_goal_data}")
                         except Exception as e:
-                            self.logger.error(f"Unexpected error processing goal event: {e}", exc_info=True)
+                            self.logger.error(
+                                f"Unexpected error processing goal event: {e}", exc_info=True
+                            )
             if len(all_goal_dicts) > 0:
-                self.logger.debug(f"Processed {len(all_goal_dicts)} goal events for match {match_id}")
+                self.logger.debug(
+                    f"Processed {len(all_goal_dicts)} goal events for match {match_id}"
+                )
             else:
                 self.logger.debug(f"No goal events found for match {match_id}")
         except Exception as e:
@@ -613,7 +634,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 return all_red_cards
             team_red_cards_sources = [
                 (events.get("homeTeamRedCards", {}), "Home"),
-                (events.get("awayTeamRedCards", {}), "Away")
+                (events.get("awayTeamRedCards", {}), "Away"),
             ]
             for team_red_card_data, team_name in team_red_cards_sources:
                 if not isinstance(team_red_card_data, dict):
@@ -648,7 +669,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                             "player_name": player_data.get("name"),
                             "home_score": player_stat.get("homeScore"),
                             "away_score": player_stat.get("awayScore"),
-                            "is_home": player_stat.get("isHome")
+                            "is_home": player_stat.get("isHome"),
                         }
                         try:
                             validated_event = RedCardEvent(**flat_data)
@@ -661,18 +682,22 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             self.logger.exception(f"Error processing red card events: {e}")
         return all_red_cards
 
-    def process_match_facts_events(self, response_data: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+    def process_match_facts_events(
+        self, response_data: Dict[str, Any]
+    ) -> Dict[str, List[Dict[str, Any]]]:
         """Process match facts events."""
-        results = {
-            "goals": [], "cards": [], "substitutions": [],
-            "added_time": [], "half_time": []
-        }
+        results = {"goals": [], "cards": [], "substitutions": [], "added_time": [], "half_time": []}
         try:
             self.logger.debug("Processing match facts events")
             match_id = response_data.get("general", {}).get("matchId")
             if not match_id:
                 return results
-            events_list = response_data.get("content", {}).get("matchFacts", {}).get("events", {}).get("events", [])
+            events_list = (
+                response_data.get("content", {})
+                .get("matchFacts", {})
+                .get("events", {})
+                .get("events", [])
+            )
             if not isinstance(events_list, list):
                 return results
             for event in events_list:
@@ -724,9 +749,15 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 elif event_type == "Card":
                     card_description = event.get("cardDescription")
                     if isinstance(card_description, dict):
-                        description_text = card_description.get("defaultText") or card_description.get("localizedKey") or None
+                        description_text = (
+                            card_description.get("defaultText")
+                            or card_description.get("localizedKey")
+                            or None
+                        )
                     else:
-                        description_text = card_description if isinstance(card_description, str) else None
+                        description_text = (
+                            card_description if isinstance(card_description, str) else None
+                        )
                     event_id = self._resolve_positive_event_id(
                         raw_event_id=event.get("eventId"),
                         synthetic_seed=(
@@ -750,7 +781,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                         "team": "Home" if event.get("isHome") else "Away",
                         "card_type": event.get("card"),
                         "description": description_text,
-                        "score": f"{event.get('homeScore')}-{event.get('awayScore')}"
+                        "score": f"{event.get('homeScore')}-{event.get('awayScore')}",
                     }
                     try:
                         validated = CardEventMatchFacts(**card_data)
@@ -773,7 +804,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                         "player_out_name": player_out.get("name"),
                         "player_out_profile_url": player_out.get("profileUrl"),
                         "injured": event.get("injuredPlayerOut", False),
-                        "score": f"{event.get('homeScore')}-{event.get('awayScore')}"
+                        "score": f"{event.get('homeScore')}-{event.get('awayScore')}",
                     }
                     try:
                         validated = SubstitutionEvent(**sub_data)
@@ -813,7 +844,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     "match_id": match_id,
                     "minute": point_raw.get("minute"),
                     "value": value,
-                    "momentum_team": momentum_team
+                    "momentum_team": momentum_team,
                 }
                 try:
                     validated_data = MomentumDataPoint(**processed_data)
@@ -842,9 +873,13 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 elif key in RATIO_STAT_FIELDS:
                     # Keep ratio fields as strings (e.g., "5/10")
                     values.append(str(v_raw))
-                elif isinstance(v_raw, str) and '/' not in v_raw and v_raw.replace('.', '', 1).isdigit():
+                elif (
+                    isinstance(v_raw, str)
+                    and "/" not in v_raw
+                    and v_raw.replace(".", "", 1).isdigit()
+                ):
                     # Convert numeric strings to numbers
-                    values.append(float(v_raw) if '.' in v_raw else int(v_raw))
+                    values.append(float(v_raw) if "." in v_raw else int(v_raw))
                 elif isinstance(v_raw, (int, float)):
                     values.append(v_raw)
                 else:
@@ -869,10 +904,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             for period_name, period_data_raw in periods_raw.items():
                 if not isinstance(period_data_raw, dict):
                     continue
-                flat_data = {
-                    "match_id": match_id,
-                    "period": period_name
-                }
+                flat_data = {"match_id": match_id, "period": period_name}
                 team_colors = period_data_raw.get("teamColors", {})
                 if isinstance(team_colors, dict):
                     light_mode = team_colors.get("lightMode", {})
@@ -949,7 +981,11 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 elif isinstance(raw_player_id, str) and raw_player_id.isdigit():
                     resolved_player_id = int(raw_player_id)
 
-                if (resolved_player_id is None or resolved_player_id <= 0) and isinstance(player_id_str, str) and player_id_str.isdigit():
+                if (
+                    (resolved_player_id is None or resolved_player_id <= 0)
+                    and isinstance(player_id_str, str)
+                    and player_id_str.isdigit()
+                ):
                     parsed_key_id = int(player_id_str)
                     if parsed_key_id > 0:
                         resolved_player_id = parsed_key_id
@@ -984,7 +1020,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                         fact.get("fallback")
                         for fact in player_data_raw.get("funFacts", [])
                         if isinstance(fact, dict)
-                    ]
+                    ],
                 }
                 for group in player_data_raw.get("stats", []):
                     if not isinstance(group, dict):
@@ -1043,7 +1079,9 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                             if total is not None:
                                 flat_data["long_ball_attempts"] = total
                             if total and total > 0 and value is not None:
-                                flat_data["long_ball_success_rate"] = round((value / total) * 100, 1)
+                                flat_data["long_ball_success_rate"] = round(
+                                    (value / total) * 100, 1
+                                )
                         elif key == "matchstats.headers.tackles":
                             flat_data["tackles_won"] = value
                             if total is not None:
@@ -1071,13 +1109,17 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                             if total is not None:
                                 flat_data["ground_duel_attempts"] = total
                             if total and total > 0 and value is not None:
-                                flat_data["ground_duel_success_rate"] = round((value / total) * 100, 1)
+                                flat_data["ground_duel_success_rate"] = round(
+                                    (value / total) * 100, 1
+                                )
                         elif key == "aerials_won":
                             flat_data["aerial_duels_won"] = value
                             if total is not None:
                                 flat_data["aerial_duel_attempts"] = total
                             if total and total > 0 and value is not None:
-                                flat_data["aerial_duel_success_rate"] = round((value / total) * 100, 1)
+                                flat_data["aerial_duel_success_rate"] = round(
+                                    (value / total) * 100, 1
+                                )
                         elif key == "duel_won":
                             flat_data["duels_won"] = value
                         elif key == "duel_lost":
@@ -1095,9 +1137,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 if isinstance(shotmap_raw, list) and shotmap_raw:
                     flat_data["shotmap_count"] = len(shotmap_raw)
                     total_xg_shotmap = sum(
-                        s.get("expectedGoals", 0) or 0
-                        for s in shotmap_raw
-                        if isinstance(s, dict)
+                        s.get("expectedGoals", 0) or 0 for s in shotmap_raw if isinstance(s, dict)
                     )
                     flat_data["total_xg"] = round(total_xg_shotmap, 2)
                     if len(shotmap_raw) > 0:
@@ -1107,23 +1147,29 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 try:
                     validated = FlatPlayerStats(**flat_data)
                     player_dict = validated.model_dump(by_alias=False)
-                    if 'id' in player_dict:
-                        player_dict['player_id'] = player_dict.pop('id')
-                    if 'name' in player_dict:
-                        player_dict['player_name'] = player_dict.pop('name')
+                    if "id" in player_dict:
+                        player_dict["player_id"] = player_dict.pop("id")
+                    if "name" in player_dict:
+                        player_dict["player_name"] = player_dict.pop("name")
                     all_player_stats.append(player_dict)
                 except PydanticValidationError as e:
-                    match_id = flat_data.get('match_id', 'unknown')
-                    player_id = flat_data.get('id', 'unknown')
-                    self.logger.warning(f"Validation error for player {player_id} match {match_id}: {e}")
+                    match_id = flat_data.get("match_id", "unknown")
+                    player_id = flat_data.get("id", "unknown")
+                    self.logger.warning(
+                        f"Validation error for player {player_id} match {match_id}: {e}"
+                    )
                     self.logger.debug(f"Player data that failed validation: {flat_data}")
                 except Exception as e:
-                    self.logger.error(f"Unexpected error processing player stats: {e}", exc_info=True)
+                    self.logger.error(
+                        f"Unexpected error processing player stats: {e}", exc_info=True
+                    )
         except Exception as e:
             self.logger.exception(f"Error processing player stats: {e}")
         if len(all_player_stats) > 0:
             match_id = response_data.get("general", {}).get("matchId", "unknown")
-            self.logger.debug(f"Processed {len(all_player_stats)} player stats for match {match_id}")
+            self.logger.debug(
+                f"Processed {len(all_player_stats)} player stats for match {match_id}"
+            )
         else:
             match_id = response_data.get("general", {}).get("matchId", "unknown")
             self.logger.debug(f"No player stats found for match {match_id}")
@@ -1193,7 +1239,9 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     shot_dict = validated_shot.model_dump()
                     processed_shots.append(shot_dict)
                 except PydanticValidationError as e:
-                    self.logger.warning(f"Validation error for shot event (match {match_id}, shot id {shot_raw.get('id')}): {e}")
+                    self.logger.warning(
+                        f"Validation error for shot event (match {match_id}, shot id {shot_raw.get('id')}): {e}"
+                    )
                     self.logger.debug(f"Shot data that failed validation: {processed_shot}")
                 except Exception as e:
                     self.logger.error(f"Unexpected error processing shot event: {e}", exc_info=True)
@@ -1211,11 +1259,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
         IMPROVED: Combines home/away to single dataframes with team_side field
         to prevent redundant folders and files.
         """
-        lineup_output = {
-            "starters": [],
-            "substitutes": [],
-            "coaches": []
-        }
+        lineup_output = {"starters": [], "substitutes": [], "coaches": []}
         try:
             self.logger.debug("Processing lineup data")
             match_id = response_data.get("general", {}).get("matchId")
@@ -1335,37 +1379,45 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 "country_code": player_raw.get("countryCode"),
             }
             if player_model == LineupPlayer:
-                player_data.update({
-                    "position_id": player_raw.get("positionId"),
-                    "is_captain": player_raw.get("isCaptain", False),
-                })
+                player_data.update(
+                    {
+                        "position_id": player_raw.get("positionId"),
+                        "is_captain": player_raw.get("isCaptain", False),
+                    }
+                )
             h_layout = player_raw.get("horizontalLayout", {})
             if h_layout:
-                player_data.update({
-                    "horizontal_x": h_layout.get("x"),
-                    "horizontal_y": h_layout.get("y"),
-                    "horizontal_height": h_layout.get("height"),
-                    "horizontal_width": h_layout.get("width"),
-                })
+                player_data.update(
+                    {
+                        "horizontal_x": h_layout.get("x"),
+                        "horizontal_y": h_layout.get("y"),
+                        "horizontal_height": h_layout.get("height"),
+                        "horizontal_width": h_layout.get("width"),
+                    }
+                )
             v_layout = player_raw.get("verticalLayout", {})
             if v_layout:
-                player_data.update({
-                    "vertical_x": v_layout.get("x"),
-                    "vertical_y": v_layout.get("y"),
-                    "vertical_height": v_layout.get("height"),
-                    "vertical_width": v_layout.get("width"),
-                })
+                player_data.update(
+                    {
+                        "vertical_x": v_layout.get("x"),
+                        "vertical_y": v_layout.get("y"),
+                        "vertical_height": v_layout.get("height"),
+                        "vertical_width": v_layout.get("width"),
+                    }
+                )
             performance = player_raw.get("performance", {})
             if performance:
                 player_data["performance_rating"] = performance.get("rating")
                 sub_events = performance.get("substitutionEvents", [])
                 if sub_events and len(sub_events) > 0:
                     first_sub = sub_events[0]
-                    player_data.update({
-                        "substitution_time": first_sub.get("time"),
-                        "substitution_type": first_sub.get("type"),
-                        "substitution_reason": first_sub.get("reason"),
-                    })
+                    player_data.update(
+                        {
+                            "substitution_time": first_sub.get("time"),
+                            "substitution_type": first_sub.get("type"),
+                            "substitution_reason": first_sub.get("reason"),
+                        }
+                    )
             try:
                 validated_player = player_model(**player_data)
                 processed_players.append(validated_player.model_dump())
@@ -1391,7 +1443,8 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     f"{coach_raw.get('countryCode')}|{coach_raw.get('primaryTeamId')}"
                 )
                 resolved_coach_id = self._INT64_MAX - (
-                    int(hashlib.sha256(synthetic_seed.encode("utf-8")).hexdigest()[:16], 16) % 1_000_000_000_000_000
+                    int(hashlib.sha256(synthetic_seed.encode("utf-8")).hexdigest()[:16], 16)
+                    % 1_000_000_000_000_000
                 )
                 self.logger.warning(
                     "Filled invalid source id using synthetic id",
@@ -1510,10 +1563,14 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             match_id = response_data.get("general", {}).get("matchId")
             if not match_id:
                 return processed_form
-            team_form_raw = response_data.get("content", {}).get("matchFacts", {}).get("teamForm", [])
+            team_form_raw = (
+                response_data.get("content", {}).get("matchFacts", {}).get("teamForm", [])
+            )
             if not isinstance(team_form_raw, list) or len(team_form_raw) != 2:
                 return processed_form
-            for team_idx, (team_side, form_matches) in enumerate([("home", team_form_raw[0]), ("away", team_form_raw[1])]):
+            for team_idx, (team_side, form_matches) in enumerate(
+                [("home", team_form_raw[0]), ("away", team_form_raw[1])]
+            ):
                 if not isinstance(form_matches, list):
                     continue
                 for position, past_match in enumerate(form_matches[:5], start=1):
@@ -1523,13 +1580,16 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                     result_string = past_match.get("resultString", "")
                     score = past_match.get("score")
                     date_obj = past_match.get("date", {})
-                    form_match_date = date_obj.get("utcTime") if isinstance(date_obj, dict) else None
+                    form_match_date = (
+                        date_obj.get("utcTime") if isinstance(date_obj, dict) else None
+                    )
                     match_link = past_match.get("lkToMatch", "")
                     form_match_id = match_link.split("#")[-1] if "#" in match_link else None
                     home_info = past_match.get("home", {})
                     away_info = past_match.get("away", {})
-                    home_is_our_team = home_info.get("isOurTeam", False) if isinstance(home_info, dict) else False
-                    away_is_our_team = away_info.get("isOurTeam", False) if isinstance(away_info, dict) else False
+                    home_is_our_team = (
+                        home_info.get("isOurTeam", False) if isinstance(home_info, dict) else False
+                    )
                     if isinstance(home_info, dict) and isinstance(away_info, dict):
                         home_team_id = int(home_info.get("id")) if home_info.get("id") else None
                         home_team_name = home_info.get("name")

@@ -4,25 +4,23 @@ This module provides FotMob-specific bronze storage implementation that extends
 the base bronze storage with FotMob-specific functionality like health checks.
 """
 
-import json
-import logging
-import os
 import contextlib
-from pathlib import Path
-from typing import Dict, Any, Optional, List
+import json
 from datetime import datetime
+from typing import Any, Dict
 
 try:
     from filelock import FileLock, Timeout
+
     FILE_LOCKING_AVAILABLE = True
 except ImportError:
     FILE_LOCKING_AVAILABLE = False
     FileLock = None
     Timeout = None
 
-from .base import BaseBronzeStorage
 from ...core.constants import HealthThresholds
 from ...utils.logging_utils import get_logger
+from .base import BaseBronzeStorage
 
 logger = get_logger(__name__)
 
@@ -85,26 +83,31 @@ class FotMobBronzeStorage(BaseBronzeStorage):
         # Check disk space
         try:
             import shutil
+
             stat = shutil.disk_usage(self.base_dir)
             free_gb = stat.free / (1024**3)
             total_gb = stat.total / (1024**3)
             used_pct = (stat.used / stat.total) * 100
 
             disk_status = (
-                "OK" if free_gb >= HealthThresholds.DISK_WARNING_GB
-                else "WARNING" if free_gb >= HealthThresholds.DISK_CRITICAL_GB
+                "OK"
+                if free_gb >= HealthThresholds.DISK_WARNING_GB
+                else "WARNING"
+                if free_gb >= HealthThresholds.DISK_CRITICAL_GB
                 else "ERROR"
             )
-            checks.append({
-                "check": "Disk Space",
-                "status": disk_status,
-                "message": f"{free_gb:.1f} GB free ({used_pct:.1f}% used)",
-                "details": {
-                    "free_gb": round(free_gb, 2),
-                    "total_gb": round(total_gb, 2),
-                    "used_pct": round(used_pct, 1)
+            checks.append(
+                {
+                    "check": "Disk Space",
+                    "status": disk_status,
+                    "message": f"{free_gb:.1f} GB free ({used_pct:.1f}% used)",
+                    "details": {
+                        "free_gb": round(free_gb, 2),
+                        "total_gb": round(total_gb, 2),
+                        "used_pct": round(used_pct, 1),
+                    },
                 }
-            })
+            )
 
             if free_gb < HealthThresholds.DISK_CRITICAL_GB:
                 issues.append(
@@ -117,30 +120,32 @@ class FotMobBronzeStorage(BaseBronzeStorage):
                     f"(recommend {HealthThresholds.DISK_WARNING_GB}+ GB)"
                 )
         except Exception as e:
-            checks.append({
-                "check": "Disk Space",
-                "status": "ERROR",
-                "message": f"Failed to check: {e}"
-            })
+            checks.append(
+                {"check": "Disk Space", "status": "ERROR", "message": f"Failed to check: {e}"}
+            )
             issues.append(f"Could not check disk space: {e}")
 
         # Check write permissions
         try:
-            test_file = self.base_dir / '.health_check_write_test'
-            test_file.write_text('test')
+            test_file = self.base_dir / ".health_check_write_test"
+            test_file.write_text("test")
             test_file.unlink()
 
-            checks.append({
-                "check": "Write Permissions",
-                "status": "OK",
-                "message": "Can write to bronze directory"
-            })
+            checks.append(
+                {
+                    "check": "Write Permissions",
+                    "status": "OK",
+                    "message": "Can write to bronze directory",
+                }
+            )
         except Exception as e:
-            checks.append({
-                "check": "Write Permissions",
-                "status": "ERROR",
-                "message": f"No write permission: {e}"
-            })
+            checks.append(
+                {
+                    "check": "Write Permissions",
+                    "status": "ERROR",
+                    "message": f"No write permission: {e}",
+                }
+            )
             issues.append(f"No write permission to {self.base_dir}: {e}")
 
         # Check directory structure
@@ -148,51 +153,60 @@ class FotMobBronzeStorage(BaseBronzeStorage):
         missing_dirs = [d for d in required_dirs if not d.exists()]
 
         if missing_dirs:
-            checks.append({
-                "check": "Directory Structure",
-                "status": "WARNING",
-                "message": f"{len(missing_dirs)} directories missing (will be created)",
-                "details": {"missing": [str(d) for d in missing_dirs]}
-            })
+            checks.append(
+                {
+                    "check": "Directory Structure",
+                    "status": "WARNING",
+                    "message": f"{len(missing_dirs)} directories missing (will be created)",
+                    "details": {"missing": [str(d) for d in missing_dirs]},
+                }
+            )
             warnings.append(f"{len(missing_dirs)} directories missing")
         else:
-            checks.append({
-                "check": "Directory Structure",
-                "status": "OK",
-                "message": "All required directories exist"
-            })
+            checks.append(
+                {
+                    "check": "Directory Structure",
+                    "status": "OK",
+                    "message": "All required directories exist",
+                }
+            )
 
         # Check network connectivity
         try:
             import requests
-            requests.get('https://www.fotmob.com', timeout=5)
 
-            checks.append({
-                "check": "Network Connectivity",
-                "status": "OK",
-                "message": "Can reach FotMob.com"
-            })
+            requests.get("https://www.fotmob.com", timeout=5)
+
+            checks.append(
+                {"check": "Network Connectivity", "status": "OK", "message": "Can reach FotMob.com"}
+            )
         except Exception as e:
-            checks.append({
-                "check": "Network Connectivity",
-                "status": "WARNING",
-                "message": f"Cannot reach FotMob.com: {e}"
-            })
+            checks.append(
+                {
+                    "check": "Network Connectivity",
+                    "status": "WARNING",
+                    "message": f"Cannot reach FotMob.com: {e}",
+                }
+            )
             warnings.append(f"Network may be unavailable: {e}")
 
         # Check file locking
         if FILE_LOCKING_AVAILABLE:
-            checks.append({
-                "check": "File Locking",
-                "status": "OK",
-                "message": "File locking available (filelock installed)"
-            })
+            checks.append(
+                {
+                    "check": "File Locking",
+                    "status": "OK",
+                    "message": "File locking available (filelock installed)",
+                }
+            )
         else:
-            checks.append({
-                "check": "File Locking",
-                "status": "WARNING",
-                "message": "File locking NOT available (install 'filelock' package)"
-            })
+            checks.append(
+                {
+                    "check": "File Locking",
+                    "status": "WARNING",
+                    "message": "File locking NOT available (install 'filelock' package)",
+                }
+            )
             warnings.append("File locking not available - concurrent access may cause issues")
 
         # Calculate overall status
@@ -216,15 +230,11 @@ class FotMobBronzeStorage(BaseBronzeStorage):
                 "total_checks": len(checks),
                 "passed": sum(1 for c in checks if c["status"] == "OK"),
                 "warnings": warning_count,
-                "errors": error_count
-            }
+                "errors": error_count,
+            },
         }
 
-    def mark_match_as_scraped(
-        self,
-        match_id: str,
-        date_str: str
-    ) -> bool:
+    def mark_match_as_scraped(self, match_id: str, date_str: str) -> bool:
         """Update daily listing file to mark a match as scraped.
 
         Moves match_id from missing_match_ids to scraped_match_ids.
@@ -249,7 +259,7 @@ class FotMobBronzeStorage(BaseBronzeStorage):
             return False
 
         lock_file = listing_file.parent / ".matches.json.lock"
-        
+
         if FILE_LOCKING_AVAILABLE:
             lock = FileLock(lock_file, timeout=30)
         else:
@@ -257,62 +267,68 @@ class FotMobBronzeStorage(BaseBronzeStorage):
 
         with lock:
             try:
-                with open(listing_file, 'r', encoding='utf-8') as f:
+                with open(listing_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
 
                 match_id_int = int(match_id)
 
-                if 'storage' not in data:
-                    data['storage'] = {}
-                storage = data['storage']
+                if "storage" not in data:
+                    data["storage"] = {}
+                storage = data["storage"]
 
-                if 'missing_match_ids' not in storage:
-                    storage['missing_match_ids'] = []
-                if 'scraped_match_ids' not in storage:
-                    storage['scraped_match_ids'] = []
+                if "missing_match_ids" not in storage:
+                    storage["missing_match_ids"] = []
+                if "scraped_match_ids" not in storage:
+                    storage["scraped_match_ids"] = []
 
                 # Move from missing to scraped
-                if match_id_int in storage['missing_match_ids']:
-                    storage['missing_match_ids'].remove(match_id_int)
+                if match_id_int in storage["missing_match_ids"]:
+                    storage["missing_match_ids"].remove(match_id_int)
 
-                if match_id_int not in storage['scraped_match_ids']:
-                    storage['scraped_match_ids'].append(match_id_int)
+                if match_id_int not in storage["scraped_match_ids"]:
+                    storage["scraped_match_ids"].append(match_id_int)
 
                 # Update storage statistics
                 try:
-                    all_match_ids = data.get('match_ids', [])
+                    all_match_ids = data.get("match_ids", [])
                     if not all_match_ids:
-                        matches = data.get('matches', [])
-                        all_match_ids = [m.get('match_id') for m in matches if m.get('match_id')]
+                        matches = data.get("matches", [])
+                        all_match_ids = [m.get("match_id") for m in matches if m.get("match_id")]
 
                     if all_match_ids:
                         match_ids_int = [int(mid) for mid in all_match_ids]
                         matches_date_dir = self.matches_dir / date_str_normalized
-                        storage_stats = self._get_storage_stats(date_str_normalized, match_ids_int, matches_date_dir)
+                        storage_stats = self._get_storage_stats(
+                            date_str_normalized, match_ids_int, matches_date_dir
+                        )
 
-                        storage.update({
-                            'files_stored': storage_stats['files_stored'],
-                            'files_missing': storage_stats['files_missing'],
-                            'total_size_bytes': storage_stats['total_size_bytes'],
-                            'total_size_mb': storage_stats['total_size_mb'],
-                            'files_in_archive': storage_stats['files_in_archive'],
-                            'files_individual': storage_stats['files_individual'],
-                            'archive_size_bytes': storage_stats['archive_size_bytes'],
-                            'archive_size_mb': storage_stats['archive_size_mb'],
-                            'scraped_match_ids': storage_stats['scraped_match_ids'],
-                            'missing_match_ids': storage_stats['missing_match_ids'],
-                            'completion_percentage': storage_stats.get('completion_percentage', 0.0)
-                        })
+                        storage.update(
+                            {
+                                "files_stored": storage_stats["files_stored"],
+                                "files_missing": storage_stats["files_missing"],
+                                "total_size_bytes": storage_stats["total_size_bytes"],
+                                "total_size_mb": storage_stats["total_size_mb"],
+                                "files_in_archive": storage_stats["files_in_archive"],
+                                "files_individual": storage_stats["files_individual"],
+                                "archive_size_bytes": storage_stats["archive_size_bytes"],
+                                "archive_size_mb": storage_stats["archive_size_mb"],
+                                "scraped_match_ids": storage_stats["scraped_match_ids"],
+                                "missing_match_ids": storage_stats["missing_match_ids"],
+                                "completion_percentage": storage_stats.get(
+                                    "completion_percentage", 0.0
+                                ),
+                            }
+                        )
                 except Exception as e:
                     self.logger.warning(f"Could not update storage statistics: {e}")
 
                 # Atomic write
                 temp_file = listing_file.parent / ".matches.json.tmp"
-                with open(temp_file, 'w', encoding='utf-8') as f:
+                with open(temp_file, "w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
 
                 # Verify
-                with open(temp_file, 'r', encoding='utf-8') as f:
+                with open(temp_file, "r", encoding="utf-8") as f:
                     json.load(f)
 
                 if listing_file.exists():
