@@ -8,8 +8,9 @@ from typing import Optional
 
 project_root = Path(__file__).resolve().parents[2]
 scripts_dir = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(project_root))
-sys.path.insert(0, str(scripts_dir))
+for candidate in (str(project_root), str(scripts_dir)):
+    if candidate not in sys.path:
+        sys.path.insert(0, candidate)
 
 from config.settings import settings
 from src.storage.clickhouse_client import ClickHouseClient
@@ -18,7 +19,7 @@ from src.utils.layer_completion_alerts import send_layer_completion_alert
 from src.utils.layer_contracts import LayerContractError, assert_silver_layer_contracts
 from src.utils.logging_utils import get_logger, setup_logging
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 def _load_sql_dirs() -> list[Path]:
@@ -28,11 +29,15 @@ def _load_sql_dirs() -> list[Path]:
     sql_dirs = [path for path in (dml_dir, load_dir) if path.exists() and path.is_dir()]
     if dml_dir.exists():
         if load_dir.exists():
-            logger.info("Using silver DML SQL from both %s (preferred) and %s (fallback)", dml_dir, load_dir)
+            logger.info(
+                "Using silver DML SQL from both %s (preferred) and %s (fallback)", dml_dir, load_dir
+            )
         else:
             logger.info("Using silver DML SQL from %s", dml_dir)
     elif load_dir.exists():
-        logger.warning("Using legacy silver load SQL directory: %s (consider migrating to dml/)", load_dir)
+        logger.warning(
+            "Using legacy silver load SQL directory: %s (consider migrating to dml/)", load_dir
+        )
     return sql_dirs
 
 
@@ -61,7 +66,7 @@ def _load_jobs() -> list[tuple[Path, str]]:
     return jobs
 
 
-def parse_args(argv=None) -> argparse.Namespace:
+def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Load FotMob silver SQL into ClickHouse")
     parser.add_argument(
         "--dry-run",
@@ -71,7 +76,9 @@ def parse_args(argv=None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def _run_load_sql(client: ClickHouseClient, sql_file: Path, target_table: str, dry_run: bool = False) -> int:
+def _run_load_sql(
+    client: ClickHouseClient, sql_file: Path, target_table: str, dry_run: bool = False
+) -> int:
     if not sql_file.exists():
         logger.error("Load SQL file not found: %s", sql_file)
         return 1
@@ -107,7 +114,9 @@ def _run_load_jobs(
 ) -> tuple[int, int, int]:
     load_jobs = _load_jobs()
     if not load_jobs:
-        logger.warning("No silver DML SQL files found in %s", project_root / "clickhouse" / "silver")
+        logger.warning(
+            "No silver DML SQL files found in %s", project_root / "clickhouse" / "silver"
+        )
         return 0, 0, 0
 
     if dry_run:

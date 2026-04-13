@@ -5,11 +5,13 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import Optional
 
 project_root = Path(__file__).resolve().parents[2]
 scripts_dir = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(project_root))
-sys.path.insert(0, str(scripts_dir))
+for candidate in (str(project_root), str(scripts_dir)):
+    if candidate not in sys.path:
+        sys.path.insert(0, candidate)
 
 from config.settings import settings
 from src.processors.gold.fotmob import FotMobGoldProcessor
@@ -19,7 +21,7 @@ from src.utils.layer_completion_alerts import send_layer_completion_alert
 from src.utils.layer_contracts import LayerContractError, assert_gold_layer_contracts
 from src.utils.logging_utils import get_logger, setup_logging
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 def _scenario_scripts() -> list[Path]:
@@ -31,7 +33,7 @@ def _build_command(script_path: Path) -> list[str]:
     return [sys.executable, str(script_path)]
 
 
-def parse_args(argv=None) -> argparse.Namespace:
+def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Process FotMob gold layer in ClickHouse")
     parser.add_argument(
         "--dry-run",
@@ -44,7 +46,9 @@ def parse_args(argv=None) -> argparse.Namespace:
 def _run_scenario_scripts(dry_run: bool = False) -> tuple[int, int, list[str]]:
     scenario_scripts = _scenario_scripts()
     if not scenario_scripts:
-        logger.warning("No gold scenario scripts found in %s", Path(__file__).resolve().parent / "scenario")
+        logger.warning(
+            "No gold scenario scripts found in %s", Path(__file__).resolve().parent / "scenario"
+        )
         return 0, 0, []
 
     if dry_run:

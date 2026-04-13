@@ -9,19 +9,20 @@ import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 project_root = Path(__file__).resolve().parents[2]
 scripts_dir = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(project_root))
-sys.path.insert(0, str(scripts_dir))
+for candidate in (str(project_root), str(scripts_dir)):
+    if candidate not in sys.path:
+        sys.path.insert(0, candidate)
 
 from config.settings import settings
 from src.storage.clickhouse_client import ClickHouseClient
 from src.utils.layer_completion_alerts import send_layer_completion_alert
 from src.utils.logging_utils import get_logger
 
-logger = get_logger()
+logger = get_logger(__name__)
 
 
 @dataclass(frozen=True)
@@ -71,12 +72,8 @@ def _format_row(row: List[Any]) -> str:
 
 def _distinct_dataset_sql(table: str, keys: List[str], where: str = "") -> str:
     where_clause = f"\nWHERE {where}" if where else ""
-    return (
-        "SELECT DISTINCT "
-        + ", ".join(keys)
-        + f"\nFROM {table} FINAL"
-        + where_clause
-    )
+    keys_csv = ", ".join(keys)
+    return f"SELECT DISTINCT {keys_csv}\nFROM {table} FINAL{where_clause}"
 
 
 def _personnel_bronze_dataset_sql() -> str:
@@ -204,17 +201,14 @@ def _build_all_queries(sample_limit: int) -> Dict[str, CheckQueries]:
     }
 
 
-def parse_args(argv: List[str] = None) -> argparse.Namespace:
+def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Check bronze->silver coverage for matches and match entities"
     )
     parser.add_argument(
         "--checks",
         default="all",
-        help=(
-            "Comma-separated checks: match,player,shot,card,personnel or all "
-            "(default: all)"
-        ),
+        help="Comma-separated checks: match,player,shot,card,personnel or all (default: all)",
     )
     parser.add_argument(
         "--sample-limit",
@@ -241,7 +235,7 @@ def _resolve_requested_checks(raw_value: str, available: List[str]) -> List[str]
     return requested
 
 
-def main(argv: List[str] = None) -> int:
+def main(argv: Optional[List[str]] = None) -> int:
     start_time = time.perf_counter()
     args = parse_args(argv)
 
@@ -251,6 +245,7 @@ def main(argv: List[str] = None) -> int:
 
     specs = _build_all_queries(sample_limit=args.sample_limit)
 
+    selected_checks: List[str] = []
     try:
         selected_checks = _resolve_requested_checks(args.checks, list(specs.keys()))
     except ValueError as error:
@@ -352,7 +347,7 @@ def main(argv: List[str] = None) -> int:
         return exit_code
     finally:
         client.disconnect()
-        total_checks = len(selected_checks) if "selected_checks" in locals() else 0
+        total_checks = len(selected_checks)
         passed_checks = total_checks - failures
         total_missing = sum(item["missing_count"] for item in check_summaries)
         total_extra = sum(item["extra_in_silver"] for item in check_summaries)

@@ -4,7 +4,6 @@ from typing import Sequence
 
 from .metrics_alerts import send_raw_telegram_message
 
-
 LAYER_EMOJI = {
     "bronze": "🥉",
     "silver": "🥈",
