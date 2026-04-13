@@ -6,6 +6,7 @@ using eligibility filters aligned with silver DML rules to avoid false positives
 
 import argparse
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List
@@ -17,6 +18,7 @@ sys.path.insert(0, str(scripts_dir))
 
 from config.settings import settings
 from src.storage.clickhouse_client import ClickHouseClient
+from src.utils.layer_completion_alerts import send_layer_completion_alert
 from src.utils.logging_utils import get_logger
 
 logger = get_logger()
@@ -240,6 +242,7 @@ def _resolve_requested_checks(raw_value: str, available: List[str]) -> List[str]
 
 
 def main(argv: List[str] = None) -> int:
+    start_time = time.perf_counter()
     args = parse_args(argv)
 
     if args.sample_limit <= 0:
@@ -267,6 +270,8 @@ def main(argv: List[str] = None) -> int:
         return 1
 
     failures = 0
+    check_summaries: List[Dict[str, Any]] = []
+    exit_code = 0
 
     try:
         logger.info(
@@ -294,6 +299,17 @@ def main(argv: List[str] = None) -> int:
                 matched_count=matched_count,
                 coverage_pct=coverage_pct,
                 extra_in_silver=extra_in_silver,
+            )
+            check_summaries.append(
+                {
+                    "name": spec.name,
+                    "bronze_count": bronze_count,
+                    "silver_count": silver_count,
+                    "missing_count": missing_count,
+                    "matched_count": matched_count,
+                    "coverage_pct": coverage_pct,
+                    "extra_in_silver": extra_in_silver,
+                }
             )
 
             if missing_count == 0:
@@ -324,16 +340,55 @@ def main(argv: List[str] = None) -> int:
 
         if failures == 0:
             logger.info("Bronze->silver parity check passed")
-            return 0
+            exit_code = 0
+            return exit_code
 
         logger.warning(
             "Bronze->silver parity check completed with missing entities",
             failed_checks=failures,
             total_checks=len(selected_checks),
         )
-        return 1 if args.strict else 0
+        exit_code = 1 if args.strict else 0
+        return exit_code
     finally:
         client.disconnect()
+        total_checks = len(selected_checks) if "selected_checks" in locals() else 0
+        passed_checks = total_checks - failures
+        total_missing = sum(item["missing_count"] for item in check_summaries)
+        total_extra = sum(item["extra_in_silver"] for item in check_summaries)
+        avg_coverage = (
+            sum(item["coverage_pct"] for item in check_summaries) / len(check_summaries)
+            if check_summaries
+            else 0.0
+        )
+        min_coverage = min((item["coverage_pct"] for item in check_summaries), default=0.0)
+        send_layer_completion_alert(
+            layer="quality",
+            summary_message="Bronze-to-silver reconciliation quality check finished.",
+            scope=f"checks={','.join(selected_checks)} | strict={args.strict}",
+            success=failures == 0,
+            duration_seconds=time.perf_counter() - start_time,
+            detail_lines=[
+                f"Checks passed: <b>{passed_checks}/{total_checks}</b>",
+                f"Total missing in silver: <b>{total_missing}</b>",
+                f"Total extras in silver: <b>{total_extra}</b>",
+                f"Sample limit: <b>{args.sample_limit}</b>",
+                f"Exit code: <b>{exit_code}</b>",
+            ],
+            insight_lines=[
+                f"Average coverage across checks: <b>{avg_coverage:.2f}%</b>",
+                f"Worst check coverage: <b>{min_coverage:.2f}%</b>",
+                (
+                    "Run mode signal: <b>strict mode enforced</b>"
+                    if args.strict
+                    else "Run mode signal: <b>non-strict mode (findings do not fail exit)</b>"
+                ),
+            ],
+            action_lines=[
+                "If missing entities > 0, review printed missing-key samples and upstream silver logic.",
+                "Rerun with --strict in CI to enforce parity as a hard gate.",
+            ],
+        )
 
 
 if __name__ == "__main__":

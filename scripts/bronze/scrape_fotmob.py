@@ -468,6 +468,12 @@ def run_scraping(args: argparse.Namespace) -> int:
 
     exit_code = 0 if stats.dates_failed == 0 else 1
     scope = date_info.display_text
+    total_dates = len(date_info.dates)
+    date_coverage = (stats.dates_processed / total_dates * 100) if total_dates > 0 else 0
+    matches_attempted = stats.total_successful + stats.total_failed
+    scrape_success_rate = (
+        (stats.total_successful / matches_attempted * 100) if matches_attempted > 0 else 0
+    )
     send_layer_completion_alert(
         layer="bronze",
         summary_message="FotMob raw scraping and bronze storage stage finished.",
@@ -475,11 +481,24 @@ def run_scraping(args: argparse.Namespace) -> int:
         success=exit_code == 0,
         duration_seconds=time.time() - pipeline_start,
         detail_lines=[
-            f"Dates processed: <b>{stats.dates_processed}/{len(date_info.dates)}</b>",
+            f"Dates processed: <b>{stats.dates_processed}/{total_dates}</b>",
             f"Matches scraped: <b>{stats.total_successful}</b>",
             f"Failures: <b>{stats.total_failed}</b>",
             f"Skipped: <b>{stats.total_skipped}</b>",
             f"Bronze files: <b>{stats.bronze_files}</b>",
+        ],
+        insight_lines=[
+            f"Date coverage: <b>{date_coverage:.1f}%</b>",
+            f"Match scrape success rate: <b>{scrape_success_rate:.1f}%</b>",
+            (
+                "Bronze quality signal: <b>healthy</b>"
+                if exit_code == 0 and stats.total_failed == 0
+                else "Bronze quality signal: <b>review failures before downstream processing</b>"
+            ),
+        ],
+        action_lines=[
+            "Run bronze -> ClickHouse load for this scope if not already executed.",
+            "Inspect failed/skipped matches in logs when success rate is below target.",
         ],
     )
 

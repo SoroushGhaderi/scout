@@ -123,6 +123,10 @@ def main(argv=None) -> int:
         for sql_file in sql_files:
             logger.info("[dry-run] Would execute SQL file: %s", sql_file)
         _, failed_count, _ = _run_scenario_scripts(dry_run=True)
+        total_scenarios = len(_scenario_scripts())
+        scenario_success_rate = (
+            ((total_scenarios - failed_count) / total_scenarios * 100) if total_scenarios > 0 else 0
+        )
         send_layer_completion_alert(
             layer="gold",
             summary_message="Gold SQL/scenario dry-run finished.",
@@ -133,6 +137,13 @@ def main(argv=None) -> int:
                 f"SQL files planned: <b>{len(sql_files)}</b>",
                 f"Scenario failures: <b>{failed_count}</b>",
                 "Contract checks: <b>skipped (dry-run)</b>",
+            ],
+            insight_lines=[
+                f"Scenario pass projection: <b>{scenario_success_rate:.1f}%</b>",
+                "Dry-run signal: <b>SQL + scenario execution path validated</b>",
+            ],
+            action_lines=[
+                "Run without --dry-run to populate gold tables and validate contracts.",
             ],
         )
         if failed_count > 0:
@@ -197,6 +208,10 @@ def main(argv=None) -> int:
         return exit_code
     finally:
         client.disconnect()
+        total_scenarios = scenario_success_count + scenario_failed_count
+        scenario_success_rate = (
+            (scenario_success_count / total_scenarios * 100) if total_scenarios > 0 else 0
+        )
         send_layer_completion_alert(
             layer="gold",
             summary_message="Gold SQL + scenario processing finished.",
@@ -208,6 +223,18 @@ def main(argv=None) -> int:
                 f"Scenarios succeeded: <b>{scenario_success_count}</b>",
                 f"Scenario failures: <b>{scenario_failed_count}</b>",
                 f"Contract checks: <b>{'passed' if contracts_checked else 'failed or skipped'}</b>",
+            ],
+            insight_lines=[
+                f"Scenario success rate: <b>{scenario_success_rate:.1f}%</b>",
+                (
+                    "Analytics quality signal: <b>gold contracts passed</b>"
+                    if contracts_checked
+                    else "Analytics quality signal: <b>contract check failed or was skipped</b>"
+                ),
+            ],
+            action_lines=[
+                "If any scenarios failed, inspect failed script names in logs and rerun selectively.",
+                "If contracts passed, downstream consumers can safely query gold outputs.",
             ],
         )
 

@@ -164,6 +164,7 @@ def main(argv=None) -> int:
     if args.dry_run:
         logger.info("Running silver loader in dry-run mode (no SQL will be executed)")
         load_exit_code, total_jobs, completed_jobs = _run_load_jobs(None, dry_run=True)
+        completion_rate = (completed_jobs / total_jobs * 100) if total_jobs > 0 else 0
         send_layer_completion_alert(
             layer="silver",
             summary_message="Silver transformations dry-run finished.",
@@ -174,6 +175,13 @@ def main(argv=None) -> int:
                 f"Jobs planned: <b>{total_jobs}</b>",
                 f"Jobs completed: <b>{completed_jobs}</b>",
                 "Contract checks: <b>skipped (dry-run)</b>",
+            ],
+            insight_lines=[
+                f"Transformation completion rate: <b>{completion_rate:.1f}%</b>",
+                "Dry-run signal: <b>execution path validated without writes</b>",
+            ],
+            action_lines=[
+                "Run without --dry-run to materialize silver tables.",
             ],
         )
         if load_exit_code == 0:
@@ -223,6 +231,7 @@ def main(argv=None) -> int:
         return exit_code
     finally:
         client.disconnect()
+        completion_rate = (completed_jobs / total_jobs * 100) if total_jobs > 0 else 0
         send_layer_completion_alert(
             layer="silver",
             summary_message="Silver transformations and validations finished.",
@@ -233,6 +242,18 @@ def main(argv=None) -> int:
                 f"Jobs planned: <b>{total_jobs}</b>",
                 f"Jobs completed: <b>{completed_jobs}</b>",
                 f"Contract checks: <b>{'passed' if contracts_checked else 'failed or skipped'}</b>",
+            ],
+            insight_lines=[
+                f"Transformation completion rate: <b>{completion_rate:.1f}%</b>",
+                (
+                    "Data quality signal: <b>contracts passed</b>"
+                    if contracts_checked
+                    else "Data quality signal: <b>contract check failed or was skipped</b>"
+                ),
+            ],
+            action_lines=[
+                "If contracts failed, review silver contract violations before running gold.",
+                "If successful, proceed to gold scenario processing.",
             ],
         )
 
