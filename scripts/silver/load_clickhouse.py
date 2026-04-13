@@ -14,8 +14,9 @@ sys.path.insert(0, str(scripts_dir))
 from config.settings import settings
 from src.storage.clickhouse_client import ClickHouseClient
 from src.storage.clickhouse_sql_executor import execute_sql_statements, split_sql_statements
+from src.utils.layer_completion_alerts import send_layer_completion_alert
 from src.utils.layer_contracts import LayerContractError, assert_silver_layer_contracts
-from src.utils.logging_utils import get_logger
+from src.utils.logging_utils import get_logger, setup_logging
 
 logger = get_logger()
 
@@ -101,16 +102,19 @@ def _run_load_sql(client: ClickHouseClient, sql_file: Path, target_table: str, d
     return 0
 
 
-def _run_load_jobs(client: Optional[ClickHouseClient], dry_run: bool = False) -> int:
+def _run_load_jobs(
+    client: Optional[ClickHouseClient], dry_run: bool = False
+) -> tuple[int, int, int]:
     load_jobs = _load_jobs()
     if not load_jobs:
         logger.warning("No silver DML SQL files found in %s", project_root / "clickhouse" / "silver")
-        return 0
+        return 0, 0, 0
 
     if dry_run:
         logger.info("[dry-run] Planned silver load jobs: %s", len(load_jobs))
 
     total_jobs = len(load_jobs)
+    completed_jobs = 0
     for index, (sql_path, target_table) in enumerate(load_jobs, start=1):
         logger.info(
             "Running silver load job %s/%s: %s -> %s",
@@ -122,7 +126,7 @@ def _run_load_jobs(client: Optional[ClickHouseClient], dry_run: bool = False) ->
         started_at = time.perf_counter()
         if not dry_run and client is None:
             logger.error("ClickHouse client is required when not running dry-run")
-            return 1
+            return 1, total_jobs, completed_jobs
         result = _run_load_sql(client, sql_path, target_table, dry_run=dry_run)
         elapsed_seconds = time.perf_counter() - started_at
         if result != 0:
@@ -135,7 +139,8 @@ def _run_load_jobs(client: Optional[ClickHouseClient], dry_run: bool = False) ->
                 result,
                 elapsed_seconds,
             )
-            return 1
+            return 1, total_jobs, completed_jobs
+        completed_jobs += 1
         logger.info(
             "Completed silver load job %s/%s: %s -> %s in %.2f seconds",
             index,
@@ -144,14 +149,33 @@ def _run_load_jobs(client: Optional[ClickHouseClient], dry_run: bool = False) ->
             target_table,
             elapsed_seconds,
         )
-    return 0
+    return 0, total_jobs, completed_jobs
 
 
 def main(argv=None) -> int:
+    global logger
+    stage_start = time.perf_counter()
     args = parse_args(argv)
+    logger = setup_logging(
+        name="clickhouse_silver_loader",
+        log_dir=settings.log_dir,
+        log_level=settings.log_level,
+    )
     if args.dry_run:
         logger.info("Running silver loader in dry-run mode (no SQL will be executed)")
-        load_exit_code = _run_load_jobs(None, dry_run=True)
+        load_exit_code, total_jobs, completed_jobs = _run_load_jobs(None, dry_run=True)
+        send_layer_completion_alert(
+            layer="silver",
+            summary_message="Silver transformations dry-run finished.",
+            scope="dry-run",
+            success=load_exit_code == 0,
+            duration_seconds=time.perf_counter() - stage_start,
+            detail_lines=[
+                f"Jobs planned: <b>{total_jobs}</b>",
+                f"Jobs completed: <b>{completed_jobs}</b>",
+                "Contract checks: <b>skipped (dry-run)</b>",
+            ],
+        )
         if load_exit_code == 0:
             logger.info("Silver dry-run completed successfully")
         return load_exit_code
@@ -165,21 +189,52 @@ def main(argv=None) -> int:
     )
     if not client.connect():
         logger.error("Failed to connect to ClickHouse")
+        send_layer_completion_alert(
+            layer="silver",
+            summary_message="Silver transformations finished with connection failure.",
+            scope="runtime",
+            success=False,
+            duration_seconds=time.perf_counter() - stage_start,
+            detail_lines=[
+                "Jobs planned: <b>0</b>",
+                "Jobs completed: <b>0</b>",
+                "Contract checks: <b>not run</b>",
+            ],
+        )
         return 1
 
+    total_jobs = 0
+    completed_jobs = 0
+    contracts_checked = False
+    exit_code = 0
     try:
-        load_exit_code = _run_load_jobs(client, dry_run=False)
+        load_exit_code, total_jobs, completed_jobs = _run_load_jobs(client, dry_run=False)
         if load_exit_code != 0:
-            return load_exit_code
+            exit_code = load_exit_code
+            return exit_code
 
         assert_silver_layer_contracts(client, database="silver", log=logger)
+        contracts_checked = True
         logger.info("Silver load completed successfully")
-        return 0
+        return exit_code
     except LayerContractError as contract_error:
         logger.error("Silver layer contract assertion failed", error=str(contract_error))
-        return 1
+        exit_code = 1
+        return exit_code
     finally:
         client.disconnect()
+        send_layer_completion_alert(
+            layer="silver",
+            summary_message="Silver transformations and validations finished.",
+            scope="runtime",
+            success=exit_code == 0,
+            duration_seconds=time.perf_counter() - stage_start,
+            detail_lines=[
+                f"Jobs planned: <b>{total_jobs}</b>",
+                f"Jobs completed: <b>{completed_jobs}</b>",
+                f"Contract checks: <b>{'passed' if contracts_checked else 'failed or skipped'}</b>",
+            ],
+        )
 
 
 if __name__ == "__main__":

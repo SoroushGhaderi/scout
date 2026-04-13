@@ -15,8 +15,9 @@ from config.settings import settings
 from src.processors.gold.fotmob import FotMobGoldProcessor
 from src.storage.clickhouse_client import ClickHouseClient
 from src.storage.gold.fotmob import FotMobGoldStorage
+from src.utils.layer_completion_alerts import send_layer_completion_alert
 from src.utils.layer_contracts import LayerContractError, assert_gold_layer_contracts
-from src.utils.logging_utils import get_logger
+from src.utils.logging_utils import get_logger, setup_logging
 
 logger = get_logger()
 
@@ -40,16 +41,19 @@ def parse_args(argv=None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def _run_scenario_scripts(dry_run: bool = False) -> int:
+def _run_scenario_scripts(dry_run: bool = False) -> tuple[int, int, list[str]]:
     scenario_scripts = _scenario_scripts()
     if not scenario_scripts:
         logger.warning("No gold scenario scripts found in %s", Path(__file__).resolve().parent / "scenario")
-        return 0
+        return 0, 0, []
 
     if dry_run:
         logger.info("[dry-run] Planned gold scenario scripts: %s", len(scenario_scripts))
 
     total_scripts = len(scenario_scripts)
+    success_count = 0
+    failed_scenarios: list[str] = []
+
     for index, script_path in enumerate(scenario_scripts, start=1):
         logger.info(
             "Running gold scenario script %s/%s: %s",
@@ -59,6 +63,7 @@ def _run_scenario_scripts(dry_run: bool = False) -> int:
         )
         if dry_run:
             logger.info("[dry-run] Would execute scenario script: %s", script_path)
+            success_count += 1
             continue
         command = _build_command(script_path)
         script_start = time.perf_counter()
@@ -73,7 +78,9 @@ def _run_scenario_scripts(dry_run: bool = False) -> int:
                 result.returncode,
                 elapsed_seconds,
             )
-            return 1
+            failed_scenarios.append(script_path.name)
+            continue
+        success_count += 1
         logger.info(
             "Completed gold scenario script %s/%s: %s in %.2f seconds",
             index,
@@ -81,11 +88,29 @@ def _run_scenario_scripts(dry_run: bool = False) -> int:
             script_path.name,
             elapsed_seconds,
         )
-    return 0
+
+    failed_count = len(failed_scenarios)
+    logger.info(
+        "Gold scenario execution report | total=%s success=%s failed=%s",
+        total_scripts,
+        success_count,
+        failed_count,
+    )
+    if failed_scenarios:
+        logger.error("Failed scenarios: %s", ", ".join(failed_scenarios))
+
+    return success_count, failed_count, failed_scenarios
 
 
 def main(argv=None) -> int:
+    global logger
+    stage_start = time.perf_counter()
     args = parse_args(argv)
+    logger = setup_logging(
+        name="clickhouse_gold_loader",
+        log_dir=settings.log_dir,
+        log_level=settings.log_level,
+    )
     if args.dry_run:
         logger.info("Running gold loader in dry-run mode (no SQL will be executed)")
         sql_dir = project_root / "clickhouse" / "gold"
@@ -97,9 +122,21 @@ def main(argv=None) -> int:
         logger.info("[dry-run] Planned gold SQL files: %s", len(sql_files))
         for sql_file in sql_files:
             logger.info("[dry-run] Would execute SQL file: %s", sql_file)
-        scenario_exit_code = _run_scenario_scripts(dry_run=True)
-        if scenario_exit_code != 0:
-            return scenario_exit_code
+        _, failed_count, _ = _run_scenario_scripts(dry_run=True)
+        send_layer_completion_alert(
+            layer="gold",
+            summary_message="Gold SQL/scenario dry-run finished.",
+            scope="dry-run",
+            success=failed_count == 0,
+            duration_seconds=time.perf_counter() - stage_start,
+            detail_lines=[
+                f"SQL files planned: <b>{len(sql_files)}</b>",
+                f"Scenario failures: <b>{failed_count}</b>",
+                "Contract checks: <b>skipped (dry-run)</b>",
+            ],
+        )
+        if failed_count > 0:
+            return 1
         logger.info("Gold dry-run completed successfully")
         return 0
 
@@ -113,8 +150,25 @@ def main(argv=None) -> int:
 
     if not client.connect():
         logger.error("Failed to connect to ClickHouse")
+        send_layer_completion_alert(
+            layer="gold",
+            summary_message="Gold processing finished with connection failure.",
+            scope="runtime",
+            success=False,
+            duration_seconds=time.perf_counter() - stage_start,
+            detail_lines=[
+                "SQL files executed: <b>0</b>",
+                "Scenario failures: <b>0</b>",
+                "Contract checks: <b>not run</b>",
+            ],
+        )
         return 1
 
+    sql_file_count = 0
+    scenario_success_count = 0
+    scenario_failed_count = 0
+    contracts_checked = False
+    exit_code = 0
     try:
         sql_dir = project_root / "clickhouse" / "gold"
         processor = FotMobGoldProcessor(sql_dir=sql_dir)
@@ -123,20 +177,39 @@ def main(argv=None) -> int:
         sql_files = processor.sql_files()
         if not sql_files:
             logger.error("No gold SQL files found in %s", sql_dir)
-            return 1
+            exit_code = 1
+            return exit_code
 
+        sql_file_count = len(sql_files)
         storage.execute_sql_files(sql_files)
-        scenario_exit_code = _run_scenario_scripts(dry_run=False)
-        if scenario_exit_code != 0:
-            return scenario_exit_code
+        scenario_success_count, scenario_failed_count, _ = _run_scenario_scripts(dry_run=False)
+        if scenario_failed_count > 0:
+            logger.error("Gold processing completed with failed scenarios")
+            exit_code = 1
+            return exit_code
         assert_gold_layer_contracts(client, database="gold", log=logger)
+        contracts_checked = True
         logger.info("Gold processing completed successfully")
-        return 0
+        return exit_code
     except LayerContractError as contract_error:
         logger.error("Gold layer contract assertion failed", error=str(contract_error))
-        return 1
+        exit_code = 1
+        return exit_code
     finally:
         client.disconnect()
+        send_layer_completion_alert(
+            layer="gold",
+            summary_message="Gold SQL + scenario processing finished.",
+            scope="runtime",
+            success=exit_code == 0,
+            duration_seconds=time.perf_counter() - stage_start,
+            detail_lines=[
+                f"SQL files executed: <b>{sql_file_count}</b>",
+                f"Scenarios succeeded: <b>{scenario_success_count}</b>",
+                f"Scenario failures: <b>{scenario_failed_count}</b>",
+                f"Contract checks: <b>{'passed' if contracts_checked else 'failed or skipped'}</b>",
+            ],
+        )
 
 
 if __name__ == "__main__":
