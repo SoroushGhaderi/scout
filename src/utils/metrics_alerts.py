@@ -540,3 +540,9 @@ def send_monthly_report(
     else:
         reporter.logger.warning(f"Unknown scraper: {scraper}")
         return False
+
+
+def send_raw_telegram_message(text: str, silent: bool = False) -> bool:
+    """Send a pre-formatted Telegram message using shared reporter configuration."""
+    reporter = get_metrics_reporter()
+    return reporter._send_message(text=text, silent=silent)

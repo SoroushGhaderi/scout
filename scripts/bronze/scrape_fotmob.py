@@ -48,7 +48,8 @@ from config import FotMobConfig
 from scripts.refresh_turnstile import refresh_if_needed
 from src.orchestrator import FotMobOrchestrator
 from src.utils.alerting import AlertLevel, get_alert_manager
-from src.utils.logging_utils import setup_logging
+from src.utils.layer_completion_alerts import send_layer_completion_alert
+from src.utils.logging_utils import get_logger, setup_logging
 from src.utils.metrics_alerts import send_daily_report, send_monthly_report
 from utils import (
     DateRangeInfo,
@@ -387,6 +388,8 @@ def run_scraping(args: argparse.Namespace) -> int:
     config = create_config(args)
     date_info = create_date_info(args)
 
+    pipeline_start = time.time()
+
     # Setup logging
     logger = setup_logging(
         name="bronze_processing",
@@ -463,7 +466,24 @@ def run_scraping(args: argparse.Namespace) -> int:
     print_final_summary(stats, len(date_info.dates))
     print_next_steps(stats)
 
-    return 0 if stats.dates_failed == 0 else 1
+    exit_code = 0 if stats.dates_failed == 0 else 1
+    scope = date_info.display_text
+    send_layer_completion_alert(
+        layer="bronze",
+        summary_message="FotMob raw scraping and bronze storage stage finished.",
+        scope=scope,
+        success=exit_code == 0,
+        duration_seconds=time.time() - pipeline_start,
+        detail_lines=[
+            f"Dates processed: <b>{stats.dates_processed}/{len(date_info.dates)}</b>",
+            f"Matches scraped: <b>{stats.total_successful}</b>",
+            f"Failures: <b>{stats.total_failed}</b>",
+            f"Skipped: <b>{stats.total_skipped}</b>",
+            f"Bronze files: <b>{stats.bronze_files}</b>",
+        ],
+    )
+
+    return exit_code
 
 
 # ============================================================================
