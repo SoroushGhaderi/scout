@@ -1,5 +1,8 @@
 # Scripts Layout
 
+This file documents script locations and canonical entry points.
+For script behavior rules, naming/style handwriting, function design, and update policy, use `SCRIPTS_CONTRACT.md` as the source of truth.
+
 ## Canonical Entry Points
 
 Use these for all new documentation, automation, and daily runs:
@@ -16,6 +19,11 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/gold/setup_clickhouse_gold.py`
 - `scripts/orchestration/pipeline.py`
 - `scripts/orchestration/setup_clickhouse.py`
+
+### Dry-Run Support
+
+- `scripts/silver/load_clickhouse.py --dry-run`
+- `scripts/gold/load_clickhouse_scenarios.py --dry-run`
 
 ## Operational Utility Scripts
 

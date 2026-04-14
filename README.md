@@ -142,6 +142,12 @@ This creates or appends records in tables such as:
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/load_clickhouse.py
 ```
 
+Preview silver load jobs without writes:
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/load_clickhouse.py --dry-run
+```
+
 This refreshes tables such as:
 
 - `silver.match`
@@ -154,6 +160,12 @@ This refreshes tables such as:
 
 ```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py
+```
+
+Preview gold SQL + scenario execution without writes:
+
+```bash
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py --dry-run
 ```
 
 This refreshes tables such as:
@@ -315,4 +327,5 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/quality/
 ## Repo Hygiene
 
 - Script inventory: `SCRIPTS_AUDIT.md`
-- Script command contract: `SCRIPTS_CONTRACT.md`
+- Script command + handwriting contract: `SCRIPTS_CONTRACT.md`
+- Script layout reference: `scripts/README.md`
