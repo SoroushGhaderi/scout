@@ -107,7 +107,7 @@ class TelegramMetricsReporter:
         self.bot_token = bot_token or os.getenv("TELEGRAM_BOT_TOKEN")
         self.chat_id = chat_id or os.getenv("TELEGRAM_CHAT_ID")
         self.environment = environment or os.getenv("ENVIRONMENT", "production")
-        self.server_name = os.getenv("SERVER_NAME", "scout")
+        self.server_name = os.getenv("SERVER_NAME", "pitchwise_orbit")
         self.logger = get_logger()
         self.api_url = f"https://api.telegram.org/bot{self.bot_token}" if self.bot_token else None
 

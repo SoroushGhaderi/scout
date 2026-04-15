@@ -160,6 +160,14 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
 
         return int(match.group(1)), int(match.group(2))
 
+    @staticmethod
+    def _extract_year_from_datetime(value: Optional[str]) -> Optional[str]:
+        """Extract YYYY from ISO-like datetime strings."""
+        if not value:
+            return None
+        match = re.match(r"^\s*(\d{4})", str(value))
+        return match.group(1) if match else None
+
     def _generate_synthetic_lineup_player_id(
         self,
         match_id: int,
@@ -462,6 +470,30 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 response_data, "header", "status", "scoreStr"
             )
             home_score, away_score = self._split_full_score(full_score)
+            tournament_info = self.extractor.safe_get_nested(
+                response_data, "content", "matchFacts", "infoBox", "Tournament"
+            )
+            if not isinstance(tournament_info, dict):
+                tournament_info = {}
+
+            match_time_utc_date = general_data.get("matchTimeUTCDate")
+            parent_league_name = (
+                general_data.get("parentLeagueName")
+                or tournament_info.get("leagueName")
+                or general_data.get("leagueName")
+            )
+            parent_league_tournament_id = (
+                general_data.get("parentLeagueTournamentId")
+                or tournament_info.get("id")
+                or general_data.get("leagueId")
+            )
+            parent_league_season = (
+                general_data.get("parentLeagueSeason")
+                or tournament_info.get("season")
+                or tournament_info.get("seasonName")
+                or self._extract_year_from_datetime(match_time_utc_date)
+            )
+
             processed_data = {
                 "match_id": general_data.get("matchId"),
                 "match_round": general_data.get("matchRound"),
@@ -474,16 +506,16 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 "league_round_name": general_data.get("leagueRoundName"),
                 "parent_league_id": general_data.get("parentLeagueId"),
                 "country_code": general_data.get("countryCode"),
-                "parent_league_name": general_data.get("parentLeagueName"),
-                "parent_league_season": general_data.get("parentLeagueSeason"),
-                "parent_league_tournament_id": general_data.get("parentLeagueTournamentId"),
+                "parent_league_name": parent_league_name,
+                "parent_league_season": parent_league_season,
+                "parent_league_tournament_id": parent_league_tournament_id,
                 "home_team_name": general_data.get("homeTeam", {}).get("name"),
                 "home_team_id": general_data.get("homeTeam", {}).get("id"),
                 "away_team_name": general_data.get("awayTeam", {}).get("name"),
                 "away_team_id": general_data.get("awayTeam", {}).get("id"),
                 "coverage_level": general_data.get("coverageLevel"),
                 "match_time_utc": general_data.get("matchTimeUTC"),
-                "match_time_utc_date": general_data.get("matchTimeUTCDate"),
+                "match_time_utc_date": match_time_utc_date,
                 "match_started": general_data.get("started", False),
                 "match_finished": general_data.get("finished", False),
                 "full_score": full_score,

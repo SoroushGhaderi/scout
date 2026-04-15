@@ -1,10 +1,10 @@
-"""Custom exception hierarchy for Scout project.
+"""Custom exception hierarchy for PitchWise Orbit project.
 
 This module defines a comprehensive exception hierarchy for the entire application.
-All exceptions inherit from ScoutError for easy catching and handling.
+All exceptions inherit from PitchWiseOrbitError for easy catching and handling.
 
 Exception Hierarchy:
-    ScoutError (base)
+    PitchWiseOrbitError (base)
     ├── ConfigurationError
     ├── StorageError
     │   ├── StorageReadError
@@ -32,11 +32,11 @@ Usage:
 """
 
 
-class ScoutError(Exception):
-    """Base exception for all Scout errors.
+class PitchWiseOrbitError(Exception):
+    """Base exception for all PitchWise Orbit errors.
     
-    All custom exceptions in the Scout project should inherit from this.
-    This allows catching all Scout-specific errors with a single except block.
+    All custom exceptions in the PitchWise Orbit project should inherit from this.
+    This allows catching all PitchWise Orbit-specific errors with a single except block.
     
     Attributes:
         message: Error message
@@ -44,7 +44,7 @@ class ScoutError(Exception):
     """
     
     def __init__(self, message: str, details: dict = None):
-        """Initialize Scout error.
+        """Initialize PitchWise Orbit error.
         
         Args:
             message: Error message
@@ -78,7 +78,7 @@ class ScoutError(Exception):
 # Configuration Errors
 # =============================================================================
 
-class ConfigurationError(ScoutError):
+class ConfigurationError(PitchWiseOrbitError):
     """Configuration-related errors.
     
     Raised when:
@@ -93,7 +93,7 @@ class ConfigurationError(ScoutError):
 # Storage Errors
 # =============================================================================
 
-class StorageError(ScoutError):
+class StorageError(PitchWiseOrbitError):
     """Base exception for storage-related errors.
     
     All storage errors inherit from this class.
@@ -137,7 +137,7 @@ class StorageNotFoundError(StorageError):
 # Scraper Errors
 # =============================================================================
 
-class ScraperError(ScoutError):
+class ScraperError(PitchWiseOrbitError):
     """Base exception for scraper-related errors.
     
     All scraper errors inherit from this class.
@@ -215,7 +215,7 @@ class ScraperCloudflareChallengeError(ScraperError):
 # Processor Errors
 # =============================================================================
 
-class ProcessorError(ScoutError):
+class ProcessorError(PitchWiseOrbitError):
     """Base exception for data processing errors.
     
     All processor errors inherit from this class.
@@ -260,7 +260,7 @@ class ValidationError(ProcessorError):
 # Database Errors
 # =============================================================================
 
-class DatabaseError(ScoutError):
+class DatabaseError(PitchWiseOrbitError):
     """Base exception for database-related errors.
     
     All database errors inherit from this class.
@@ -312,7 +312,7 @@ class DatabaseQueryError(DatabaseError):
 # Orchestrator Errors
 # =============================================================================
 
-class OrchestratorError(ScoutError):
+class OrchestratorError(PitchWiseOrbitError):
     """Orchestration workflow error.
     
     Raised when:
@@ -336,7 +336,7 @@ def format_error(error: Exception) -> dict:
     Returns:
         Dictionary with error information
     """
-    if isinstance(error, ScoutError):
+    if isinstance(error, PitchWiseOrbitError):
         return error.to_dict()
     
     return {
@@ -348,7 +348,7 @@ def format_error(error: Exception) -> dict:
 
 __all__ = [
     # Base
-    'ScoutError',
+    'PitchWiseOrbitError',
     # Configuration
     'ConfigurationError',
     # Storage

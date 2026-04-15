@@ -1,4 +1,4 @@
-"""Protocol definitions for Scout components.
+"""Protocol definitions for PitchWise Orbit components.
 
 This module defines the interfaces (protocols) that components must implement.
 Using protocols instead of abstract base classes allows for structural typing

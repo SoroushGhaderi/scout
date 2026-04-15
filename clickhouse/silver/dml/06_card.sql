@@ -8,7 +8,18 @@ SELECT
     c.player_id, c.player_name,
     c.team AS team_side,
     c.card_type, c.description,
-    c.score_at_event AS score_at_time,
+    toInt32OrNull(
+        arrayElement(
+            splitByChar('-', replaceAll(ifNull(c.score_at_event, ''), ' ', '')),
+            1
+        )
+    ) AS score_home_at_time,
+    toInt32OrNull(
+        arrayElement(
+            splitByChar('-', replaceAll(ifNull(c.score_at_event, ''), ' ', '')),
+            2
+        )
+    ) AS score_away_at_time,
     now() AS _loaded_at
 FROM bronze.cards AS c FINAL
 LEFT JOIN bronze.general AS g FINAL ON c.match_id = g.match_id;

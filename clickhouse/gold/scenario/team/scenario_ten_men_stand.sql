@@ -28,18 +28,8 @@ WITH first_red AS (
     SELECT
         match_id,
         team_side,
-        toInt32OrZero(
-            arrayElement(
-                splitByChar('-', replaceAll(ifNull(score_at_time, ''), ' ', '')),
-                1
-            )
-        ) AS score_home_at_red,
-        toInt32OrZero(
-            arrayElement(
-                splitByChar('-', replaceAll(ifNull(score_at_time, ''), ' ', '')),
-                2
-            )
-        ) AS score_away_at_red,
+        toInt32OrZero(score_home_at_time) AS score_home_at_red,
+        toInt32OrZero(score_away_at_time) AS score_away_at_red,
         card_minute AS red_card_time,
         player_id,
         player_name,

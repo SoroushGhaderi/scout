@@ -1,6 +1,6 @@
 # Scripts Contract
 
-This file is the source of truth for script-level behavior and code handwriting in Scout.
+This file is the source of truth for script-level behavior and code handwriting in PitchWise Orbit.
 
 ## 1. Canonical Command Surface
 

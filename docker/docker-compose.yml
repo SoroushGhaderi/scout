@@ -1,7 +1,7 @@
-# Scout - Docker Compose Configuration
-# Project name: scout (set via COMPOSE_PROJECT_NAME or directory name)
+# PitchWise Orbit - Docker Compose Configuration
+# Project name: pitchwise_orbit (set via COMPOSE_PROJECT_NAME or directory name)
 
-name: scout
+name: pitchwise_orbit
 
 services:
   # ClickHouse Database - Stores data for FotMob
@@ -10,7 +10,7 @@ services:
   # The script automatically checks if databases exist and creates them if missing.
   clickhouse:
     image: clickhouse/clickhouse-server:23.8
-    container_name: scout_clickhouse
+    container_name: pitchwise_orbit_clickhouse
     ports:
       - "8123:8123"  # HTTP interface
       - "9000:9000"  # Native client port
@@ -38,12 +38,12 @@ services:
       - football_network
     restart: unless-stopped
 
-  # Scout Application
+  # PitchWise Orbit Application
   scraper:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: scout_scraper
+    container_name: pitchwise_orbit_scraper
     volumes:
       # Data persistence
       - ../data:/app/data
@@ -106,7 +106,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: scout_scheduler
+    container_name: pitchwise_orbit_scheduler
     volumes:
       - ../data:/app/data
       - ../logs:/app/logs

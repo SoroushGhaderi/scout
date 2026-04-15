@@ -1,4 +1,4 @@
-"""Common type definitions and aliases for Scout project.
+"""Common type definitions and aliases for PitchWise Orbit project.
 
 This module provides type aliases and custom types used throughout the application.
 Using type aliases improves code readability and makes refactoring easier.

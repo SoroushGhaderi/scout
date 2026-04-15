@@ -1,6 +1,6 @@
 """Ensure required directories exist.
 
-This script creates the required local directory structure for the Scout project.
+This script creates the required local directory structure for the PitchWise Orbit project.
 It's optional since the pipeline scripts create directories automatically,
 but can be useful for pre-initialization or troubleshooting.
 

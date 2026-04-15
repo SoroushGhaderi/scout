@@ -25,43 +25,269 @@ SELECT
     p.big_chances_home, p.big_chances_away,
     p.big_chances_missed_home, p.big_chances_missed_away,
     p.passes_home, p.passes_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_passes_home, ''))[1], '')) AS accurate_passes_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_passes_home, ''))[2], '')) AS pass_attempts_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_passes_away, ''))[1], '')) AS accurate_passes_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_passes_away, ''))[2], '')) AS pass_attempts_away,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_passes_home, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.accurate_passes_home, ''), '^\\s*(\\d+)'))
+    ) AS accurate_passes_home,
+    coalesce(
+        p.passes_home,
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_passes_home, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.accurate_passes_home, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.accurate_passes_home, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.accurate_passes_home, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.accurate_passes_home, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS pass_attempts_home,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_passes_away, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.accurate_passes_away, ''), '^\\s*(\\d+)'))
+    ) AS accurate_passes_away,
+    coalesce(
+        p.passes_away,
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_passes_away, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.accurate_passes_away, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.accurate_passes_away, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.accurate_passes_away, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.accurate_passes_away, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS pass_attempts_away,
     p.own_half_passes_home, p.own_half_passes_away,
     p.opposition_half_passes_home, p.opposition_half_passes_away,
     p.player_throws_home, p.player_throws_away,
     p.touches_opp_box_home, p.touches_opp_box_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.long_balls_accurate_home, ''))[1], '')) AS accurate_long_balls_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.long_balls_accurate_home, ''))[2], '')) AS long_ball_attempts_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.long_balls_accurate_away, ''))[1], '')) AS accurate_long_balls_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.long_balls_accurate_away, ''))[2], '')) AS long_ball_attempts_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_crosses_home, ''))[1], '')) AS accurate_crosses_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_crosses_home, ''))[2], '')) AS cross_attempts_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_crosses_away, ''))[1], '')) AS accurate_crosses_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_crosses_away, ''))[2], '')) AS cross_attempts_away,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.long_balls_accurate_home, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.long_balls_accurate_home, ''), '^\\s*(\\d+)'))
+    ) AS accurate_long_balls_home,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.long_balls_accurate_home, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.long_balls_accurate_home, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.long_balls_accurate_home, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.long_balls_accurate_home, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.long_balls_accurate_home, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS long_ball_attempts_home,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.long_balls_accurate_away, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.long_balls_accurate_away, ''), '^\\s*(\\d+)'))
+    ) AS accurate_long_balls_away,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.long_balls_accurate_away, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.long_balls_accurate_away, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.long_balls_accurate_away, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.long_balls_accurate_away, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.long_balls_accurate_away, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS long_ball_attempts_away,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_crosses_home, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.accurate_crosses_home, ''), '^\\s*(\\d+)'))
+    ) AS accurate_crosses_home,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_crosses_home, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.accurate_crosses_home, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.accurate_crosses_home, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.accurate_crosses_home, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.accurate_crosses_home, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS cross_attempts_home,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_crosses_away, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.accurate_crosses_away, ''), '^\\s*(\\d+)'))
+    ) AS accurate_crosses_away,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.accurate_crosses_away, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.accurate_crosses_away, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.accurate_crosses_away, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.accurate_crosses_away, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.accurate_crosses_away, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS cross_attempts_away,
     p.interceptions_home, p.interceptions_away,
     p.clearances_home, p.clearances_away,
     p.shot_blocks_home, p.shot_blocks_away,
     p.keeper_saves_home, p.keeper_saves_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.tackles_succeeded_home, ''))[1], '')) AS tackles_succeeded_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.tackles_succeeded_home, ''))[2], '')) AS tackle_attempts_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.tackles_succeeded_away, ''))[1], '')) AS tackles_succeeded_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.tackles_succeeded_away, ''))[2], '')) AS tackle_attempts_away,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.tackles_succeeded_home, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.tackles_succeeded_home, ''), '^\\s*(\\d+)'))
+    ) AS tackles_succeeded_home,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.tackles_succeeded_home, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.tackles_succeeded_home, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.tackles_succeeded_home, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.tackles_succeeded_home, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.tackles_succeeded_home, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS tackle_attempts_home,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.tackles_succeeded_away, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.tackles_succeeded_away, ''), '^\\s*(\\d+)'))
+    ) AS tackles_succeeded_away,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.tackles_succeeded_away, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.tackles_succeeded_away, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.tackles_succeeded_away, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.tackles_succeeded_away, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.tackles_succeeded_away, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS tackle_attempts_away,
     p.duels_won_home, p.duels_won_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.ground_duels_won_home, ''))[1], '')) AS ground_duels_won_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.ground_duels_won_home, ''))[2], '')) AS ground_duel_attempts_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.ground_duels_won_away, ''))[1], '')) AS ground_duels_won_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.ground_duels_won_away, ''))[2], '')) AS ground_duel_attempts_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.aerials_won_home, ''))[1], '')) AS aerials_won_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.aerials_won_home, ''))[2], '')) AS aerial_attempts_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.aerials_won_away, ''))[1], '')) AS aerials_won_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.aerials_won_away, ''))[2], '')) AS aerial_attempts_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.dribbles_succeeded_home, ''))[1], '')) AS dribbles_succeeded_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.dribbles_succeeded_home, ''))[2], '')) AS dribble_attempts_home,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.dribbles_succeeded_away, ''))[1], '')) AS dribbles_succeeded_away,
-    toInt32OrNull(nullIf(splitByChar('/', ifNull(p.dribbles_succeeded_away, ''))[2], '')) AS dribble_attempts_away,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.ground_duels_won_home, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.ground_duels_won_home, ''), '^\\s*(\\d+)'))
+    ) AS ground_duels_won_home,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.ground_duels_won_home, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.ground_duels_won_home, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.ground_duels_won_home, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.ground_duels_won_home, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.ground_duels_won_home, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS ground_duel_attempts_home,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.ground_duels_won_away, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.ground_duels_won_away, ''), '^\\s*(\\d+)'))
+    ) AS ground_duels_won_away,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.ground_duels_won_away, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.ground_duels_won_away, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.ground_duels_won_away, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.ground_duels_won_away, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.ground_duels_won_away, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS ground_duel_attempts_away,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.aerials_won_home, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.aerials_won_home, ''), '^\\s*(\\d+)'))
+    ) AS aerials_won_home,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.aerials_won_home, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.aerials_won_home, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.aerials_won_home, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.aerials_won_home, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.aerials_won_home, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS aerial_attempts_home,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.aerials_won_away, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.aerials_won_away, ''), '^\\s*(\\d+)'))
+    ) AS aerials_won_away,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.aerials_won_away, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.aerials_won_away, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.aerials_won_away, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.aerials_won_away, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.aerials_won_away, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS aerial_attempts_away,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.dribbles_succeeded_home, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.dribbles_succeeded_home, ''), '^\\s*(\\d+)'))
+    ) AS dribbles_succeeded_home,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.dribbles_succeeded_home, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.dribbles_succeeded_home, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.dribbles_succeeded_home, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.dribbles_succeeded_home, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.dribbles_succeeded_home, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS dribble_attempts_home,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.dribbles_succeeded_away, ''))[1], '')),
+        toInt32OrNull(extract(ifNull(p.dribbles_succeeded_away, ''), '^\\s*(\\d+)'))
+    ) AS dribbles_succeeded_away,
+    coalesce(
+        toInt32OrNull(nullIf(splitByChar('/', ifNull(p.dribbles_succeeded_away, ''))[2], '')),
+        if(
+            toInt32OrNull(extract(ifNull(p.dribbles_succeeded_away, ''), '\\((\\d+)%\\)')) > 0
+            AND toInt32OrNull(extract(ifNull(p.dribbles_succeeded_away, ''), '^\\s*(\\d+)')) IS NOT NULL,
+            toInt32(
+                round(
+                    toFloat64(toInt32OrNull(extract(ifNull(p.dribbles_succeeded_away, ''), '^\\s*(\\d+)'))) * 100.0
+                    / toFloat64(toInt32OrNull(extract(ifNull(p.dribbles_succeeded_away, ''), '\\((\\d+)%\\)')))
+                )
+            ),
+            NULL
+        )
+    ) AS dribble_attempts_away,
     p.yellow_cards_home, p.yellow_cards_away,
     p.red_cards_home, p.red_cards_away,
     p.fouls_home, p.fouls_away,

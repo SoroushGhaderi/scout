@@ -1,4 +1,4 @@
-"""FotMob configuration system for Scout.
+"""FotMob configuration system for PitchWise Orbit.
 
 Configuration is loaded from two sources (in order of precedence):
 1. config.yaml - Primary application settings (required)

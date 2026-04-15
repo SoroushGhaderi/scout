@@ -14,7 +14,11 @@ from src.utils.logging_utils import get_logger
 logger = get_logger()
 
 
-SQL_FILE = project_root / "clickhouse" / "gold" / "scenario" / "scenario_total_suffocation.sql"
+SCENARIO_SQL_DIR = project_root / "clickhouse" / "gold" / "scenario"
+SQL_FILE = next(
+    (path for path in SCENARIO_SQL_DIR.rglob(f"{Path(__file__).stem}.sql") if path.is_file()),
+    SCENARIO_SQL_DIR / f"{Path(__file__).stem}.sql",
+)
 TARGET_TABLE = "gold.scenario_total_suffocation"
 
 

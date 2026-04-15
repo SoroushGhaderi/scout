@@ -1,4 +1,4 @@
-# Scout - Project Requirements
+# PitchWise Orbit - Project Requirements
 # Dependencies for FotMob scraper and data processing
 
 # Core dependencies

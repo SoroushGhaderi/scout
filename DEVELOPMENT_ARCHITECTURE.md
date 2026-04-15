@@ -11,7 +11,7 @@ This document consolidates the former project docs:
 ## Part 1: Development Guide
 
 
-This document defines the engineering standard for Bronze, Silver, and Gold layers in Scout, with focus on professional SQL organization and Python execution patterns for Silver and Gold.
+This document defines the engineering standard for Bronze, Silver, and Gold layers in PitchWise Orbit, with focus on professional SQL organization and Python execution patterns for Silver and Gold.
 
 ## 1. Architecture Overview
 
@@ -283,18 +283,18 @@ Use this as the default roadmap for the next iterations.
 
 ---
 
-This guide is now the single source of truth for Silver/Gold development workflow in Scout.
+This guide is now the single source of truth for Silver/Gold development workflow in PitchWise Orbit.
 
 ---
 
 ## Part 2: Configuration Guide
 
 
-This guide explains how Scout is configured and how to run the FotMob-only Bronze, Silver, and Gold pipeline in practice.
+This guide explains how PitchWise Orbit is configured and how to run the FotMob-only Bronze, Silver, and Gold pipeline in practice.
 
 ## 1. Configuration Model
 
-Scout uses two configuration sources:
+PitchWise Orbit uses two configuration sources:
 
 - `config.yaml` for application behavior
 - `.env` for secrets and environment-specific overrides
@@ -530,7 +530,7 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestr
 
 ## 8. Warehouse Naming Standards
 
-These are mandatory for ClickHouse objects used by Scout.
+These are mandatory for ClickHouse objects used by PitchWise Orbit.
 
 ### Bronze
 
@@ -630,7 +630,7 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/quality/
 
 ## 12. Scope Reminder
 
-Scout is currently FotMob-only.
+PitchWise Orbit is currently FotMob-only.
 
 - Additional sources should not be added to the active configuration model unless the architecture changes deliberately
 - Source-specific runtime commands should not be mixed into the FotMob-only docs without an explicit design update
@@ -643,11 +643,11 @@ Scout is currently FotMob-only.
 > Updated: 2026-04-12
 > Scope: FotMob-only medallion pipeline
 
-This document reflects the current target architecture for Scout after the layer-separation cleanup.
+This document reflects the current target architecture for PitchWise Orbit after the layer-separation cleanup.
 
 ## 1. Product Scope
 
-Scout is now a FotMob-only pipeline.
+PitchWise Orbit is now a FotMob-only pipeline.
 
 - All scraping, raw storage, transformations, and warehouse objects are defined around FotMob only
 - Any future source should be added as a separate, explicit design decision rather than mixed into the current flow
@@ -789,7 +789,7 @@ Any future changes should preserve this contract.
 ## Part 4: Core Package Reference
 
 
-The `core` package provides foundational components for the Scout project.
+The `core` package provides foundational components for the PitchWise Orbit project.
 
 ## Overview
 
@@ -835,7 +835,7 @@ Custom exception hierarchy for the entire application.
 
 **Exception Hierarchy:**
 ```
-ScoutError (base)
+PitchWiseOrbitError (base)
 ├── ConfigurationError
 ├── StorageError
 │   ├── StorageReadError

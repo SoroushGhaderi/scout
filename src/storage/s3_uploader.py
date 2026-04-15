@@ -31,7 +31,7 @@ class S3Uploader:
     """S3 Uploader for bronze layer data."""
 
     def __init__(
-        self, endpoint: str, access_key: str, secret_key: str, bucket_name: str = "scout-sport"
+        self, endpoint: str, access_key: str, secret_key: str, bucket_name: str = "pitchwise_orbit-sport"
     ):
         """Initialize S3 uploader."""
         self.logger = logger

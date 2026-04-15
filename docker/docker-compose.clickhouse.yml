@@ -1,12 +1,12 @@
-# Scout - ClickHouse only Docker Compose
+# PitchWise Orbit - ClickHouse only Docker Compose
 # Standalone database service without scraper/scheduler containers
 
-name: scout-clickhouse
+name: pitchwise_orbit-clickhouse
 
 services:
   clickhouse:
     image: clickhouse/clickhouse-server:23.8
-    container_name: scout_clickhouse
+    container_name: pitchwise_orbit_clickhouse
     ports:
       - "8123:8123"  # HTTP interface
       - "9000:9000"  # Native TCP interface

@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS silver.card
     team_side       LowCardinality(String),
     card_type       LowCardinality(String),
     description     Nullable(String),
-    score_at_time   Nullable(String),
+    score_home_at_time Nullable(Int32),
+    score_away_at_time Nullable(Int32),
     _loaded_at      DateTime DEFAULT now()
 )
 ENGINE = ReplacingMergeTree(_loaded_at)

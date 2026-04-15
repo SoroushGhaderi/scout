@@ -1,4 +1,4 @@
-"""Environment-based settings management for Scout project.
+"""Environment-based settings management for PitchWise Orbit project.
 
 This module provides centralized environment configuration management.
 All environment variables are loaded from .env file using pydantic-settings.
