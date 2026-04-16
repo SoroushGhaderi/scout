@@ -24,9 +24,23 @@ from src.utils.logging_utils import get_logger, setup_logging
 logger = get_logger(__name__)
 
 
+def _job_scripts(subdirectory: str, pattern: str) -> list[Path]:
+    scripts_path = Path(__file__).resolve().parent / subdirectory
+    return sorted(path for path in scripts_path.glob(pattern) if path.is_file())
+
+
 def _scenario_scripts() -> list[Path]:
-    scenario_dir = Path(__file__).resolve().parent / "scenario"
-    return sorted(path for path in scenario_dir.glob("scenario*.py") if path.is_file())
+    return _job_scripts("scenario", "scenario*.py")
+
+
+def _signal_scripts() -> list[Path]:
+    return _job_scripts("signal", "signal*.py")
+
+
+def _selected_script_groups(part: str) -> tuple[list[Path], list[Path]]:
+    scenario_scripts = _scenario_scripts() if part in ("all", "scenarios") else []
+    signal_scripts = _signal_scripts() if part in ("all", "signals") else []
+    return scenario_scripts, signal_scripts
 
 
 def _build_command(script_path: Path) -> list[str]:
@@ -36,37 +50,49 @@ def _build_command(script_path: Path) -> list[str]:
 def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Process FotMob gold layer in ClickHouse")
     parser.add_argument(
+        "--part",
+        choices=("all", "scenarios", "signals"),
+        default="all",
+        help="Which gold job scripts to run: scenarios, signals, or all (default: all)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Preview gold SQL/scenario jobs without executing SQL or subprocesses",
+        help="Preview gold SQL/scenario/signal jobs without executing SQL or subprocesses",
     )
     return parser.parse_args(argv)
 
 
-def _run_scenario_scripts(dry_run: bool = False) -> tuple[int, int, list[str]]:
-    scenario_scripts = _scenario_scripts()
-    if not scenario_scripts:
+def _run_job_scripts(
+    job_name: str,
+    script_paths: list[Path],
+    dry_run: bool = False,
+) -> tuple[int, int, list[str]]:
+    if not script_paths:
         logger.warning(
-            "No gold scenario scripts found in %s", Path(__file__).resolve().parent / "scenario"
+            "No gold %s scripts found in %s",
+            job_name,
+            Path(__file__).resolve().parent / job_name,
         )
         return 0, 0, []
 
     if dry_run:
-        logger.info("[dry-run] Planned gold scenario scripts: %s", len(scenario_scripts))
+        logger.info("[dry-run] Planned gold %s scripts: %s", job_name, len(script_paths))
 
-    total_scripts = len(scenario_scripts)
+    total_scripts = len(script_paths)
     success_count = 0
-    failed_scenarios: list[str] = []
+    failed_scripts: list[str] = []
 
-    for index, script_path in enumerate(scenario_scripts, start=1):
+    for index, script_path in enumerate(script_paths, start=1):
         logger.info(
-            "Running gold scenario script %s/%s: %s",
+            "Running gold %s script %s/%s: %s",
+            job_name,
             index,
             total_scripts,
             script_path.name,
         )
         if dry_run:
-            logger.info("[dry-run] Would execute scenario script: %s", script_path)
+            logger.info("[dry-run] Would execute %s script: %s", job_name, script_path)
             success_count += 1
             continue
         command = _build_command(script_path)
@@ -75,35 +101,72 @@ def _run_scenario_scripts(dry_run: bool = False) -> tuple[int, int, list[str]]:
         elapsed_seconds = time.perf_counter() - script_start
         if result.returncode != 0:
             logger.error(
-                "Gold scenario script failed %s/%s: %s (exit code %s) after %.2f seconds",
+                "Gold %s script failed %s/%s: %s (exit code %s) after %.2f seconds",
+                job_name,
                 index,
                 total_scripts,
                 script_path.name,
                 result.returncode,
                 elapsed_seconds,
             )
-            failed_scenarios.append(script_path.name)
+            failed_scripts.append(script_path.name)
             continue
         success_count += 1
         logger.info(
-            "Completed gold scenario script %s/%s: %s in %.2f seconds",
+            "Completed gold %s script %s/%s: %s in %.2f seconds",
+            job_name,
             index,
             total_scripts,
             script_path.name,
             elapsed_seconds,
         )
 
-    failed_count = len(failed_scenarios)
+    failed_count = len(failed_scripts)
     logger.info(
-        "Gold scenario execution report | total=%s success=%s failed=%s",
+        "Gold %s execution report | total=%s success=%s failed=%s",
+        job_name,
         total_scripts,
         success_count,
         failed_count,
     )
-    if failed_scenarios:
-        logger.error("Failed scenarios: %s", ", ".join(failed_scenarios))
+    if failed_scripts:
+        logger.error("Failed %s scripts: %s", job_name, ", ".join(failed_scripts))
 
-    return success_count, failed_count, failed_scenarios
+    return success_count, failed_count, failed_scripts
+
+
+def _run_selected_jobs(part: str, dry_run: bool) -> tuple[int, int, int, int]:
+    scenario_scripts, signal_scripts = _selected_script_groups(part)
+
+    scenario_success_count = 0
+    scenario_failed_count = 0
+    signal_success_count = 0
+    signal_failed_count = 0
+
+    if scenario_scripts:
+        scenario_success_count, scenario_failed_count, _ = _run_job_scripts(
+            job_name="scenario",
+            script_paths=scenario_scripts,
+            dry_run=dry_run,
+        )
+    else:
+        logger.info("Skipping scenario scripts because --part=%s", part)
+
+    if signal_scripts:
+        signal_success_count, signal_failed_count, _ = _run_job_scripts(
+            job_name="signal",
+            script_paths=signal_scripts,
+            dry_run=dry_run,
+        )
+    else:
+        logger.info("Skipping signal scripts because --part=%s", part)
+
+    return (
+        scenario_success_count,
+        scenario_failed_count,
+        signal_success_count,
+        signal_failed_count,
+    )
 
 
 def main(argv=None) -> int:
@@ -126,23 +189,37 @@ def main(argv=None) -> int:
         logger.info("[dry-run] Planned gold SQL files: %s", len(sql_files))
         for sql_file in sql_files:
             logger.info("[dry-run] Would execute SQL file: %s", sql_file)
-        _, failed_count, _ = _run_scenario_scripts(dry_run=True)
-        total_scenarios = len(_scenario_scripts())
+        logger.info("Selected gold job scripts via --part=%s", args.part)
+        (
+            scenario_success_count,
+            scenario_failed_count,
+            signal_success_count,
+            signal_failed_count,
+        ) = _run_selected_jobs(part=args.part, dry_run=True)
+        failed_count = scenario_failed_count + signal_failed_count
+        total_jobs = (
+            scenario_success_count
+            + scenario_failed_count
+            + signal_success_count
+            + signal_failed_count
+        )
+        successful_jobs = scenario_success_count + signal_success_count
         scenario_success_rate = (
-            ((total_scenarios - failed_count) / total_scenarios * 100) if total_scenarios > 0 else 0
+            (successful_jobs / total_jobs * 100) if total_jobs > 0 else 0
         )
         send_layer_completion_alert(
             layer="gold",
-            summary_message="Gold SQL/scenario dry-run finished.",
+            summary_message="Gold SQL/scenario/signal dry-run finished.",
             scope="dry-run",
             success=failed_count == 0,
             duration_seconds=time.perf_counter() - stage_start,
             detail_lines=[
                 f"SQL files planned: <b>{len(sql_files)}</b>",
-                f"Scenario failures: <b>{failed_count}</b>",
+                f"Scenario failures: <b>{scenario_failed_count}</b>",
+                f"Signal failures: <b>{signal_failed_count}</b>",
             ],
             insight_lines=[
-                f"Scenario pass projection: <b>{scenario_success_rate:.1f}%</b>",
+                f"Scenario/signal pass projection: <b>{scenario_success_rate:.1f}%</b>",
                 "Dry-run mode: <b>no writes performed</b>",
             ],
         )
@@ -170,6 +247,7 @@ def main(argv=None) -> int:
             detail_lines=[
                 "SQL files executed: <b>0</b>",
                 "Scenario failures: <b>0</b>",
+                "Signal failures: <b>0</b>",
                 "Contract checks: <b>not run</b>",
             ],
         )
@@ -178,6 +256,8 @@ def main(argv=None) -> int:
     sql_file_count = 0
     scenario_success_count = 0
     scenario_failed_count = 0
+    signal_success_count = 0
+    signal_failed_count = 0
     contracts_checked = False
     exit_code = 0
     try:
@@ -193,9 +273,15 @@ def main(argv=None) -> int:
 
         sql_file_count = len(sql_files)
         storage.execute_sql_files(sql_files)
-        scenario_success_count, scenario_failed_count, _ = _run_scenario_scripts(dry_run=False)
-        if scenario_failed_count > 0:
-            logger.error("Gold processing completed with failed scenarios")
+        logger.info("Selected gold job scripts via --part=%s", args.part)
+        (
+            scenario_success_count,
+            scenario_failed_count,
+            signal_success_count,
+            signal_failed_count,
+        ) = _run_selected_jobs(part=args.part, dry_run=False)
+        if scenario_failed_count > 0 or signal_failed_count > 0:
+            logger.error("Gold processing completed with failed scenario/signal scripts")
             exit_code = 1
             return exit_code
         assert_gold_layer_contracts(client, database="gold", log=logger)
@@ -208,13 +294,20 @@ def main(argv=None) -> int:
         return exit_code
     finally:
         client.disconnect()
-        total_scenarios = scenario_success_count + scenario_failed_count
+        total_jobs = (
+            scenario_success_count
+            + scenario_failed_count
+            + signal_success_count
+            + signal_failed_count
+        )
         scenario_success_rate = (
-            (scenario_success_count / total_scenarios * 100) if total_scenarios > 0 else 0
+            ((scenario_success_count + signal_success_count) / total_jobs * 100)
+            if total_jobs > 0
+            else 0
         )
         send_layer_completion_alert(
             layer="gold",
-            summary_message="Gold SQL + scenario processing finished.",
+            summary_message="Gold SQL + scenario/signal processing finished.",
             scope="runtime",
             success=exit_code == 0,
             duration_seconds=time.perf_counter() - stage_start,
@@ -222,10 +315,12 @@ def main(argv=None) -> int:
                 f"SQL files executed: <b>{sql_file_count}</b>",
                 f"Scenarios succeeded: <b>{scenario_success_count}</b>",
                 f"Scenario failures: <b>{scenario_failed_count}</b>",
+                f"Signals succeeded: <b>{signal_success_count}</b>",
+                f"Signal failures: <b>{signal_failed_count}</b>",
                 f"Contract checks: <b>{'passed' if contracts_checked else 'failed or skipped'}</b>",
             ],
             insight_lines=[
-                f"Scenario success rate: <b>{scenario_success_rate:.1f}%</b>",
+                f"Scenario/signal success rate: <b>{scenario_success_rate:.1f}%</b>",
                 (
                     "Analytics quality signal: <b>gold contracts passed</b>"
                     if contracts_checked

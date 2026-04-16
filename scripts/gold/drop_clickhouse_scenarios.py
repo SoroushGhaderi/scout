@@ -1,4 +1,4 @@
-"""Drop only FotMob gold scenario tables in ClickHouse."""
+"""Drop FotMob gold scenario and/or signal tables in ClickHouse."""
 
 import argparse
 import sys
@@ -17,7 +17,13 @@ logger = get_logger()
 
 def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Drop scenario tables from the gold ClickHouse schema"
+        description="Drop scenario/signal tables from the gold ClickHouse schema"
+    )
+    parser.add_argument(
+        "--part",
+        choices=("all", "scenarios", "signals"),
+        default="scenarios",
+        help="Which gold tables to drop: scenarios, signals, or all (default: scenarios)",
     )
     parser.add_argument(
         "--database",
@@ -32,14 +38,29 @@ def parse_args(argv=None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def _find_tables(client: ClickHouseClient, database: str) -> list[str]:
+def _find_tables(
+    client: ClickHouseClient,
+    database: str,
+    part: str,
+) -> list[str]:
+    prefixes = []
+    if part in ("all", "scenarios"):
+        prefixes.append("scenario_")
+    if part in ("all", "signals"):
+        prefixes.append("signal_")
+    if not prefixes:
+        return []
+
+    prefix_filter = " OR ".join(
+        f"startsWith(name, '{prefix}')" for prefix in prefixes
+    )
     query = """
         SELECT name
         FROM system.tables
         WHERE database = %(database)s
-          AND startsWith(name, 'scenario_')
+          AND ({prefix_filter})
         ORDER BY name
-    """
+    """.format(prefix_filter=prefix_filter)
     result = client.execute(query, {"database": database})
     return [row[0] for row in result.result_rows]
 
@@ -62,22 +83,27 @@ def main(argv=None) -> int:
 
     try:
         find_start = time.perf_counter()
-        tables = _find_tables(client, database)
+        tables = _find_tables(client, database, args.part)
         find_elapsed_seconds = time.perf_counter() - find_start
-        logger.info("Gold scenario table discovery completed in %.2f seconds", find_elapsed_seconds)
+        logger.info(
+            "Gold %s table discovery completed in %.2f seconds",
+            args.part,
+            find_elapsed_seconds,
+        )
 
         if not tables:
-            logger.info("No scenario tables found in %s", database)
+            logger.info("No %s tables found in %s", args.part, database)
             return 0
 
         total_tables = len(tables)
-        logger.info("Found %s gold scenario table(s) in %s", total_tables, database)
+        logger.info("Found %s gold %s table(s) in %s", total_tables, args.part, database)
 
         for index, table in enumerate(tables, start=1):
             full_table = f"{database}.{table}"
             if args.dry_run:
                 logger.info(
-                    "[dry-run] Would drop gold scenario table %s/%s: %s",
+                    "[dry-run] Would drop gold %s table %s/%s: %s",
+                    args.part,
                     index,
                     total_tables,
                     full_table,
@@ -85,7 +111,8 @@ def main(argv=None) -> int:
                 continue
 
             logger.info(
-                "Dropping gold scenario table %s/%s: %s",
+                "Dropping gold %s table %s/%s: %s",
+                args.part,
                 index,
                 total_tables,
                 full_table,
@@ -94,7 +121,8 @@ def main(argv=None) -> int:
             client.execute(f"DROP TABLE IF EXISTS {full_table}")
             drop_elapsed_seconds = time.perf_counter() - drop_start
             logger.info(
-                "Dropped gold scenario table %s/%s: %s in %.2f seconds",
+                "Dropped gold %s table %s/%s: %s in %.2f seconds",
+                args.part,
                 index,
                 total_tables,
                 full_table,
@@ -104,7 +132,7 @@ def main(argv=None) -> int:
         if args.dry_run:
             logger.info("Dry-run completed")
         else:
-            logger.info("All gold scenario tables dropped successfully")
+            logger.info("All matching gold %s tables dropped successfully", args.part)
         return 0
     finally:
         client.disconnect()
