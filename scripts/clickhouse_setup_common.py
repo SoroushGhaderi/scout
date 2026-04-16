@@ -5,7 +5,7 @@ import re
 import sys
 import time
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Callable, Iterable, Optional
 
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
@@ -307,14 +307,23 @@ def execute_sql_file(client: ClickHouseClient, sql_file: Path, database: Optiona
         return False
 
 
-def run_clickhouse_layer_setup(layer_name: str, client: Optional[ClickHouseClient] = None) -> int:
+def run_clickhouse_layer_setup(
+    layer_name: str,
+    client: Optional[ClickHouseClient] = None,
+    sql_file_filter: Optional[Callable[[Path], bool]] = None,
+) -> int:
     """Create one ClickHouse medallion layer."""
     owns_client = client is None
     active_client = client or connect_clickhouse()
     try:
         clickhouse_root = resolve_clickhouse_root()
         sql_files = get_layer_sql_files(layer_name, clickhouse_root=clickhouse_root)
+        if sql_file_filter is not None:
+            sql_files = [sql_file for sql_file in sql_files if sql_file_filter(sql_file)]
         logger.info("Using ClickHouse SQL root: %s", clickhouse_root)
+        if not sql_files:
+            logger.warning("No SQL files selected for %s layer setup", layer_name)
+            return 0
         logger.info("Executing %s layer SQL...", layer_name.upper())
         for sql_file in sql_files:
             logger.info("Running %s", sql_file.name)

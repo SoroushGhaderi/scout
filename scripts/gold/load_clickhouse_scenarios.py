@@ -184,11 +184,11 @@ def main(argv=None) -> int:
         processor = FotMobGoldProcessor(sql_dir=sql_dir)
         sql_files = processor.sql_files()
         if not sql_files:
-            logger.error("No gold SQL files found in %s", sql_dir)
-            return 1
-        logger.info("[dry-run] Planned gold SQL files: %s", len(sql_files))
-        for sql_file in sql_files:
-            logger.info("[dry-run] Would execute SQL file: %s", sql_file)
+            logger.info("No non-DDL gold SQL files selected for load in %s", sql_dir)
+        else:
+            logger.info("[dry-run] Planned gold SQL files: %s", len(sql_files))
+            for sql_file in sql_files:
+                logger.info("[dry-run] Would execute SQL file: %s", sql_file)
         logger.info("Selected gold job scripts via --part=%s", args.part)
         (
             scenario_success_count,
@@ -267,12 +267,11 @@ def main(argv=None) -> int:
 
         sql_files = processor.sql_files()
         if not sql_files:
-            logger.error("No gold SQL files found in %s", sql_dir)
-            exit_code = 1
-            return exit_code
-
-        sql_file_count = len(sql_files)
-        storage.execute_sql_files(sql_files)
+            logger.info("No non-DDL gold SQL files selected for load in %s", sql_dir)
+            sql_file_count = 0
+        else:
+            sql_file_count = len(sql_files)
+            storage.execute_sql_files(sql_files)
         logger.info("Selected gold job scripts via --part=%s", args.part)
         (
             scenario_success_count,
