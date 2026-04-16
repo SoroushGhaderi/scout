@@ -189,6 +189,7 @@ And it refreshes signal tables (via `scripts/gold/signal/signal_*.py`), includin
 
 - `gold.signal_team_possession_passing_total_dominance`
 - `gold.signal_team_possession_passing_possession_without_purpose`
+- `gold.signal_team_possession_passing_efficient_directness`
 
 ## Full Pipeline Modes
 

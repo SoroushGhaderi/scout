@@ -61,6 +61,31 @@ python3 scripts/gold/signal/signal_team_possession_passing_possession_without_pu
 
 ---
 
+## 📡 Signal: Team Possession-Passing Efficient Directness (`signal_team_possession_passing_efficient_directness`)
+
+### 🎯 Purpose
+Identifies teams that produce high shot volume despite intentionally ceding possession, capturing direct and transition-heavy attacking profiles.
+
+### 🧠 Tactical & Statistical Logic
+
+- **Low-Ball, High-Output Pattern:** Possession below 35% combined with more than 10 total shots highlights teams that attack efficiently without controlling the ball.
+
+- **Full-Match Robustness:** The signal is computed only on finished matches and full-time aggregates (`period = 'All'`) to avoid phase-level noise.
+
+- **Triggered-Team Attribution:** `triggered_side`, `triggered_team_id`, and `triggered_team_name` assign each row to the side that satisfied the low-possession/high-shot condition.
+
+### 📂 Technical Assets
+- **SQL Transformation:** `clickhouse/gold/signal/signal_team_possession_passing_efficient_directness.sql`
+- **Python Runner:** `scripts/gold/signal/signal_team_possession_passing_efficient_directness.py`
+- **Target Table:** `gold.signal_team_possession_passing_efficient_directness`
+
+### 🚀 Execution
+```bash
+python3 scripts/gold/signal/signal_team_possession_passing_efficient_directness.py
+```
+
+---
+
 ## Reference Template For New Signals
 
 Use the following structure when adding a new signal entry:

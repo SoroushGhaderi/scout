@@ -97,3 +97,4 @@ These `scripts/gold/signal/signal_*.py` runners are also discovered and executed
 
 - `scripts/gold/signal/signal_team_possession_passing_total_dominance.py`
 - `scripts/gold/signal/signal_team_possession_passing_possession_without_purpose.py`
+- `scripts/gold/signal/signal_team_possession_passing_efficient_directness.py`
