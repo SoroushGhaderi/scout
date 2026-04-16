@@ -90,3 +90,10 @@ Scenario standards are defined in `scripts/gold/scenario/SCENARIOS_CONTRACT.md`.
 - `scripts/gold/scenario/scenario_chaos_engine.py`
 - `scripts/gold/scenario/scenario_tired_legs.py`
 - `scripts/gold/scenario/SCENARIOS_CATALOG.md`
+
+## Signal Scripts
+
+These `scripts/gold/signal/signal_*.py` runners are also discovered and executed by `scripts/gold/load_clickhouse_scenarios.py`.
+
+- `scripts/gold/signal/signal_team_possession_passing_total_dominance.py`
+- `scripts/gold/signal/signal_team_possession_passing_possession_without_purpose.py`

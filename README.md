@@ -162,7 +162,7 @@ This refreshes tables such as:
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py
 ```
 
-Preview gold SQL + scenario execution without writes:
+Preview gold SQL + scenario/signal execution without writes:
 
 ```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py --dry-run
@@ -184,6 +184,11 @@ It also refreshes scenario narrative tables (via `scripts/gold/scenario/scenario
 - `gold.scenario_total_suffocation`
 - `gold.scenario_territorial_suffocation`
 - `gold.scenario_clinical_pivot`
+
+And it refreshes signal tables (via `scripts/gold/signal/signal_*.py`), including:
+
+- `gold.signal_team_possession_passing_total_dominance`
+- `gold.signal_team_possession_passing_possession_without_purpose`
 
 ## Full Pipeline Modes
 
