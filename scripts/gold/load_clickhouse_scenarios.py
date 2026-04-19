@@ -34,7 +34,7 @@ def _scenario_scripts() -> list[Path]:
 
 
 def _signal_scripts() -> list[Path]:
-    return _job_scripts("signal", "signal*.py")
+    return _job_scripts("signal/runners", "signal*.py")
 
 
 def _selected_script_groups(part: str) -> tuple[list[Path], list[Path]]:

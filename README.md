@@ -185,11 +185,9 @@ It also refreshes scenario narrative tables (via `scripts/gold/scenario/scenario
 - `gold.scenario_territorial_suffocation`
 - `gold.scenario_clinical_pivot`
 
-And it refreshes signal tables (via `scripts/gold/signal/signal_*.py`), including:
+And it refreshes signal tables (via `scripts/gold/signal/runners/signal_*.py`), including:
 
-- `gold.signal_team_possession_passing_total_dominance`
-- `gold.signal_team_possession_passing_possession_without_purpose`
-- `gold.signal_team_possession_passing_efficient_directness`
+- No active signal tables yet (signals are being redefined).
 
 ## Full Pipeline Modes
 

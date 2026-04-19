@@ -93,8 +93,12 @@ Scenario standards are defined in `scripts/gold/scenario/SCENARIOS_CONTRACT.md`.
 
 ## Signal Scripts
 
-These `scripts/gold/signal/signal_*.py` runners are also discovered and executed by `scripts/gold/load_clickhouse_scenarios.py`.
+These `scripts/gold/signal/runners/signal_*.py` runners are also discovered and executed by `scripts/gold/load_clickhouse_scenarios.py`.
 
-- `scripts/gold/signal/signal_team_possession_passing_total_dominance.py`
-- `scripts/gold/signal/signal_team_possession_passing_possession_without_purpose.py`
-- `scripts/gold/signal/signal_team_possession_passing_efficient_directness.py`
+- No active signal runners yet (signals are being redefined).
+
+## Signal Catalogs
+
+Per-signal docs live in `scripts/gold/signal/catalogs/` and include tactical logic plus output schema tables:
+
+- `scripts/gold/signal/catalogs/README.md`

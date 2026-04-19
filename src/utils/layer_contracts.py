@@ -242,12 +242,14 @@ def assert_silver_layer_contracts(
             )
 
 
-def _list_gold_scenario_tables(client: ClickHouseClient, database: str = "gold") -> List[str]:
-    """Return all scenario_* gold tables."""
+def _list_gold_analytics_tables(client: ClickHouseClient, database: str = "gold") -> List[str]:
+    """Return all scenario_* and signal_* gold tables."""
     db = _safe_identifier(database)
     query = (
         "SELECT name FROM system.tables "
-        f"WHERE database = '{db}' AND startsWith(name, 'scenario_') ORDER BY name"
+        f"WHERE database = '{db}' "
+        "AND (startsWith(name, 'scenario_') OR startsWith(name, 'signal_')) "
+        "ORDER BY name"
     )
     result = client.execute(query, log_query=False)
     if hasattr(result, "result_rows") and result.result_rows:
@@ -274,13 +276,13 @@ def assert_gold_layer_contracts(
     database: str = "gold",
     log=logger,
 ) -> None:
-    """Run lightweight post-load assertions for gold scenario outputs."""
+    """Run lightweight post-load assertions for gold analytics outputs."""
     db = _safe_identifier(database)
-    scenario_tables = _list_gold_scenario_tables(client, database=db)
-    if not scenario_tables:
-        raise LayerContractError("Gold contract failed: no scenario tables found")
+    analytics_tables = _list_gold_analytics_tables(client, database=db)
+    if not analytics_tables:
+        raise LayerContractError("Gold contract failed: no scenario/signal tables found")
 
-    for table_name in scenario_tables:
+    for table_name in analytics_tables:
         table = _safe_identifier(table_name)
         rows = _query_scalar(client, f"SELECT count() FROM {db}.{table}")
         if rows == 0:
