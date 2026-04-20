@@ -187,7 +187,7 @@ It also refreshes scenario narrative tables (via `scripts/gold/scenario/scenario
 
 And it refreshes signal tables (via `scripts/gold/signal/runners/signal_*.py`), including:
 
-- No active signal tables yet (signals are being redefined).
+- `gold.sig_team_possession_passing_high_press_victim`
 
 ## Full Pipeline Modes
 

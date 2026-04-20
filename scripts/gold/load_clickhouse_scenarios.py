@@ -34,7 +34,10 @@ def _scenario_scripts() -> list[Path]:
 
 
 def _signal_scripts() -> list[Path]:
-    return _job_scripts("signal/runners", "signal*.py")
+    scripts_path = Path(__file__).resolve().parent / "signal" / "runners"
+    signal_prefixed = list(scripts_path.glob("signal*.py"))
+    sig_prefixed = list(scripts_path.glob("sig*.py"))
+    return sorted(path for path in (signal_prefixed + sig_prefixed) if path.is_file())
 
 
 def _selected_script_groups(part: str) -> tuple[list[Path], list[Path]]:

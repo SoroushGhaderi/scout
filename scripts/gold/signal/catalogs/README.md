@@ -2,7 +2,7 @@
 
 Each signal has its own catalog file in this directory.
 
-- No active signal catalogs yet (signals are being redefined).
+- [sig_team_possession_passing_high_press_victim.md](sig_team_possession_passing_high_press_victim.md)
 
 Each per-signal catalog includes:
 

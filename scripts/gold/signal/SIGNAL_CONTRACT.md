@@ -6,8 +6,8 @@ This document defines the stable contract for Gold signal jobs in Scout.
 
 This contract applies to:
 
-- `clickhouse/gold/signal/signal_*.sql`
-- `scripts/gold/signal/runners/signal_*.py`
+- `clickhouse/gold/signal/sig_*.sql`
+- `scripts/gold/signal/runners/sig_*.py`
 - `scripts/gold/load_clickhouse_scenarios.py`
 - `scripts/gold/signal/catalogs/*.md`
 
@@ -15,8 +15,8 @@ This contract applies to:
 
 `scripts/gold/signal/` must contain exactly two signal-content folders:
 
-1. `runners/` for runnable signal jobs (`signal_*.py`)
-2. `catalogs/` for per-signal documentation (`signal_*.md`)
+1. `runners/` for runnable signal jobs (`sig_*.py`)
+2. `catalogs/` for per-signal documentation (`sig_*.md`)
 
 `SIGNAL_CONTRACT.md` remains at `scripts/gold/signal/` as the governing specification.
 
@@ -25,13 +25,13 @@ This contract applies to:
 Each signal is a 5-part unit:
 
 1. SQL transformation file  
-   `clickhouse/gold/signal/signal_<name>.sql`
+   `clickhouse/gold/signal/sig_<name>.sql`
 2. Python runner  
-   `scripts/gold/signal/runners/signal_<name>.py`
+   `scripts/gold/signal/runners/sig_<name>.py`
 3. Target table  
-   `gold.signal_<name>`
+   `gold.sig_<name>`
 4. Per-signal catalog file  
-   `scripts/gold/signal/catalogs/signal_<name>.md`
+   `scripts/gold/signal/catalogs/sig_<name>.md`
 5. Catalog index registration in  
    `scripts/gold/signal/catalogs/README.md`
 
@@ -39,17 +39,17 @@ All five parts are required for a production-ready signal.
 
 ## Naming Contract
 
-1. Signal ID format: `signal_<name>` (snake_case).
+1. Signal ID format: `sig_<name>` (snake_case). Prefix must be `sig_` and must not be `signal_`.
 2. SQL and Python filenames must match exactly by `<name>`.
-3. Target table must be `gold.signal_<name>`.
+3. Target table must be `gold.sig_<name>`.
 4. Runner constants must point to matching SQL/table:
-   - `SQL_FILE = ... / signal_<name>.sql`
-   - `TARGET_TABLE = "gold.signal_<name>"`
-5. Catalog filename must be `catalogs/signal_<name>.md`.
+   - `SQL_FILE = ... / sig_<name>.sql`
+   - `TARGET_TABLE = "gold.sig_<name>"`
+5. Catalog filename must be `catalogs/sig_<name>.md`.
 
 ## SQL Contract
 
-1. Signal SQL must be `INSERT INTO gold.signal_<name> ... SELECT ...`.
+1. Signal SQL must be `INSERT INTO gold.sig_<name> ... SELECT ...`.
 2. Signal SQL must not include DDL (`CREATE`, `ALTER`, `DROP`).
 3. Source tables must be schema-qualified (`bronze.*`, `silver.*`, `gold.*`).
 4. `match_id` must be produced and valid (`> 0`, non-null in final rows).
@@ -74,13 +74,13 @@ All five parts are required for a production-ready signal.
 
 1. Executes base gold SQL files from `clickhouse/gold/*.sql`.
 2. Discovers and executes `scripts/gold/scenario/scenario*.py` in sorted order.
-3. Discovers and executes `scripts/gold/signal/runners/signal*.py` in sorted order.
+3. Discovers and executes `scripts/gold/signal/runners/sig*.py` in sorted order.
 4. Supports `--dry-run` for plan/preview mode.
 5. Runs `assert_gold_layer_contracts` after scenario/signal execution.
 
 ## Catalog Contract
 
-Each per-signal file in `scripts/gold/signal/catalogs/signal_<name>.md` must include:
+Each per-signal file in `scripts/gold/signal/catalogs/sig_<name>.md` must include:
 
 1. Purpose
 2. Tactical/statistical logic (threshold rationale)
@@ -94,7 +94,7 @@ Each per-signal file in `scripts/gold/signal/catalogs/signal_<name>.md` must inc
    - `Description`
    - `Reason`
 
-The catalog index (`catalogs/README.md`) must link every active `signal_<name>.md`.
+The catalog index (`catalogs/README.md`) must link every active `sig_<name>.md`.
 
 ## Validation Gate
 
@@ -108,7 +108,7 @@ Minimum operational checks:
 
 1. Any new signal must update:
    - `clickhouse/gold/02_create_signal_tables.sql` (or active DDL file set)
-   - `scripts/gold/signal/catalogs/signal_<name>.md`
+   - `scripts/gold/signal/catalogs/sig_<name>.md`
    - `scripts/gold/signal/catalogs/README.md`
 2. Renaming/deleting a signal requires coordinated changes to:
    - SQL file
