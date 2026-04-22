@@ -357,7 +357,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_possession_passing_death_by_passes (
     opponent_accurate_crosses Int32,
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
-ORDER BY (match_id, triggered_team_id)
+ORDER BY (match_id, ifNull(triggered_team_id, -1))
 PARTITION BY toYYYYMM(match_date);
 
 CREATE TABLE IF NOT EXISTS gold.sig_team_possession_passing_long_ball_desperation (
@@ -400,5 +400,5 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_possession_passing_long_ball_desperatio
     opponent_clearances_conceded Int32,
     inserted_at DateTime DEFAULT now()
 ) ENGINE = ReplacingMergeTree(inserted_at)
-ORDER BY (match_id, triggered_team_id)
+ORDER BY (match_id, ifNull(triggered_team_id, -1))
 PARTITION BY toYYYYMM(match_date);

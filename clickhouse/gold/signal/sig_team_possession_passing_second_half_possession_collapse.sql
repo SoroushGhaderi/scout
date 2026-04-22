@@ -74,7 +74,7 @@ WITH half_stats AS (
         maxIf(coalesce(opposition_half_passes_away, 0), period = 'FirstHalf')  AS fh_opp_half_passes_away,
         maxIf(coalesce(opposition_half_passes_home, 0), period = 'SecondHalf') AS sh_opp_half_passes_home,
         maxIf(coalesce(opposition_half_passes_away, 0), period = 'SecondHalf') AS sh_opp_half_passes_away
-    FROM fotmob.period_stat FINAL
+    FROM silver.period_stat FINAL
     WHERE period IN ('FirstHalf', 'SecondHalf')
     GROUP BY match_id
 )
@@ -147,7 +147,7 @@ SELECT
     h.sh_xg_away                                                       AS opponent_xg_sh,
     -- Net xG swing (bilateral)
     (h.sh_xg_home - h.sh_xg_away) - (h.fh_xg_home - h.fh_xg_away)    AS xg_swing_delta
-FROM fotmob.match FINAL AS m
+FROM silver.match AS m FINAL
 JOIN half_stats h USING (match_id)
 WHERE m.match_finished = 1
   AND (h.sh_poss_home - h.fh_poss_home) < -20
@@ -208,7 +208,7 @@ SELECT
     h.fh_xg_home                                                       AS opponent_xg_fh,
     h.sh_xg_home                                                       AS opponent_xg_sh,
     (h.sh_xg_away - h.sh_xg_home) - (h.fh_xg_away - h.fh_xg_home)    AS xg_swing_delta
-FROM fotmob.match FINAL AS m
+FROM silver.match AS m FINAL
 JOIN half_stats h USING (match_id)
 WHERE m.match_finished = 1
   AND (h.sh_poss_away - h.fh_poss_away) < -20
