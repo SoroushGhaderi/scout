@@ -57,14 +57,11 @@ INSERT INTO gold.sig_team_possession_passing_possession_without_purpose (
     opponent_corners
 )
 -- ============================================================
--- sig_team_possession_passing_possession_without_purpose
--- Signal: A team dominates possession (>65%) yet generates
--- fewer than 2 shots on target across the full match — a clear
--- indicator of sterile, directionless ball circulation that
--- fails to penetrate or threaten the opposition's goal.
--- Enriched with progression, final-third access, xG, passing
--- profile, and opponent defensive context to diagnose *why*
--- possession never translated into meaningful attacking threat.
+-- Signal: sig_team_possession_passing_possession_without_purpose
+-- Intent: Flag teams with >65% possession but <2 shots on
+--         target, exposing sterile control; enrich with passing,
+--         territory, and chance-quality context to explain why
+--         dominance failed to become meaningful threat.
 -- ============================================================
 
 -- Home side triggers the signal

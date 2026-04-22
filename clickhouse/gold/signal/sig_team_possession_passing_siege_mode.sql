@@ -37,13 +37,11 @@ INSERT INTO gold.sig_team_possession_passing_siege_mode (
     xg_delta
 )
 -- ============================================================
--- sig_team_possession_passing_siege_mode
--- Signal: A team sustains >80% ball possession across the full
--- match, indicating a total territorial siege — the opposition
--- is locked into a purely defensive posture with minimal access
--- to the ball. Enriched with passing volume, accuracy, xG
--- conversion, final-third pressure, and progression metrics to
--- distinguish productive dominance from sterile possession.
+-- Signal: sig_team_possession_passing_siege_mode
+-- Intent: Identify teams sustaining >80% possession as a full-
+--         match territorial siege, and evaluate whether that
+--         control was productive via progression, final-third
+--         pressure, and chance-quality outputs.
 -- ============================================================
 
 -- Home side triggers the signal

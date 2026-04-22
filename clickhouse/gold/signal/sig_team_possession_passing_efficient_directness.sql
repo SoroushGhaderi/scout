@@ -61,14 +61,11 @@ INSERT INTO gold.sig_team_possession_passing_efficient_directness (
     opponent_fouls
 )
 -- ============================================================
--- sig_team_possession_passing_efficient_directness
--- Signal: A team generates >5 shots while holding <35%
--- possession — a hallmark of direct, transition-oriented
--- football where ball-winning and rapid vertical progression
--- create threat disproportionate to time on the ball.
--- Enriched with shot quality, directness metrics, transition
--- proxies, and opponent possession context to distinguish
--- clinical counter-attacking from low-possession chaos.
+-- Signal: sig_team_possession_passing_efficient_directness
+-- Intent: Identify teams generating >5 shots with <35%
+--         possession, capturing efficient direct/transition
+--         threat and contrasting it with opponent control via
+--         shot quality, progression, and recovery context.
 -- ============================================================
 
 -- Home side triggers the signal

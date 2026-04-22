@@ -69,17 +69,12 @@ INSERT INTO gold.sig_team_possession_passing_low_block_frustration (
     opponent_fouls
 )
 -- ============================================================
--- sig_team_possession_passing_low_block_frustration
--- Signal: A team attempts >40 crosses in a single match —
--- a strong behavioural indicator that central penetration has
--- been denied by a compact defensive block, forcing the attack
--- to repeatedly route possession wide in search of a way
--- through. High cross volume with low conversion typically
--- exposes a team's inability to find solutions through the
--- middle. Enriched with central penetration proxies, delivery
--- quality, shot output, xG efficiency, and opponent defensive
--- solidity to confirm the block was the cause — not just
--- a stylistic preference.
+-- Signal: sig_team_possession_passing_low_block_frustration
+-- Intent: Detect matches where a team attempts >40 crosses,
+--         indicating central-access denial and wide-overload
+--         frustration; enrich with penetration, chance quality,
+--         and defensive-resistance context to validate low-block
+--         causality versus stylistic crossing.
 -- ============================================================
 
 -- Home side triggers the signal

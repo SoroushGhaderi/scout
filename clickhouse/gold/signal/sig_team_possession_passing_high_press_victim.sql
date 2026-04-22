@@ -19,6 +19,14 @@ INSERT INTO gold.sig_team_possession_passing_high_press_victim (
     own_half_pass_share_home_pct,
     own_half_pass_share_away_pct
 )
+-- ============================================================
+-- Signal: sig_team_possession_passing_high_press_victim
+-- Intent: Detect teams whose full-match pass accuracy falls
+--         below 70%, a marker of high-press disruption and
+--         build-up breakdown, enriched with bilateral pass
+--         volume, accuracy gap, and own-half share context.
+-- ============================================================
+
 SELECT
     match_id,
     match_date,

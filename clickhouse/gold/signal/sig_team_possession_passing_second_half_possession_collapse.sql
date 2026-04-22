@@ -39,9 +39,11 @@ INSERT INTO gold.sig_team_possession_passing_second_half_possession_collapse (
     xg_swing_delta
 )
 -- ============================================================
--- Signal: Team possession drops by >20 pp from 1H → 2H
--- Enrichment: pass volume + accuracy per half (both sides),
---             xG per half as output proxy (bilateral)
+-- Signal: sig_team_possession_passing_second_half_possession_collapse
+-- Intent: Detect teams whose possession drops by >20 percentage
+--         points from first half to second half, with bilateral
+--         pass and xG-half context to classify tactical surrender
+--         versus forced collapse.
 -- ============================================================
 
 WITH half_stats AS (
