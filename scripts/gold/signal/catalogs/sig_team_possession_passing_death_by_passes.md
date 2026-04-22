@@ -26,18 +26,18 @@ python scripts/gold/signal/runners/sig_team_possession_passing_death_by_passes.p
 
 | Column Name | Description | Reason |
 |---|---|---|
-| `match_id` | Unique match identifier | Identifier |
-| `match_date` | Calendar date of the match | Identifier |
-| `home_team_id` | Numeric ID of the home team | Identifier |
-| `home_team_name` | Display name of the home team | Identifier |
-| `away_team_id` | Numeric ID of the away team | Identifier |
-| `away_team_name` | Display name of the away team | Identifier |
-| `home_score` | Home team final goals scored | Identifier |
-| `away_score` | Away team final goals scored | Identifier |
-| `triggered_team_id` | Numeric ID of the team that exceeded 50 box touches; home takes precedence when both trigger | Identifier |
-| `triggered_team_name` | Display name of the triggered team | Identifier |
-| `opponent_team_id` | Numeric ID of the opposing team | Identifier |
-| `opponent_team_name` | Display name of the opposing team | Identifier |
+| `match_id` | Unique match identifier | Identifier — stable match/team reference field |
+| `match_date` | Calendar date of the match | Identifier — stable match/team reference field |
+| `home_team_id` | Numeric ID of the home team | Identifier — stable match/team reference field |
+| `home_team_name` | Display name of the home team | Identifier — stable match/team reference field |
+| `away_team_id` | Numeric ID of the away team | Identifier — stable match/team reference field |
+| `away_team_name` | Display name of the away team | Identifier — stable match/team reference field |
+| `home_score` | Home team final goals scored | Identifier — stable match/team reference field |
+| `away_score` | Away team final goals scored | Identifier — stable match/team reference field |
+| `triggered_team_id` | Numeric ID of the team that exceeded 50 box touches; home takes precedence when both trigger | Identifier — stable match/team reference field |
+| `triggered_team_name` | Display name of the triggered team | Identifier — stable match/team reference field |
+| `opponent_team_id` | Numeric ID of the opposing team | Identifier — stable match/team reference field |
+| `opponent_team_name` | Display name of the opposing team | Identifier — stable match/team reference field |
 | `both_sides_triggered` | 1 if both teams independently exceeded the 50-touch threshold in the same match | Context — flags matches where the signal fires bilaterally |
 | `triggered_team_opp_box_touches` | Total opposition-box touches by the triggered team | Signal — core measured signal value for the triggered side |
 | `opponent_opp_box_touches` | Total opposition-box touches by the opponent | Signal — symmetric pair; contextualises whether dominance was one-sided |

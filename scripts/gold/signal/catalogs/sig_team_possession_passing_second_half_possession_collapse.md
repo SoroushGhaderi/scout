@@ -26,19 +26,19 @@ python scripts/gold/signal/runners/sig_team_possession_passing_second_half_posse
 
 | Column Name | Description | Reason |
 |---|---|---|
-| `match_id` | Unique match identifier | Identifier |
-| `match_date` | Calendar date of the match | Identifier |
-| `home_team_id` | Home team numeric ID | Identifier |
-| `home_team_name` | Home team display name | Identifier |
-| `away_team_id` | Away team numeric ID | Identifier |
-| `away_team_name` | Away team display name | Identifier |
+| `match_id` | Unique match identifier | Identifier — stable match/team reference field |
+| `match_date` | Calendar date of the match | Identifier — stable match/team reference field |
+| `home_team_id` | Home team numeric ID | Identifier — stable match/team reference field |
+| `home_team_name` | Home team display name | Identifier — stable match/team reference field |
+| `away_team_id` | Away team numeric ID | Identifier — stable match/team reference field |
+| `away_team_name` | Away team display name | Identifier — stable match/team reference field |
 | `home_score` | Full-time goals scored by home team | Identifier / outcome context |
 | `away_score` | Full-time goals scored by away team | Identifier / outcome context |
 | `triggered_side` | Whether the triggered team was `'home'` or `'away'` | Signal — row orientation label |
-| `triggered_team_id` | Numeric ID of the team that experienced the possession drop | Signal |
-| `triggered_team_name` | Display name of the triggered team | Signal |
-| `opponent_team_id` | Numeric ID of the opposing team | Context |
-| `opponent_team_name` | Display name of the opposing team | Context |
+| `triggered_team_id` | Numeric ID of the team that experienced the possession drop | Signal — core trigger field or direct signal context |
+| `triggered_team_name` | Display name of the triggered team | Signal — core trigger field or direct signal context |
+| `opponent_team_id` | Numeric ID of the opposing team | Context — opponent or orientation field for bilateral interpretation |
+| `opponent_team_name` | Display name of the opposing team | Context — opponent or orientation field for bilateral interpretation |
 | `possession_drop_pp` | Percentage-point change in possession: 2H − 1H for the triggered team (always < −20) | **Core signal value** |
 | `triggered_team_poss_fh` | Triggered team's ball possession % in the first half | Signal — baseline possession |
 | `triggered_team_poss_sh` | Triggered team's ball possession % in the second half | Signal — dropped possession |
