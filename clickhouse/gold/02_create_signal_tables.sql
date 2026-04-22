@@ -359,3 +359,46 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_possession_passing_death_by_passes (
 ) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, triggered_team_id)
 PARTITION BY toYYYYMM(match_date);
+
+CREATE TABLE IF NOT EXISTS gold.sig_team_possession_passing_long_ball_desperation (
+    match_id Int32,
+    match_date Date,
+    home_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_id Nullable(Int32),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    score_margin_home_perspective Int32,
+    triggered_team_id Nullable(Int32),
+    triggered_team_name Nullable(String),
+    opponent_team_id Nullable(Int32),
+    opponent_team_name Nullable(String),
+    triggered_team_long_ball_attempts Int32,
+    opponent_long_ball_attempts Int32,
+    long_ball_attempts_delta Int32,
+    triggered_team_accurate_long_balls Int32,
+    opponent_accurate_long_balls Int32,
+    triggered_team_long_ball_accuracy_pct Nullable(Float32),
+    opponent_long_ball_accuracy_pct Nullable(Float32),
+    triggered_team_long_ball_share_pct Nullable(Float32),
+    opponent_long_ball_share_pct Nullable(Float32),
+    triggered_team_pass_accuracy_pct Nullable(Float32),
+    opponent_pass_accuracy_pct Nullable(Float32),
+    triggered_team_possession_pct Float32,
+    opponent_possession_pct Float32,
+    triggered_team_aerials_won Int32,
+    opponent_aerials_won Int32,
+    triggered_team_aerial_success_pct Nullable(Float32),
+    opponent_aerial_success_pct Nullable(Float32),
+    triggered_team_xg Float32,
+    opponent_xg Float32,
+    xg_delta Float32,
+    triggered_team_total_shots Int32,
+    opponent_total_shots Int32,
+    triggered_team_clearances_conceded Int32,
+    opponent_clearances_conceded Int32,
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, triggered_team_id)
+PARTITION BY toYYYYMM(match_date);

@@ -6,6 +6,7 @@ Each signal has its own catalog file in this directory.
 - [sig_team_possession_passing_efficient_directness.md](sig_team_possession_passing_efficient_directness.md)
 - [sig_team_possession_passing_death_by_passes.md](sig_team_possession_passing_death_by_passes.md)
 - [sig_team_possession_passing_low_block_frustration.md](sig_team_possession_passing_low_block_frustration.md)
+- [sig_team_possession_passing_long_ball_desperation.md](sig_team_possession_passing_long_ball_desperation.md)
 - [sig_team_possession_passing_possession_without_purpose.md](sig_team_possession_passing_possession_without_purpose.md)
 - [sig_team_possession_passing_second_half_possession_collapse.md](sig_team_possession_passing_second_half_possession_collapse.md)
 - [sig_team_possession_passing_siege_mode.md](sig_team_possession_passing_siege_mode.md)
