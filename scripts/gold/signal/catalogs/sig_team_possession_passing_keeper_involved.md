@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Detects matches where a goalkeeper records more than 50 touches in a finished match.
+Detect matches where a team goalkeeper records very high involvement in circulation (`> 50` touches), indicating build-up routed heavily through the keeper.
 
 ## Tactical And Statistical Logic
 
-- Trigger condition: goalkeeper touches > 50.
-- Signal name source: `-- === sig_team_possession_passing_keeper_involved ===`
-- Trigger condition source: `-- Detects matches where a goalkeeper records > 50 touches in a finished match.`
+- Signal name source: `-- sig_team_possession_passing_keeper_involved`
+- Trigger condition source: `-- Trigger condition: max goalkeeper touches by team in a finished match > 50.`
+- Triggered rows are team-specific and include bilateral passing/possession context to distinguish controlled deep build-up from press-induced emergency recycling.
 
 ## Technical Assets
 
@@ -25,29 +25,13 @@ python scripts/gold/signal/runners/sig_team_possession_passing_keeper_involved.p
 ## SQL
 
 ```sql
--- === sig_team_possession_passing_keeper_involved ===
--- Detects matches where a goalkeeper records > 50 touches in a finished match.
--- Heavy keeper touch volume signals back-pass dependency, deep build-up routing,
--- or a team unable to circulate ball beyond their own block under press.
--- Enriched bilaterally with possession share, pass accuracy, long ball usage,
--- and own-half pass volume to distinguish tactical choice from defensive necessity.
+-- sig_team_possession_passing_keeper_involved
+-- Trigger condition: max goalkeeper touches by team in a finished match > 50.
+-- Intent: detect keeper-heavy build-up usage and enrich with symmetric passing and possession context.
 
-WITH gk_touches AS (
-    -- Identify the goalkeeper with the highest touch count per match (one GK per team per match)
-    SELECT
-        match_id,
-        team_id,
-        team_name,
-        player_id,
-        player_name,
-        coalesce(touches, 0) AS gk_touches
-    FROM silver.player_match_stat FINAL
-    WHERE is_goalkeeper = 1
-      AND coalesce(touches, 0) > 50
-)
-
+-- Select triggered team rows with required match context and bilateral tactical enrichment.
 SELECT
-    -- ── Identifiers ────────────────────────────────────────────────────────────
+    -- Match identifiers and scoreline context
     m.match_id,
     m.match_date,
     m.home_team_id,
@@ -57,105 +41,202 @@ SELECT
     m.home_score,
     m.away_score,
 
-    -- ── Signal: triggered team & goalkeeper identity ────────────────────────
-    gk.team_id                                               AS triggered_team_id,
-    gk.team_name                                             AS triggered_team_name,
-    gk.player_id                                             AS triggered_gk_player_id,
-    gk.player_name                                           AS triggered_gk_player_name,
-    gk.gk_touches                                            AS sig_team_possession_passing_keeper_involved,
+    -- Triggered team + triggering goalkeeper identifiers
+    gk.gk_team_id AS triggered_team_id,
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        assumeNotNull(m.home_team_name),
+        assumeNotNull(m.away_team_name)
+    ) AS triggered_team_name,
+    gk.triggered_gk_player_id AS triggered_gk_player_id,
+    gk.triggered_gk_player_name AS triggered_gk_player_name,
+    toInt32(gk.gk_touches) AS sig_team_possession_passing_keeper_involved,
 
-    -- ── Opponent identity ───────────────────────────────────────────────────
-    if(gk.team_id = m.home_team_id,
-       assumeNotNull(m.away_team_id),
-       assumeNotNull(m.home_team_id))                        AS opponent_team_id,
-    if(gk.team_id = m.home_team_id,
-       m.away_team_name,
-       m.home_team_name)                                     AS opponent_team_name,
+    -- Opponent team identifiers
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        assumeNotNull(m.away_team_id),
+        assumeNotNull(m.home_team_id)
+    ) AS opponent_team_id,
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        assumeNotNull(m.away_team_name),
+        assumeNotNull(m.home_team_name)
+    ) AS opponent_team_name,
 
-    -- ── Possession share (bilateral) ─────────────────────────────────────────
-    if(gk.team_id = m.home_team_id,
-       coalesce(ps.ball_possession_home, 0),
-       coalesce(ps.ball_possession_away, 0))                 AS triggered_team_possession_pct,
-    if(gk.team_id = m.home_team_id,
-       coalesce(ps.ball_possession_away, 0),
-       coalesce(ps.ball_possession_home, 0))                 AS opponent_possession_pct,
+    -- Possession context (symmetric pair)
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(ps.ball_possession_home, 0),
+        coalesce(ps.ball_possession_away, 0)
+    ) AS triggered_team_possession_pct,
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(ps.ball_possession_away, 0),
+        coalesce(ps.ball_possession_home, 0)
+    ) AS opponent_possession_pct,
 
-    -- ── Pass volume (bilateral) ───────────────────────────────────────────────
-    if(gk.team_id = m.home_team_id,
-       coalesce(ps.pass_attempts_home, 0),
-       coalesce(ps.pass_attempts_away, 0))                   AS triggered_team_pass_attempts,
-    if(gk.team_id = m.home_team_id,
-       coalesce(ps.pass_attempts_away, 0),
-       coalesce(ps.pass_attempts_home, 0))                   AS opponent_pass_attempts,
+    -- Pass volume context (symmetric pair)
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(ps.pass_attempts_home, 0),
+        coalesce(ps.pass_attempts_away, 0)
+    ) AS triggered_team_pass_attempts,
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(ps.pass_attempts_away, 0),
+        coalesce(ps.pass_attempts_home, 0)
+    ) AS opponent_pass_attempts,
 
-    -- ── Pass accuracy % (bilateral) ──────────────────────────────────────────
-    if(gk.team_id = m.home_team_id,
-       if(coalesce(ps.pass_attempts_home, 0) > 0,
-          round(coalesce(ps.accurate_passes_home, 0) * 100.0
-                / coalesce(ps.pass_attempts_home, 1), 1), 0),
-       if(coalesce(ps.pass_attempts_away, 0) > 0,
-          round(coalesce(ps.accurate_passes_away, 0) * 100.0
-                / coalesce(ps.pass_attempts_away, 1), 1), 0)) AS triggered_team_pass_accuracy_pct,
-    if(gk.team_id = m.home_team_id,
-       if(coalesce(ps.pass_attempts_away, 0) > 0,
-          round(coalesce(ps.accurate_passes_away, 0) * 100.0
-                / coalesce(ps.pass_attempts_away, 1), 1), 0),
-       if(coalesce(ps.pass_attempts_home, 0) > 0,
-          round(coalesce(ps.accurate_passes_home, 0) * 100.0
-                / coalesce(ps.pass_attempts_home, 1), 1), 0)) AS opponent_pass_accuracy_pct,
+    -- Pass execution quality (symmetric pair)
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(
+            round(
+                100.0 * coalesce(ps.accurate_passes_home, 0)
+                / nullIf(coalesce(ps.pass_attempts_home, 0), 0),
+                1
+            ),
+            0.0
+        ),
+        coalesce(
+            round(
+                100.0 * coalesce(ps.accurate_passes_away, 0)
+                / nullIf(coalesce(ps.pass_attempts_away, 0), 0),
+                1
+            ),
+            0.0
+        )
+    ) AS triggered_team_pass_accuracy_pct,
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(
+            round(
+                100.0 * coalesce(ps.accurate_passes_away, 0)
+                / nullIf(coalesce(ps.pass_attempts_away, 0), 0),
+                1
+            ),
+            0.0
+        ),
+        coalesce(
+            round(
+                100.0 * coalesce(ps.accurate_passes_home, 0)
+                / nullIf(coalesce(ps.pass_attempts_home, 0), 0),
+                1
+            ),
+            0.0
+        )
+    ) AS opponent_pass_accuracy_pct,
 
-    -- ── Own-half passes — proxy for deep build-up or press avoidance ────────
-    if(gk.team_id = m.home_team_id,
-       coalesce(ps.own_half_passes_home, 0),
-       coalesce(ps.own_half_passes_away, 0))                 AS triggered_team_own_half_passes,
-    if(gk.team_id = m.home_team_id,
-       coalesce(ps.own_half_passes_away, 0),
-       coalesce(ps.own_half_passes_home, 0))                 AS opponent_own_half_passes,
+    -- Build-up depth context (symmetric pair)
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(ps.own_half_passes_home, 0),
+        coalesce(ps.own_half_passes_away, 0)
+    ) AS triggered_team_own_half_passes,
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(ps.own_half_passes_away, 0),
+        coalesce(ps.own_half_passes_home, 0)
+    ) AS opponent_own_half_passes,
 
-    -- ── Long ball usage (bilateral) — direct ball out from keeper ────────────
-    if(gk.team_id = m.home_team_id,
-       coalesce(ps.long_ball_attempts_home, 0),
-       coalesce(ps.long_ball_attempts_away, 0))              AS triggered_team_long_ball_attempts,
-    if(gk.team_id = m.home_team_id,
-       coalesce(ps.long_ball_attempts_away, 0),
-       coalesce(ps.long_ball_attempts_home, 0))              AS opponent_long_ball_attempts,
+    -- Long-ball release context (symmetric pair)
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(ps.long_ball_attempts_home, 0),
+        coalesce(ps.long_ball_attempts_away, 0)
+    ) AS triggered_team_long_ball_attempts,
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(ps.long_ball_attempts_away, 0),
+        coalesce(ps.long_ball_attempts_home, 0)
+    ) AS opponent_long_ball_attempts,
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(
+            round(
+                100.0 * coalesce(ps.accurate_long_balls_home, 0)
+                / nullIf(coalesce(ps.long_ball_attempts_home, 0), 0),
+                1
+            ),
+            0.0
+        ),
+        coalesce(
+            round(
+                100.0 * coalesce(ps.accurate_long_balls_away, 0)
+                / nullIf(coalesce(ps.long_ball_attempts_away, 0), 0),
+                1
+            ),
+            0.0
+        )
+    ) AS triggered_team_long_ball_accuracy_pct,
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(
+            round(
+                100.0 * coalesce(ps.accurate_long_balls_away, 0)
+                / nullIf(coalesce(ps.long_ball_attempts_away, 0), 0),
+                1
+            ),
+            0.0
+        ),
+        coalesce(
+            round(
+                100.0 * coalesce(ps.accurate_long_balls_home, 0)
+                / nullIf(coalesce(ps.long_ball_attempts_home, 0), 0),
+                1
+            ),
+            0.0
+        )
+    ) AS opponent_long_ball_accuracy_pct,
 
-    if(gk.team_id = m.home_team_id,
-       if(coalesce(ps.long_ball_attempts_home, 0) > 0,
-          round(coalesce(ps.accurate_long_balls_home, 0) * 100.0
-                / coalesce(ps.long_ball_attempts_home, 1), 1), 0),
-       if(coalesce(ps.long_ball_attempts_away, 0) > 0,
-          round(coalesce(ps.accurate_long_balls_away, 0) * 100.0
-                / coalesce(ps.long_ball_attempts_away, 1), 1), 0)) AS triggered_team_long_ball_accuracy_pct,
-    if(gk.team_id = m.home_team_id,
-       if(coalesce(ps.long_ball_attempts_away, 0) > 0,
-          round(coalesce(ps.accurate_long_balls_away, 0) * 100.0
-                / coalesce(ps.long_ball_attempts_away, 1), 1), 0),
-       if(coalesce(ps.long_ball_attempts_home, 0) > 0,
-          round(coalesce(ps.accurate_long_balls_home, 0) * 100.0
-                / coalesce(ps.long_ball_attempts_home, 1), 1), 0)) AS opponent_long_ball_accuracy_pct,
+    -- Bilateral net columns
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(ps.ball_possession_home, 0) - coalesce(ps.ball_possession_away, 0),
+        coalesce(ps.ball_possession_away, 0) - coalesce(ps.ball_possession_home, 0)
+    ) AS possession_delta,
+    if(
+        gk.gk_team_id = assumeNotNull(m.home_team_id),
+        coalesce(ps.pass_attempts_home, 0) - coalesce(ps.pass_attempts_away, 0),
+        coalesce(ps.pass_attempts_away, 0) - coalesce(ps.pass_attempts_home, 0)
+    ) AS pass_attempt_delta
 
-    -- ── Net / delta columns (bilateral by construction) ──────────────────────
-    -- Positive = triggered team dominates possession; negative = under pressure
-    if(gk.team_id = m.home_team_id,
-       coalesce(ps.ball_possession_home, 0) - coalesce(ps.ball_possession_away, 0),
-       coalesce(ps.ball_possession_away, 0) - coalesce(ps.ball_possession_home, 0))
-                                                             AS possession_delta,
+-- Base match context for triggered rows.
+FROM silver.match AS m
 
-    -- Pass attempt gap: large negative delta → triggered team is under severe press
-    if(gk.team_id = m.home_team_id,
-       coalesce(ps.pass_attempts_home, 0) - coalesce(ps.pass_attempts_away, 0),
-       coalesce(ps.pass_attempts_away, 0) - coalesce(ps.pass_attempts_home, 0))
-                                                             AS pass_attempt_delta
+-- Join one goalkeeper trigger per team-match (highest GK touches, then threshold > 50).
+INNER JOIN (
+    SELECT
+        pms.match_id,
+        assumeNotNull(pms.team_id) AS gk_team_id,
+        argMax(pms.player_id, coalesce(pms.touches, 0)) AS triggered_gk_player_id,
+        argMax(pms.player_name, coalesce(pms.touches, 0)) AS triggered_gk_player_name,
+        max(coalesce(pms.touches, 0)) AS gk_touches
+    FROM silver.player_match_stat AS pms
+    WHERE pms.is_goalkeeper = 1
+      AND pms.team_id IS NOT NULL
+    GROUP BY
+        pms.match_id,
+        assumeNotNull(pms.team_id)
+    HAVING max(coalesce(pms.touches, 0)) > 50
+) AS gk
+    ON gk.match_id = m.match_id
 
-FROM silver.match FINAL AS m
-INNER JOIN gk_touches AS gk
-        ON gk.match_id = m.match_id
-LEFT JOIN silver.period_stat FINAL AS ps
-       ON ps.match_id = m.match_id
-      AND ps.period   = 'All'
+-- Join full-match period stats for tactical enrichment.
+LEFT JOIN silver.period_stat AS ps
+    ON ps.match_id = m.match_id
+   AND ps.match_date = m.match_date
+   AND ps.period = 'All'
+
+-- Restrict to finished matches.
 WHERE m.match_finished = 1
-ORDER BY gk.gk_touches DESC
+
+-- Strongest keeper-involvement cases first.
+ORDER BY
+    assumeNotNull(gk.gk_touches) DESC,
+    m.match_date DESC,
+    m.match_id DESC;
 ```
 
 ## Output Schema
