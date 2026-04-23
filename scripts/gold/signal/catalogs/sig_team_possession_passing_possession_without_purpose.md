@@ -26,59 +26,59 @@ python scripts/gold/signal/runners/sig_team_possession_passing_possession_withou
 
 | Column Name | Description | Reason |
 |---|---|---|
-| `match_id` | Unique match identifier | Identifier — stable match/team reference field |
-| `match_date` | Date the match was played | Identifier — stable match/team reference field |
-| `home_team_id` | ID of the home team | Identifier — stable match/team reference field |
-| `home_team_name` | Name of the home team | Identifier — stable match/team reference field |
-| `away_team_id` | ID of the away team | Identifier — stable match/team reference field |
-| `away_team_name` | Name of the away team | Identifier — stable match/team reference field |
-| `home_score` | Goals scored by the home team | Identifier — stable match/team reference field |
-| `away_score` | Goals scored by the away team | Identifier — stable match/team reference field |
-| `triggered_side` | Which side (`home` / `away`) fired the signal | Signal — core trigger field or direct signal context |
-| `triggered_team_id` | ID of the team holding >65% possession | Signal — core trigger field or direct signal context |
-| `triggered_team_name` | Name of the team holding >65% possession | Signal — core trigger field or direct signal context |
-| `opponent_team_id` | ID of the opposition team | Context — opponent or orientation field for bilateral interpretation |
-| `opponent_team_name` | Name of the opposition team | Context — opponent or orientation field for bilateral interpretation |
-| `triggered_team_possession_pct` | Full-match possession % of the triggered team | Signal — core trigger field or direct signal context |
-| `opponent_possession_pct` | Full-match possession % of the opponent | Context — opponent or orientation field for bilateral interpretation |
-| `triggered_team_shots_on_target` | Shots on target for triggered team — primary scarcity metric | Signal — core trigger field or direct signal context |
-| `opponent_shots_on_target` | Shots on target for opponent — threat generated from low possession | Signal — core trigger field or direct signal context |
-| `triggered_team_pass_attempts` | Total pass attempts by triggered team — circulation volume | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_pass_attempts` | Total pass attempts by opponent — suppression context | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_accurate_passes` | Accurate passes by triggered team — technical execution | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_accurate_passes` | Accurate passes by opponent | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_pass_acc_pct` | Pass accuracy % of triggered team — whether ball was kept cleanly | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_pass_acc_pct` | Pass accuracy % of opponent | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_opp_half_passes` | Passes completed in opponent's half — forward intent of possession | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_opp_half_passes` | Opponent passes in triggered team's half | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_touches_opp_box` | Touches in opponent's penalty box — true final-third penetration | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_touches_opp_box` | Opponent touches in triggered team's box | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_total_shots` | Total shots taken — attempt volume regardless of quality | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_total_shots` | Total shots taken by opponent | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_big_chances` | Big chances created — whether high-quality openings existed | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_big_chances` | Big chances created by opponent | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_big_chances_missed` | Big chances squandered by triggered team | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_big_chances_missed` | Big chances squandered by opponent | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_xg` | Total xG for triggered team — expected threat from all shots | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_xg` | Total xG for opponent | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_xg_open_play` | Open-play xG for triggered team — threat from structured build-up | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_xg_open_play` | Open-play xG for opponent | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `xg_delta` | xG difference (triggered − opponent) — net expected threat advantage | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_cross_attempts` | Cross attempts by triggered team — use of wide channels | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_cross_attempts` | Cross attempts by opponent | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_accurate_crosses` | Accurate crosses by triggered team — quality of wide delivery | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_accurate_crosses` | Accurate crosses by opponent | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_long_ball_attempts` | Long ball attempts by triggered team — direct progression tried | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_long_ball_attempts` | Long ball attempts by opponent | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_accurate_long_balls` | Accurate long balls by triggered team — effectiveness of direct play | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_accurate_long_balls` | Accurate long balls by opponent | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_interceptions` | Interceptions by triggered team — defensive activity when out of possession | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_interceptions` | Interceptions by opponent — active disruption of triggered team's build-up | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_clearances` | Clearances by triggered team | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_clearances` | Clearances by opponent — volume of last-ditch defensive actions | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_tackles_won` | Tackles won by triggered team | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_tackles_won` | Tackles won by opponent — contested duels won defensively | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_shot_blocks` | Shot blocks by triggered team — defensive exposure on opponent breaks | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_shot_blocks` | Shot blocks by opponent — physical suppression of triggered team's rare attempts | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_corners` | Corners won by triggered team — indirect proxy for box pressure | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `opponent_corners` | Corners won by opponent | Enrichment — diagnostic context for interpreting signal quality and cause |
+| `match_id` | Unique match identifier | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `match_date` | Date the match was played | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `home_team_id` | ID of the home team | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `home_team_name` | Name of the home team | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `away_team_id` | ID of the away team | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `away_team_name` | Name of the away team | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `home_score` | Goals scored by the home team | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `away_score` | Goals scored by the away team | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `triggered_side` | Which side (`home` / `away`) fired the signal | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
+| `triggered_team_id` | ID of the team holding >65% possession | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
+| `triggered_team_name` | Name of the team holding >65% possession | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
+| `opponent_team_id` | ID of the opposition team | Football developer: provides side/opponent orientation so tactical readings are not misattributed — opponent or orientation field for bilateral interpretation |
+| `opponent_team_name` | Name of the opposition team | Football developer: provides side/opponent orientation so tactical readings are not misattributed — opponent or orientation field for bilateral interpretation |
+| `triggered_team_possession_pct` | Full-match possession % of the triggered team | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
+| `opponent_possession_pct` | Full-match possession % of the opponent | Football developer: provides side/opponent orientation so tactical readings are not misattributed — opponent or orientation field for bilateral interpretation |
+| `triggered_team_shots_on_target` | Shots on target for triggered team — primary scarcity metric | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
+| `opponent_shots_on_target` | Shots on target for opponent — threat generated from low possession | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
+| `triggered_team_pass_attempts` | Total pass attempts by triggered team — circulation volume | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_pass_attempts` | Total pass attempts by opponent — suppression context | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_accurate_passes` | Accurate passes by triggered team — technical execution | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_accurate_passes` | Accurate passes by opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_pass_acc_pct` | Pass accuracy % of triggered team — whether ball was kept cleanly | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_pass_acc_pct` | Pass accuracy % of opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_opp_half_passes` | Passes completed in opponent's half — forward intent of possession | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_opp_half_passes` | Opponent passes in triggered team's half | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_touches_opp_box` | Touches in opponent's penalty box — true final-third penetration | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_touches_opp_box` | Opponent touches in triggered team's box | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_total_shots` | Total shots taken — attempt volume regardless of quality | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_total_shots` | Total shots taken by opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_big_chances` | Big chances created — whether high-quality openings existed | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_big_chances` | Big chances created by opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_big_chances_missed` | Big chances squandered by triggered team | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_big_chances_missed` | Big chances squandered by opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_xg` | Total xG for triggered team — expected threat from all shots | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_xg` | Total xG for opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_xg_open_play` | Open-play xG for triggered team — threat from structured build-up | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_xg_open_play` | Open-play xG for opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `xg_delta` | xG difference (triggered − opponent) — net expected threat advantage | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_cross_attempts` | Cross attempts by triggered team — use of wide channels | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_cross_attempts` | Cross attempts by opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_accurate_crosses` | Accurate crosses by triggered team — quality of wide delivery | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_accurate_crosses` | Accurate crosses by opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_long_ball_attempts` | Long ball attempts by triggered team — direct progression tried | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_long_ball_attempts` | Long ball attempts by opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_accurate_long_balls` | Accurate long balls by triggered team — effectiveness of direct play | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_accurate_long_balls` | Accurate long balls by opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_interceptions` | Interceptions by triggered team — defensive activity when out of possession | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_interceptions` | Interceptions by opponent — active disruption of triggered team's build-up | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_clearances` | Clearances by triggered team | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_clearances` | Clearances by opponent — volume of last-ditch defensive actions | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_tackles_won` | Tackles won by triggered team | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_tackles_won` | Tackles won by opponent — contested duels won defensively | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_shot_blocks` | Shot blocks by triggered team — defensive exposure on opponent breaks | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_shot_blocks` | Shot blocks by opponent — physical suppression of triggered team's rare attempts | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_corners` | Corners won by triggered team — indirect proxy for box pressure | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_corners` | Corners won by opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |

@@ -22,224 +22,51 @@ Detects matches where a team records high opponent-box touch volume without conv
 python scripts/gold/signal/runners/sig_team_possession_passing_failed_penetration.py
 ```
 
-## SQL
-
-```sql
--- === sig_team_possession_passing_failed_penetration ===
--- Detects matches where a team achieves >= 30 touches in the opponent penalty box
--- yet records < 5 shots from inside the box — indicating high territorial penetration
--- without the cutting edge to generate meaningful shooting opportunities.
--- Signals final-third decision-making failure: overcrowding, crossing dependency,
--- or defensive compactness neutralising presence despite positional dominance.
-
-WITH candidates AS (
-    -- Unpivot home / away into one triggered row per qualifying team
-    SELECT
-        ps.match_id,
-        'home'                                                       AS triggered_side,
-        coalesce(ps.touches_opp_box_home,      0)                   AS triggered_touches_opp_box,
-        coalesce(ps.shots_inside_box_home,      0)                   AS triggered_shots_inside_box,
-        coalesce(ps.total_shots_home,           0)                   AS triggered_total_shots,
-        coalesce(ps.expected_goals_home,        0)                   AS triggered_xg,
-        coalesce(ps.big_chances_home,           0)                   AS triggered_big_chances,
-        coalesce(ps.big_chances_missed_home,    0)                   AS triggered_big_chances_missed,
-        coalesce(ps.accurate_crosses_home,      0)                   AS triggered_accurate_crosses,
-        coalesce(ps.cross_attempts_home,        0)                   AS triggered_cross_attempts,
-        coalesce(ps.dribbles_succeeded_home,    0)                   AS triggered_dribbles_succeeded,
-        coalesce(ps.dribble_attempts_home,      0)                   AS triggered_dribble_attempts,
-        coalesce(ps.opposition_half_passes_home,0)                   AS triggered_opp_half_passes,
-        coalesce(ps.corners_home,               0)                   AS triggered_corners,
-        -- Opponent symmetric values
-        coalesce(ps.touches_opp_box_away,      0)                   AS opponent_touches_opp_box,
-        coalesce(ps.shots_inside_box_away,      0)                   AS opponent_shots_inside_box,
-        coalesce(ps.total_shots_away,           0)                   AS opponent_total_shots,
-        coalesce(ps.expected_goals_away,        0)                   AS opponent_xg,
-        coalesce(ps.big_chances_away,           0)                   AS opponent_big_chances,
-        coalesce(ps.big_chances_missed_away,    0)                   AS opponent_big_chances_missed,
-        coalesce(ps.accurate_crosses_away,      0)                   AS opponent_accurate_crosses,
-        coalesce(ps.cross_attempts_away,        0)                   AS opponent_cross_attempts,
-        coalesce(ps.dribbles_succeeded_away,    0)                   AS opponent_dribbles_succeeded,
-        coalesce(ps.dribble_attempts_away,      0)                   AS opponent_dribble_attempts,
-        coalesce(ps.opposition_half_passes_away,0)                   AS opponent_opp_half_passes,
-        coalesce(ps.corners_away,               0)                   AS opponent_corners
-    FROM silver.period_stat AS ps
-    WHERE ps.period = 'All'
-      AND coalesce(ps.touches_opp_box_home, 0) >= 30
-      AND coalesce(ps.shots_inside_box_home, 0) < 10
-
-    UNION ALL
-
-    SELECT
-        ps.match_id,
-        'away'                                                       AS triggered_side,
-        coalesce(ps.touches_opp_box_away,      0),
-        coalesce(ps.shots_inside_box_away,      0),
-        coalesce(ps.total_shots_away,           0),
-        coalesce(ps.expected_goals_away,        0),
-        coalesce(ps.big_chances_away,           0),
-        coalesce(ps.big_chances_missed_away,    0),
-        coalesce(ps.accurate_crosses_away,      0),
-        coalesce(ps.cross_attempts_away,        0),
-        coalesce(ps.dribbles_succeeded_away,    0),
-        coalesce(ps.dribble_attempts_away,      0),
-        coalesce(ps.opposition_half_passes_away,0),
-        coalesce(ps.corners_away,               0),
-        -- Opponent symmetric values
-        coalesce(ps.touches_opp_box_home,      0),
-        coalesce(ps.shots_inside_box_home,      0),
-        coalesce(ps.total_shots_home,           0),
-        coalesce(ps.expected_goals_home,        0),
-        coalesce(ps.big_chances_home,           0),
-        coalesce(ps.big_chances_missed_home,    0),
-        coalesce(ps.accurate_crosses_home,      0),
-        coalesce(ps.cross_attempts_home,        0),
-        coalesce(ps.dribbles_succeeded_home,    0),
-        coalesce(ps.dribble_attempts_home,      0),
-        coalesce(ps.opposition_half_passes_home,0),
-        coalesce(ps.corners_home,               0)
-    FROM silver.period_stat AS ps
-    WHERE ps.period = 'All'
-      AND coalesce(ps.touches_opp_box_away, 0) >= 30
-      AND coalesce(ps.shots_inside_box_away, 0) < 10
-)
-
-SELECT
-    -- ── Identifiers ─────────────────────────────────────────────────────────
-    m.match_id,
-    m.match_date,
-    m.home_team_id,
-    m.home_team_name,
-    m.away_team_id,
-    m.away_team_name,
-    m.home_score,
-    m.away_score,
-
-    -- ── Triggered team identity ──────────────────────────────────────────────
-    c.triggered_side                                                         AS triggered_team_side,
-    if(c.triggered_side = 'home', m.home_team_id,   assumeNotNull(m.away_team_id))
-                                                                             AS triggered_team_id,
-    if(c.triggered_side = 'home', m.home_team_name, m.away_team_name)       AS triggered_team_name,
-
-    -- ── Opponent identity ────────────────────────────────────────────────────
-    if(c.triggered_side = 'home', assumeNotNull(m.away_team_id),   m.home_team_id)
-                                                                             AS opponent_team_id,
-    if(c.triggered_side = 'home', m.away_team_name, m.home_team_name)       AS opponent_team_name,
-
-    -- ── Signal: box touches & inside-box shots (core signal pair) ───────────
-    c.triggered_touches_opp_box                                              AS triggered_touches_opp_box,
-    c.triggered_shots_inside_box                                             AS triggered_shots_inside_box,
-    c.opponent_touches_opp_box                                               AS opponent_touches_opp_box,
-    c.opponent_shots_inside_box                                              AS opponent_shots_inside_box,
-
-    -- ── Box entry-to-shot conversion ratio (bilateral) ──────────────────────
-    -- How many box touches were needed to generate each inside-box shot
-    round(if(c.triggered_shots_inside_box > 0,
-             c.triggered_touches_opp_box / c.triggered_shots_inside_box,
-             NULL), 2)                                                       AS triggered_touches_per_box_shot,
-    round(if(c.opponent_shots_inside_box > 0,
-             c.opponent_touches_opp_box / c.opponent_shots_inside_box,
-             NULL), 2)                                                       AS opponent_touches_per_box_shot,
-
-    -- ── Total shot volume (bilateral) ────────────────────────────────────────
-    c.triggered_total_shots                                                  AS triggered_total_shots,
-    c.opponent_total_shots                                                   AS opponent_total_shots,
-
-    -- ── xG (bilateral) — quantifies if presence translated to quality ────────
-    c.triggered_xg                                                           AS triggered_xg,
-    c.opponent_xg                                                            AS opponent_xg,
-
-    -- ── Big chances created and missed (bilateral) ───────────────────────────
-    c.triggered_big_chances                                                  AS triggered_big_chances,
-    c.triggered_big_chances_missed                                           AS triggered_big_chances_missed,
-    c.opponent_big_chances                                                   AS opponent_big_chances,
-    c.opponent_big_chances_missed                                            AS opponent_big_chances_missed,
-
-    -- ── Crossing volume & accuracy (bilateral) — primary failed-penetration route
-    c.triggered_accurate_crosses                                             AS triggered_accurate_crosses,
-    c.triggered_cross_attempts                                               AS triggered_cross_attempts,
-    round(if(c.triggered_cross_attempts > 0,
-             c.triggered_accurate_crosses * 100.0 / c.triggered_cross_attempts, 0), 1)
-                                                                             AS triggered_cross_accuracy_pct,
-    c.opponent_accurate_crosses                                              AS opponent_accurate_crosses,
-    c.opponent_cross_attempts                                                AS opponent_cross_attempts,
-    round(if(c.opponent_cross_attempts > 0,
-             c.opponent_accurate_crosses * 100.0 / c.opponent_cross_attempts, 0), 1)
-                                                                             AS opponent_cross_accuracy_pct,
-
-    -- ── Dribble success (bilateral) — individual carrying into box ───────────
-    c.triggered_dribbles_succeeded                                           AS triggered_dribbles_succeeded,
-    c.triggered_dribble_attempts                                             AS triggered_dribble_attempts,
-    c.opponent_dribbles_succeeded                                            AS opponent_dribbles_succeeded,
-    c.opponent_dribble_attempts                                              AS opponent_dribble_attempts,
-
-    -- ── Opposition-half passing volume (bilateral) — measures sustained pressure phase
-    c.triggered_opp_half_passes                                              AS triggered_opp_half_passes,
-    c.opponent_opp_half_passes                                               AS opponent_opp_half_passes,
-
-    -- ── Corners (bilateral) — often product of failed box entries ────────────
-    c.triggered_corners                                                      AS triggered_corners,
-    c.opponent_corners                                                       AS opponent_corners,
-
-    -- ── Net / delta columns (bilateral by construction) ─────────────────────
-    -- Positive = triggered team outpressed in final third
-    (c.triggered_touches_opp_box - c.opponent_touches_opp_box)              AS box_touch_delta,
-    -- Positive = triggered team generated more xG despite shot failure
-    round(c.triggered_xg - c.opponent_xg, 3)                                AS xg_delta,
-    -- Positive = triggered team forced more corner situations
-    (c.triggered_corners - c.opponent_corners)                               AS corners_delta
-
-FROM silver.match AS m
-INNER JOIN candidates AS c
-        ON c.match_id = m.match_id
-WHERE m.match_finished = 1
-ORDER BY c.triggered_touches_opp_box DESC
-```
-
 ## Output Schema
 
 | Column Name | Description | Reason |
 |---|---|---|
-| `match_id` | Unique match identifier | Identifier |
-| `match_date` | Calendar date the match was played | Identifier |
-| `home_team_id` | Numeric ID of the home team | Identifier |
-| `home_team_name` | Display name of the home team | Identifier |
-| `away_team_id` | Numeric ID of the away team | Identifier |
-| `away_team_name` | Display name of the away team | Identifier |
-| `home_score` | Full-time goals scored by home team | Identifier |
-| `away_score` | Full-time goals scored by away team | Identifier |
-| `triggered_team_side` | Whether the triggered team played home or away | Context |
-| `triggered_team_id` | Numeric ID of the team that triggered the signal | Signal |
-| `triggered_team_name` | Display name of the triggered team | Signal |
-| `opponent_team_id` | Numeric ID of the opposition | Context |
-| `opponent_team_name` | Display name of the opposition | Context |
-| `triggered_touches_opp_box` | Triggered team's touches in opponent penalty box (≥30 — signal volume) | Signal |
-| `triggered_shots_inside_box` | Inside-box shots by triggered team (<5 — signal failure condition) | Signal |
-| `opponent_touches_opp_box` | Opposition touches in triggered team's penalty box | Enrichment |
-| `opponent_shots_inside_box` | Inside-box shots by the opponent | Enrichment |
-| `triggered_touches_per_box_shot` | Box touches required per inside-box shot for triggered team — measures conversion collapse | Enrichment |
-| `opponent_touches_per_box_shot` | Box touches required per inside-box shot for opponent | Enrichment |
-| `triggered_total_shots` | All shot attempts (inside + outside box) by triggered team | Enrichment |
-| `opponent_total_shots` | All shot attempts by opponent | Enrichment |
-| `triggered_xg` | Expected goals for triggered team — quantifies if box presence yielded actual threat quality | Enrichment |
-| `opponent_xg` | Expected goals for opponent | Enrichment |
-| `triggered_big_chances` | Big chances created by triggered team — highest-quality opportunities generated | Enrichment |
-| `triggered_big_chances_missed` | Big chances squandered by triggered team — measures wastefulness under failed penetration | Enrichment |
-| `opponent_big_chances` | Big chances created by opponent | Enrichment |
-| `opponent_big_chances_missed` | Big chances squandered by opponent | Enrichment |
-| `triggered_accurate_crosses` | Successful crosses delivered by triggered team — primary route when shots are not taken | Enrichment |
-| `triggered_cross_attempts` | Total crossing attempts by triggered team | Enrichment |
-| `triggered_cross_accuracy_pct` | Cross completion rate (%) for triggered team | Enrichment |
-| `opponent_accurate_crosses` | Successful crosses delivered by opponent | Enrichment |
-| `opponent_cross_attempts` | Total crossing attempts by opponent | Enrichment |
-| `opponent_cross_accuracy_pct` | Cross completion rate (%) for opponent | Enrichment |
-| `triggered_dribbles_succeeded` | Successful dribbles by triggered team — individual carry into box as alternative to combination play | Enrichment |
-| `triggered_dribble_attempts` | Total dribble attempts by triggered team | Enrichment |
-| `opponent_dribbles_succeeded` | Successful dribbles by opponent | Enrichment |
-| `opponent_dribble_attempts` | Total dribble attempts by opponent | Enrichment |
-| `triggered_opp_half_passes` | Passes completed in opponent's half by triggered team — measures sustained pressure phase volume | Enrichment |
-| `opponent_opp_half_passes` | Passes completed in opponent's half by the opponent | Enrichment |
-| `triggered_corners` | Corners won by triggered team — often the byproduct of failed final-action delivery into the box | Enrichment |
-| `opponent_corners` | Corners won by opponent | Enrichment |
-| `box_touch_delta` | Triggered team box touches minus opponent box touches — positive = triggered team dominated final-third territory | Enrichment (net) |
-| `xg_delta` | Triggered team xG minus opponent xG — reveals whether territorial dominance translated to expected threat | Enrichment (net) |
-| `corners_delta` | Triggered team corners minus opponent corners — net corner superiority from box-entry attempts | Enrichment (net) |
+| `match_id` | Unique match identifier | Football developer: anchors joins across match, team, and downstream feature tables |
+| `match_date` | Calendar date the match was played | Football developer: anchors joins across match, team, and downstream feature tables |
+| `home_team_id` | Numeric ID of the home team | Football developer: anchors joins across match, team, and downstream feature tables |
+| `home_team_name` | Display name of the home team | Football developer: anchors joins across match, team, and downstream feature tables |
+| `away_team_id` | Numeric ID of the away team | Football developer: anchors joins across match, team, and downstream feature tables |
+| `away_team_name` | Display name of the away team | Football developer: anchors joins across match, team, and downstream feature tables |
+| `home_score` | Full-time goals scored by home team | Football developer: anchors joins across match, team, and downstream feature tables |
+| `away_score` | Full-time goals scored by away team | Football developer: anchors joins across match, team, and downstream feature tables |
+| `triggered_team_side` | Whether the triggered team played home or away | Football developer: provides side/opponent orientation so tactical readings are not misattributed |
+| `triggered_team_id` | Numeric ID of the team that triggered the signal | Football developer: this is the direct trigger metric used to classify the tactical pattern |
+| `triggered_team_name` | Display name of the triggered team | Football developer: this is the direct trigger metric used to classify the tactical pattern |
+| `opponent_team_id` | Numeric ID of the opposition | Football developer: provides side/opponent orientation so tactical readings are not misattributed |
+| `opponent_team_name` | Display name of the opposition | Football developer: provides side/opponent orientation so tactical readings are not misattributed |
+| `triggered_touches_opp_box` | Triggered team's touches in opponent penalty box (≥30 — signal volume) | Football developer: this is the direct trigger metric used to classify the tactical pattern |
+| `triggered_shots_inside_box` | Inside-box shots by triggered team (<5 — signal failure condition) | Football developer: this is the direct trigger metric used to classify the tactical pattern |
+| `opponent_touches_opp_box` | Opposition touches in triggered team's penalty box | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_shots_inside_box` | Inside-box shots by the opponent | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_touches_per_box_shot` | Box touches required per inside-box shot for triggered team — measures conversion collapse | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_touches_per_box_shot` | Box touches required per inside-box shot for opponent | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_total_shots` | All shot attempts (inside + outside box) by triggered team | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_total_shots` | All shot attempts by opponent | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_xg` | Expected goals for triggered team — quantifies if box presence yielded actual threat quality | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_xg` | Expected goals for opponent | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_big_chances` | Big chances created by triggered team — highest-quality opportunities generated | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_big_chances_missed` | Big chances squandered by triggered team — measures wastefulness under failed penetration | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_big_chances` | Big chances created by opponent | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_big_chances_missed` | Big chances squandered by opponent | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_accurate_crosses` | Successful crosses delivered by triggered team — primary route when shots are not taken | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_cross_attempts` | Total crossing attempts by triggered team | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_cross_accuracy_pct` | Cross completion rate (%) for triggered team | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_accurate_crosses` | Successful crosses delivered by opponent | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_cross_attempts` | Total crossing attempts by opponent | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_cross_accuracy_pct` | Cross completion rate (%) for opponent | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_dribbles_succeeded` | Successful dribbles by triggered team — individual carry into box as alternative to combination play | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_dribble_attempts` | Total dribble attempts by triggered team | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_dribbles_succeeded` | Successful dribbles by opponent | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_dribble_attempts` | Total dribble attempts by opponent | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_opp_half_passes` | Passes completed in opponent's half by triggered team — measures sustained pressure phase volume | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_opp_half_passes` | Passes completed in opponent's half by the opponent | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_corners` | Corners won by triggered team — often the byproduct of failed final-action delivery into the box | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_corners` | Corners won by opponent | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `box_touch_delta` | Triggered team box touches minus opponent box touches — positive = triggered team dominated final-third territory | Football developer: adds diagnostic football context to explain why the trigger fired (net) |
+| `xg_delta` | Triggered team xG minus opponent xG — reveals whether territorial dominance translated to expected threat | Football developer: adds diagnostic football context to explain why the trigger fired (net) |
+| `corners_delta` | Triggered team corners minus opponent corners — net corner superiority from box-entry attempts | Football developer: adds diagnostic football context to explain why the trigger fired (net) |

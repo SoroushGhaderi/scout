@@ -11,7 +11,7 @@ INSERT INTO gold.sig_team_possession_passing_keeper_involved (
     triggered_team_name,
     triggered_gk_player_id,
     triggered_gk_player_name,
-    sig_team_possession_passing_keeper_involved,
+    triggered_team_gk_touches,
     opponent_team_id,
     opponent_team_name,
     triggered_team_possession_pct,
@@ -29,8 +29,8 @@ INSERT INTO gold.sig_team_possession_passing_keeper_involved (
     possession_delta,
     pass_attempt_delta
 )
--- sig_team_possession_passing_keeper_involved
--- Trigger condition: max goalkeeper touches by team in a finished match > 50.
+-- Signal: sig_team_possession_passing_keeper_involved
+-- Trigger: max goalkeeper touches by team in a finished match > 50.
 -- Intent: detect keeper-heavy build-up usage and enrich with symmetric passing and possession context.
 
 -- Select triggered team rows with required match context and bilateral tactical enrichment.
@@ -45,7 +45,7 @@ SELECT
     m.home_score,
     m.away_score,
 
-    -- Triggered team + triggering goalkeeper identifiers
+    -- Triggered team + goalkeeper identifiers.
     gk.gk_team_id AS triggered_team_id,
     if(
         gk.gk_team_id = assumeNotNull(m.home_team_id),
@@ -54,7 +54,7 @@ SELECT
     ) AS triggered_team_name,
     gk.triggered_gk_player_id AS triggered_gk_player_id,
     gk.triggered_gk_player_name AS triggered_gk_player_name,
-    toInt32(gk.gk_touches) AS sig_team_possession_passing_keeper_involved,
+    toInt32(gk.gk_touches) AS triggered_team_gk_touches,
 
     -- Opponent team identifiers
     if(

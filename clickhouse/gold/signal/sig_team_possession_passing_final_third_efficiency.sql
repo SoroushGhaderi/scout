@@ -12,7 +12,6 @@ INSERT INTO gold.sig_team_possession_passing_final_third_efficiency (
     triggered_team_name,
     opponent_team_id,
     opponent_team_name,
-    sig_team_possession_passing_final_third_efficiency,
     triggered_team_goals,
     opponent_goals,
     goal_delta,
@@ -43,8 +42,8 @@ INSERT INTO gold.sig_team_possession_passing_final_third_efficiency (
     triggered_team_opp_half_passes,
     opponent_opp_half_passes
 )
--- sig_team_possession_passing_final_third_efficiency
--- Trigger condition: team goals >= 2 with triggered_team_final_third_entries < 10 (entries proxied by touches_opp_box).
+-- Signal: sig_team_possession_passing_final_third_efficiency
+-- Trigger: team goals >= 2 with triggered_team_final_third_entries < 10 (entries proxied by touches_opp_box).
 -- Intent: detect unusually clinical output where a side scores multiple goals from very few final-third entries.
 
 -- Home-side triggers.
@@ -65,10 +64,6 @@ SELECT
     m.home_team_name AS triggered_team_name,
     m.away_team_id AS opponent_team_id,
     m.away_team_name AS opponent_team_name,
-
-    -- Measured signal value: goals per final-third entry.
-    toFloat32(coalesce(round(coalesce(m.home_score, 0) / greatest(toFloat32(coalesce(ps.touches_opp_box_home, 0)), 1.0), 3), 0.0))
-        AS sig_team_possession_passing_final_third_efficiency,
 
     -- Signal context: scoreline efficiency with final-third-entry proxy.
     coalesce(m.home_score, 0) AS triggered_team_goals,
@@ -158,10 +153,6 @@ SELECT
     m.home_team_id AS opponent_team_id,
     m.home_team_name AS opponent_team_name,
 
-    -- Measured signal value: goals per final-third entry.
-    toFloat32(coalesce(round(coalesce(m.away_score, 0) / greatest(toFloat32(coalesce(ps.touches_opp_box_away, 0)), 1.0), 3), 0.0))
-        AS sig_team_possession_passing_final_third_efficiency,
-
     -- Signal context: scoreline efficiency with final-third-entry proxy.
     coalesce(m.away_score, 0) AS triggered_team_goals,
     coalesce(m.home_score, 0) AS opponent_goals,
@@ -231,6 +222,6 @@ WHERE m.match_finished = 1
 
 -- Prioritize highest scoring efficiency.
 ORDER BY
-    assumeNotNull(sig_team_possession_passing_final_third_efficiency) DESC,
+    assumeNotNull(triggered_team_goals_per_final_third_entry) DESC,
     match_date DESC,
     match_id DESC;

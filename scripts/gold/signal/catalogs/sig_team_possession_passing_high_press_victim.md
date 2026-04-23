@@ -26,22 +26,22 @@ python scripts/gold/signal/runners/sig_team_possession_passing_high_press_victim
 
 | Column Name | Description | Reason |
 |---|---|---|
-| `match_id` | Unique match identifier | Identifier — stable match/team reference field |
-| `match_date` | Date the match was played | Identifier — stable match/team reference field |
-| `home_team_id` | Home team ID | Identifier — stable match/team reference field |
-| `home_team_name` | Home team name | Identifier — stable match/team reference field |
-| `away_team_id` | Away team ID | Identifier — stable match/team reference field |
-| `away_team_name` | Away team name | Identifier — stable match/team reference field |
-| `home_score` | Full-time home goals | Identifier — stable match/team reference field |
-| `away_score` | Full-time away goals | Identifier — stable match/team reference field |
-| `triggered_side` | Which side triggered the signal (`home`, `away`, `both`) | Signal — core trigger field or direct signal context |
-| `triggered_team_id` | Team ID of the triggered side | Signal — core trigger field or direct signal context |
-| `triggered_team_name` | Team name of the triggered side | Signal — core trigger field or direct signal context |
-| `triggered_pass_accuracy_pct` | Pass accuracy (%) of the triggered team — the core signal value | Signal — core trigger field or direct signal context |
-| `pass_accuracy_home_pct` | Home team pass accuracy (%) across full match | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `pass_accuracy_away_pct` | Away team pass accuracy (%) across full match | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `pass_accuracy_delta_pct` | Absolute accuracy gap between home and away — large delta implies one team imposed the press | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `pass_attempts_home` | Total passes attempted by home team — low volume + low accuracy = severe press domination | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `pass_attempts_away` | Total passes attempted by away team — same rationale | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `own_half_pass_share_home_pct` | Share of home passes played in own half — high value indicates team was pinned back | Enrichment — diagnostic context for interpreting signal quality and cause |
-| `own_half_pass_share_away_pct` | Share of away passes played in own half — same rationale | Enrichment — diagnostic context for interpreting signal quality and cause |
+| `match_id` | Unique match identifier | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `match_date` | Date the match was played | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `home_team_id` | Home team ID | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `home_team_name` | Home team name | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `away_team_id` | Away team ID | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `away_team_name` | Away team name | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `home_score` | Full-time home goals | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `away_score` | Full-time away goals | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
+| `triggered_side` | Which side triggered the signal (`home`, `away`, `both`) | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
+| `triggered_team_id` | Team ID of the triggered side | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
+| `triggered_team_name` | Team name of the triggered side | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
+| `triggered_pass_accuracy_pct` | Pass accuracy (%) of the triggered team — the core signal value | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
+| `pass_accuracy_home_pct` | Home team pass accuracy (%) across full match | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `pass_accuracy_away_pct` | Away team pass accuracy (%) across full match | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `pass_accuracy_delta_pct` | Absolute accuracy gap between home and away — large delta implies one team imposed the press | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `pass_attempts_home` | Total passes attempted by home team — low volume + low accuracy = severe press domination | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `pass_attempts_away` | Total passes attempted by away team — same rationale | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `own_half_pass_share_home_pct` | Share of home passes played in own half — high value indicates team was pinned back | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `own_half_pass_share_away_pct` | Share of away passes played in own half — same rationale | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |

@@ -8,6 +8,7 @@ Each signal has its own catalog file in this directory.
 - [sig_team_possession_passing_keeper_involved.md](sig_team_possession_passing_keeper_involved.md)
 - [sig_team_possession_passing_failed_penetration.md](sig_team_possession_passing_failed_penetration.md)
 - [sig_team_possession_passing_final_third_efficiency.md](sig_team_possession_passing_final_third_efficiency.md)
+- [sig_team_possession_passing_aerial_reliance.md](sig_team_possession_passing_aerial_reliance.md)
 - [sig_team_possession_passing_low_block_frustration.md](sig_team_possession_passing_low_block_frustration.md)
 - [sig_team_possession_passing_long_ball_desperation.md](sig_team_possession_passing_long_ball_desperation.md)
 - [sig_team_possession_passing_possession_without_purpose.md](sig_team_possession_passing_possession_without_purpose.md)

@@ -12,7 +12,6 @@ INSERT INTO gold.sig_team_possession_passing_sterile_dominance (
     triggered_team_name,
     opponent_team_id,
     opponent_team_name,
-    sig_team_possession_passing_sterile_dominance,
     triggered_team_possession_pct,
     opponent_possession_pct,
     possession_delta,
@@ -43,11 +42,11 @@ INSERT INTO gold.sig_team_possession_passing_sterile_dominance (
     triggered_team_opp_half_passes,
     opponent_opp_half_passes
 )
--- sig_team_possession_passing_sterile_dominance
--- Trigger condition: possession > 70 and big_chances = 0 for the triggered team in full-match period stats.
+-- Signal: sig_team_possession_passing_sterile_dominance
+-- Trigger: possession > 70 and big_chances = 0 for the triggered team in full-match period stats.
 -- Intent: identify high-possession teams that fail to generate high-quality chances, with bilateral passing, shooting, and territory context.
 
--- Home side triggers the signal.
+-- Home-side triggers.
 SELECT
     -- Match identifiers.
     m.match_id,
@@ -65,9 +64,6 @@ SELECT
     m.home_team_name AS triggered_team_name,
     m.away_team_id AS opponent_team_id,
     m.away_team_name AS opponent_team_name,
-
-    -- Measured signal value.
-    toFloat32(assumeNotNull(ps.ball_possession_home)) AS sig_team_possession_passing_sterile_dominance,
 
     -- Signal context: possession control.
     toFloat32(assumeNotNull(ps.ball_possession_home)) AS triggered_team_possession_pct,
@@ -128,7 +124,7 @@ WHERE m.match_finished = 1
 
 UNION ALL
 
--- Away side triggers the signal.
+-- Away-side triggers.
 SELECT
     -- Match identifiers.
     m.match_id,
@@ -146,9 +142,6 @@ SELECT
     m.away_team_name AS triggered_team_name,
     m.home_team_id AS opponent_team_id,
     m.home_team_name AS opponent_team_name,
-
-    -- Measured signal value.
-    toFloat32(assumeNotNull(ps.ball_possession_away)) AS sig_team_possession_passing_sterile_dominance,
 
     -- Signal context: possession control.
     toFloat32(assumeNotNull(ps.ball_possession_away)) AS triggered_team_possession_pct,
@@ -209,6 +202,6 @@ WHERE m.match_finished = 1
 
 -- Rank most extreme sterile dominance first.
 ORDER BY
-    assumeNotNull(sig_team_possession_passing_sterile_dominance) DESC,
+    assumeNotNull(triggered_team_possession_pct) DESC,
     match_date DESC,
     match_id DESC;
