@@ -487,3 +487,46 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_possession_passing_failed_penetration (
 ) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, triggered_team_side, ifNull(triggered_team_id, -1))
 PARTITION BY toYYYYMM(match_date);
+
+CREATE TABLE IF NOT EXISTS gold.sig_team_possession_passing_high_tempo_passing (
+    match_id Int32,
+    match_date Date,
+    home_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_id Nullable(Int32),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    home_possession_h1 Float32,
+    home_possession_h2 Float32,
+    away_possession_h1 Float32,
+    away_possession_h2 Float32,
+    home_passes_h1 Int32,
+    home_passes_h2 Int32,
+    away_passes_h1 Int32,
+    away_passes_h2 Int32,
+    home_passes_per_min_h1 Float32,
+    home_passes_per_min_h2 Float32,
+    away_passes_per_min_h1 Float32,
+    away_passes_per_min_h2 Float32,
+    home_peak_passes_per_min Float32,
+    away_peak_passes_per_min Float32,
+    home_accurate_passes_total Int32,
+    away_accurate_passes_total Int32,
+    home_pass_attempts_total Int32,
+    away_pass_attempts_total Int32,
+    home_pass_accuracy_pct Nullable(Float32),
+    away_pass_accuracy_pct Nullable(Float32),
+    pass_accuracy_delta_home_minus_away Nullable(Float32),
+    home_opposition_half_passes Int32,
+    away_opposition_half_passes Int32,
+    home_own_half_passes Int32,
+    away_own_half_passes Int32,
+    home_opp_half_pass_pct Nullable(Float32),
+    away_opp_half_pass_pct Nullable(Float32),
+    triggered_team_side LowCardinality(String),
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, triggered_team_side)
+PARTITION BY toYYYYMM(match_date);
+

@@ -12,6 +12,7 @@ Each signal has its own catalog file in this directory.
 - [sig_team_possession_passing_possession_without_purpose.md](sig_team_possession_passing_possession_without_purpose.md)
 - [sig_team_possession_passing_second_half_possession_collapse.md](sig_team_possession_passing_second_half_possession_collapse.md)
 - [sig_team_possession_passing_siege_mode.md](sig_team_possession_passing_siege_mode.md)
+- [sig_team_possession_passing_high_tempo_passing.md](sig_team_possession_passing_high_tempo_passing.md)
 
 Each per-signal catalog includes:
 
