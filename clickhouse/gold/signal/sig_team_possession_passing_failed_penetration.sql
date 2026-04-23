@@ -44,6 +44,9 @@ INSERT INTO gold.sig_team_possession_passing_failed_penetration (
     xg_delta,
     corners_delta
 )
+-- Signal: sig_team_possession_passing_failed_penetration
+-- Trigger: touches_opp_box >= 30 with shots_inside_box < 10 for the triggered side.
+-- Intent: identify territorial dominance that fails to become high-quality box shooting output.
 -- === sig_team_possession_passing_failed_penetration ===
 -- Detects matches where a team achieves >= 30 touches in the opponent penalty box
 -- yet records < 5 shots from inside the box — indicating high territorial penetration
@@ -211,4 +214,5 @@ FROM silver.match AS m
 INNER JOIN candidates AS c
         ON c.match_id = m.match_id
 WHERE m.match_finished = 1
+  AND m.match_id > 0
 ORDER BY c.triggered_touches_opp_box DESC;

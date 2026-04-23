@@ -129,6 +129,7 @@ INNER JOIN silver.period_stat AS ps
 
 -- Apply home-side trigger.
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND coalesce(m.home_score, 0) >= 2
   AND coalesce(ps.touches_opp_box_home, 0) < 10
 
@@ -217,6 +218,7 @@ INNER JOIN silver.period_stat AS ps
 
 -- Apply away-side trigger.
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND coalesce(m.away_score, 0) >= 2
   AND coalesce(ps.touches_opp_box_away, 0) < 10
 

@@ -180,6 +180,7 @@ INNER JOIN silver.period_stat AS ps
     ON  ps.match_id = m.match_id
     AND ps.period   = 'All'
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND coalesce(ps.cross_attempts_home, 0) > 40
 
 UNION ALL
@@ -278,6 +279,7 @@ INNER JOIN silver.period_stat AS ps
     ON  ps.match_id = m.match_id
     AND ps.period   = 'All'
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND coalesce(ps.cross_attempts_away, 0) > 40
 
 ORDER BY match_date DESC, match_id;

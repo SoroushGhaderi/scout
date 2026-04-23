@@ -235,6 +235,7 @@ LEFT JOIN silver.period_stat AS ps
 
 -- Restrict to finished matches.
 WHERE m.match_finished = 1
+  AND m.match_id > 0
 
 -- Strongest keeper-involvement cases first.
 ORDER BY

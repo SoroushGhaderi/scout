@@ -115,7 +115,8 @@ FROM (
     FROM silver.match AS m
     INNER JOIN silver.period_stat AS ps
         ON m.match_id = ps.match_id
-    WHERE m.match_finished = 1                                                                              -- completed matches only
+    WHERE m.match_finished = 1
+  AND m.match_id > 0                                                                              -- completed matches only
       AND ps.period = 'All'                                                                                 -- full-match totals
       AND (
           (coalesce(ps.pass_attempts_home, 0) > 0

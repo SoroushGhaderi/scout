@@ -299,6 +299,7 @@ INNER JOIN silver.period_stat AS ps
 
 WHERE
     m.match_finished = 1
+    AND m.match_id > 0
     -- Exclude draws: the signal requires a clearly losing team
     AND coalesce(m.home_score, 0) != coalesce(m.away_score, 0)
     -- Data quality: long-ball attempt data must be present

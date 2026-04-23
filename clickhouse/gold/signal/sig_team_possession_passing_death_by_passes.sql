@@ -288,6 +288,7 @@ INNER JOIN silver.period_stat AS ps
 
 WHERE
     m.match_finished = 1
+    AND m.match_id > 0
     -- Data quality: box touch data must be present for at least one side
     AND (ps.touches_opp_box_home IS NOT NULL OR ps.touches_opp_box_away IS NOT NULL)
     -- Signal filter: at least one team exceeded 50 opposition-box touches

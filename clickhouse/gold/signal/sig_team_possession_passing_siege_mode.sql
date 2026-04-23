@@ -109,6 +109,7 @@ INNER JOIN silver.period_stat AS ps
     ON  ps.match_id = m.match_id
     AND ps.period   = 'All'
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND assumeNotNull(ps.ball_possession_home) > 80
 
 UNION ALL
@@ -170,6 +171,7 @@ INNER JOIN silver.period_stat AS ps
     ON  ps.match_id = m.match_id
     AND ps.period   = 'All'
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND assumeNotNull(ps.ball_possession_away) > 80
 
 ORDER BY match_date DESC, match_id;

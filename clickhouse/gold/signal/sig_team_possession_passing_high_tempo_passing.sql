@@ -36,12 +36,13 @@ INSERT INTO gold.sig_team_possession_passing_high_tempo_passing (
     away_opp_half_pass_pct,
     triggered_team_side
 )
+-- Signal: sig_team_possession_passing_high_tempo_passing
+-- Trigger: peak half passing tempo >= 6.5 passes per minute for at least one side.
+-- Intent: detect high-tempo passing phases and preserve bilateral half-level possession and passing context.
 -- =============================================================================
--- Signal : sig_team_possession_passing_high_tempo_passing
 -- Proxy  : (half passes ÷ 45) as passes-per-minute estimate; threshold ≥ 6.5
 --          (~293 passes/half); measured symmetrically for home and away
 -- Sources: silver.match + silver.period_stat (FirstHalf / SecondHalf only)
--- =============================================================================
 
 SELECT
     -- ── Identifiers ──────────────────────────────────────────────────────────
@@ -142,6 +143,7 @@ INNER JOIN silver.period_stat AS ps
 
 WHERE
     m.match_finished = 1
+    AND m.match_id > 0
     AND ps.period IN ('FirstHalf', 'SecondHalf')
 
 GROUP BY

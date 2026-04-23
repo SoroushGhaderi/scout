@@ -150,6 +150,7 @@ SELECT
 FROM silver.match AS m FINAL
 JOIN half_stats h USING (match_id)
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND (h.sh_poss_home - h.fh_poss_home) < -20
 
 UNION ALL
@@ -211,6 +212,7 @@ SELECT
 FROM silver.match AS m FINAL
 JOIN half_stats h USING (match_id)
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND (h.sh_poss_away - h.fh_poss_away) < -20
 
 ORDER BY assumeNotNull(possession_drop_pp) ASC;

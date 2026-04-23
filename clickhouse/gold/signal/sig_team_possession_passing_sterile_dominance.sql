@@ -119,6 +119,7 @@ INNER JOIN silver.period_stat AS ps
 
 -- Apply signal trigger for home side only.
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND assumeNotNull(ps.ball_possession_home) > 70
   AND coalesce(ps.big_chances_home, 0) = 0
 
@@ -197,6 +198,7 @@ INNER JOIN silver.period_stat AS ps
 
 -- Apply signal trigger for away side only.
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND assumeNotNull(ps.ball_possession_away) > 70
   AND coalesce(ps.big_chances_away, 0) = 0
 

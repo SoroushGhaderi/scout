@@ -151,6 +151,7 @@ INNER JOIN silver.period_stat AS ps
     ON  ps.match_id = m.match_id
     AND ps.period   = 'All'
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND assumeNotNull(ps.ball_possession_home) > 65
   AND coalesce(ps.shots_on_target_home, 0) < 2
 
@@ -234,6 +235,7 @@ INNER JOIN silver.period_stat AS ps
     ON  ps.match_id = m.match_id
     AND ps.period   = 'All'
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND assumeNotNull(ps.ball_possession_away) > 65
   AND coalesce(ps.shots_on_target_away, 0) < 2
 

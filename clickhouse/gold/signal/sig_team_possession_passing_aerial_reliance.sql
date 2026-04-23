@@ -113,6 +113,7 @@ INNER JOIN silver.period_stat AS ps
 
 -- Apply home-side trigger.
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND coalesce(ps.long_ball_attempts_home, 0) >= 20
   AND coalesce(round(100.0 * coalesce(ps.long_ball_attempts_home, 0) / nullIf(coalesce(ps.pass_attempts_home, 0), 0), 1), 0.0) >= 18
   AND coalesce(round(100.0 * coalesce(ps.aerials_won_home, 0) / nullIf(coalesce(ps.aerial_attempts_home, 0), 0), 1), 0.0) > 70
@@ -192,6 +193,7 @@ INNER JOIN silver.period_stat AS ps
 
 -- Apply away-side trigger.
 WHERE m.match_finished = 1
+  AND m.match_id > 0
   AND coalesce(ps.long_ball_attempts_away, 0) >= 20
   AND coalesce(round(100.0 * coalesce(ps.long_ball_attempts_away, 0) / nullIf(coalesce(ps.pass_attempts_away, 0), 0), 1), 0.0) >= 18
   AND coalesce(round(100.0 * coalesce(ps.aerials_won_away, 0) / nullIf(coalesce(ps.aerial_attempts_away, 0), 0), 1), 0.0) > 70

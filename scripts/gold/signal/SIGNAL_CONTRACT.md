@@ -18,6 +18,11 @@ This contract applies to:
 - `scripts/gold/load_clickhouse_scenarios.py`
 - `scripts/gold/signal/catalogs/*.md`
 
+Compatibility note:
+
+- The bulk loader currently supports both `sig_*.py` and legacy `signal_*.py` runner prefixes.
+- New work MUST use `sig_` naming. Legacy `signal_` support exists only for backward compatibility.
+
 ## Core Principles
 
 1. Reproducibility: deterministic logic, explicit filters, stable naming.
@@ -33,6 +38,11 @@ This contract applies to:
 1. `runners/` for executable signal jobs (`sig_*.py`)
 2. `catalogs/` for per-signal documentation (`sig_*.md`)
 3. `SIGNAL_CONTRACT.md` as the governing specification
+
+Operational compatibility:
+
+- `runners/` MAY temporarily include legacy `signal_*.py` files while old jobs are being migrated.
+- New or renamed runners MUST use `sig_*.py`.
 
 ## Signal Package Contract
 
@@ -52,8 +62,8 @@ No package is complete unless all 5 parts are present and consistent.
 2. Prefix MUST be `sig_` only; `signal_` is not allowed.
 3. SQL filename, runner filename, and table suffix MUST match exactly by `<name>`.
 4. Runner constants MUST reference matching assets:
-   - `SQL_FILE = .../sig_<name>.sql`
    - `TARGET_TABLE = "gold.sig_<name>"`
+   - SQL resolution MUST deterministically map runner stem to SQL stem (`sig_<name>.py` -> `sig_<name>.sql`), whether direct-path or controlled recursive lookup is used.
 5. Catalog filename MUST be `catalogs/sig_<name>.md`.
 
 ## Production SQL Contract
@@ -70,16 +80,19 @@ File: `clickhouse/gold/signal/sig_<name>.sql`
 8. Signal value columns MUST be descriptive. Avoid redundant boolean/value columns named exactly like the signal when a richer metric exists.
 9. Header comments MUST appear immediately after the `INSERT` column list:
    - `-- Signal: sig_<name>`
-   - `-- Trigger: ...`
    - `-- Intent: ...`
-10. Clause comment style MUST be consistent across all signal SQL files.
-11. Query shape SHOULD remain simple and consistent across signals. Avoid unnecessary CTE layers and indirection.
-12. Enrichment MUST be domain-relevant, not generic filler:
+10. `-- Trigger: ...` SHOULD be present and explicit when a threshold/rule exists. If omitted, trigger logic MUST still be obvious in SQL predicates.
+11. Clause comment style MUST be consistent within each file and SHOULD be consistent across the signal family.
+12. Query shape SHOULD remain simple and consistent across signals. Avoid unnecessary CTE layers and indirection.
+13. `FINAL` on source tables SHOULD be used only when correctness requires it; if used, add a short comment explaining why the performance trade-off is justified.
+14. Enrichment MUST be domain-relevant, not generic filler:
    - Passing: accuracy differential plus volume
    - Pressing: PPDA or press-success metrics
    - Shooting: xG, shot volume, on-target rate
    - Defending: defensive action counts
-13. Tactical context metrics MUST be symmetric as `triggered_team_*` and `opponent_*` pairs. Unpaired fields are allowed only for explicit net/delta outputs.
+15. Tactical context metrics MUST be symmetric as `triggered_team_*` and `opponent_*` pairs. Unpaired fields are allowed only for explicit net/delta outputs.
+16. Canonical side-orientation field is `triggered_side`. Legacy `triggered_team_side` is tolerated for existing tables, but new signals MUST use `triggered_side`.
+17. If both teams can satisfy a trigger in one match but only one row is emitted, SQL MUST define deterministic precedence (for example home-priority) and expose an explicit bilateral flag (for example `both_sides_triggered`).
 
 ## Analyst Query Contract (Ad-hoc SQL Before Production)
 
@@ -111,6 +124,7 @@ When generating analyst-facing exploratory SQL:
    - exit non-zero on failure
 2. Runner logic MUST NOT embed business SQL inline.
 3. A runner MUST execute only its own signal SQL file.
+4. Runner SQL discovery MUST be deterministic and fail fast when the resolved SQL file is missing.
 
 ## Bulk Execution Contract
 
@@ -118,7 +132,7 @@ When generating analyst-facing exploratory SQL:
 
 1. MUST execute base Gold SQL from `clickhouse/gold/*.sql`.
 2. MUST discover and run `scripts/gold/scenario/scenario*.py` in sorted order.
-3. MUST discover and run `scripts/gold/signal/runners/sig*.py` in sorted order.
+3. MUST discover and run `scripts/gold/signal/runners/sig*.py` in sorted order. It MAY also include legacy `signal*.py` during migration.
 4. MUST support `--dry-run` plan mode.
 5. MUST run `assert_gold_layer_contracts` after scenario and signal execution.
 
@@ -150,12 +164,17 @@ Additional rules:
 
 Before merge or release, run:
 
-1. `python scripts/gold/load_clickhouse_scenarios.py --dry-run`
-2. `python scripts/gold/load_clickhouse_scenarios.py`
+1. `python3 scripts/gold/load_clickhouse_scenarios.py --dry-run`
+2. `python3 scripts/gold/load_clickhouse_scenarios.py`
 3. Verify no Gold-layer contract failures, including:
    - invalid `match_id`
    - missing signal tables
    - runner execution failures
+
+Recommended focused checks:
+
+1. `python3 scripts/gold/load_clickhouse_scenarios.py --part signals --dry-run`
+2. `python3 scripts/gold/load_clickhouse_scenarios.py --part signals`
 
 ## Change Management
 
