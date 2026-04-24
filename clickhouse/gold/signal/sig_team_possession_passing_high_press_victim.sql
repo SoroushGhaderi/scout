@@ -10,9 +10,9 @@ INSERT INTO gold.sig_team_possession_passing_high_press_victim (
     triggered_side,
     triggered_team_id,
     triggered_team_name,
-    triggered_pass_accuracy_pct,
-    pass_accuracy_home_pct,
-    pass_accuracy_away_pct,
+    triggered_team_pass_accuracy_pct,
+    home_pass_accuracy_pct,
+    away_pass_accuracy_pct,
     pass_accuracy_delta_pct,
     pass_attempts_home,
     pass_attempts_away,
@@ -39,9 +39,9 @@ SELECT
     triggered_side,
     triggered_team_id,
     triggered_team_name,
-    triggered_pass_accuracy_pct,
-    pass_accuracy_home_pct,
-    pass_accuracy_away_pct,
+    triggered_team_pass_accuracy_pct,
+    home_pass_accuracy_pct,
+    away_pass_accuracy_pct,
     pass_accuracy_delta_pct,
     pass_attempts_home,
     pass_attempts_away,
@@ -90,11 +90,11 @@ FROM (
             coalesce(ps.accurate_passes_home, 0) / coalesce(ps.pass_attempts_home, 1) < 0.70,
                 coalesce(ps.accurate_passes_home, 0) / coalesce(ps.pass_attempts_home, 1) * 100,
             coalesce(ps.accurate_passes_away, 0) / coalesce(ps.pass_attempts_away, 1) * 100
-        ), 1) AS triggered_pass_accuracy_pct,
+        ), 1) AS triggered_team_pass_accuracy_pct,
 
         -- Enrichment: raw pass accuracy both sides
-        round(coalesce(ps.accurate_passes_home, 0) / nullIf(coalesce(ps.pass_attempts_home, 0), 0) * 100, 1) AS pass_accuracy_home_pct,
-        round(coalesce(ps.accurate_passes_away, 0) / nullIf(coalesce(ps.pass_attempts_away, 0), 0) * 100, 1) AS pass_accuracy_away_pct,
+        round(coalesce(ps.accurate_passes_home, 0) / nullIf(coalesce(ps.pass_attempts_home, 0), 0) * 100, 1) AS home_pass_accuracy_pct,
+        round(coalesce(ps.accurate_passes_away, 0) / nullIf(coalesce(ps.pass_attempts_away, 0), 0) * 100, 1) AS away_pass_accuracy_pct,
 
         -- Enrichment: accuracy gap between sides — large delta suggests one team imposed the press
         round(
@@ -125,5 +125,5 @@ FROM (
           (coalesce(ps.pass_attempts_away, 0) > 0
               AND coalesce(ps.accurate_passes_away, 0) / coalesce(ps.pass_attempts_away, 1) < 0.70)        -- away team below accuracy threshold
       )
-    ORDER BY triggered_pass_accuracy_pct ASC                                                                -- worst accuracy first
+    ORDER BY triggered_team_pass_accuracy_pct ASC                                                                -- worst accuracy first
 );

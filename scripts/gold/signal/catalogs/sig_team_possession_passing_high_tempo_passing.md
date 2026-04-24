@@ -1,3 +1,19 @@
+---
+signal_id: sig_team_possession_passing_high_tempo_passing
+status: active
+entity: team
+family: possession
+subfamily: passing
+grain: match_team
+target_table: gold.sig_team_possession_passing_high_tempo_passing
+sql_path: clickhouse/gold/signal/sig_team_possession_passing_high_tempo_passing.sql
+runner_path: scripts/gold/signal/runners/sig_team_possession_passing_high_tempo_passing.py
+primary_trigger: "peak half passing tempo >= 6.5 passes per minute for at least one side"
+row_identity:
+  - match_id
+  - triggered_side
+version: 1
+---
 # sig_team_possession_passing_high_tempo_passing
 
 ## Purpose
@@ -34,31 +50,31 @@ python scripts/gold/signal/runners/sig_team_possession_passing_high_tempo_passin
 | `away_team_name` | Display name of the away team | Football developer: anchors joins across match, team, and downstream feature tables |
 | `home_score` | Full-time goals scored by home team | Football developer: anchors joins across match, team, and downstream feature tables / result context |
 | `away_score` | Full-time goals scored by away team | Football developer: anchors joins across match, team, and downstream feature tables / result context |
-| `home_possession_h1` | Home team ball possession % in first half | Football developer: provides side/opponent orientation so tactical readings are not misattributed — tempo only means something relative to how long a team holds the ball |
-| `home_possession_h2` | Home team ball possession % in second half | Football developer: provides side/opponent orientation so tactical readings are not misattributed — half-by-half possession shift reveals game state influence |
-| `away_possession_h1` | Away team ball possession % in first half | Football developer: provides side/opponent orientation so tactical readings are not misattributed — symmetric pair to `home_possession_h1` |
-| `away_possession_h2` | Away team ball possession % in second half | Football developer: provides side/opponent orientation so tactical readings are not misattributed — symmetric pair to `home_possession_h2` |
-| `home_passes_h1` | Total passes by home team in first half | Football developer: this is the direct trigger metric used to classify the tactical pattern source — raw numerator for passes-per-min proxy |
-| `home_passes_h2` | Total passes by home team in second half | Football developer: this is the direct trigger metric used to classify the tactical pattern source — detects half-level tempo shift |
-| `away_passes_h1` | Total passes by away team in first half | Football developer: this is the direct trigger metric used to classify the tactical pattern — symmetric pair to `home_passes_h1` |
-| `away_passes_h2` | Total passes by away team in second half | Football developer: this is the direct trigger metric used to classify the tactical pattern — symmetric pair to `home_passes_h2` |
-| `home_passes_per_min_h1` | Home passes ÷ 45 for first half | Football developer: this is the direct trigger metric used to classify the tactical pattern — passes-per-minute proxy, H1 |
-| `home_passes_per_min_h2` | Home passes ÷ 45 for second half | Football developer: this is the direct trigger metric used to classify the tactical pattern — passes-per-minute proxy, H2 |
-| `away_passes_per_min_h1` | Away passes ÷ 45 for first half | Football developer: this is the direct trigger metric used to classify the tactical pattern — symmetric pair to `home_passes_per_min_h1` |
-| `away_passes_per_min_h2` | Away passes ÷ 45 for second half | Football developer: this is the direct trigger metric used to classify the tactical pattern — symmetric pair to `home_passes_per_min_h2` |
-| `home_peak_passes_per_min` | Higher of H1/H2 passes-per-min for home team | Football developer: this is the direct trigger metric used to classify the tactical pattern — single trigger value used in HAVING and ranking |
-| `away_peak_passes_per_min` | Higher of H1/H2 passes-per-min for away team | Football developer: this is the direct trigger metric used to classify the tactical pattern — symmetric pair to `home_peak_passes_per_min` |
+| `home_possession_first_half_pct` | Home team ball possession % in first half | Football developer: provides side/opponent orientation so tactical readings are not misattributed — tempo only means something relative to how long a team holds the ball |
+| `home_possession_second_half_pct` | Home team ball possession % in second half | Football developer: provides side/opponent orientation so tactical readings are not misattributed — half-by-half possession shift reveals game state influence |
+| `away_possession_first_half_pct` | Away team ball possession % in first half | Football developer: provides side/opponent orientation so tactical readings are not misattributed — symmetric pair to `home_possession_first_half_pct` |
+| `away_possession_second_half_pct` | Away team ball possession % in second half | Football developer: provides side/opponent orientation so tactical readings are not misattributed — symmetric pair to `home_possession_second_half_pct` |
+| `home_passes_first_half` | Total passes by home team in first half | Football developer: this is the direct trigger metric used to classify the tactical pattern source — raw numerator for passes-per-min proxy |
+| `home_passes_second_half` | Total passes by home team in second half | Football developer: this is the direct trigger metric used to classify the tactical pattern source — detects half-level tempo shift |
+| `away_passes_first_half` | Total passes by away team in first half | Football developer: this is the direct trigger metric used to classify the tactical pattern — symmetric pair to `home_passes_first_half` |
+| `away_passes_second_half` | Total passes by away team in second half | Football developer: this is the direct trigger metric used to classify the tactical pattern — symmetric pair to `home_passes_second_half` |
+| `home_passes_per_minute_first_half` | Home passes ÷ 45 for first half | Football developer: this is the direct trigger metric used to classify the tactical pattern — passes-per-minute proxy, H1 |
+| `home_passes_per_minute_second_half` | Home passes ÷ 45 for second half | Football developer: this is the direct trigger metric used to classify the tactical pattern — passes-per-minute proxy, H2 |
+| `away_passes_per_minute_first_half` | Away passes ÷ 45 for first half | Football developer: this is the direct trigger metric used to classify the tactical pattern — symmetric pair to `home_passes_per_minute_first_half` |
+| `away_passes_per_minute_second_half` | Away passes ÷ 45 for second half | Football developer: this is the direct trigger metric used to classify the tactical pattern — symmetric pair to `home_passes_per_minute_second_half` |
+| `home_peak_passes_per_minute` | Higher of H1/H2 passes-per-min for home team | Football developer: this is the direct trigger metric used to classify the tactical pattern — single trigger value used in HAVING and ranking |
+| `away_peak_passes_per_minute` | Higher of H1/H2 passes-per-min for away team | Football developer: this is the direct trigger metric used to classify the tactical pattern — symmetric pair to `home_peak_passes_per_minute` |
 | `home_accurate_passes_total` | Successful passes by home team across both halves | Football developer: adds diagnostic football context to explain why the trigger fired — volume without quality is misleading; accurate passes confirm circulation intent |
 | `away_accurate_passes_total` | Successful passes by away team across both halves | Football developer: adds diagnostic football context to explain why the trigger fired — symmetric pair |
 | `home_pass_attempts_total` | Total pass attempts by home team across both halves | Football developer: adds diagnostic football context to explain why the trigger fired — denominator for accuracy; exposes high-volume low-accuracy spam |
 | `away_pass_attempts_total` | Total pass attempts by away team across both halves | Football developer: adds diagnostic football context to explain why the trigger fired — symmetric pair |
 | `home_pass_accuracy_pct` | Accurate ÷ attempted passes % for home team | Football developer: adds diagnostic football context to explain why the trigger fired — distinguishes high-quality tempo from high-risk direct play |
 | `away_pass_accuracy_pct` | Accurate ÷ attempted passes % for away team | Football developer: adds diagnostic football context to explain why the trigger fired — symmetric pair |
-| `pass_accuracy_delta_home_minus_away` | Home pass accuracy % minus away pass accuracy % | Football developer: adds diagnostic football context to explain why the trigger fired — bilateral net; positive = home dominates circulation quality |
+| `home_minus_away_pass_accuracy_delta_pct` | Home pass accuracy % minus away pass accuracy % | Football developer: adds diagnostic football context to explain why the trigger fired — bilateral net; positive = home dominates circulation quality |
 | `home_opposition_half_passes` | Home passes played in the opposition's half | Football developer: adds diagnostic football context to explain why the trigger fired — high tempo in the final third signals aggressive press-and-circulate; distinguishes deep build-up from advanced possession |
 | `away_opposition_half_passes` | Away passes played in the opposition's half | Football developer: adds diagnostic football context to explain why the trigger fired — symmetric pair |
 | `home_own_half_passes` | Home passes played in own half | Football developer: adds diagnostic football context to explain why the trigger fired — high own-half share with high tempo = safety-first build-up rather than progressive intent |
 | `away_own_half_passes` | Away passes played in own half | Football developer: adds diagnostic football context to explain why the trigger fired — symmetric pair |
-| `home_opp_half_pass_pct` | % of home passes played in opposition half | Football developer: adds diagnostic football context to explain why the trigger fired — progressive territory ratio; cross-reference with tempo to classify style archetype |
-| `away_opp_half_pass_pct` | % of away passes played in opposition half | Football developer: adds diagnostic football context to explain why the trigger fired — symmetric pair |
-| `triggered_team_side` | Which side(s) fired the signal: `'home'`, `'away'`, or `'both'` | Football developer: this is the direct trigger metric used to classify the tactical pattern — routes downstream analysis to the correct team for asymmetric comparisons |
+| `home_opposition_half_pass_pct` | % of home passes played in opposition half | Football developer: adds diagnostic football context to explain why the trigger fired — progressive territory ratio; cross-reference with tempo to classify style archetype |
+| `away_opposition_half_pass_pct` | % of away passes played in opposition half | Football developer: adds diagnostic football context to explain why the trigger fired — symmetric pair |
+| `triggered_side` | Which side(s) fired the signal: `'home'`, `'away'`, or `'both'` | Football developer: this is the direct trigger metric used to classify the tactical pattern — routes downstream analysis to the correct team for asymmetric comparisons |

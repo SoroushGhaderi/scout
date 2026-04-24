@@ -1,3 +1,20 @@
+---
+signal_id: sig_player_possession_passing_high_turnover_risk
+status: active
+entity: player
+family: possession
+subfamily: passing
+grain: match_player
+target_table: gold.sig_player_possession_passing_high_turnover_risk
+sql_path: clickhouse/gold/signal/sig_player_possession_passing_high_turnover_risk.sql
+runner_path: scripts/gold/signal/runners/sig_player_possession_passing_high_turnover_risk.py
+primary_trigger: "player loses possession > 25 times in a single match"
+row_identity:
+  - match_id
+  - triggered_player_id
+  - triggered_team_id
+version: 1
+---
 # sig_player_possession_passing_high_turnover_risk
 
 ## Purpose

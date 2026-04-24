@@ -1,3 +1,19 @@
+---
+signal_id: sig_team_possession_passing_long_ball_desperation
+status: active
+entity: team
+family: possession
+subfamily: passing
+grain: match_team
+target_table: gold.sig_team_possession_passing_long_ball_desperation
+sql_path: clickhouse/gold/signal/sig_team_possession_passing_long_ball_desperation.sql
+runner_path: scripts/gold/signal/runners/sig_team_possession_passing_long_ball_desperation.py
+primary_trigger: "match is not drawn and the losing team has `long_ball_attempts > 60`"
+row_identity:
+  - match_id
+  - triggered_team_id
+version: 1
+---
 # sig_team_possession_passing_long_ball_desperation
 
 ## Purpose

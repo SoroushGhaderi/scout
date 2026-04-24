@@ -1,3 +1,19 @@
+---
+signal_id: sig_team_possession_passing_possession_without_purpose
+status: active
+entity: team
+family: possession
+subfamily: passing
+grain: match_team
+target_table: gold.sig_team_possession_passing_possession_without_purpose
+sql_path: clickhouse/gold/signal/sig_team_possession_passing_possession_without_purpose.sql
+runner_path: scripts/gold/signal/runners/sig_team_possession_passing_possession_without_purpose.py
+primary_trigger: "possession above 65% with fewer than 2 shots on target for either home or away side in full-match totals (`period = 'All'`)"
+row_identity:
+  - match_id
+  - triggered_side
+version: 1
+---
 # sig_team_possession_passing_possession_without_purpose
 
 ## Purpose
@@ -47,12 +63,12 @@ python scripts/gold/signal/runners/sig_team_possession_passing_possession_withou
 | `opponent_pass_attempts` | Total pass attempts by opponent — suppression context | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
 | `triggered_team_accurate_passes` | Accurate passes by triggered team — technical execution | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
 | `opponent_accurate_passes` | Accurate passes by opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_pass_acc_pct` | Pass accuracy % of triggered team — whether ball was kept cleanly | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
-| `opponent_pass_acc_pct` | Pass accuracy % of opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_opp_half_passes` | Passes completed in opponent's half — forward intent of possession | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
-| `opponent_opp_half_passes` | Opponent passes in triggered team's half | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
-| `triggered_team_touches_opp_box` | Touches in opponent's penalty box — true final-third penetration | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
-| `opponent_touches_opp_box` | Opponent touches in triggered team's box | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_pass_accuracy_pct` | Pass accuracy % of triggered team — whether ball was kept cleanly | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_pass_accuracy_pct` | Pass accuracy % of opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_opposition_half_passes` | Passes completed in opponent's half — forward intent of possession | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_opposition_half_passes` | Opponent passes in triggered team's half | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_touches_opposition_box` | Touches in opponent's penalty box — true final-third penetration | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `opponent_touches_opposition_box` | Opponent touches in triggered team's box | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
 | `triggered_team_total_shots` | Total shots taken — attempt volume regardless of quality | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
 | `opponent_total_shots` | Total shots taken by opponent | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
 | `triggered_team_big_chances` | Big chances created — whether high-quality openings existed | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |

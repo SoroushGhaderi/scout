@@ -1,3 +1,19 @@
+---
+signal_id: sig_team_possession_passing_death_by_passes
+status: active
+entity: team
+family: possession
+subfamily: passing
+grain: match_team
+target_table: gold.sig_team_possession_passing_death_by_passes
+sql_path: clickhouse/gold/signal/sig_team_possession_passing_death_by_passes.sql
+runner_path: scripts/gold/signal/runners/sig_team_possession_passing_death_by_passes.py
+primary_trigger: "at least one side has `touches_opp_box > 50` on full-match aggregates (`period = 'All'`)"
+row_identity:
+  - match_id
+  - triggered_team_id
+version: 1
+---
 # sig_team_possession_passing_death_by_passes
 
 ## Purpose
@@ -39,13 +55,13 @@ python scripts/gold/signal/runners/sig_team_possession_passing_death_by_passes.p
 | `opponent_team_id` | Numeric ID of the opposing team | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
 | `opponent_team_name` | Display name of the opposing team | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
 | `both_sides_triggered` | 1 if both teams independently exceeded the 50-touch threshold in the same match | Football developer: provides side/opponent orientation so tactical readings are not misattributed — flags matches where the signal fires bilaterally |
-| `triggered_team_opp_box_touches` | Total opposition-box touches by the triggered team | Football developer: this is the direct trigger metric used to classify the tactical pattern — core measured signal value for the triggered side |
-| `opponent_opp_box_touches` | Total opposition-box touches by the opponent | Football developer: this is the direct trigger metric used to classify the tactical pattern — symmetric pair; contextualises whether dominance was one-sided |
-| `opp_box_touches_delta` | Triggered team minus opponent opposition-box touches | Football developer: this is the direct trigger metric used to classify the tactical pattern — bilateral net spatial dominance in the final third |
+| `triggered_team_opposition_box_touches` | Total opposition-box touches by the triggered team | Football developer: this is the direct trigger metric used to classify the tactical pattern — core measured signal value for the triggered side |
+| `opponent_opposition_box_touches` | Total opposition-box touches by the opponent | Football developer: this is the direct trigger metric used to classify the tactical pattern — symmetric pair; contextualises whether dominance was one-sided |
+| `opposition_box_touches_delta` | Triggered team minus opponent opposition-box touches | Football developer: this is the direct trigger metric used to classify the tactical pattern — bilateral net spatial dominance in the final third |
 | `triggered_team_possession_pct` | Ball possession percentage of the triggered team | Football developer: adds diagnostic football context to explain why the trigger fired — sustained box presence should correlate with possession control |
 | `opponent_possession_pct` | Ball possession percentage of the opponent | Football developer: adds diagnostic football context to explain why the trigger fired — symmetric pair; reveals whether opponent was passive or active |
-| `triggered_team_opp_half_passes` | Total passes by the triggered team completed in the opponent's half | Football developer: adds diagnostic football context to explain why the trigger fired — confirms broad advanced territorial operation enabling box penetration |
-| `opponent_opp_half_passes` | Total passes by the opponent completed in the triggered team's half | Football developer: adds diagnostic football context to explain why the trigger fired — symmetric pair; measures opponent's ability to escape their own half |
+| `triggered_team_opposition_half_passes` | Total passes by the triggered team completed in the opponent's half | Football developer: adds diagnostic football context to explain why the trigger fired — confirms broad advanced territorial operation enabling box penetration |
+| `opponent_opposition_half_passes` | Total passes by the opponent completed in the triggered team's half | Football developer: adds diagnostic football context to explain why the trigger fired — symmetric pair; measures opponent's ability to escape their own half |
 | `triggered_team_pass_attempts` | Total pass attempts by the triggered team | Football developer: adds diagnostic football context to explain why the trigger fired — denominates box touches within overall passing activity |
 | `opponent_pass_attempts` | Total pass attempts by the opponent | Football developer: adds diagnostic football context to explain why the trigger fired — symmetric pair; overall passing volume for the defending side |
 | `triggered_team_pass_accuracy_pct` | Pass completion rate of the triggered team as a percentage | Football developer: adds diagnostic football context to explain why the trigger fired — high touch counts with poor accuracy signals chaotic rather than controlled dominance |

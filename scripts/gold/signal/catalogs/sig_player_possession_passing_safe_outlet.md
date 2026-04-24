@@ -1,3 +1,20 @@
+---
+signal_id: sig_player_possession_passing_safe_outlet
+status: active
+entity: player
+family: possession
+subfamily: passing
+grain: match_player
+target_table: gold.sig_player_possession_passing_safe_outlet
+sql_path: clickhouse/gold/signal/sig_player_possession_passing_safe_outlet.sql
+runner_path: scripts/gold/signal/runners/sig_player_possession_passing_safe_outlet.py
+primary_trigger: "player completes > 50 passes with 100% pass accuracy (accurate_passes = total_passes)"
+row_identity:
+  - match_id
+  - triggered_player_id
+  - triggered_team_id
+version: 1
+---
 # sig_player_possession_passing_safe_outlet
 
 ## Purpose

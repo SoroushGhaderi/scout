@@ -1,3 +1,20 @@
+---
+signal_id: sig_player_possession_passing_high_value_provider
+status: active
+entity: player
+family: possession
+subfamily: passing
+grain: match_player
+target_table: gold.sig_player_possession_passing_high_value_provider
+sql_path: clickhouse/gold/signal/sig_player_possession_passing_high_value_provider.sql
+runner_path: scripts/gold/signal/runners/sig_player_possession_passing_high_value_provider.py
+primary_trigger: "player records expected assists (xA) > 1.0 without a registered goal assist"
+row_identity:
+  - match_id
+  - triggered_player_id
+  - triggered_team_id
+version: 1
+---
 # sig_player_possession_passing_high_value_provider
 
 ## Purpose
@@ -49,7 +66,7 @@ python scripts/gold/signal/runners/sig_player_possession_passing_high_value_prov
 | `triggered_player_assists` | Registered assists by triggered player | Football developer: confirms no goal assist was credited (`= 0`) |
 | `triggered_player_chances_created` | Chances created by triggered player | Football developer: volume context behind xA total |
 | `triggered_player_passes_final_third` | Passes into final third by triggered player | Football developer: progression context for chance creation |
-| `triggered_player_touches_opp_box` | Touches in opponent box by triggered player | Football developer: attacking territory context around high-value provision |
+| `triggered_player_touches_opposition_box` | Touches in opponent box by triggered player | Football developer: attacking territory context around high-value provision |
 | `triggered_player_accurate_passes` | Accurate passes by triggered player | Football developer: passing precision context for creator profile |
 | `triggered_player_total_passes` | Total pass attempts by triggered player | Football developer: passing load context for provider role |
 | `triggered_player_pass_accuracy_pct` | Triggered player pass accuracy percentage | Football developer: separates high-value risk-taking from general passing reliability |
@@ -63,7 +80,7 @@ python scripts/gold/signal/runners/sig_player_possession_passing_high_value_prov
 | `opponent_pass_accuracy_pct` | Pass accuracy of opponent team | Football developer: bilateral passing-quality comparator |
 | `triggered_team_possession_pct` | Possession percentage of triggered side | Football developer: control context for chance-creation opportunity volume |
 | `opponent_possession_pct` | Possession percentage of opponent side | Football developer: bilateral possession comparator |
-| `triggered_team_touches_opp_box` | Opponent-box touches by triggered player's team | Football developer: team territorial threat context |
-| `opponent_touches_opp_box` | Opponent-box touches by opponent team | Football developer: bilateral territorial threat comparator |
+| `triggered_team_touches_opposition_box` | Opponent-box touches by triggered player's team | Football developer: team territorial threat context |
+| `opponent_touches_opposition_box` | Opponent-box touches by opponent team | Football developer: bilateral territorial threat comparator |
 | `player_share_of_team_passes_pct` | Triggered player pass attempts as % of team pass attempts | Football developer: quantifies provider involvement in team circulation |
-| `player_share_of_team_touches_opp_box_pct` | Triggered player opponent-box touches as % of team opponent-box touches | Football developer: distinguishes creative delivery from direct penalty-area presence |
+| `player_share_of_team_opposition_box_touches_pct` | Triggered player opponent-box touches as % of team opponent-box touches | Football developer: distinguishes creative delivery from direct penalty-area presence |

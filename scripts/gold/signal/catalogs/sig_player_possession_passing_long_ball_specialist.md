@@ -1,3 +1,20 @@
+---
+signal_id: sig_player_possession_passing_long_ball_specialist
+status: active
+entity: player
+family: possession
+subfamily: passing
+grain: match_player
+target_table: gold.sig_player_possession_passing_long_ball_specialist
+sql_path: clickhouse/gold/signal/sig_player_possession_passing_long_ball_specialist.sql
+runner_path: scripts/gold/signal/runners/sig_player_possession_passing_long_ball_specialist.py
+primary_trigger: "player completes > 8 accurate long balls with > 80% long-ball success rate"
+row_identity:
+  - match_id
+  - triggered_player_id
+  - triggered_team_id
+version: 1
+---
 # sig_player_possession_passing_long_ball_specialist
 
 ## Purpose

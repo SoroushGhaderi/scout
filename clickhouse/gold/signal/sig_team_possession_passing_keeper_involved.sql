@@ -9,9 +9,9 @@ INSERT INTO gold.sig_team_possession_passing_keeper_involved (
     away_score,
     triggered_team_id,
     triggered_team_name,
-    triggered_gk_player_id,
-    triggered_gk_player_name,
-    triggered_team_gk_touches,
+    triggered_goalkeeper_player_id,
+    triggered_goalkeeper_player_name,
+    triggered_team_goalkeeper_touches,
     opponent_team_id,
     opponent_team_name,
     triggered_team_possession_pct,
@@ -52,9 +52,9 @@ SELECT
         assumeNotNull(m.home_team_name),
         assumeNotNull(m.away_team_name)
     ) AS triggered_team_name,
-    gk.triggered_gk_player_id AS triggered_gk_player_id,
-    gk.triggered_gk_player_name AS triggered_gk_player_name,
-    toInt32(gk.gk_touches) AS triggered_team_gk_touches,
+    gk.triggered_goalkeeper_player_id AS triggered_goalkeeper_player_id,
+    gk.triggered_goalkeeper_player_name AS triggered_goalkeeper_player_name,
+    toInt32(gk.gk_touches) AS triggered_team_goalkeeper_touches,
 
     -- Opponent team identifiers
     if(
@@ -214,8 +214,8 @@ INNER JOIN (
     SELECT
         pms.match_id,
         assumeNotNull(pms.team_id) AS gk_team_id,
-        argMax(pms.player_id, coalesce(pms.touches, 0)) AS triggered_gk_player_id,
-        argMax(pms.player_name, coalesce(pms.touches, 0)) AS triggered_gk_player_name,
+        argMax(pms.player_id, coalesce(pms.touches, 0)) AS triggered_goalkeeper_player_id,
+        argMax(pms.player_name, coalesce(pms.touches, 0)) AS triggered_goalkeeper_player_name,
         max(coalesce(pms.touches, 0)) AS gk_touches
     FROM silver.player_match_stat AS pms
     WHERE pms.is_goalkeeper = 1

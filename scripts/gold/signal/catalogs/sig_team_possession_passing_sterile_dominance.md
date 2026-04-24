@@ -1,3 +1,19 @@
+---
+signal_id: sig_team_possession_passing_sterile_dominance
+status: active
+entity: team
+family: possession
+subfamily: passing
+grain: match_team
+target_table: gold.sig_team_possession_passing_sterile_dominance
+sql_path: clickhouse/gold/signal/sig_team_possession_passing_sterile_dominance.sql
+runner_path: scripts/gold/signal/runners/sig_team_possession_passing_sterile_dominance.py
+primary_trigger: "possession > 70 and big_chances = 0 for the triggered team in full-match period stats"
+row_identity:
+  - match_id
+  - triggered_side
+version: 1
+---
 # sig_team_possession_passing_sterile_dominance
 
 ## Purpose
@@ -61,10 +77,10 @@ python scripts/gold/signal/runners/sig_team_possession_passing_sterile_dominance
 | `opponent_pass_attempts` | Opponent pass attempts | Football developer: adds diagnostic football context to explain why the trigger fired |
 | `triggered_team_accurate_passes` | Triggered-team accurate passes | Football developer: adds diagnostic football context to explain why the trigger fired |
 | `opponent_accurate_passes` | Opponent accurate passes | Football developer: adds diagnostic football context to explain why the trigger fired |
-| `triggered_team_pass_acc_pct` | Triggered-team pass accuracy % | Football developer: adds diagnostic football context to explain why the trigger fired |
-| `opponent_pass_acc_pct` | Opponent pass accuracy % | Football developer: adds diagnostic football context to explain why the trigger fired |
-| `pass_accuracy_delta` | Triggered minus opponent pass accuracy % | Football developer: adds diagnostic football context to explain why the trigger fired |
-| `triggered_team_touches_opp_box` | Triggered-team touches in opponent box | Football developer: adds diagnostic football context to explain why the trigger fired |
-| `opponent_touches_opp_box` | Opponent touches in triggered-team box | Football developer: adds diagnostic football context to explain why the trigger fired |
-| `triggered_team_opp_half_passes` | Triggered-team passes in opposition half | Football developer: adds diagnostic football context to explain why the trigger fired |
-| `opponent_opp_half_passes` | Opponent passes in opposition half | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_team_pass_accuracy_pct` | Triggered-team pass accuracy % | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_pass_accuracy_pct` | Opponent pass accuracy % | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `pass_accuracy_delta_pct` | Triggered minus opponent pass accuracy % | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_team_touches_opposition_box` | Triggered-team touches in opponent box | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_touches_opposition_box` | Opponent touches in triggered-team box | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `triggered_team_opposition_half_passes` | Triggered-team passes in opposition half | Football developer: adds diagnostic football context to explain why the trigger fired |
+| `opponent_opposition_half_passes` | Opponent passes in opposition half | Football developer: adds diagnostic football context to explain why the trigger fired |

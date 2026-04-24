@@ -1,3 +1,19 @@
+---
+signal_id: sig_team_possession_passing_aerial_reliance
+status: active
+entity: team
+family: possession
+subfamily: passing
+grain: match_team
+target_table: gold.sig_team_possession_passing_aerial_reliance
+sql_path: clickhouse/gold/signal/sig_team_possession_passing_aerial_reliance.sql
+runner_path: scripts/gold/signal/runners/sig_team_possession_passing_aerial_reliance.py
+primary_trigger: "triggered_team_aerial_success_pct > 70 with long_ball_attempts >= 20 and long_ball_share_pct >= 18"
+row_identity:
+  - match_id
+  - triggered_side
+version: 1
+---
 # sig_team_possession_passing_aerial_reliance
 
 ## Purpose

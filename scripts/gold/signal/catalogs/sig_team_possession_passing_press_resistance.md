@@ -1,3 +1,19 @@
+---
+signal_id: sig_team_possession_passing_press_resistance
+status: active
+entity: team
+family: possession
+subfamily: passing
+grain: match_team
+target_table: gold.sig_team_possession_passing_press_resistance
+sql_path: clickhouse/gold/signal/sig_team_possession_passing_press_resistance.sql
+runner_path: scripts/gold/signal/runners/sig_team_possession_passing_press_resistance.py
+primary_trigger: "triggered team pass accuracy > 85 with >= 300 pass attempts while opponent high-press proxy (interceptions + tackles won + fouls) >= 35 and >= 10.0 per 100 triggered-team pass attempts"
+row_identity:
+  - match_id
+  - triggered_side
+version: 1
+---
 # sig_team_possession_passing_press_resistance
 
 ## Purpose
@@ -7,7 +23,7 @@ Triggers when a team keeps pass accuracy above 85% under a high-press proxy from
 ## Tactical And Statistical Logic
 
 - Trigger condition (per side, full match period `All`):
-  - `triggered_team_pass_acc_pct > 85`
+  - `triggered_team_pass_accuracy_pct > 85`
   - `triggered_team_pass_attempts >= 300`
   - `opponent_press_actions >= 35`
   - `opponent_press_actions_per_100_triggered_passes >= 10.0`
@@ -48,8 +64,8 @@ python scripts/gold/signal/runners/sig_team_possession_passing_press_resistance.
 | `opponent_pass_attempts` | Opponent total pass attempts | Football developer: tempo and possession context for bilateral pacing |
 | `triggered_team_accurate_passes` | Triggered team accurate passes | Football developer: raw numerator for the core accuracy trigger metric |
 | `opponent_accurate_passes` | Opponent accurate passes | Football developer: bilateral passing-quality context |
-| `triggered_team_pass_acc_pct` | Triggered team pass accuracy percentage | Football developer: core trigger metric for press-resistance classification |
-| `opponent_pass_acc_pct` | Opponent pass accuracy percentage | Football developer: control comparator to detect one-sided resistance quality |
+| `triggered_team_pass_accuracy_pct` | Triggered team pass accuracy percentage | Football developer: core trigger metric for press-resistance classification |
+| `opponent_pass_accuracy_pct` | Opponent pass accuracy percentage | Football developer: control comparator to detect one-sided resistance quality |
 | `pass_accuracy_delta_pct` | Triggered minus opponent pass accuracy percentage points | Football developer: directional quality gap useful for style dominance tagging |
 | `triggered_team_own_half_passes` | Triggered team passes in own half | Football developer: own-half circulation context under pressure |
 | `opponent_own_half_passes` | Opponent passes in own half | Football developer: bilateral territory/shape context |

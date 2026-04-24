@@ -1,3 +1,20 @@
+---
+signal_id: sig_player_possession_passing_back_pass_heavy
+status: active
+entity: player
+family: possession
+subfamily: passing
+grain: match_player
+target_table: gold.sig_player_possession_passing_back_pass_heavy
+sql_path: clickhouse/gold/signal/sig_player_possession_passing_back_pass_heavy.sql
+runner_path: scripts/gold/signal/runners/sig_player_possession_passing_back_pass_heavy.py
+primary_trigger: "defender/midfielder records > 70% backward-or-sideways pass share, proxied by non-final-third passes"
+row_identity:
+  - match_id
+  - triggered_player_id
+  - triggered_team_id
+version: 1
+---
 # sig_player_possession_passing_back_pass_heavy
 
 ## Purpose
@@ -66,6 +83,6 @@ python scripts/gold/signal/runners/sig_player_possession_passing_back_pass_heavy
 | `opponent_pass_accuracy_pct` | Pass accuracy of opponent team | Football developer: bilateral passing-quality reference for matchup balance |
 | `triggered_team_possession_pct` | Possession percentage of triggered side | Football developer: control context for interpreting conservative passing volume |
 | `opponent_possession_pct` | Possession percentage of opponent side | Football developer: bilateral possession comparator |
-| `triggered_team_opp_half_passes` | Passes in opponent half by triggered player's team | Football developer: team territorial progression context around player recycling |
-| `opponent_opp_half_passes` | Passes in opponent half by opponent team | Football developer: bilateral territorial progression comparator |
+| `triggered_team_opposition_half_passes` | Passes in opponent half by triggered player's team | Football developer: team territorial progression context around player recycling |
+| `opponent_opposition_half_passes` | Passes in opponent half by opponent team | Football developer: bilateral territorial progression comparator |
 | `player_share_of_team_passes_pct` | Triggered player pass attempts as % of team pass attempts | Football developer: quantifies player centrality in team circulation |

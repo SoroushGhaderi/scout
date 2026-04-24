@@ -16,8 +16,8 @@ INSERT INTO gold.sig_team_possession_passing_press_resistance (
     opponent_pass_attempts,
     triggered_team_accurate_passes,
     opponent_accurate_passes,
-    triggered_team_pass_acc_pct,
-    opponent_pass_acc_pct,
+    triggered_team_pass_accuracy_pct,
+    opponent_pass_accuracy_pct,
     pass_accuracy_delta_pct,
     triggered_team_own_half_passes,
     opponent_own_half_passes,
@@ -61,8 +61,8 @@ SELECT
     coalesce(ps.pass_attempts_away, 0) AS opponent_pass_attempts,
     coalesce(ps.accurate_passes_home, 0) AS triggered_team_accurate_passes,
     coalesce(ps.accurate_passes_away, 0) AS opponent_accurate_passes,
-    coalesce(round(100.0 * coalesce(ps.accurate_passes_home, 0) / nullIf(coalesce(ps.pass_attempts_home, 0), 0), 1), 0.0) AS triggered_team_pass_acc_pct,
-    coalesce(round(100.0 * coalesce(ps.accurate_passes_away, 0) / nullIf(coalesce(ps.pass_attempts_away, 0), 0), 1), 0.0) AS opponent_pass_acc_pct,
+    coalesce(round(100.0 * coalesce(ps.accurate_passes_home, 0) / nullIf(coalesce(ps.pass_attempts_home, 0), 0), 1), 0.0) AS triggered_team_pass_accuracy_pct,
+    coalesce(round(100.0 * coalesce(ps.accurate_passes_away, 0) / nullIf(coalesce(ps.pass_attempts_away, 0), 0), 1), 0.0) AS opponent_pass_accuracy_pct,
     round(
         coalesce(round(100.0 * coalesce(ps.accurate_passes_home, 0) / nullIf(coalesce(ps.pass_attempts_home, 0), 0), 1), 0.0)
       - coalesce(round(100.0 * coalesce(ps.accurate_passes_away, 0) / nullIf(coalesce(ps.pass_attempts_away, 0), 0), 1), 0.0),
@@ -162,8 +162,8 @@ SELECT
     coalesce(ps.pass_attempts_home, 0) AS opponent_pass_attempts,
     coalesce(ps.accurate_passes_away, 0) AS triggered_team_accurate_passes,
     coalesce(ps.accurate_passes_home, 0) AS opponent_accurate_passes,
-    coalesce(round(100.0 * coalesce(ps.accurate_passes_away, 0) / nullIf(coalesce(ps.pass_attempts_away, 0), 0), 1), 0.0) AS triggered_team_pass_acc_pct,
-    coalesce(round(100.0 * coalesce(ps.accurate_passes_home, 0) / nullIf(coalesce(ps.pass_attempts_home, 0), 0), 1), 0.0) AS opponent_pass_acc_pct,
+    coalesce(round(100.0 * coalesce(ps.accurate_passes_away, 0) / nullIf(coalesce(ps.pass_attempts_away, 0), 0), 1), 0.0) AS triggered_team_pass_accuracy_pct,
+    coalesce(round(100.0 * coalesce(ps.accurate_passes_home, 0) / nullIf(coalesce(ps.pass_attempts_home, 0), 0), 1), 0.0) AS opponent_pass_accuracy_pct,
     round(
         coalesce(round(100.0 * coalesce(ps.accurate_passes_away, 0) / nullIf(coalesce(ps.pass_attempts_away, 0), 0), 1), 0.0)
       - coalesce(round(100.0 * coalesce(ps.accurate_passes_home, 0) / nullIf(coalesce(ps.pass_attempts_home, 0), 0), 1), 0.0),
@@ -242,6 +242,6 @@ WHERE m.match_finished = 1
 
 ORDER BY
     opponent_press_actions_per_100_triggered_passes DESC,
-    triggered_team_pass_acc_pct DESC,
+    triggered_team_pass_accuracy_pct DESC,
     match_date DESC,
     match_id DESC;

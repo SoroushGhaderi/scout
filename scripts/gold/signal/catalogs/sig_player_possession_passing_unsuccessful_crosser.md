@@ -1,3 +1,20 @@
+---
+signal_id: sig_player_possession_passing_unsuccessful_crosser
+status: active
+entity: player
+family: possession
+subfamily: passing
+grain: match_player
+target_table: gold.sig_player_possession_passing_unsuccessful_crosser
+sql_path: clickhouse/gold/signal/sig_player_possession_passing_unsuccessful_crosser.sql
+runner_path: scripts/gold/signal/runners/sig_player_possession_passing_unsuccessful_crosser.py
+primary_trigger: "player attempts > 8 crosses with 0% crossing accuracy in a single match"
+row_identity:
+  - match_id
+  - triggered_player_id
+  - triggered_team_id
+version: 1
+---
 # sig_player_possession_passing_unsuccessful_crosser
 
 ## Purpose

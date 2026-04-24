@@ -33,8 +33,8 @@ INSERT INTO gold.sig_player_possession_passing_back_pass_heavy (
     opponent_pass_accuracy_pct,
     triggered_team_possession_pct,
     opponent_possession_pct,
-    triggered_team_opp_half_passes,
-    opponent_opp_half_passes,
+    triggered_team_opposition_half_passes,
+    opponent_opposition_half_passes,
     player_share_of_team_passes_pct
 )
 -- Signal: sig_player_possession_passing_back_pass_heavy
@@ -166,12 +166,12 @@ SELECT
         p.team_id = m.home_team_id, coalesce(ps.opposition_half_passes_home, 0),
         p.team_id = m.away_team_id, coalesce(ps.opposition_half_passes_away, 0),
         0
-    ) AS triggered_team_opp_half_passes,
+    ) AS triggered_team_opposition_half_passes,
     multiIf(
         p.team_id = m.home_team_id, coalesce(ps.opposition_half_passes_away, 0),
         p.team_id = m.away_team_id, coalesce(ps.opposition_half_passes_home, 0),
         0
-    ) AS opponent_opp_half_passes,
+    ) AS opponent_opposition_half_passes,
     coalesce(
         round(
             100.0 * coalesce(p.total_passes, 0)

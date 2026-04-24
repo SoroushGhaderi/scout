@@ -1,3 +1,19 @@
+---
+signal_id: sig_team_possession_passing_high_press_victim
+status: active
+entity: team
+family: possession
+subfamily: passing
+grain: match_team
+target_table: gold.sig_team_possession_passing_high_press_victim
+sql_path: clickhouse/gold/signal/sig_team_possession_passing_high_press_victim.sql
+runner_path: scripts/gold/signal/runners/sig_team_possession_passing_high_press_victim.py
+primary_trigger: "accurate_passes / pass_attempts < 0.70` for home or away in full-match totals (`period = 'All'`)"
+row_identity:
+  - match_id
+  - triggered_side
+version: 1
+---
 # sig_team_possession_passing_high_press_victim
 
 ## Purpose
@@ -37,9 +53,9 @@ python scripts/gold/signal/runners/sig_team_possession_passing_high_press_victim
 | `triggered_side` | Which side triggered the signal (`home`, `away`, `both`) | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
 | `triggered_team_id` | Team ID of the triggered side | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
 | `triggered_team_name` | Team name of the triggered side | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
-| `triggered_pass_accuracy_pct` | Pass accuracy (%) of the triggered team — the core signal value | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
-| `pass_accuracy_home_pct` | Home team pass accuracy (%) across full match | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
-| `pass_accuracy_away_pct` | Away team pass accuracy (%) across full match | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `triggered_team_pass_accuracy_pct` | Pass accuracy (%) of the triggered team — the core signal value | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
+| `home_pass_accuracy_pct` | Home team pass accuracy (%) across full match | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
+| `away_pass_accuracy_pct` | Away team pass accuracy (%) across full match | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
 | `pass_accuracy_delta_pct` | Absolute accuracy gap between home and away — large delta implies one team imposed the press | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
 | `pass_attempts_home` | Total passes attempted by home team — low volume + low accuracy = severe press domination | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |
 | `pass_attempts_away` | Total passes attempted by away team — same rationale | Football developer: adds diagnostic football context to explain why the trigger fired — diagnostic context for interpreting signal quality and cause |

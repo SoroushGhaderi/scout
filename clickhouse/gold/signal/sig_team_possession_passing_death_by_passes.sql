@@ -12,13 +12,13 @@ INSERT INTO gold.sig_team_possession_passing_death_by_passes (
     opponent_team_id,
     opponent_team_name,
     both_sides_triggered,
-    triggered_team_opp_box_touches,
-    opponent_opp_box_touches,
-    opp_box_touches_delta,
+    triggered_team_opposition_box_touches,
+    opponent_opposition_box_touches,
+    opposition_box_touches_delta,
     triggered_team_possession_pct,
     opponent_possession_pct,
-    triggered_team_opp_half_passes,
-    opponent_opp_half_passes,
+    triggered_team_opposition_half_passes,
+    opponent_opposition_half_passes,
     triggered_team_pass_attempts,
     opponent_pass_attempts,
     triggered_team_pass_accuracy_pct,
@@ -99,15 +99,15 @@ SELECT
         coalesce(ps.touches_opp_box_home, 0) > 50,
         coalesce(ps.touches_opp_box_home, 0),
         coalesce(ps.touches_opp_box_away, 0)
-    )                                                                                           AS triggered_team_opp_box_touches,
+    )                                                                                           AS triggered_team_opposition_box_touches,
     if(
         coalesce(ps.touches_opp_box_home, 0) > 50,
         coalesce(ps.touches_opp_box_away, 0),
         coalesce(ps.touches_opp_box_home, 0)
-    )                                                                                           AS opponent_opp_box_touches,
+    )                                                                                           AS opponent_opposition_box_touches,
 
     -- Box touch differential — net spatial dominance in the final third (bilateral by construction)
-    (coalesce(ps.touches_opp_box_home, 0) - coalesce(ps.touches_opp_box_away, 0))              AS opp_box_touches_delta,
+    (coalesce(ps.touches_opp_box_home, 0) - coalesce(ps.touches_opp_box_away, 0))              AS opposition_box_touches_delta,
 
     -- Possession share — sustained box presence should align with possession control (symmetric pair)
     if(
@@ -126,12 +126,12 @@ SELECT
         coalesce(ps.touches_opp_box_home, 0) > 50,
         coalesce(ps.opposition_half_passes_home, 0),
         coalesce(ps.opposition_half_passes_away, 0)
-    )                                                                                           AS triggered_team_opp_half_passes,
+    )                                                                                           AS triggered_team_opposition_half_passes,
     if(
         coalesce(ps.touches_opp_box_home, 0) > 50,
         coalesce(ps.opposition_half_passes_away, 0),
         coalesce(ps.opposition_half_passes_home, 0)
-    )                                                                                           AS opponent_opp_half_passes,
+    )                                                                                           AS opponent_opposition_half_passes,
 
     -- Total pass attempts — denominates box touches within overall passing activity (symmetric pair)
     if(

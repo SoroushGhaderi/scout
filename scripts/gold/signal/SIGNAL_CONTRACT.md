@@ -66,6 +66,38 @@ No package is complete unless all 5 parts are present and consistent.
    - SQL resolution MUST deterministically map runner stem to SQL stem (`sig_<name>.py` -> `sig_<name>.sql`), whether direct-path or controlled recursive lookup is used.
 5. Catalog filename MUST be `catalogs/sig_<name>.md`.
 
+## Column Naming Contract
+
+Gold signal output columns are consumed by downstream analytics, feature engineering, and QA. Names MUST be stable, explicit, and easy to classify without reading SQL.
+
+1. Output column names MUST be `snake_case`.
+2. Output columns MUST use full football/domain words:
+   - Use `accuracy`, not `acc`.
+   - Use `opposition` for pitch zones (`opposition_half`, `opposition_box`), not `opp`.
+   - Use `opponent` only for the opposing team/entity, not as a pitch-zone abbreviation.
+3. Percentage and rate columns MUST end with `_pct`.
+   - Correct: `triggered_team_pass_accuracy_pct`
+   - Incorrect: `triggered_team_pass_accuracy`, `triggered_team_pass_acc_pct`
+4. Delta columns MUST include the measured unit when unit-sensitive:
+   - Correct: `pass_accuracy_delta_pct`
+   - Correct: `xg_delta`
+   - Incorrect: `pass_accuracy_delta` when the value is a percentage-point delta
+5. Period-specific columns MUST spell out the period before the unit suffix:
+   - Correct: `triggered_team_pass_accuracy_first_half_pct`
+   - Correct: `opponent_opposition_half_passes_second_half`
+   - Incorrect: `triggered_team_pass_acc_fh`, `opponent_opp_half_passes_sh`
+6. Triggered-side team metrics MUST use `triggered_team_*`.
+7. Opponent team metrics MUST use `opponent_*`.
+8. Player-triggered metrics MUST use `triggered_player_*` for player values and `triggered_team_*` for the player's team context.
+9. Side-oriented non-triggered metrics MUST put the side first:
+   - Correct: `home_pass_accuracy_pct`, `away_opposition_half_pass_pct`
+   - Incorrect: `pass_accuracy_home_pct`, `home_opp_half_pass_pct`
+10. Count columns SHOULD use explicit football action nouns:
+    - Attempts: `*_attempts`
+    - Accurate completions: `accurate_*`
+    - Successful actions: `successful_*`
+11. New output columns MUST NOT introduce abbreviations unless the abbreviation is already canonical in football analytics (`xg`, `ppda`).
+
 ## Production SQL Contract
 
 File: `clickhouse/gold/signal/sig_<name>.sql`
@@ -147,24 +179,73 @@ File: `scripts/gold/signal/catalogs/sig_<name>.md`
 
 Each catalog MUST include:
 
-1. Purpose
-2. Tactical and statistical logic
-3. Technical asset references:
+1. Metadata block
+2. Purpose
+3. Tactical and statistical logic
+4. Technical asset references:
    - SQL path
    - Runner path
    - Target table
-4. Example execution command
-5. Output schema table with:
+5. Example execution command
+6. Output schema table with:
    - `Column Name`
    - `Description`
    - `Reason`
 
 Additional rules:
 
-1. Catalogs MUST reference SQL by path and MUST NOT embed full SQL bodies.
-2. `Reason` entries MUST explain analytical value (diagnostics, tactical interpretation, feature engineering, QA, or downstream modeling impact).
-3. `catalogs/README.md` MUST link every active `sig_<name>.md`.
-4. For player-triggered signals, catalog output schemas MUST document both `triggered_player_*` and `triggered_team_*` identity fields.
+1. Catalogs MUST begin with a YAML metadata block before the heading:
+
+   ```yaml
+   ---
+   signal_id: sig_<name>
+   status: active
+   entity: team
+   family: possession
+   subfamily: passing
+   grain: match_team
+   target_table: gold.sig_<name>
+   sql_path: clickhouse/gold/signal/sig_<name>.sql
+   runner_path: scripts/gold/signal/runners/sig_<name>.py
+   primary_trigger: "human-readable trigger expression"
+   row_identity:
+     - match_id
+     - triggered_side
+   version: 1
+   ---
+   ```
+
+2. Required metadata fields are:
+   - `signal_id`
+   - `status` (`active`, `experimental`, or `deprecated`)
+   - `entity` (`team` or `player`)
+   - `family`
+   - `subfamily`
+   - `grain`
+   - `target_table`
+   - `sql_path`
+   - `runner_path`
+   - `primary_trigger`
+   - `row_identity`
+   - `version`
+3. `signal_id`, `target_table`, `sql_path`, and `runner_path` MUST match the signal package assets exactly.
+4. `grain` MUST describe the row grain. Current accepted values are:
+   - `match_team`
+   - `match_player`
+5. `row_identity` MUST list the stable deduplication identity for final rows:
+   - Team-triggered signals SHOULD use `match_id` and `triggered_side`.
+   - Player-triggered signals SHOULD use `match_id`, `triggered_player_id`, and `triggered_team_id`.
+6. Catalogs MUST reference SQL by path and MUST NOT embed full SQL bodies.
+7. `Reason` entries MUST explain analytical value (diagnostics, tactical interpretation, feature engineering, QA, or downstream modeling impact).
+8. `catalogs/README.md` MUST include every active `sig_<name>.md` in a structured table with these headers:
+   - `Signal ID`
+   - `Entity`
+   - `Family`
+   - `Subfamily`
+   - `Grain`
+   - `Status`
+   - `Catalog`
+9. For player-triggered signals, catalog output schemas MUST document both `triggered_player_*` and `triggered_team_*` identity fields.
 
 ## Validation and Release Gate
 

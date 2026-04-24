@@ -1,3 +1,20 @@
+---
+signal_id: sig_player_possession_passing_midfield_general
+status: active
+entity: player
+family: possession
+subfamily: passing
+grain: match_player
+target_table: gold.sig_player_possession_passing_midfield_general
+sql_path: clickhouse/gold/signal/sig_player_possession_passing_midfield_general.sql
+runner_path: scripts/gold/signal/runners/sig_player_possession_passing_midfield_general.py
+primary_trigger: "player records > 100 total touches in the middle third"
+row_identity:
+  - match_id
+  - triggered_player_id
+  - triggered_team_id
+version: 1
+---
 # sig_player_possession_passing_midfield_general
 
 ## Purpose
@@ -47,7 +64,7 @@ python scripts/gold/signal/runners/sig_player_possession_passing_midfield_genera
 | `opponent_team_name` | Opponent team name | Football developer: readable bilateral context |
 | `triggered_player_middle_third_touches_proxy` | Middle-third touch proxy (`max(touches - touches_opp_box, 0)`) | Football developer: core trigger metric proxy for central-zone involvement (`> 100`) |
 | `triggered_player_total_touches` | Total touches by triggered player | Football developer: raw involvement denominator behind the proxy metric |
-| `triggered_player_touches_opp_box` | Triggered player touches in opponent box | Football developer: final-third component removed from proxy construction |
+| `triggered_player_touches_opposition_box` | Triggered player touches in opponent box | Football developer: final-third component removed from proxy construction |
 | `triggered_player_passes_final_third` | Triggered player passes into final third | Football developer: progression context to profile midfield role style |
 | `triggered_player_accurate_passes` | Accurate passes by triggered player | Football developer: passing quality context around midfield control volume |
 | `triggered_player_total_passes` | Total pass attempts by triggered player | Football developer: passing load context for controller profile |
@@ -61,7 +78,7 @@ python scripts/gold/signal/runners/sig_player_possession_passing_midfield_genera
 | `opponent_pass_accuracy_pct` | Pass accuracy of opponent team | Football developer: bilateral passing-quality reference for matchup balance |
 | `triggered_team_possession_pct` | Possession percentage of triggered side | Football developer: control context for interpreting central involvement |
 | `opponent_possession_pct` | Possession percentage of opponent side | Football developer: bilateral possession comparator |
-| `triggered_team_touches_opp_box` | Opponent-box touches by triggered player's team | Football developer: territorial attacking context around midfield control |
-| `opponent_touches_opp_box` | Opponent-box touches by opponent team | Football developer: bilateral territorial context comparator |
+| `triggered_team_touches_opposition_box` | Opponent-box touches by triggered player's team | Football developer: territorial attacking context around midfield control |
+| `opponent_touches_opposition_box` | Opponent-box touches by opponent team | Football developer: bilateral territorial context comparator |
 | `player_share_of_team_passes_pct` | Triggered player pass attempts as % of team pass attempts | Football developer: quantifies player centrality in team circulation |
-| `player_share_of_team_opp_box_touches_pct` | Triggered player opponent-box touches as % of team opponent-box touches | Football developer: contrasts midfield control profile with final-third presence |
+| `player_share_of_team_opposition_box_touches_pct` | Triggered player opponent-box touches as % of team opponent-box touches | Football developer: contrasts midfield control profile with final-third presence |

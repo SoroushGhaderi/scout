@@ -19,12 +19,12 @@ INSERT INTO gold.sig_team_possession_passing_siege_mode (
     opponent_pass_attempts,
     triggered_team_accurate_passes,
     opponent_accurate_passes,
-    triggered_team_pass_acc_pct,
-    opponent_pass_acc_pct,
-    triggered_team_opp_half_passes,
-    opponent_opp_half_passes,
-    triggered_team_touches_opp_box,
-    opponent_touches_opp_box,
+    triggered_team_pass_accuracy_pct,
+    opponent_pass_accuracy_pct,
+    triggered_team_opposition_half_passes,
+    opponent_opposition_half_passes,
+    triggered_team_touches_opposition_box,
+    opponent_touches_opposition_box,
     triggered_team_corners,
     opponent_corners,
     triggered_team_shots,
@@ -76,18 +76,18 @@ SELECT
     -- Pass accuracy rates (quality vs volume)
     if(coalesce(ps.pass_attempts_home, 0) > 0,
        round(coalesce(ps.accurate_passes_home, 0) / ps.pass_attempts_home * 100, 1),
-       NULL)                              AS triggered_team_pass_acc_pct,
+       NULL)                              AS triggered_team_pass_accuracy_pct,
     if(coalesce(ps.pass_attempts_away, 0) > 0,
        round(coalesce(ps.accurate_passes_away, 0) / ps.pass_attempts_away * 100, 1),
-       NULL)                             AS opponent_pass_acc_pct,
+       NULL)                             AS opponent_pass_accuracy_pct,
 
     -- Progression: how much possession is pushed into the opposition half
-    coalesce(ps.opposition_half_passes_home, 0) AS triggered_team_opp_half_passes,
-    coalesce(ps.opposition_half_passes_away, 0) AS opponent_opp_half_passes,
+    coalesce(ps.opposition_half_passes_home, 0) AS triggered_team_opposition_half_passes,
+    coalesce(ps.opposition_half_passes_away, 0) AS opponent_opposition_half_passes,
 
     -- Final-third penetration (is the siege dangerous?)
-    coalesce(ps.touches_opp_box_home, 0) AS triggered_team_touches_opp_box,
-    coalesce(ps.touches_opp_box_away, 0) AS opponent_touches_opp_box,
+    coalesce(ps.touches_opp_box_home, 0) AS triggered_team_touches_opposition_box,
+    coalesce(ps.touches_opp_box_away, 0) AS opponent_touches_opposition_box,
     coalesce(ps.corners_home, 0)         AS triggered_team_corners,
     coalesce(ps.corners_away, 0)         AS opponent_corners,
 
@@ -142,16 +142,16 @@ SELECT
 
     if(coalesce(ps.pass_attempts_away, 0) > 0,
        round(coalesce(ps.accurate_passes_away, 0) / ps.pass_attempts_away * 100, 1),
-       NULL)                              AS triggered_team_pass_acc_pct,
+       NULL)                              AS triggered_team_pass_accuracy_pct,
     if(coalesce(ps.pass_attempts_home, 0) > 0,
        round(coalesce(ps.accurate_passes_home, 0) / ps.pass_attempts_home * 100, 1),
-       NULL)                             AS opponent_pass_acc_pct,
+       NULL)                             AS opponent_pass_accuracy_pct,
 
-    coalesce(ps.opposition_half_passes_away, 0) AS triggered_team_opp_half_passes,
-    coalesce(ps.opposition_half_passes_home, 0) AS opponent_opp_half_passes,
+    coalesce(ps.opposition_half_passes_away, 0) AS triggered_team_opposition_half_passes,
+    coalesce(ps.opposition_half_passes_home, 0) AS opponent_opposition_half_passes,
 
-    coalesce(ps.touches_opp_box_away, 0) AS triggered_team_touches_opp_box,
-    coalesce(ps.touches_opp_box_home, 0) AS opponent_touches_opp_box,
+    coalesce(ps.touches_opp_box_away, 0) AS triggered_team_touches_opposition_box,
+    coalesce(ps.touches_opp_box_home, 0) AS opponent_touches_opposition_box,
     coalesce(ps.corners_away, 0)         AS triggered_team_corners,
     coalesce(ps.corners_home, 0)         AS opponent_corners,
 

@@ -1,4 +1,4 @@
-INSERT INTO gold.sig_player_possession_passing_overloaded_possession (
+INSERT INTO gold.sig_player_possession_passing_dribble_threat (
     match_id,
     match_date,
     home_team_id,
@@ -14,14 +14,26 @@ INSERT INTO gold.sig_player_possession_passing_overloaded_possession (
     triggered_team_name,
     opponent_team_id,
     opponent_team_name,
-    triggered_player_total_touches,
-    triggered_player_touches_per90,
+    triggered_player_successful_dribbles,
+    triggered_player_dribble_attempts,
+    triggered_player_failed_dribbles,
+    triggered_player_dribble_success_rate_pct,
+    triggered_player_minutes_played,
+    triggered_player_touches,
     triggered_player_touches_opposition_box,
-    triggered_player_passes_final_third,
+    triggered_player_chances_created,
+    triggered_player_expected_assists,
+    triggered_player_expected_goals,
+    triggered_player_total_shots,
     triggered_player_accurate_passes,
     triggered_player_total_passes,
     triggered_player_pass_accuracy_pct,
-    triggered_player_minutes_played,
+    triggered_team_dribble_attempts,
+    opponent_dribble_attempts,
+    triggered_team_successful_dribbles,
+    opponent_successful_dribbles,
+    triggered_team_dribble_success_pct,
+    opponent_dribble_success_pct,
     triggered_team_pass_attempts,
     opponent_pass_attempts,
     triggered_team_accurate_passes,
@@ -32,12 +44,13 @@ INSERT INTO gold.sig_player_possession_passing_overloaded_possession (
     opponent_possession_pct,
     triggered_team_touches_opposition_box,
     opponent_touches_opposition_box,
+    player_share_of_team_dribbles_pct,
     player_share_of_team_passes_pct,
     player_share_of_team_opposition_box_touches_pct
 )
--- Signal: sig_player_possession_passing_overloaded_possession
--- Trigger: player records > 120 touches in a single match.
--- Intent: identify overloaded possession hubs carrying extreme on-ball volume, with bilateral passing and territorial context.
+-- Signal: sig_player_possession_passing_dribble_threat
+-- Trigger: player completes > 5 successful dribbles in a single match.
+-- Intent: identify player-level ball-carrying threats who repeatedly beat opponents 1v1, with bilateral possession, passing, and territory context.
 
 SELECT
     m.match_id,
@@ -59,17 +72,25 @@ SELECT
     if(p.team_id = m.home_team_id, m.away_team_id, m.home_team_id) AS opponent_team_id,
     if(p.team_id = m.home_team_id, m.away_team_name, m.home_team_name) AS opponent_team_name,
 
-    coalesce(p.touches, 0) AS triggered_player_total_touches,
+    coalesce(p.successful_dribbles, 0) AS triggered_player_successful_dribbles,
+    coalesce(p.dribble_attempts, 0) AS triggered_player_dribble_attempts,
+    greatest(coalesce(p.dribble_attempts, 0) - coalesce(p.successful_dribbles, 0), 0) AS triggered_player_failed_dribbles,
     coalesce(
+        p.dribble_success_rate,
         round(
-            90.0 * coalesce(p.touches, 0)
-            / nullIf(coalesce(p.minutes_played, 0), 0),
+            100.0 * coalesce(p.successful_dribbles, 0)
+            / nullIf(coalesce(p.dribble_attempts, 0), 0),
             1
         ),
         0.0
-    ) AS triggered_player_touches_per90,
+    ) AS triggered_player_dribble_success_rate_pct,
+    coalesce(p.minutes_played, 0) AS triggered_player_minutes_played,
+    coalesce(p.touches, 0) AS triggered_player_touches,
     coalesce(p.touches_opp_box, 0) AS triggered_player_touches_opposition_box,
-    coalesce(p.passes_final_third, 0) AS triggered_player_passes_final_third,
+    coalesce(p.chances_created, 0) AS triggered_player_chances_created,
+    toFloat32(coalesce(p.expected_assists, 0.0)) AS triggered_player_expected_assists,
+    toFloat32(coalesce(p.expected_goals, 0.0)) AS triggered_player_expected_goals,
+    coalesce(p.total_shots, 0) AS triggered_player_total_shots,
     coalesce(p.accurate_passes, 0) AS triggered_player_accurate_passes,
     coalesce(p.total_passes, 0) AS triggered_player_total_passes,
     coalesce(
@@ -81,7 +102,64 @@ SELECT
         ),
         0.0
     ) AS triggered_player_pass_accuracy_pct,
-    coalesce(p.minutes_played, 0) AS triggered_player_minutes_played,
+
+    multiIf(
+        p.team_id = m.home_team_id, coalesce(ps.dribble_attempts_home, 0),
+        p.team_id = m.away_team_id, coalesce(ps.dribble_attempts_away, 0),
+        0
+    ) AS triggered_team_dribble_attempts,
+    multiIf(
+        p.team_id = m.home_team_id, coalesce(ps.dribble_attempts_away, 0),
+        p.team_id = m.away_team_id, coalesce(ps.dribble_attempts_home, 0),
+        0
+    ) AS opponent_dribble_attempts,
+    multiIf(
+        p.team_id = m.home_team_id, coalesce(ps.dribbles_succeeded_home, 0),
+        p.team_id = m.away_team_id, coalesce(ps.dribbles_succeeded_away, 0),
+        0
+    ) AS triggered_team_successful_dribbles,
+    multiIf(
+        p.team_id = m.home_team_id, coalesce(ps.dribbles_succeeded_away, 0),
+        p.team_id = m.away_team_id, coalesce(ps.dribbles_succeeded_home, 0),
+        0
+    ) AS opponent_successful_dribbles,
+    coalesce(
+        round(
+            100.0 * multiIf(
+                p.team_id = m.home_team_id, coalesce(ps.dribbles_succeeded_home, 0),
+                p.team_id = m.away_team_id, coalesce(ps.dribbles_succeeded_away, 0),
+                0
+            ) / nullIf(
+                multiIf(
+                    p.team_id = m.home_team_id, coalesce(ps.dribble_attempts_home, 0),
+                    p.team_id = m.away_team_id, coalesce(ps.dribble_attempts_away, 0),
+                    0
+                ),
+                0
+            ),
+            1
+        ),
+        0.0
+    ) AS triggered_team_dribble_success_pct,
+    coalesce(
+        round(
+            100.0 * multiIf(
+                p.team_id = m.home_team_id, coalesce(ps.dribbles_succeeded_away, 0),
+                p.team_id = m.away_team_id, coalesce(ps.dribbles_succeeded_home, 0),
+                0
+            ) / nullIf(
+                multiIf(
+                    p.team_id = m.home_team_id, coalesce(ps.dribble_attempts_away, 0),
+                    p.team_id = m.away_team_id, coalesce(ps.dribble_attempts_home, 0),
+                    0
+                ),
+                0
+            ),
+            1
+        ),
+        0.0
+    ) AS opponent_dribble_success_pct,
+
     multiIf(
         p.team_id = m.home_team_id, coalesce(ps.pass_attempts_home, 0),
         p.team_id = m.away_team_id, coalesce(ps.pass_attempts_away, 0),
@@ -160,6 +238,21 @@ SELECT
     ) AS opponent_touches_opposition_box,
     coalesce(
         round(
+            100.0 * coalesce(p.dribble_attempts, 0)
+            / nullIf(
+                multiIf(
+                    p.team_id = m.home_team_id, coalesce(ps.dribble_attempts_home, 0),
+                    p.team_id = m.away_team_id, coalesce(ps.dribble_attempts_away, 0),
+                    0
+                ),
+                0
+            ),
+            1
+        ),
+        0.0
+    ) AS player_share_of_team_dribbles_pct,
+    coalesce(
+        round(
             100.0 * coalesce(p.total_passes, 0)
             / nullIf(
                 multiIf(
@@ -198,11 +291,12 @@ LEFT JOIN silver.period_stat AS ps
 WHERE m.match_finished = 1
   AND m.match_id > 0
   AND (p.team_id = m.home_team_id OR p.team_id = m.away_team_id)
-  AND coalesce(p.touches, 0) > 120
+  AND p.is_goalkeeper = 0
+  AND coalesce(p.successful_dribbles, 0) > 5
 
 ORDER BY
-    triggered_player_total_touches DESC,
-    triggered_player_touches_per90 DESC,
-    triggered_player_total_passes DESC,
-    match_date DESC,
-    match_id DESC;
+    triggered_player_successful_dribbles DESC,
+    triggered_player_dribble_success_rate_pct DESC,
+    triggered_player_touches_opposition_box DESC,
+    m.match_date DESC,
+    m.match_id DESC;

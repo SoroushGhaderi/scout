@@ -36,11 +36,11 @@ INSERT INTO gold.sig_team_possession_passing_final_third_efficiency (
     opponent_pass_attempts,
     triggered_team_accurate_passes,
     opponent_accurate_passes,
-    triggered_team_pass_acc_pct,
-    opponent_pass_acc_pct,
-    pass_accuracy_delta,
-    triggered_team_opp_half_passes,
-    opponent_opp_half_passes
+    triggered_team_pass_accuracy_pct,
+    opponent_pass_accuracy_pct,
+    pass_accuracy_delta_pct,
+    triggered_team_opposition_half_passes,
+    opponent_opposition_half_passes
 )
 -- Signal: sig_team_possession_passing_final_third_efficiency
 -- Trigger: team goals >= 2 with triggered_team_final_third_entries < 10 (entries proxied by touches_opp_box).
@@ -107,18 +107,18 @@ SELECT
     coalesce(ps.accurate_passes_home, 0) AS triggered_team_accurate_passes,
     coalesce(ps.accurate_passes_away, 0) AS opponent_accurate_passes,
     toFloat32(coalesce(round(100.0 * coalesce(ps.accurate_passes_home, 0) / nullIf(coalesce(ps.pass_attempts_home, 0), 0), 1), 0.0))
-        AS triggered_team_pass_acc_pct,
+        AS triggered_team_pass_accuracy_pct,
     toFloat32(coalesce(round(100.0 * coalesce(ps.accurate_passes_away, 0) / nullIf(coalesce(ps.pass_attempts_away, 0), 0), 1), 0.0))
-        AS opponent_pass_acc_pct,
+        AS opponent_pass_accuracy_pct,
     toFloat32(round(
         coalesce(round(100.0 * coalesce(ps.accurate_passes_home, 0) / nullIf(coalesce(ps.pass_attempts_home, 0), 0), 1), 0.0)
       - coalesce(round(100.0 * coalesce(ps.accurate_passes_away, 0) / nullIf(coalesce(ps.pass_attempts_away, 0), 0), 1), 0.0),
         1
-    )) AS pass_accuracy_delta,
+    )) AS pass_accuracy_delta_pct,
 
     -- Territorial progression context.
-    coalesce(ps.opposition_half_passes_home, 0) AS triggered_team_opp_half_passes,
-    coalesce(ps.opposition_half_passes_away, 0) AS opponent_opp_half_passes
+    coalesce(ps.opposition_half_passes_home, 0) AS triggered_team_opposition_half_passes,
+    coalesce(ps.opposition_half_passes_away, 0) AS opponent_opposition_half_passes
 
 -- Join full-match period stats for finished matches.
 FROM silver.match AS m
@@ -196,18 +196,18 @@ SELECT
     coalesce(ps.accurate_passes_away, 0) AS triggered_team_accurate_passes,
     coalesce(ps.accurate_passes_home, 0) AS opponent_accurate_passes,
     toFloat32(coalesce(round(100.0 * coalesce(ps.accurate_passes_away, 0) / nullIf(coalesce(ps.pass_attempts_away, 0), 0), 1), 0.0))
-        AS triggered_team_pass_acc_pct,
+        AS triggered_team_pass_accuracy_pct,
     toFloat32(coalesce(round(100.0 * coalesce(ps.accurate_passes_home, 0) / nullIf(coalesce(ps.pass_attempts_home, 0), 0), 1), 0.0))
-        AS opponent_pass_acc_pct,
+        AS opponent_pass_accuracy_pct,
     toFloat32(round(
         coalesce(round(100.0 * coalesce(ps.accurate_passes_away, 0) / nullIf(coalesce(ps.pass_attempts_away, 0), 0), 1), 0.0)
       - coalesce(round(100.0 * coalesce(ps.accurate_passes_home, 0) / nullIf(coalesce(ps.pass_attempts_home, 0), 0), 1), 0.0),
         1
-    )) AS pass_accuracy_delta,
+    )) AS pass_accuracy_delta_pct,
 
     -- Territorial progression context.
-    coalesce(ps.opposition_half_passes_away, 0) AS triggered_team_opp_half_passes,
-    coalesce(ps.opposition_half_passes_home, 0) AS opponent_opp_half_passes
+    coalesce(ps.opposition_half_passes_away, 0) AS triggered_team_opposition_half_passes,
+    coalesce(ps.opposition_half_passes_home, 0) AS opponent_opposition_half_passes
 
 -- Join full-match period stats for finished matches.
 FROM silver.match AS m

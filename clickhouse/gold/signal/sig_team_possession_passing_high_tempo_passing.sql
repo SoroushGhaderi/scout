@@ -7,34 +7,34 @@ INSERT INTO gold.sig_team_possession_passing_high_tempo_passing (
     away_team_name,
     home_score,
     away_score,
-    home_possession_h1,
-    home_possession_h2,
-    away_possession_h1,
-    away_possession_h2,
-    home_passes_h1,
-    home_passes_h2,
-    away_passes_h1,
-    away_passes_h2,
-    home_passes_per_min_h1,
-    home_passes_per_min_h2,
-    away_passes_per_min_h1,
-    away_passes_per_min_h2,
-    home_peak_passes_per_min,
-    away_peak_passes_per_min,
+    home_possession_first_half_pct,
+    home_possession_second_half_pct,
+    away_possession_first_half_pct,
+    away_possession_second_half_pct,
+    home_passes_first_half,
+    home_passes_second_half,
+    away_passes_first_half,
+    away_passes_second_half,
+    home_passes_per_minute_first_half,
+    home_passes_per_minute_second_half,
+    away_passes_per_minute_first_half,
+    away_passes_per_minute_second_half,
+    home_peak_passes_per_minute,
+    away_peak_passes_per_minute,
     home_accurate_passes_total,
     away_accurate_passes_total,
     home_pass_attempts_total,
     away_pass_attempts_total,
     home_pass_accuracy_pct,
     away_pass_accuracy_pct,
-    pass_accuracy_delta_home_minus_away,
+    home_minus_away_pass_accuracy_delta_pct,
     home_opposition_half_passes,
     away_opposition_half_passes,
     home_own_half_passes,
     away_own_half_passes,
-    home_opp_half_pass_pct,
-    away_opp_half_pass_pct,
-    triggered_team_side
+    home_opposition_half_pass_pct,
+    away_opposition_half_pass_pct,
+    triggered_side
 )
 -- Signal: sig_team_possession_passing_high_tempo_passing
 -- Trigger: peak half passing tempo >= 6.5 passes per minute for at least one side.
@@ -56,32 +56,32 @@ SELECT
     m.away_score,
 
     -- ── Possession context — both halves, symmetric ───────────────────────
-    sumIf(coalesce(ps.ball_possession_home, 0), ps.period = 'FirstHalf')  AS home_possession_h1,
-    sumIf(coalesce(ps.ball_possession_home, 0), ps.period = 'SecondHalf') AS home_possession_h2,
-    sumIf(coalesce(ps.ball_possession_away, 0), ps.period = 'FirstHalf')  AS away_possession_h1,
-    sumIf(coalesce(ps.ball_possession_away, 0), ps.period = 'SecondHalf') AS away_possession_h2,
+    sumIf(coalesce(ps.ball_possession_home, 0), ps.period = 'FirstHalf')  AS home_possession_first_half_pct,
+    sumIf(coalesce(ps.ball_possession_home, 0), ps.period = 'SecondHalf') AS home_possession_second_half_pct,
+    sumIf(coalesce(ps.ball_possession_away, 0), ps.period = 'FirstHalf')  AS away_possession_first_half_pct,
+    sumIf(coalesce(ps.ball_possession_away, 0), ps.period = 'SecondHalf') AS away_possession_second_half_pct,
 
     -- ── Raw pass volume per half — symmetric ──────────────────────────────
-    sumIf(coalesce(ps.passes_home, 0), ps.period = 'FirstHalf')  AS home_passes_h1,
-    sumIf(coalesce(ps.passes_home, 0), ps.period = 'SecondHalf') AS home_passes_h2,
-    sumIf(coalesce(ps.passes_away, 0), ps.period = 'FirstHalf')  AS away_passes_h1,
-    sumIf(coalesce(ps.passes_away, 0), ps.period = 'SecondHalf') AS away_passes_h2,
+    sumIf(coalesce(ps.passes_home, 0), ps.period = 'FirstHalf')  AS home_passes_first_half,
+    sumIf(coalesce(ps.passes_home, 0), ps.period = 'SecondHalf') AS home_passes_second_half,
+    sumIf(coalesce(ps.passes_away, 0), ps.period = 'FirstHalf')  AS away_passes_first_half,
+    sumIf(coalesce(ps.passes_away, 0), ps.period = 'SecondHalf') AS away_passes_second_half,
 
     -- ── Passes-per-minute proxy (÷ 45) — signal metric, symmetric ─────────
-    round(sumIf(coalesce(ps.passes_home, 0), ps.period = 'FirstHalf')  / 45.0, 2) AS home_passes_per_min_h1,
-    round(sumIf(coalesce(ps.passes_home, 0), ps.period = 'SecondHalf') / 45.0, 2) AS home_passes_per_min_h2,
-    round(sumIf(coalesce(ps.passes_away, 0), ps.period = 'FirstHalf')  / 45.0, 2) AS away_passes_per_min_h1,
-    round(sumIf(coalesce(ps.passes_away, 0), ps.period = 'SecondHalf') / 45.0, 2) AS away_passes_per_min_h2,
+    round(sumIf(coalesce(ps.passes_home, 0), ps.period = 'FirstHalf')  / 45.0, 2) AS home_passes_per_minute_first_half,
+    round(sumIf(coalesce(ps.passes_home, 0), ps.period = 'SecondHalf') / 45.0, 2) AS home_passes_per_minute_second_half,
+    round(sumIf(coalesce(ps.passes_away, 0), ps.period = 'FirstHalf')  / 45.0, 2) AS away_passes_per_minute_first_half,
+    round(sumIf(coalesce(ps.passes_away, 0), ps.period = 'SecondHalf') / 45.0, 2) AS away_passes_per_minute_second_half,
 
     -- ── Peak-half passes-per-min (single trigger value per side) ─────────
     round(greatest(
         sumIf(coalesce(ps.passes_home, 0), ps.period = 'FirstHalf'),
         sumIf(coalesce(ps.passes_home, 0), ps.period = 'SecondHalf')
-    ) / 45.0, 2) AS home_peak_passes_per_min,
+    ) / 45.0, 2) AS home_peak_passes_per_minute,
     round(greatest(
         sumIf(coalesce(ps.passes_away, 0), ps.period = 'FirstHalf'),
         sumIf(coalesce(ps.passes_away, 0), ps.period = 'SecondHalf')
-    ) / 45.0, 2) AS away_peak_passes_per_min,
+    ) / 45.0, 2) AS away_peak_passes_per_minute,
 
     -- ── Pass quality — accurate + attempts totals, symmetric ─────────────
     sumIf(coalesce(ps.accurate_passes_home, 0), ps.period IN ('FirstHalf', 'SecondHalf')) AS home_accurate_passes_total,
@@ -105,7 +105,7 @@ SELECT
                 / nullIf(sumIf(coalesce(ps.pass_attempts_home, 0), ps.period IN ('FirstHalf', 'SecondHalf')), 0)
         - 100.0 * sumIf(coalesce(ps.accurate_passes_away, 0), ps.period IN ('FirstHalf', 'SecondHalf'))
                 / nullIf(sumIf(coalesce(ps.pass_attempts_away, 0), ps.period IN ('FirstHalf', 'SecondHalf')), 0),
-    1) AS pass_accuracy_delta_home_minus_away,
+    1) AS home_minus_away_pass_accuracy_delta_pct,
 
     -- ── Territorial split — opposition-half passes, symmetric ─────────────
     sumIf(coalesce(ps.opposition_half_passes_home, 0), ps.period IN ('FirstHalf', 'SecondHalf')) AS home_opposition_half_passes,
@@ -119,11 +119,11 @@ SELECT
     round(100.0
         * sumIf(coalesce(ps.opposition_half_passes_home, 0), ps.period IN ('FirstHalf', 'SecondHalf'))
         / nullIf(sumIf(coalesce(ps.passes_home, 0), ps.period IN ('FirstHalf', 'SecondHalf')), 0),
-    1) AS home_opp_half_pass_pct,
+    1) AS home_opposition_half_pass_pct,
     round(100.0
         * sumIf(coalesce(ps.opposition_half_passes_away, 0), ps.period IN ('FirstHalf', 'SecondHalf'))
         / nullIf(sumIf(coalesce(ps.passes_away, 0), ps.period IN ('FirstHalf', 'SecondHalf')), 0),
-    1) AS away_opp_half_pass_pct,
+    1) AS away_opposition_half_pass_pct,
 
     -- ── Triggered team — which side(s) fired the signal ───────────────────
     multiIf(
@@ -134,7 +134,7 @@ SELECT
         greatest(sumIf(coalesce(ps.passes_home,0), ps.period='FirstHalf'), sumIf(coalesce(ps.passes_home,0), ps.period='SecondHalf')) / 45.0 >= 6.5,
         'home',
         'away'
-    ) AS triggered_team_side
+    ) AS triggered_side
 
 FROM silver.match AS m
 INNER JOIN silver.period_stat AS ps
@@ -166,6 +166,6 @@ HAVING
 
 ORDER BY
     greatest(
-        assumeNotNull(home_peak_passes_per_min),
-        assumeNotNull(away_peak_passes_per_min)
+        assumeNotNull(home_peak_passes_per_minute),
+        assumeNotNull(away_peak_passes_per_minute)
     ) DESC;

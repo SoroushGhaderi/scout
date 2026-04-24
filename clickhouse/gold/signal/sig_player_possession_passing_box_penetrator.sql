@@ -14,7 +14,7 @@ INSERT INTO gold.sig_player_possession_passing_box_penetrator (
     triggered_team_name,
     opponent_team_id,
     opponent_team_name,
-    triggered_player_touches_opp_box,
+    triggered_player_touches_opposition_box,
     triggered_player_total_touches,
     triggered_player_chances_created,
     triggered_player_expected_assists,
@@ -25,8 +25,8 @@ INSERT INTO gold.sig_player_possession_passing_box_penetrator (
     triggered_player_total_passes,
     triggered_player_pass_accuracy_pct,
     triggered_player_minutes_played,
-    triggered_team_touches_opp_box,
-    opponent_touches_opp_box,
+    triggered_team_touches_opposition_box,
+    opponent_touches_opposition_box,
     triggered_team_pass_attempts,
     opponent_pass_attempts,
     triggered_team_accurate_passes,
@@ -35,7 +35,7 @@ INSERT INTO gold.sig_player_possession_passing_box_penetrator (
     opponent_pass_accuracy_pct,
     triggered_team_possession_pct,
     opponent_possession_pct,
-    player_share_of_team_opp_box_touches_pct,
+    player_share_of_team_opposition_box_touches_pct,
     player_share_of_team_passes_pct
 )
 -- Signal: sig_player_possession_passing_box_penetrator
@@ -62,7 +62,7 @@ SELECT
     if(p.team_id = m.home_team_id, m.away_team_id, m.home_team_id) AS opponent_team_id,
     if(p.team_id = m.home_team_id, m.away_team_name, m.home_team_name) AS opponent_team_name,
 
-    coalesce(p.touches_opp_box, 0) AS triggered_player_touches_opp_box,
+    coalesce(p.touches_opp_box, 0) AS triggered_player_touches_opposition_box,
     coalesce(p.touches, 0) AS triggered_player_total_touches,
     coalesce(p.chances_created, 0) AS triggered_player_chances_created,
     toFloat32(coalesce(p.expected_assists, 0.0)) AS triggered_player_expected_assists,
@@ -85,12 +85,12 @@ SELECT
         p.team_id = m.home_team_id, coalesce(ps.touches_opp_box_home, 0),
         p.team_id = m.away_team_id, coalesce(ps.touches_opp_box_away, 0),
         0
-    ) AS triggered_team_touches_opp_box,
+    ) AS triggered_team_touches_opposition_box,
     multiIf(
         p.team_id = m.home_team_id, coalesce(ps.touches_opp_box_away, 0),
         p.team_id = m.away_team_id, coalesce(ps.touches_opp_box_home, 0),
         0
-    ) AS opponent_touches_opp_box,
+    ) AS opponent_touches_opposition_box,
     multiIf(
         p.team_id = m.home_team_id, coalesce(ps.pass_attempts_home, 0),
         p.team_id = m.away_team_id, coalesce(ps.pass_attempts_away, 0),
@@ -171,7 +171,7 @@ SELECT
             1
         ),
         0.0
-    ) AS player_share_of_team_opp_box_touches_pct,
+    ) AS player_share_of_team_opposition_box_touches_pct,
     coalesce(
         round(
             100.0 * coalesce(p.total_passes, 0)
@@ -200,7 +200,7 @@ WHERE m.match_finished = 1
   AND coalesce(p.touches_opp_box, 0) > 10
 
 ORDER BY
-    triggered_player_touches_opp_box DESC,
+    triggered_player_touches_opposition_box DESC,
     triggered_player_chances_created DESC,
     triggered_player_expected_assists DESC,
     match_date DESC,

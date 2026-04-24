@@ -1,3 +1,20 @@
+---
+signal_id: sig_player_possession_passing_switch_expert
+status: active
+entity: player
+family: possession
+subfamily: passing
+grain: match_player
+target_table: gold.sig_player_possession_passing_switch_expert
+sql_path: clickhouse/gold/signal/sig_player_possession_passing_switch_expert.sql
+runner_path: scripts/gold/signal/runners/sig_player_possession_passing_switch_expert.py
+primary_trigger: "player completes > 5 successful switches of play, proxied by accurate_long_balls from silver.player_match_stat"
+row_identity:
+  - match_id
+  - triggered_player_id
+  - triggered_team_id
+version: 1
+---
 # sig_player_possession_passing_switch_expert
 
 ## Purpose

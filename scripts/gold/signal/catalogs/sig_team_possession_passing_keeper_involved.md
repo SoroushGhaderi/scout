@@ -1,3 +1,20 @@
+---
+signal_id: sig_team_possession_passing_keeper_involved
+status: active
+entity: team
+family: possession
+subfamily: passing
+grain: match_team
+target_table: gold.sig_team_possession_passing_keeper_involved
+sql_path: clickhouse/gold/signal/sig_team_possession_passing_keeper_involved.sql
+runner_path: scripts/gold/signal/runners/sig_team_possession_passing_keeper_involved.py
+primary_trigger: "max goalkeeper touches by team in a finished match > 50"
+row_identity:
+  - match_id
+  - triggered_team_id
+  - triggered_goalkeeper_player_id
+version: 1
+---
 # sig_team_possession_passing_keeper_involved
 
 ## Purpose
@@ -36,9 +53,9 @@ python scripts/gold/signal/runners/sig_team_possession_passing_keeper_involved.p
 | `away_score` | Full-time goals scored by away team | Football developer: anchors joins across match, team, and downstream feature tables |
 | `triggered_team_id` | Team ID of the side whose goalkeeper triggered the signal | Football developer: this is the direct trigger metric used to classify the tactical pattern |
 | `triggered_team_name` | Display name of the triggered team | Football developer: this is the direct trigger metric used to classify the tactical pattern |
-| `triggered_gk_player_id` | Player ID of the goalkeeper who recorded >50 touches | Football developer: this is the direct trigger metric used to classify the tactical pattern |
-| `triggered_gk_player_name` | Name of the triggering goalkeeper | Football developer: this is the direct trigger metric used to classify the tactical pattern |
-| `triggered_team_gk_touches` | Goalkeeper touch count (signal value) — >50 indicates heavy back-pass usage | Football developer: this is the direct trigger metric for detecting keeper-led build-up patterns under pressure. |
+| `triggered_goalkeeper_player_id` | Player ID of the goalkeeper who recorded >50 touches | Football developer: this is the direct trigger metric used to classify the tactical pattern |
+| `triggered_goalkeeper_player_name` | Name of the triggering goalkeeper | Football developer: this is the direct trigger metric used to classify the tactical pattern |
+| `triggered_team_goalkeeper_touches` | Goalkeeper touch count (signal value) — >50 indicates heavy back-pass usage | Football developer: this is the direct trigger metric for detecting keeper-led build-up patterns under pressure. |
 | `opponent_team_id` | Team ID of the opposition in the same match | Football developer: provides side/opponent orientation so tactical readings are not misattributed |
 | `opponent_team_name` | Display name of the opposition | Football developer: provides side/opponent orientation so tactical readings are not misattributed |
 | `triggered_team_possession_pct` | Ball possession percentage for the triggered team (full match) | Football developer: adds diagnostic football context to explain why the trigger fired |

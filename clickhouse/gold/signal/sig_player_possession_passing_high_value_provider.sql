@@ -18,7 +18,7 @@ INSERT INTO gold.sig_player_possession_passing_high_value_provider (
     triggered_player_assists,
     triggered_player_chances_created,
     triggered_player_passes_final_third,
-    triggered_player_touches_opp_box,
+    triggered_player_touches_opposition_box,
     triggered_player_accurate_passes,
     triggered_player_total_passes,
     triggered_player_pass_accuracy_pct,
@@ -32,10 +32,10 @@ INSERT INTO gold.sig_player_possession_passing_high_value_provider (
     opponent_pass_accuracy_pct,
     triggered_team_possession_pct,
     opponent_possession_pct,
-    triggered_team_touches_opp_box,
-    opponent_touches_opp_box,
+    triggered_team_touches_opposition_box,
+    opponent_touches_opposition_box,
     player_share_of_team_passes_pct,
-    player_share_of_team_touches_opp_box_pct
+    player_share_of_team_opposition_box_touches_pct
 )
 -- Signal: sig_player_possession_passing_high_value_provider
 -- Trigger: player records expected assists (xA) > 1.0 without a registered goal assist.
@@ -65,7 +65,7 @@ SELECT
     coalesce(p.assists, 0) AS triggered_player_assists,
     coalesce(p.chances_created, 0) AS triggered_player_chances_created,
     coalesce(p.passes_final_third, 0) AS triggered_player_passes_final_third,
-    coalesce(p.touches_opp_box, 0) AS triggered_player_touches_opp_box,
+    coalesce(p.touches_opp_box, 0) AS triggered_player_touches_opposition_box,
     coalesce(p.accurate_passes, 0) AS triggered_player_accurate_passes,
     coalesce(p.total_passes, 0) AS triggered_player_total_passes,
     coalesce(
@@ -149,12 +149,12 @@ SELECT
         p.team_id = m.home_team_id, coalesce(ps.touches_opp_box_home, 0),
         p.team_id = m.away_team_id, coalesce(ps.touches_opp_box_away, 0),
         0
-    ) AS triggered_team_touches_opp_box,
+    ) AS triggered_team_touches_opposition_box,
     multiIf(
         p.team_id = m.home_team_id, coalesce(ps.touches_opp_box_away, 0),
         p.team_id = m.away_team_id, coalesce(ps.touches_opp_box_home, 0),
         0
-    ) AS opponent_touches_opp_box,
+    ) AS opponent_touches_opposition_box,
     coalesce(
         round(
             100.0 * coalesce(p.total_passes, 0)
@@ -184,7 +184,7 @@ SELECT
             1
         ),
         0.0
-    ) AS player_share_of_team_touches_opp_box_pct
+    ) AS player_share_of_team_opposition_box_touches_pct
 
 FROM silver.player_match_stat AS p
 INNER JOIN silver.match AS m

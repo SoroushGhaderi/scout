@@ -1,3 +1,20 @@
+---
+signal_id: sig_player_possession_passing_isolated_target
+status: active
+entity: player
+family: possession
+subfamily: passing
+grain: match_player
+target_table: gold.sig_player_possession_passing_isolated_target
+sql_path: clickhouse/gold/signal/sig_player_possession_passing_isolated_target.sql
+runner_path: scripts/gold/signal/runners/sig_player_possession_passing_isolated_target.py
+primary_trigger: "forward records < 5 touches despite playing > 45 minutes"
+row_identity:
+  - match_id
+  - triggered_player_id
+  - triggered_team_id
+version: 1
+---
 # sig_player_possession_passing_isolated_target
 
 ## Purpose
@@ -54,7 +71,7 @@ python scripts/gold/signal/runners/sig_player_possession_passing_isolated_target
 | `triggered_player_total_passes` | Total passes attempted by triggered player | Football developer: confirms whether the player entered buildup circulation at all |
 | `triggered_player_accurate_passes` | Accurate passes by triggered player | Football developer: completion context for limited passing involvement |
 | `triggered_player_pass_accuracy_pct` | Triggered player pass accuracy percentage | Football developer: quality context when touch volume is extremely low |
-| `triggered_player_touches_opp_box` | Triggered player touches inside opposition box | Football developer: identifies whether rare involvement occurred in high-value zones |
+| `triggered_player_touches_opposition_box` | Triggered player touches inside opposition box | Football developer: identifies whether rare involvement occurred in high-value zones |
 | `triggered_player_expected_goals` | Triggered player expected goals | Football developer: separates pure isolation from low-touch, high-shot poacher profiles |
 | `triggered_player_total_shots` | Triggered player total shots | Football developer: finishing-volume context for minimal-touch forwards |
 | `triggered_team_pass_attempts` | Team pass attempts of triggered player's side | Football developer: denominator for player share and team style context |
@@ -65,11 +82,11 @@ python scripts/gold/signal/runners/sig_player_possession_passing_isolated_target
 | `opponent_pass_accuracy_pct` | Opponent team pass accuracy | Football developer: bilateral quality reference for matchup balance |
 | `triggered_team_possession_pct` | Triggered side possession percentage | Football developer: distinguishes low-team-possession isolation from role-specific exclusion |
 | `opponent_possession_pct` | Opponent possession percentage | Football developer: bilateral possession comparator |
-| `triggered_team_touches_opp_box` | Triggered team touches inside opposition box | Football developer: team territorial threat context for forward starvation |
-| `opponent_touches_opp_box` | Opponent touches inside the triggered team's box | Football developer: symmetric territorial threat comparator |
+| `triggered_team_touches_opposition_box` | Triggered team touches inside opposition box | Football developer: team territorial threat context for forward starvation |
+| `opponent_touches_opposition_box` | Opponent touches inside the triggered team's box | Football developer: symmetric territorial threat comparator |
 | `triggered_team_expected_goals` | Triggered team expected goals | Football developer: chance-quality context for whether the isolated forward still benefited from team threat |
 | `opponent_expected_goals` | Opponent expected goals | Football developer: bilateral chance-quality comparator |
 | `triggered_team_total_shots` | Triggered team total shots | Football developer: shot-volume context around forward involvement |
 | `opponent_total_shots` | Opponent total shots | Football developer: bilateral shot-volume comparator |
 | `player_share_of_team_passes_pct` | Triggered player pass attempts as % of team pass attempts | Football developer: measures how absent the forward was from possession circulation |
-| `player_share_of_team_opp_box_touches_pct` | Triggered player opposition-box touches as % of team opposition-box touches | Football developer: measures whether team entries bypassed the forward target |
+| `player_share_of_team_opposition_box_touches_pct` | Triggered player opposition-box touches as % of team opposition-box touches | Football developer: measures whether team entries bypassed the forward target |

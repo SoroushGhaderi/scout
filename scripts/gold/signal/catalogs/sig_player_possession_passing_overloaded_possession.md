@@ -1,3 +1,20 @@
+---
+signal_id: sig_player_possession_passing_overloaded_possession
+status: active
+entity: player
+family: possession
+subfamily: passing
+grain: match_player
+target_table: gold.sig_player_possession_passing_overloaded_possession
+sql_path: clickhouse/gold/signal/sig_player_possession_passing_overloaded_possession.sql
+runner_path: scripts/gold/signal/runners/sig_player_possession_passing_overloaded_possession.py
+primary_trigger: "player records > 120 touches in a single match"
+row_identity:
+  - match_id
+  - triggered_player_id
+  - triggered_team_id
+version: 1
+---
 # sig_player_possession_passing_overloaded_possession
 
 ## Purpose
@@ -45,7 +62,7 @@ python scripts/gold/signal/runners/sig_player_possession_passing_overloaded_poss
 | `opponent_team_name` | Opponent team name | Football developer: readable bilateral context |
 | `triggered_player_total_touches` | Total touches by triggered player | Football developer: core trigger metric volume guard (`> 120`) |
 | `triggered_player_touches_per90` | Triggered player touches normalized to 90 minutes | Football developer: normalizes overload intensity across unequal playing time |
-| `triggered_player_touches_opp_box` | Triggered player touches in opponent box | Football developer: territorial split between deep circulation and advanced involvement |
+| `triggered_player_touches_opposition_box` | Triggered player touches in opponent box | Football developer: territorial split between deep circulation and advanced involvement |
 | `triggered_player_passes_final_third` | Triggered player passes into final third | Football developer: progression context to profile how overload volume is used |
 | `triggered_player_accurate_passes` | Accurate passes by triggered player | Football developer: passing quality context around high-touch load |
 | `triggered_player_total_passes` | Total pass attempts by triggered player | Football developer: passing-load context for overloaded possession role |
@@ -59,7 +76,7 @@ python scripts/gold/signal/runners/sig_player_possession_passing_overloaded_poss
 | `opponent_pass_accuracy_pct` | Pass accuracy of opponent team | Football developer: bilateral passing-quality reference for matchup balance |
 | `triggered_team_possession_pct` | Possession percentage of triggered side | Football developer: control context for interpreting touch overload |
 | `opponent_possession_pct` | Possession percentage of opponent side | Football developer: bilateral possession comparator |
-| `triggered_team_touches_opp_box` | Opponent-box touches by triggered player's team | Football developer: territorial team context around player overload |
-| `opponent_touches_opp_box` | Opponent-box touches by opponent team | Football developer: bilateral territorial comparator |
+| `triggered_team_touches_opposition_box` | Opponent-box touches by triggered player's team | Football developer: territorial team context around player overload |
+| `opponent_touches_opposition_box` | Opponent-box touches by opponent team | Football developer: bilateral territorial comparator |
 | `player_share_of_team_passes_pct` | Triggered player pass attempts as % of team pass attempts | Football developer: quantifies whether possession load is concentrated in one player |
-| `player_share_of_team_opp_box_touches_pct` | Triggered player opponent-box touches as % of team opponent-box touches | Football developer: contrasts overall possession load with final-third attacking footprint |
+| `player_share_of_team_opposition_box_touches_pct` | Triggered player opponent-box touches as % of team opponent-box touches | Football developer: contrasts overall possession load with final-third attacking footprint |
