@@ -22,6 +22,7 @@ Each signal has its own catalog file in this directory.
 - [sig_player_possession_passing_switch_expert.md](sig_player_possession_passing_switch_expert.md)
 - [sig_player_possession_passing_cross_heavy.md](sig_player_possession_passing_cross_heavy.md)
 - [sig_player_possession_passing_creative_hub.md](sig_player_possession_passing_creative_hub.md)
+- [sig_player_possession_passing_high_value_provider.md](sig_player_possession_passing_high_value_provider.md)
 - [sig_player_possession_passing_high_turnover_risk.md](sig_player_possession_passing_high_turnover_risk.md)
 - [sig_player_possession_passing_isolated_target.md](sig_player_possession_passing_isolated_target.md)
 - [sig_player_possession_passing_midfield_general.md](sig_player_possession_passing_midfield_general.md)
