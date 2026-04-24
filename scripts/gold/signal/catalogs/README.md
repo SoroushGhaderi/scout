@@ -28,6 +28,7 @@ Each signal has its own catalog file in this directory.
 - [sig_player_possession_passing_high_turnover_risk.md](sig_player_possession_passing_high_turnover_risk.md)
 - [sig_player_possession_passing_isolated_target.md](sig_player_possession_passing_isolated_target.md)
 - [sig_player_possession_passing_midfield_general.md](sig_player_possession_passing_midfield_general.md)
+- [sig_player_possession_passing_overloaded_possession.md](sig_player_possession_passing_overloaded_possession.md)
 - [sig_player_possession_passing_back_pass_heavy.md](sig_player_possession_passing_back_pass_heavy.md)
 - [sig_player_possession_passing_recycling_specialist.md](sig_player_possession_passing_recycling_specialist.md)
 - [sig_player_possession_passing_vertical_threat.md](sig_player_possession_passing_vertical_threat.md)
