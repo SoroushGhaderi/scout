@@ -667,3 +667,81 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_possession_passing_aerial_reliance (
 ) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
+
+CREATE TABLE IF NOT EXISTS gold.sig_team_possession_passing_press_resistance (
+    match_id Int32,
+    match_date Date,
+    home_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_id Nullable(Int32),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    triggered_side LowCardinality(String),
+    triggered_team_id Nullable(Int32),
+    triggered_team_name Nullable(String),
+    opponent_team_id Nullable(Int32),
+    opponent_team_name Nullable(String),
+    triggered_team_pass_attempts Int32,
+    opponent_pass_attempts Int32,
+    triggered_team_accurate_passes Int32,
+    opponent_accurate_passes Int32,
+    triggered_team_pass_acc_pct Float32,
+    opponent_pass_acc_pct Float32,
+    pass_accuracy_delta_pct Float32,
+    triggered_team_own_half_passes Int32,
+    opponent_own_half_passes Int32,
+    triggered_team_own_half_pass_share_pct Float32,
+    opponent_own_half_pass_share_pct Float32,
+    triggered_team_possession_pct Float32,
+    opponent_possession_pct Float32,
+    triggered_team_interceptions Int32,
+    opponent_interceptions Int32,
+    triggered_team_tackles_won Int32,
+    opponent_tackles_won Int32,
+    triggered_team_fouls Int32,
+    opponent_fouls Int32,
+    triggered_team_press_actions Int32,
+    opponent_press_actions Int32,
+    opponent_press_actions_per_100_triggered_passes Float32,
+    press_actions_delta Int32,
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, triggered_side)
+PARTITION BY toYYYYMM(match_date);
+
+CREATE TABLE IF NOT EXISTS gold.sig_player_possession_passing_safe_outlet (
+    match_id Int32,
+    match_date Date,
+    home_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_id Nullable(Int32),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    triggered_side LowCardinality(String),
+    triggered_player_id Int32,
+    triggered_player_name Nullable(String),
+    triggered_team_id Nullable(Int32),
+    triggered_team_name Nullable(String),
+    opponent_team_id Nullable(Int32),
+    opponent_team_name Nullable(String),
+    triggered_player_pass_attempts Int32,
+    triggered_player_accurate_passes Int32,
+    triggered_player_pass_accuracy_pct Float32,
+    triggered_player_minutes_played Int32,
+    triggered_player_touches Int32,
+    triggered_player_passes_final_third Int32,
+    triggered_team_pass_attempts Int32,
+    opponent_pass_attempts Int32,
+    triggered_team_accurate_passes Int32,
+    opponent_accurate_passes Int32,
+    triggered_team_pass_accuracy_pct Float32,
+    opponent_pass_accuracy_pct Float32,
+    triggered_team_possession_pct Float32,
+    opponent_possession_pct Float32,
+    player_share_of_team_passes_pct Float32,
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, triggered_side, triggered_player_id)
+PARTITION BY toYYYYMM(match_date);

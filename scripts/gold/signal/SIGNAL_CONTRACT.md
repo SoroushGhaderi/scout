@@ -93,6 +93,10 @@ File: `clickhouse/gold/signal/sig_<name>.sql`
 15. Tactical context metrics MUST be symmetric as `triggered_team_*` and `opponent_*` pairs. Unpaired fields are allowed only for explicit net/delta outputs.
 16. Canonical side-orientation field is `triggered_side`. Legacy `triggered_team_side` is tolerated for existing tables, but new signals MUST use `triggered_side`.
 17. If both teams can satisfy a trigger in one match but only one row is emitted, SQL MUST define deterministic precedence (for example home-priority) and expose an explicit bilateral flag (for example `both_sides_triggered`).
+18. Player-triggered signals MUST store both player identity and team context in final output rows:
+   - `triggered_player_id` and `triggered_player_name`
+   - `triggered_team_id` and `triggered_team_name`
+   - `triggered_side` plus opponent team identifiers (`opponent_team_id`, `opponent_team_name`) unless the signal is explicitly non-opponent-oriented.
 
 ## Analyst Query Contract (Ad-hoc SQL Before Production)
 
@@ -107,6 +111,7 @@ When generating analyst-facing exploratory SQL:
    - `home_score`, `away_score`
    - triggered entity identifier (team or player)
    - measured signal value
+   - for player-triggered signals: include both player identifiers (`triggered_player_id`, `triggered_player_name`) and triggered team identifiers (`triggered_team_id`, `triggered_team_name`)
 4. Enrichment SHOULD remain tactically relevant and symmetric.
 5. A markdown schema table MUST follow SQL with exactly these headers:
    - `Column Name`
@@ -159,6 +164,7 @@ Additional rules:
 1. Catalogs MUST reference SQL by path and MUST NOT embed full SQL bodies.
 2. `Reason` entries MUST explain analytical value (diagnostics, tactical interpretation, feature engineering, QA, or downstream modeling impact).
 3. `catalogs/README.md` MUST link every active `sig_<name>.md`.
+4. For player-triggered signals, catalog output schemas MUST document both `triggered_player_*` and `triggered_team_*` identity fields.
 
 ## Validation and Release Gate
 
