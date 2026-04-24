@@ -20,6 +20,7 @@ Each signal has its own catalog file in this directory.
 - [sig_player_possession_passing_safe_outlet.md](sig_player_possession_passing_safe_outlet.md)
 - [sig_player_possession_passing_long_ball_specialist.md](sig_player_possession_passing_long_ball_specialist.md)
 - [sig_player_possession_passing_cross_heavy.md](sig_player_possession_passing_cross_heavy.md)
+- [sig_player_possession_passing_creative_hub.md](sig_player_possession_passing_creative_hub.md)
 
 Each per-signal catalog includes:
 
