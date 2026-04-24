@@ -66,8 +66,8 @@ SELECT
     if(p.team_id = m.home_team_id, m.away_team_id, m.home_team_id) AS opponent_team_id,
     if(p.team_id = m.home_team_id, m.away_team_name, m.home_team_name) AS opponent_team_name,
 
-    mp.position_id AS triggered_player_position_id,
-    mp.usual_playing_position_id AS triggered_player_usual_playing_position_id,
+    mp.player_position_id AS triggered_player_position_id,
+    mp.player_usual_playing_position_id AS triggered_player_usual_playing_position_id,
     coalesce(p.minutes_played, 0) AS triggered_player_minutes_played,
     coalesce(p.touches, 0) AS triggered_player_touches,
     coalesce(
@@ -227,8 +227,8 @@ INNER JOIN (
     SELECT
         match_id,
         person_id,
-        min(position_id) AS position_id,
-        min(usual_playing_position_id) AS usual_playing_position_id
+        min(position_id) AS player_position_id,
+        min(usual_playing_position_id) AS player_usual_playing_position_id
     FROM silver.match_personnel
     WHERE coalesce(usual_playing_position_id, 0) = 3
     GROUP BY
@@ -251,5 +251,5 @@ ORDER BY
     triggered_player_touches ASC,
     triggered_player_minutes_played DESC,
     triggered_team_possession_pct ASC,
-    match_date DESC,
-    match_id DESC;
+    m.match_date DESC,
+    m.match_id DESC;
