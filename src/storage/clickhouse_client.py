@@ -32,7 +32,7 @@ class ClickHouseClient:
     """ClickHouse client for data warehouse operations."""
 
     ALLOWED_TABLES = {
-        "match_index",
+        "match_reference",
         "general",
         "timeline",
         "venue",

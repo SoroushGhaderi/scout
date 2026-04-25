@@ -65,7 +65,7 @@ from src.utils.logging_utils import get_logger, setup_logging
 # ============================================================================
 
 FOTMOB_TABLES = [
-    "match_index",
+    "match_reference",
     "general",
     "timeline",
     "venue",
@@ -88,7 +88,7 @@ TABLES_WITH_INSERTED_AT = ["starters", "substitutes"]  # coaches excluded
 
 # Unique keys for deduplication
 UNIQUE_KEY_COLUMNS = {
-    "match_index": ["match_id"],
+    "match_reference": ["match_id"],
     "general": ["match_id"],
     "timeline": ["match_id"],
     "venue": ["match_id"],

@@ -350,7 +350,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
         self.logger.debug("Processing match payload", match_id=match_id)
         general_stats = self.process_general_stats(raw_response)
         processed_data = {
-            "match_index": self.process_match_index(general_stats),
+            "match_reference": self.process_match_reference(general_stats),
             "general": general_stats,
             "timeline": self.process_match_timeline(raw_response),
             "goal": self.process_goal_events_from_header(raw_response),
@@ -382,7 +382,7 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
         match_time_utc_date: Optional[str],
         match_time_utc: Optional[str],
     ) -> str:
-        """Resolve a stable YYYY-MM-DD match date for the bronze match index."""
+        """Resolve a stable YYYY-MM-DD match date for the bronze match reference."""
         for raw_value in (match_time_utc_date, match_time_utc):
             if not raw_value:
                 continue
@@ -391,14 +391,14 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
                 return date_match.group(1)
         return "1970-01-01"
 
-    def process_match_index(
+    def process_match_reference(
         self, general_stats: Optional[Dict[str, Any]]
     ) -> Optional[Dict[str, Any]]:
-        """Process the compact match lookup/index row for bronze filters."""
+        """Process the compact match reference row for bronze filters."""
         if not general_stats:
             return None
 
-        match_index_fields = {
+        match_reference_fields = {
             "match_id",
             "match_date",
             "match_time_utc",
@@ -423,16 +423,16 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             "home_score",
             "away_score",
         }
-        match_index = {
+        match_reference = {
             key: value
             for key, value in general_stats.items()
-            if key in match_index_fields
+            if key in match_reference_fields
         }
-        match_index["match_date"] = self._extract_match_date(
+        match_reference["match_date"] = self._extract_match_date(
             general_stats.get("match_time_utc_date"),
             general_stats.get("match_time_utc"),
         )
-        return match_index
+        return match_reference
 
     def _convert_to_dataframes(self, processed_data: Dict[str, Any]) -> Dict[str, pd.DataFrame]:
         """Convert processed data to DataFrames."""

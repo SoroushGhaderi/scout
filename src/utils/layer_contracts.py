@@ -16,7 +16,7 @@ class LayerContractError(RuntimeError):
 
 
 BRONZE_REQUIRED_KEYS: Dict[str, List[str]] = {
-    "match_index": ["match_id"],
+    "match_reference": ["match_id"],
     "general": ["match_id"],
     "timeline": ["match_id"],
     "venue": ["match_id"],

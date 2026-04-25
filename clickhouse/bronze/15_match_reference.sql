@@ -1,5 +1,5 @@
--- Compact bronze match index for fast date/id/team filtering.
-CREATE TABLE IF NOT EXISTS bronze.match_index
+-- Compact bronze match reference for fast date/id/team filtering.
+CREATE TABLE IF NOT EXISTS bronze.match_reference
 (
     match_id                        Int32,
     match_date                      Date,
