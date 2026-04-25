@@ -24,6 +24,8 @@ def _gold_sql_filter(part: str):
         name = sql_path.name.lower()
         if "create_database" in name:
             return True
+        if "match_reference" in name:
+            return True
         if part == "scenarios":
             return "create" in name and "scenario" in name
         if part == "signals":

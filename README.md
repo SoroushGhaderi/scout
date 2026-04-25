@@ -196,6 +196,16 @@ And it refreshes signal tables (via `scripts/gold/signal/runners/signal_*.py`), 
 
 - `gold.sig_team_possession_passing_high_press_victim`
 
+After the selected scenario/signal jobs finish, the gold loader refreshes match-level
+availability references:
+
+- `gold.match_scenario_reference`
+- `gold.match_signal_reference`
+
+Both tables carry the same match fields as `bronze.match_reference`, plus arrays and
+counts for all available/unavailable scenario or signal ids per match. Report
+availability is not modeled in gold yet.
+
 ## Full Pipeline Modes
 
 ### One date

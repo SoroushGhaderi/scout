@@ -17,6 +17,7 @@ from config.settings import settings
 from src.processors.gold.fotmob import FotMobGoldProcessor
 from src.storage.clickhouse_client import ClickHouseClient
 from src.storage.gold.fotmob import FotMobGoldStorage
+from src.storage.gold.match_reference import ContentPart, refresh_match_reference
 from src.utils.layer_completion_alerts import send_layer_completion_alert
 from src.utils.layer_contracts import LayerContractError, assert_gold_layer_contracts
 from src.utils.logging_utils import get_logger, setup_logging
@@ -44,6 +45,15 @@ def _selected_script_groups(part: str) -> tuple[list[Path], list[Path]]:
     scenario_scripts = _scenario_scripts() if part in ("all", "scenarios") else []
     signal_scripts = _signal_scripts() if part in ("all", "signals") else []
     return scenario_scripts, signal_scripts
+
+
+def _selected_reference_parts(part: str) -> list[ContentPart]:
+    selected_parts: list[ContentPart] = []
+    if part in ("all", "scenarios"):
+        selected_parts.append("scenarios")
+    if part in ("all", "signals"):
+        selected_parts.append("signals")
+    return selected_parts
 
 
 def _build_command(script_path: Path) -> list[str]:
@@ -172,6 +182,26 @@ def _run_selected_jobs(part: str, dry_run: bool) -> tuple[int, int, int, int]:
     )
 
 
+def _refresh_selected_match_references(
+    client: ClickHouseClient,
+    part: str,
+) -> dict[ContentPart, int]:
+    refreshed_counts: dict[ContentPart, int] = {}
+    for reference_part in _selected_reference_parts(part):
+        logger.info("Refreshing gold %s match reference", reference_part)
+        refreshed_counts[reference_part] = refresh_match_reference(
+            client,
+            part=reference_part,
+            database="gold",
+        )
+        logger.info(
+            "Gold %s match reference refreshed from %s content table(s)",
+            reference_part,
+            refreshed_counts[reference_part],
+        )
+    return refreshed_counts
+
+
 def main(argv=None) -> int:
     global logger
     stage_start = time.perf_counter()
@@ -199,6 +229,12 @@ def main(argv=None) -> int:
             signal_success_count,
             signal_failed_count,
         ) = _run_selected_jobs(part=args.part, dry_run=True)
+        reference_parts = _selected_reference_parts(args.part)
+        for reference_part in reference_parts:
+            logger.info(
+                "[dry-run] Would refresh gold %s match reference after selected jobs",
+                reference_part,
+            )
         failed_count = scenario_failed_count + signal_failed_count
         total_jobs = (
             scenario_success_count
@@ -207,9 +243,7 @@ def main(argv=None) -> int:
             + signal_failed_count
         )
         successful_jobs = scenario_success_count + signal_success_count
-        scenario_success_rate = (
-            (successful_jobs / total_jobs * 100) if total_jobs > 0 else 0
-        )
+        scenario_success_rate = (successful_jobs / total_jobs * 100) if total_jobs > 0 else 0
         send_layer_completion_alert(
             layer="gold",
             summary_message="Gold SQL/scenario/signal dry-run finished.",
@@ -220,6 +254,7 @@ def main(argv=None) -> int:
                 f"SQL files planned: <b>{len(sql_files)}</b>",
                 f"Scenario failures: <b>{scenario_failed_count}</b>",
                 f"Signal failures: <b>{signal_failed_count}</b>",
+                f"Reference refreshes planned: <b>{len(reference_parts)}</b>",
             ],
             insight_lines=[
                 f"Scenario/signal pass projection: <b>{scenario_success_rate:.1f}%</b>",
@@ -261,6 +296,7 @@ def main(argv=None) -> int:
     scenario_failed_count = 0
     signal_success_count = 0
     signal_failed_count = 0
+    reference_refresh_counts: dict[ContentPart, int] = {}
     contracts_checked = False
     exit_code = 0
     try:
@@ -286,6 +322,10 @@ def main(argv=None) -> int:
             logger.error("Gold processing completed with failed scenario/signal scripts")
             exit_code = 1
             return exit_code
+        reference_refresh_counts = _refresh_selected_match_references(
+            client,
+            part=args.part,
+        )
         assert_gold_layer_contracts(client, database="gold", log=logger)
         contracts_checked = True
         logger.info("Gold processing completed successfully")
@@ -319,6 +359,10 @@ def main(argv=None) -> int:
                 f"Scenario failures: <b>{scenario_failed_count}</b>",
                 f"Signals succeeded: <b>{signal_success_count}</b>",
                 f"Signal failures: <b>{signal_failed_count}</b>",
+                (
+                    "Reference refreshes: "
+                    f"<b>{', '.join(f'{part}={count}' for part, count in reference_refresh_counts.items()) or '0'}</b>"
+                ),
                 f"Contract checks: <b>{'passed' if contracts_checked else 'failed or skipped'}</b>",
             ],
             insight_lines=[
