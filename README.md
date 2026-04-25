@@ -130,11 +130,18 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/l
 
 This creates or appends records in tables such as:
 
+- `bronze.match_index`
 - `bronze.general`
 - `bronze.player`
 - `bronze.shotmap`
 - `bronze.goal`
 - `bronze.period`
+
+`bronze.match_index` is a compact lookup table for filtering and tracking games by
+`match_id`, `match_date`, home/away team ids and names, league context, match
+status, and score. It is populated from the same FotMob general payload during
+Bronze loading, partitioned by `match_date`, and ordered by `(match_date, match_id)`
+for date/id/team-oriented queries.
 
 ### 5. Build Silver tables
 

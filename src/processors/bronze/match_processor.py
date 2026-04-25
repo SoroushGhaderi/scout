@@ -348,8 +348,10 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
 
         # Process data
         self.logger.debug("Processing match payload", match_id=match_id)
+        general_stats = self.process_general_stats(raw_response)
         processed_data = {
-            "general": self.process_general_stats(raw_response),
+            "match_index": self.process_match_index(general_stats),
+            "general": general_stats,
             "timeline": self.process_match_timeline(raw_response),
             "goal": self.process_goal_events_from_header(raw_response),
             "red_card": self.process_red_card_events(raw_response),
@@ -374,6 +376,63 @@ class FotMobBronzeMatchProcessor(ProcessorProtocol):
             self.logger.debug("Completed processing match", match_id=match_id)
 
         return dataframes, validation_summary
+
+    @staticmethod
+    def _extract_match_date(
+        match_time_utc_date: Optional[str],
+        match_time_utc: Optional[str],
+    ) -> str:
+        """Resolve a stable YYYY-MM-DD match date for the bronze match index."""
+        for raw_value in (match_time_utc_date, match_time_utc):
+            if not raw_value:
+                continue
+            date_match = re.match(r"^\s*(\d{4}-\d{2}-\d{2})", str(raw_value))
+            if date_match:
+                return date_match.group(1)
+        return "1970-01-01"
+
+    def process_match_index(
+        self, general_stats: Optional[Dict[str, Any]]
+    ) -> Optional[Dict[str, Any]]:
+        """Process the compact match lookup/index row for bronze filters."""
+        if not general_stats:
+            return None
+
+        match_index_fields = {
+            "match_id",
+            "match_date",
+            "match_time_utc",
+            "match_time_utc_date",
+            "match_round",
+            "coverage_level",
+            "league_id",
+            "league_name",
+            "league_round_name",
+            "parent_league_id",
+            "parent_league_name",
+            "parent_league_season",
+            "parent_league_tournament_id",
+            "country_code",
+            "home_team_id",
+            "home_team_name",
+            "away_team_id",
+            "away_team_name",
+            "match_started",
+            "match_finished",
+            "full_score",
+            "home_score",
+            "away_score",
+        }
+        match_index = {
+            key: value
+            for key, value in general_stats.items()
+            if key in match_index_fields
+        }
+        match_index["match_date"] = self._extract_match_date(
+            general_stats.get("match_time_utc_date"),
+            general_stats.get("match_time_utc"),
+        )
+        return match_index
 
     def _convert_to_dataframes(self, processed_data: Dict[str, Any]) -> Dict[str, pd.DataFrame]:
         """Convert processed data to DataFrames."""

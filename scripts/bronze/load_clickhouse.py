@@ -33,7 +33,7 @@ import tarfile
 import warnings
 from calendar import monthrange
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -65,6 +65,7 @@ from src.utils.logging_utils import get_logger, setup_logging
 # ============================================================================
 
 FOTMOB_TABLES = [
+    "match_index",
     "general",
     "timeline",
     "venue",
@@ -87,6 +88,7 @@ TABLES_WITH_INSERTED_AT = ["starters", "substitutes"]  # coaches excluded
 
 # Unique keys for deduplication
 UNIQUE_KEY_COLUMNS = {
+    "match_index": ["match_id"],
     "general": ["match_id"],
     "timeline": ["match_id"],
     "venue": ["match_id"],
@@ -232,6 +234,50 @@ def prepare_nullable_numeric_columns(df: pd.DataFrame) -> pd.DataFrame:
                     df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
             except (ValueError, TypeError):
                 pass
+    return df
+
+
+def prepare_temporal_columns_for_schema(
+    df: pd.DataFrame,
+    schema_rows: List,
+    table_name: str,
+    logger: logging.Logger,
+) -> pd.DataFrame:
+    """Convert ClickHouse Date/DateTime columns to Python temporal values."""
+    for row in schema_rows:
+        if not row or len(row) < 2:
+            continue
+        col_name = row[0] if isinstance(row, (list, tuple)) else str(row)
+        col_type = str(row[1] if isinstance(row, (list, tuple)) else row)
+        if col_name not in df.columns:
+            continue
+
+        is_nullable = "Nullable" in col_type
+        if "DateTime" in col_type:
+            parsed = pd.to_datetime(df[col_name], errors="coerce")
+            if is_nullable:
+                df[col_name] = parsed.astype(object).where(parsed.notna(), None)
+            else:
+                df[col_name] = parsed.fillna(datetime(1970, 1, 1))
+        elif re.search(r"\bDate\b", col_type):
+            parsed = pd.to_datetime(df[col_name], errors="coerce")
+            fallback_date = date(1970, 1, 1)
+            if is_nullable:
+                df[col_name] = parsed.dt.date.where(parsed.notna(), None)
+            else:
+                null_count = int(parsed.isna().sum())
+                if null_count:
+                    logger.warning(
+                        "Found invalid dates in non-nullable Date column; using fallback",
+                        extra={
+                            "table_name": table_name,
+                            "column_name": col_name,
+                            "invalid_count": null_count,
+                            "fallback_date": fallback_date.isoformat(),
+                        },
+                    )
+                df[col_name] = parsed.dt.date.where(parsed.notna(), fallback_date)
+
     return df
 
 
@@ -738,6 +784,9 @@ def process_fotmob_table(
 
     table_has_inserted_at = check_table_has_inserted_at(schema_rows)
     combined_df = validate_and_fix_schema(combined_df, physical_table, logger, schema_rows)
+    combined_df = prepare_temporal_columns_for_schema(
+        combined_df, schema_rows, physical_table, logger
+    )
     combined_df = add_inserted_at_column(combined_df, table_has_inserted_at)
     assert_bronze_dataframe_contract(clickhouse_table, combined_df, log=logger)
 
@@ -924,6 +973,9 @@ def _process_special_fotmob_table(
     combined_df = prepare_int64_columns(combined_df, table_name)
     combined_df = prepare_nullable_numeric_columns(combined_df)
     combined_df = validate_and_fix_schema(combined_df, physical_table, logger, schema_rows)
+    combined_df = prepare_temporal_columns_for_schema(
+        combined_df, schema_rows, physical_table, logger
+    )
     assert_bronze_dataframe_contract(table_name, combined_df, log=logger)
 
     # Add inserted_at only for tables that have it
