@@ -17,6 +17,7 @@ This contract applies to:
 - `scripts/gold/signal/runners/sig_*.py`
 - `scripts/gold/load_clickhouse_scenarios.py`
 - `scripts/gold/signal/catalogs/*.md`
+- `gold.match_signal_reference` as the match-level signal availability reference
 
 Compatibility note:
 
@@ -162,6 +163,7 @@ When generating analyst-facing exploratory SQL:
 2. Runner logic MUST NOT embed business SQL inline.
 3. A runner MUST execute only its own signal SQL file.
 4. Runner SQL discovery MUST be deterministic and fail fast when the resolved SQL file is missing.
+5. Any SQL used by shared signal orchestration helpers MUST live in `.sql` files. Python MAY render validated SQL-template placeholders and pass query parameters, but MUST NOT inline business or reference queries.
 
 ## Bulk Execution Contract
 
@@ -171,7 +173,28 @@ When generating analyst-facing exploratory SQL:
 2. MUST discover and run `scripts/gold/scenario/scenario*.py` in sorted order.
 3. MUST discover and run `scripts/gold/signal/runners/sig*.py` in sorted order. It MAY also include legacy `signal*.py` during migration.
 4. MUST support `--dry-run` plan mode.
-5. MUST run `assert_gold_layer_contracts` after scenario and signal execution.
+5. MUST refresh `gold.match_signal_reference` after successful selected signal execution.
+6. MUST run `assert_gold_layer_contracts` after scenario and signal execution.
+
+## Match Signal Reference Contract
+
+Table: `gold.match_signal_reference`
+
+Purpose: a Gold-layer match reference that mirrors the match information in `bronze.match_reference` and records which Gold signals are available for each match.
+
+1. The table MUST preserve the same match-information columns as `bronze.match_reference`.
+2. The table MUST include:
+   - `all_signal_ids`
+   - `available_signal_ids`
+   - `unavailable_signal_ids`
+   - `signal_count`
+   - `available_signal_count`
+   - `has_any_signal`
+3. Availability MUST be derived from Gold signal tables with `sig_` prefixes and valid `match_id` columns.
+4. The reference MUST be refreshed only after selected signal jobs complete successfully.
+5. Reference refresh SQL MUST live under `clickhouse/gold/reference/*.sql`.
+6. Python orchestration MUST only load/render those SQL files and pass required variables or query parameters.
+7. Report availability is out of scope for this contract for now.
 
 ## Catalog Contract
 
