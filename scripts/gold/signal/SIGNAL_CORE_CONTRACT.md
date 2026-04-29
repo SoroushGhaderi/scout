@@ -143,97 +143,53 @@ Additional rules:
    ---
    signal_id: sig_<name>
    status: active
-   version: 2
-   taxonomy:
-     entity: team
-     family: possession
-     subfamily: passing
-     grain: match_team
-   pulse:
-     headline: "Human-readable signal headline"
-     default_surface: team_match_signal_card
-     insight_type: tactical_diagnostic
-     value_to_user:
-       - diagnostics
-       - tactical_interpretation
-       - feature_engineering
-     narrative_template: "{signal_id} triggered for {triggered_side_or_player} in match {match_id}"
-   trigger:
-     primary_expression: "human-readable trigger expression"
-     trigger_scope: single_match
-     polarity: higher_is_stronger
-   identity:
-     row_identity:
-       - match_id
-       - triggered_side
-     required_output_keys:
-       - triggered_side
-     dedupe_policy: one_row_per_identity
-   asset_binding:
-     resolution: convention_based
-     conventions:
-       target_table: "gold.{signal_id}"
-       sql_path: "clickhouse/gold/signal/{signal_id}.sql"
-       runner_path: "scripts/gold/signal/runners/{signal_id}.py"
-     overrides: {}
-   quality:
-     qa_expectations:
-       - row_identity must be unique per run
-       - trigger context fields must be internally consistent
-     downstream_impact:
-       - pulse_ui_explainability
-       - tactical_clustering_features
+   entity: team
+   family: possession
+   subfamily: passing
+   grain: match_team
+   headline: "Human-readable signal headline"
+   trigger: "human-readable trigger expression"
+   row_identity:
+     - match_id
+     - triggered_side
+   asset_paths:
+     table: gold.sig_<name>
+     sql: clickhouse/gold/signal/sig_<name>.sql
+     runner: scripts/gold/signal/runners/sig_<name>.py
    ---
    ```
 
 2. Required metadata fields are:
    - `signal_id`
    - `status` (`active`, `experimental`, or `deprecated`)
-   - `version`
-   - `taxonomy.entity` (`team` or `player`)
-   - `taxonomy.family`
-   - `taxonomy.subfamily`
-   - `taxonomy.grain`
-   - `pulse.headline`
-   - `pulse.default_surface`
-   - `pulse.insight_type`
-   - `pulse.value_to_user`
-   - `pulse.narrative_template`
-   - `trigger.primary_expression`
-   - `trigger.trigger_scope`
-   - `trigger.polarity`
-   - `identity.row_identity`
-   - `identity.required_output_keys`
-   - `identity.dedupe_policy`
-   - `asset_binding.resolution`
-   - `asset_binding.conventions.target_table`
-   - `asset_binding.conventions.sql_path`
-   - `asset_binding.conventions.runner_path`
-   - `asset_binding.overrides`
-   - `quality.qa_expectations`
-   - `quality.downstream_impact`
-3. Asset references MUST resolve from convention by default:
-   - target table: `gold.{signal_id}`
-   - SQL path: `clickhouse/gold/signal/{signal_id}.sql`
-   - runner path: `scripts/gold/signal/runners/{signal_id}.py`
-4. If any signal deviates from convention, `asset_binding.overrides` MUST explicitly list non-default assets, and resolved assets MUST match package files exactly.
-5. `taxonomy.grain` MUST describe row grain. Accepted values:
+   - `entity` (`team` or `player`)
+   - `family`
+   - `subfamily`
+   - `grain`
+   - `headline`
+   - `trigger`
+   - `row_identity`
+   - `asset_paths.table`
+   - `asset_paths.sql`
+   - `asset_paths.runner`
+3. `grain` MUST describe row grain. Accepted values:
    - `match_team`
    - `match_player`
-6. `identity.row_identity` MUST list stable deduplication identity for final rows:
+4. `row_identity` MUST list stable deduplication identity for final rows:
    - Team-triggered signals SHOULD use `match_id` and `triggered_side`.
    - Player-triggered signals SHOULD use `match_id`, `triggered_player_id`, and `triggered_team_id`.
-7. `identity.required_output_keys` MUST include fields needed for deterministic UI rendering and joins.
-8. Catalogs MUST reference SQL by path and MUST NOT embed full SQL bodies.
-9. `Reason` entries MUST explain analytical value (diagnostics, tactical interpretation, feature engineering, QA, or downstream modeling impact).
-10. `catalogs/README.md` MUST include every active `sig_<name>.md` in a structured table with these headers:
-    - `Signal ID`
-    - `Entity`
-    - `Family`
-    - `Subfamily`
-    - `Grain`
-    - `Status`
-    - `Catalog`
-11. For player-triggered signals:
-    - `identity.required_output_keys` MUST include both `triggered_player_*` and `triggered_team_*` identity fields.
-    - catalog output schemas MUST document both `triggered_player_*` and `triggered_team_*` identity fields.
+5. Asset paths SHOULD follow convention and MUST match actual package files:
+   - table: `gold.<signal_id>`
+   - SQL path: `clickhouse/gold/signal/<signal_id>.sql`
+   - runner path: `scripts/gold/signal/runners/<signal_id>.py`
+6. Catalogs MUST reference SQL by path and MUST NOT embed full SQL bodies.
+7. `Reason` entries MUST explain analytical value (diagnostics, tactical interpretation, feature engineering, QA, or downstream modeling impact).
+8. `catalogs/README.md` MUST include every active `sig_<name>.md` in a structured table with these headers:
+   - `Signal ID`
+   - `Entity`
+   - `Family`
+   - `Subfamily`
+   - `Grain`
+   - `Status`
+   - `Catalog`
+9. For player-triggered signals, catalog output schemas MUST document both `triggered_player_*` and `triggered_team_*` identity fields.

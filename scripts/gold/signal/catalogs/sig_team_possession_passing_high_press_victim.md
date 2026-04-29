@@ -1,52 +1,19 @@
 ---
 signal_id: sig_team_possession_passing_high_press_victim
 status: active
-version: 2
-
-taxonomy:
-  entity: team
-  family: possession
-  subfamily: passing
-  grain: match_team
-
-pulse:
-  headline: "High Press Victim"
-  default_surface: team_match_signal_card
-  insight_type: tactical_diagnostic
-  value_to_user:
-    - diagnostics
-    - tactical_interpretation
-    - feature_engineering
-  narrative_template: "{signal_id} triggered for {triggered_side_or_player} in match {match_id}"
-
-trigger:
-  primary_expression: "accurate_passes / pass_attempts < 0.70` for home or away in full-match totals (`period = 'All'`)"
-  trigger_scope: single_match
-  polarity: higher_is_stronger
-
-identity:
-  row_identity:
-    - match_id
-    - triggered_side
-  required_output_keys:
-    - triggered_side
-  dedupe_policy: one_row_per_identity
-
-asset_binding:
-  resolution: convention_based
-  conventions:
-    target_table: "gold.{signal_id}"
-    sql_path: "clickhouse/gold/signal/{signal_id}.sql"
-    runner_path: "scripts/gold/signal/runners/{signal_id}.py"
-  overrides: {}
-
-quality:
-  qa_expectations:
-    - row_identity must be unique per run
-    - trigger context fields must be internally consistent
-  downstream_impact:
-    - pulse_ui_explainability
-    - tactical_clustering_features
+entity: team
+family: possession
+subfamily: passing
+grain: match_team
+headline: "High Press Victim"
+trigger: "accurate_passes / pass_attempts < 0.70` for home or away in full-match totals (`period = 'All'`)"
+row_identity:
+  - match_id
+  - triggered_side
+asset_paths:
+  table: gold.sig_team_possession_passing_high_press_victim
+  sql: clickhouse/gold/signal/sig_team_possession_passing_high_press_victim.sql
+  runner: scripts/gold/signal/runners/sig_team_possession_passing_high_press_victim.py
 ---
 # sig_team_possession_passing_high_press_victim
 
