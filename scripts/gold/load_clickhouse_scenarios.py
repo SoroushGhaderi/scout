@@ -66,12 +66,17 @@ def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
         "--part",
         choices=("all", "scenarios", "signals"),
         default="all",
-        help="Which gold job scripts to run: scenarios, signals, or all (default: all)",
+        help="Full load: which scenario/signal job groups to run. Reference-only: which gold.match_*_reference table(s) to refresh (all | scenarios | signals).",
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Preview gold SQL/scenario/signal jobs without executing SQL or subprocesses",
+    )
+    parser.add_argument(
+        "--reference-only",
+        action="store_true",
+        help="Only refresh gold.match_scenario_reference / gold.match_signal_reference from silver.match + existing gold.* tables. Skips base gold SQL and scenario/signal scripts (use when gold is already built or a full run failed before the refresh step).",
     )
     return parser.parse_args(argv)
 
@@ -212,6 +217,15 @@ def main(argv=None) -> int:
         log_level=settings.log_level,
     )
     if args.dry_run:
+        if args.reference_only:
+            parts = _selected_reference_parts(args.part)
+            logger.info(
+                "Reference-only dry-run: would refresh match reference for --part=%s: %s",
+                args.part,
+                parts or "none",
+            )
+            logger.info("Gold dry-run completed successfully")
+            return 0
         logger.info("Running gold loader in dry-run mode (no SQL will be executed)")
         sql_dir = project_root / "clickhouse" / "gold"
         processor = FotMobGoldProcessor(sql_dir=sql_dir)
@@ -300,35 +314,45 @@ def main(argv=None) -> int:
     contracts_checked = False
     exit_code = 0
     try:
-        sql_dir = project_root / "clickhouse" / "gold"
-        processor = FotMobGoldProcessor(sql_dir=sql_dir)
-        storage = FotMobGoldStorage(client, database="gold")
+        if not args.reference_only:
+            sql_dir = project_root / "clickhouse" / "gold"
+            processor = FotMobGoldProcessor(sql_dir=sql_dir)
+            storage = FotMobGoldStorage(client, database="gold")
 
-        sql_files = processor.sql_files()
-        if not sql_files:
-            logger.info("No non-DDL gold SQL files selected for load in %s", sql_dir)
-            sql_file_count = 0
+            sql_files = processor.sql_files()
+            if not sql_files:
+                logger.info("No non-DDL gold SQL files selected for load in %s", sql_dir)
+                sql_file_count = 0
+            else:
+                sql_file_count = len(sql_files)
+                storage.execute_sql_files(sql_files)
+            logger.info("Selected gold job scripts via --part=%s", args.part)
+            (
+                scenario_success_count,
+                scenario_failed_count,
+                signal_success_count,
+                signal_failed_count,
+            ) = _run_selected_jobs(part=args.part, dry_run=False)
+            if scenario_failed_count > 0 or signal_failed_count > 0:
+                logger.error("Gold processing completed with failed scenario/signal scripts")
+                exit_code = 1
+                return exit_code
         else:
-            sql_file_count = len(sql_files)
-            storage.execute_sql_files(sql_files)
-        logger.info("Selected gold job scripts via --part=%s", args.part)
-        (
-            scenario_success_count,
-            scenario_failed_count,
-            signal_success_count,
-            signal_failed_count,
-        ) = _run_selected_jobs(part=args.part, dry_run=False)
-        if scenario_failed_count > 0 or signal_failed_count > 0:
-            logger.error("Gold processing completed with failed scenario/signal scripts")
-            exit_code = 1
-            return exit_code
+            logger.info(
+                "Reference-only: skipping base gold SQL and scenario/signal scripts; refreshing match references for --part=%s",
+                args.part,
+            )
+
         reference_refresh_counts = _refresh_selected_match_references(
             client,
             part=args.part,
         )
         assert_gold_layer_contracts(client, database="gold", log=logger)
         contracts_checked = True
-        logger.info("Gold processing completed successfully")
+        if args.reference_only:
+            logger.info("Reference-only run completed: %s", reference_refresh_counts)
+        else:
+            logger.info("Gold processing completed successfully")
         return exit_code
     except LayerContractError as contract_error:
         logger.error("Gold layer contract assertion failed", error=str(contract_error))
@@ -347,9 +371,14 @@ def main(argv=None) -> int:
             if total_jobs > 0
             else 0
         )
+        summary = (
+            "Match reference refresh finished."
+            if args.reference_only
+            else "Gold SQL + scenario/signal processing finished."
+        )
         send_layer_completion_alert(
             layer="gold",
-            summary_message="Gold SQL + scenario/signal processing finished.",
+            summary_message=summary,
             scope="runtime",
             success=exit_code == 0,
             duration_seconds=time.perf_counter() - stage_start,

@@ -32,8 +32,8 @@ INSERT INTO {{database}}.match_signal_reference (
 SELECT
     br.match_id,
     br.match_date,
-    br.match_time_utc,
-    br.match_time_utc_date,
+    if(isNull(br.match_time_utc), NULL, toString(br.match_time_utc)) AS match_time_utc,
+    toString(br.match_date) AS match_time_utc_date,
     br.match_round,
     br.coverage_level,
     br.league_id,
@@ -67,6 +67,6 @@ SELECT
     toUInt16(length(%(all_item_ids)s)) AS signal_count,
     toUInt16(length(ifNull(available.available_signal_ids, CAST([], 'Array(String)')))) AS available_signal_count,
     toUInt8(length(ifNull(available.available_signal_ids, CAST([], 'Array(String)'))) > 0) AS has_any_signal
-FROM bronze.match_reference FINAL AS br
+FROM silver.match AS br FINAL
 {{available_items_join}}
 WHERE br.match_id > 0

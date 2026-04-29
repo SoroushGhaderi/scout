@@ -180,7 +180,7 @@ When generating analyst-facing exploratory SQL:
 
 Table: `gold.match_signal_reference`
 
-Purpose: a Gold-layer match reference that mirrors the match information in `bronze.match_reference` and records which Gold signals are available for each match.
+Purpose: a Gold-layer match reference that uses the same match-information shape as `bronze.match_reference` and records which Gold signals are available for each match.
 
 1. The table MUST preserve the same match-information columns as `bronze.match_reference`.
 2. The table MUST include:
@@ -190,11 +190,12 @@ Purpose: a Gold-layer match reference that mirrors the match information in `bro
    - `signal_count`
    - `available_signal_count`
    - `has_any_signal`
-3. Availability MUST be derived from Gold signal tables with `sig_` prefixes and valid `match_id` columns.
-4. The reference MUST be refreshed only after selected signal jobs complete successfully.
-5. Reference refresh SQL MUST live under `clickhouse/gold/reference/*.sql`.
-6. Python orchestration MUST only load/render those SQL files and pass required variables or query parameters.
-7. Report availability is out of scope for this contract for now.
+3. Match metadata MUST be populated from `silver.match`, not `bronze.match_reference`.
+4. Availability MUST be derived from Gold signal tables with `sig_` prefixes and valid `match_id` columns.
+5. The reference MUST be refreshed only after selected signal jobs complete successfully.
+6. Reference refresh SQL MUST live under `clickhouse/gold/reference/*.sql`.
+7. Python orchestration MUST only load/render those SQL files and pass required variables or query parameters.
+8. Report availability is out of scope for this contract for now.
 
 ## Catalog Contract
 

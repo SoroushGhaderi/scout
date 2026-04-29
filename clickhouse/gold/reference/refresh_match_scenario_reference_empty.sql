@@ -32,8 +32,8 @@ INSERT INTO {{database}}.match_scenario_reference (
 SELECT
     br.match_id,
     br.match_date,
-    br.match_time_utc,
-    br.match_time_utc_date,
+    if(isNull(br.match_time_utc), NULL, toString(br.match_time_utc)) AS match_time_utc,
+    toString(br.match_date) AS match_time_utc_date,
     br.match_round,
     br.coverage_level,
     br.league_id,
@@ -59,5 +59,5 @@ SELECT
     toUInt16(0) AS scenario_count,
     toUInt16(0) AS available_scenario_count,
     toUInt8(0) AS has_any_scenario
-FROM bronze.match_reference FINAL AS br
+FROM silver.match AS br FINAL
 WHERE br.match_id > 0
