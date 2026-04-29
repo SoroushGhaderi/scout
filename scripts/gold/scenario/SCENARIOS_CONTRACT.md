@@ -10,7 +10,6 @@ This contract applies to:
 - `scripts/gold/scenario/scenario_*.py`
 - `scripts/gold/load_clickhouse_scenarios.py`
 - `scripts/gold/scenario/SCENARIOS_CATALOG.md`
-- `gold.match_scenario_reference` as the match-level scenario availability reference
 
 ## Scenario Unit Contract
 
@@ -64,27 +63,7 @@ All four parts are required for a production-ready scenario.
 1. Executes base gold SQL files from `clickhouse/gold/*.sql`.
 2. Discovers and executes `scripts/gold/scenario/scenario*.py` in sorted order.
 3. Supports `--dry-run` for plan/preview mode.
-4. Refreshes `gold.match_scenario_reference` after successful selected scenario execution.
-5. Runs `assert_gold_layer_contracts` after scenario execution.
-
-## Match Scenario Reference Contract
-
-Table: `gold.match_scenario_reference`
-
-Purpose: a Gold-layer match reference that uses the same match-information shape as `bronze.match_reference` and records which Gold scenarios are available for each match.
-
-1. The table must preserve the same match-information columns as `bronze.match_reference`.
-2. Match metadata must be populated from `silver.match`, not `bronze.match_reference`.
-3. The table must include:
-   - `all_scenario_ids`
-   - `available_scenario_ids`
-   - `unavailable_scenario_ids`
-   - `scenario_count`
-   - `available_scenario_count`
-   - `has_any_scenario`
-4. Availability must be derived from Gold scenario tables with `scenario_` prefixes and valid `match_id` columns.
-5. Reference refresh SQL must live under `clickhouse/gold/reference/*.sql`.
-6. Python orchestration must only load/render those SQL files and pass required variables or query parameters.
+4. Runs `assert_gold_layer_contracts` after scenario execution.
 
 ## Catalog Contract
 

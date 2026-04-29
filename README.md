@@ -175,13 +175,6 @@ Preview gold SQL + scenario/signal execution without writes:
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py --dry-run
 ```
 
-If the gold layer is already built but `gold.match_scenario_reference` / `gold.match_signal_reference` are still empty, refresh only those tables (no re-run of other gold jobs):
-
-```bash
-# from pitchwise_orbit, with venv and .env; or via docker exec scraper
-python scripts/gold/load_clickhouse_scenarios.py --reference-only
-```
-
 This refreshes tables such as:
 
 - `gold.scenario_demolition`
@@ -202,19 +195,6 @@ It also refreshes scenario narrative tables (via `scripts/gold/scenario/scenario
 And it refreshes signal tables (via `scripts/gold/signal/runners/sig_*.py`), including:
 
 - `gold.sig_team_possession_passing_high_press_victim`
-
-After the selected scenario/signal jobs finish, the gold loader refreshes match-level
-availability references:
-
-- `gold.match_scenario_reference`
-- `gold.match_signal_reference`
-
-Both tables carry the same match fields as `bronze.match_reference`, but the Gold
-reference rows are populated from `silver.match` plus Gold scenario/signal tables.
-They also include arrays and counts for all available/unavailable scenario or signal
-ids per match. Report availability is not modeled in gold yet. Reference refresh SQL
-lives in `clickhouse/gold/reference/*.sql`; Python orchestration only loads those SQL
-templates, renders validated placeholders, and passes query parameters.
 
 ## Full Pipeline Modes
 

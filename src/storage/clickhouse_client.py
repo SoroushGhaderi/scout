@@ -47,8 +47,6 @@ class ClickHouseClient:
         "substitutes",
         "coaches",
         "team_form",
-        "match_signal_reference",
-        "match_scenario_reference",
         "scenario_demolition",
         "scenario_defensive_shutdown_win",
         "scenario_underdog_heist",

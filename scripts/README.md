@@ -25,16 +25,6 @@ Use these for all new documentation, automation, and daily runs:
 - `scripts/silver/load_clickhouse.py --dry-run`
 - `scripts/gold/load_clickhouse_scenarios.py --dry-run`
 
-### Gold match reference tables (empty `gold.match_*_reference`)
-
-If scenario/signal `gold` tables are already loaded but the reference tables are still empty (for example a full run exited before the refresh step, or a script failed and returned early), run only the reference refresh from `pitchwise_orbit`:
-
-- `python scripts/gold/load_clickhouse_scenarios.py --reference-only`
-- `python scripts/gold/load_clickhouse_scenarios.py --reference-only --part signals`
-- `python scripts/gold/load_clickhouse_scenarios.py --reference-only --part scenarios`
-
-Requires `silver.match` and the relevant `gold.scenario_*` / `gold.sig_*` content tables; discovery uses the `gold` database (see `00_create_database.sql`).
-
 ## Operational Utility Scripts
 
 - `scripts/ensure_directories.py`
