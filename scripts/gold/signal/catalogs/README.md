@@ -2,6 +2,25 @@
 
 Each active Gold signal has a catalog file in this directory. The index is structured from per-signal metadata so engineers and analysts can quickly scan signal ownership, grain, and status.
 
+## Metadata Contract (Pulse-Oriented)
+
+Catalogs now use a richer YAML block focused on Pulse consumption and analytical traceability:
+
+- `taxonomy`: classification dimensions used by Pulse navigation and filtering.
+- `pulse`: UI-facing metadata (`headline`, `default_surface`, narrative template, and user value tags).
+- `trigger`: machine-readable trigger expression and scope.
+- `identity`: deduplication identity and required output identity fields.
+- `asset_binding`: convention-based asset resolution to avoid repeating identical paths/tables in every file.
+- `quality`: QA expectations and downstream impact tags.
+
+Asset resolution is now convention-based:
+
+- Target table: `gold.{signal_id}`
+- SQL path: `clickhouse/gold/signal/{signal_id}.sql`
+- Runner path: `scripts/gold/signal/runners/{signal_id}.py`
+
+Use `asset_binding.overrides` only when a signal breaks the default convention.
+
 | Signal ID | Entity | Family | Subfamily | Grain | Status | Catalog |
 |---|---|---|---|---|---|---|
 | `sig_team_possession_passing_aerial_reliance` | team | possession | passing | `match_team` | active | [sig_team_possession_passing_aerial_reliance.md](sig_team_possession_passing_aerial_reliance.md) |
@@ -41,6 +60,6 @@ Each per-signal catalog includes:
 1. YAML metadata block
 2. Purpose
 3. Tactical and statistical logic
-4. Technical assets (SQL, runner, target table)
+4. Technical assets (convention-based unless overridden)
 5. Execution command
 6. Output schema table with column description and reason

@@ -1,18 +1,52 @@
 ---
 signal_id: sig_team_possession_passing_siege_mode
 status: active
-entity: team
-family: possession
-subfamily: passing
-grain: match_team
-target_table: gold.sig_team_possession_passing_siege_mode
-sql_path: clickhouse/gold/signal/sig_team_possession_passing_siege_mode.sql
-runner_path: scripts/gold/signal/runners/sig_team_possession_passing_siege_mode.py
-primary_trigger: "ball_possession_home > 80` (home trigger) or `ball_possession_away > 80` (away trigger) for `period = 'All'`"
-row_identity:
-  - match_id
-  - triggered_side
-version: 1
+version: 2
+
+taxonomy:
+  entity: team
+  family: possession
+  subfamily: passing
+  grain: match_team
+
+pulse:
+  headline: "Siege Mode"
+  default_surface: team_match_signal_card
+  insight_type: tactical_diagnostic
+  value_to_user:
+    - diagnostics
+    - tactical_interpretation
+    - feature_engineering
+  narrative_template: "{signal_id} triggered for {triggered_side_or_player} in match {match_id}"
+
+trigger:
+  primary_expression: "ball_possession_home > 80` (home trigger) or `ball_possession_away > 80` (away trigger) for `period = 'All'`"
+  trigger_scope: single_match
+  polarity: higher_is_stronger
+
+identity:
+  row_identity:
+    - match_id
+    - triggered_side
+  required_output_keys:
+    - triggered_side
+  dedupe_policy: one_row_per_identity
+
+asset_binding:
+  resolution: convention_based
+  conventions:
+    target_table: "gold.{signal_id}"
+    sql_path: "clickhouse/gold/signal/{signal_id}.sql"
+    runner_path: "scripts/gold/signal/runners/{signal_id}.py"
+  overrides: {}
+
+quality:
+  qa_expectations:
+    - row_identity must be unique per run
+    - trigger context fields must be internally consistent
+  downstream_impact:
+    - pulse_ui_explainability
+    - tactical_clustering_features
 ---
 # sig_team_possession_passing_siege_mode
 

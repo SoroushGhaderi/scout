@@ -17,7 +17,6 @@ This contract applies to:
 - `scripts/gold/signal/runners/sig_*.py`
 - `scripts/gold/load_clickhouse_scenarios.py`
 - `scripts/gold/signal/catalogs/*.md`
-- `gold.match_signal_reference` as the match-level signal availability reference
 
 Compatibility note:
 
@@ -173,29 +172,7 @@ When generating analyst-facing exploratory SQL:
 2. MUST discover and run `scripts/gold/scenario/scenario*.py` in sorted order.
 3. MUST discover and run `scripts/gold/signal/runners/sig*.py` in sorted order. It MAY also include legacy `signal*.py` during migration.
 4. MUST support `--dry-run` plan mode.
-5. MUST refresh `gold.match_signal_reference` after successful selected signal execution.
-6. MUST run `assert_gold_layer_contracts` after scenario and signal execution.
-
-## Match Signal Reference Contract
-
-Table: `gold.match_signal_reference`
-
-Purpose: a Gold-layer match reference that uses the same match-information shape as `bronze.match_reference` and records which Gold signals are available for each match.
-
-1. The table MUST preserve the same match-information columns as `bronze.match_reference`.
-2. The table MUST include:
-   - `all_signal_ids`
-   - `available_signal_ids`
-   - `unavailable_signal_ids`
-   - `signal_count`
-   - `available_signal_count`
-   - `has_any_signal`
-3. Match metadata MUST be populated from `silver.match`, not `bronze.match_reference`.
-4. Availability MUST be derived from Gold signal tables with `sig_` prefixes and valid `match_id` columns.
-5. The reference MUST be refreshed only after selected signal jobs complete successfully.
-6. Reference refresh SQL MUST live under `clickhouse/gold/reference/*.sql`.
-7. Python orchestration MUST only load/render those SQL files and pass required variables or query parameters.
-8. Report availability is out of scope for this contract for now.
+5. MUST run `assert_gold_layer_contracts` after scenario and signal execution.
 
 ## Catalog Contract
 
@@ -206,10 +183,7 @@ Each catalog MUST include:
 1. Metadata block
 2. Purpose
 3. Tactical and statistical logic
-4. Technical asset references:
-   - SQL path
-   - Runner path
-   - Target table
+4. Technical asset references (convention-based unless overridden)
 5. Example execution command
 6. Output schema table with:
    - `Column Name`
@@ -224,44 +198,90 @@ Additional rules:
    ---
    signal_id: sig_<name>
    status: active
-   entity: team
-   family: possession
-   subfamily: passing
-   grain: match_team
-   target_table: gold.sig_<name>
-   sql_path: clickhouse/gold/signal/sig_<name>.sql
-   runner_path: scripts/gold/signal/runners/sig_<name>.py
-   primary_trigger: "human-readable trigger expression"
-   row_identity:
-     - match_id
-     - triggered_side
-   version: 1
+   version: 2
+   taxonomy:
+     entity: team
+     family: possession
+     subfamily: passing
+     grain: match_team
+   pulse:
+     headline: "Human-readable signal headline"
+     default_surface: team_match_signal_card
+     insight_type: tactical_diagnostic
+     value_to_user:
+       - diagnostics
+       - tactical_interpretation
+       - feature_engineering
+     narrative_template: "{signal_id} triggered for {triggered_side_or_player} in match {match_id}"
+   trigger:
+     primary_expression: "human-readable trigger expression"
+     trigger_scope: single_match
+     polarity: higher_is_stronger
+   identity:
+     row_identity:
+       - match_id
+       - triggered_side
+     required_output_keys:
+       - triggered_side
+     dedupe_policy: one_row_per_identity
+   asset_binding:
+     resolution: convention_based
+     conventions:
+       target_table: "gold.{signal_id}"
+       sql_path: "clickhouse/gold/signal/{signal_id}.sql"
+       runner_path: "scripts/gold/signal/runners/{signal_id}.py"
+     overrides: {}
+   quality:
+     qa_expectations:
+       - row_identity must be unique per run
+       - trigger context fields must be internally consistent
+     downstream_impact:
+       - pulse_ui_explainability
+       - tactical_clustering_features
    ---
    ```
 
 2. Required metadata fields are:
    - `signal_id`
    - `status` (`active`, `experimental`, or `deprecated`)
-   - `entity` (`team` or `player`)
-   - `family`
-   - `subfamily`
-   - `grain`
-   - `target_table`
-   - `sql_path`
-   - `runner_path`
-   - `primary_trigger`
-   - `row_identity`
    - `version`
-3. `signal_id`, `target_table`, `sql_path`, and `runner_path` MUST match the signal package assets exactly.
-4. `grain` MUST describe the row grain. Current accepted values are:
+   - `taxonomy.entity` (`team` or `player`)
+   - `taxonomy.family`
+   - `taxonomy.subfamily`
+   - `taxonomy.grain`
+   - `pulse.headline`
+   - `pulse.default_surface`
+   - `pulse.insight_type`
+   - `pulse.value_to_user`
+   - `pulse.narrative_template`
+   - `trigger.primary_expression`
+   - `trigger.trigger_scope`
+   - `trigger.polarity`
+   - `identity.row_identity`
+   - `identity.required_output_keys`
+   - `identity.dedupe_policy`
+   - `asset_binding.resolution`
+   - `asset_binding.conventions.target_table`
+   - `asset_binding.conventions.sql_path`
+   - `asset_binding.conventions.runner_path`
+   - `asset_binding.overrides`
+   - `quality.qa_expectations`
+   - `quality.downstream_impact`
+3. Asset references MUST resolve from convention by default:
+   - target table: `gold.{signal_id}`
+   - SQL path: `clickhouse/gold/signal/{signal_id}.sql`
+   - runner path: `scripts/gold/signal/runners/{signal_id}.py`
+4. If any signal deviates from convention, `asset_binding.overrides` MUST explicitly list the non-default asset path/table and the resolved assets MUST match package files exactly.
+5. `taxonomy.grain` MUST describe the row grain. Current accepted values are:
    - `match_team`
    - `match_player`
-5. `row_identity` MUST list the stable deduplication identity for final rows:
+6. `identity.row_identity` MUST list the stable deduplication identity for final rows:
    - Team-triggered signals SHOULD use `match_id` and `triggered_side`.
    - Player-triggered signals SHOULD use `match_id`, `triggered_player_id`, and `triggered_team_id`.
-6. Catalogs MUST reference SQL by path and MUST NOT embed full SQL bodies.
-7. `Reason` entries MUST explain analytical value (diagnostics, tactical interpretation, feature engineering, QA, or downstream modeling impact).
-8. `catalogs/README.md` MUST include every active `sig_<name>.md` in a structured table with these headers:
+7. `identity.required_output_keys` MUST include the fields needed for deterministic UI rendering and joins.
+8. Catalogs MUST reference SQL by path and MUST NOT embed full SQL bodies.
+9. `Reason` entries MUST explain analytical value (diagnostics, tactical interpretation, feature engineering, QA, or downstream modeling impact).
+10. `catalogs/README.md` MUST include every active `sig_<name>.md` in a structured table with these headers:
    - `Signal ID`
    - `Entity`
    - `Family`
@@ -269,7 +289,9 @@ Additional rules:
    - `Grain`
    - `Status`
    - `Catalog`
-9. For player-triggered signals, catalog output schemas MUST document both `triggered_player_*` and `triggered_team_*` identity fields.
+11. For player-triggered signals:
+    - `identity.required_output_keys` MUST include both `triggered_player_*` and `triggered_team_*` identity fields.
+    - catalog output schemas MUST document both `triggered_player_*` and `triggered_team_*` identity fields.
 
 ## Validation and Release Gate
 

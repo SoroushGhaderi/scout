@@ -1,19 +1,56 @@
 ---
 signal_id: sig_player_possession_passing_switch_expert
 status: active
-entity: player
-family: possession
-subfamily: passing
-grain: match_player
-target_table: gold.sig_player_possession_passing_switch_expert
-sql_path: clickhouse/gold/signal/sig_player_possession_passing_switch_expert.sql
-runner_path: scripts/gold/signal/runners/sig_player_possession_passing_switch_expert.py
-primary_trigger: "player completes > 5 successful switches of play, proxied by accurate_long_balls from silver.player_match_stat"
-row_identity:
-  - match_id
-  - triggered_player_id
-  - triggered_team_id
-version: 1
+version: 2
+
+taxonomy:
+  entity: player
+  family: possession
+  subfamily: passing
+  grain: match_player
+
+pulse:
+  headline: "Switch Expert"
+  default_surface: player_match_signal_card
+  insight_type: tactical_diagnostic
+  value_to_user:
+    - diagnostics
+    - tactical_interpretation
+    - feature_engineering
+  narrative_template: "{signal_id} triggered for {triggered_side_or_player} in match {match_id}"
+
+trigger:
+  primary_expression: "player completes > 5 successful switches of play, proxied by accurate_long_balls from silver.player_match_stat"
+  trigger_scope: single_match
+  polarity: higher_is_stronger
+
+identity:
+  row_identity:
+    - match_id
+    - triggered_player_id
+    - triggered_team_id
+  required_output_keys:
+    - triggered_player_id
+    - triggered_player_name
+    - triggered_team_id
+    - triggered_team_name
+  dedupe_policy: one_row_per_identity
+
+asset_binding:
+  resolution: convention_based
+  conventions:
+    target_table: "gold.{signal_id}"
+    sql_path: "clickhouse/gold/signal/{signal_id}.sql"
+    runner_path: "scripts/gold/signal/runners/{signal_id}.py"
+  overrides: {}
+
+quality:
+  qa_expectations:
+    - row_identity must be unique per run
+    - trigger context fields must be internally consistent
+  downstream_impact:
+    - pulse_ui_explainability
+    - tactical_clustering_features
 ---
 # sig_player_possession_passing_switch_expert
 
