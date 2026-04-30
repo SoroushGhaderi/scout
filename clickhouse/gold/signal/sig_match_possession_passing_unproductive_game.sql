@@ -43,14 +43,14 @@ INSERT INTO gold.sig_match_possession_passing_unproductive_game (
 
 WITH base_stats AS (
     SELECT
-        m.match_id,
-        m.match_date,
-        m.home_team_id,
-        m.home_team_name,
-        m.away_team_id,
-        m.away_team_name,
-        m.home_score,
-        m.away_score,
+        m.match_id AS match_id,
+        m.match_date AS match_date,
+        m.home_team_id AS home_team_id,
+        m.home_team_name AS home_team_name,
+        m.away_team_id AS away_team_id,
+        m.away_team_name AS away_team_name,
+        m.home_score AS home_score,
+        m.away_score AS away_score,
         coalesce(ps.pass_attempts_home, 0) AS pass_attempts_home,
         coalesce(ps.pass_attempts_away, 0) AS pass_attempts_away,
         coalesce(ps.total_shots_home, 0) AS total_shots_home,

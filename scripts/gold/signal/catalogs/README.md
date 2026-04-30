@@ -23,10 +23,14 @@ Use `asset_binding.overrides` only when a signal breaks the default convention.
 
 | Signal ID | Entity | Family | Subfamily | Grain | Status | Catalog |
 |---|---|---|---|---|---|---|
+| `sig_match_possession_passing_dribble_fest` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_dribble_fest.md](sig_match_possession_passing_dribble_fest.md) |
 | `sig_match_possession_passing_momentum_swing` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_momentum_swing.md](sig_match_possession_passing_momentum_swing.md) |
+| `sig_match_possession_passing_keeper_playmaking_battle` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_keeper_playmaking_battle.md](sig_match_possession_passing_keeper_playmaking_battle.md) |
+| `sig_match_possession_passing_passing_clinic` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_passing_clinic.md](sig_match_possession_passing_passing_clinic.md) |
 | `sig_match_possession_passing_possession_stalemate` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_possession_stalemate.md](sig_match_possession_passing_possession_stalemate.md) |
 | `sig_match_possession_passing_set_piece_dominance` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_set_piece_dominance.md](sig_match_possession_passing_set_piece_dominance.md) |
 | `sig_match_possession_passing_unproductive_game` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_unproductive_game.md](sig_match_possession_passing_unproductive_game.md) |
+| `sig_match_possession_passing_wing_play_extravaganza` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_wing_play_extravaganza.md](sig_match_possession_passing_wing_play_extravaganza.md) |
 | `sig_team_possession_passing_aerial_reliance` | team | possession | passing | `match_team` | active | [sig_team_possession_passing_aerial_reliance.md](sig_team_possession_passing_aerial_reliance.md) |
 | `sig_team_possession_passing_death_by_passes` | team | possession | passing | `match_team` | active | [sig_team_possession_passing_death_by_passes.md](sig_team_possession_passing_death_by_passes.md) |
 | `sig_team_possession_passing_efficient_directness` | team | possession | passing | `match_team` | active | [sig_team_possession_passing_efficient_directness.md](sig_team_possession_passing_efficient_directness.md) |
