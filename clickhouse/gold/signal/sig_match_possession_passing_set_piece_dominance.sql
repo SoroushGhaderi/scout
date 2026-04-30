@@ -45,10 +45,11 @@ INSERT INTO gold.sig_match_possession_passing_set_piece_dominance (
 -- Signal: sig_match_possession_passing_set_piece_dominance
 -- Intent: Detect matches where restart-led circulation dominates total
 --         passing volume, then orient output per side for bilateral analysis.
--- Trigger: match_dead_ball_restart_pass_share_pct > 20.
+-- Trigger: match_dead_ball_restart_pass_share_pct > 15 (proxy-calibrated).
 -- Notes: Dead-ball restart pass volume is proxied with
 --        (player_throws + corners) because explicit free-kick pass counts
---        are not available in silver.period_stat.
+--        are not available in silver.period_stat. A 15% proxy threshold is
+--        used as practical calibration for the intended 20% true restart share.
 -- ============================================================
 
 WITH
@@ -66,14 +67,14 @@ WITH
     ),
     base_stats AS (
         SELECT
-            m.match_id,
-            m.match_date,
-            m.home_team_id,
-            m.home_team_name,
-            m.away_team_id,
-            m.away_team_name,
-            m.home_score,
-            m.away_score,
+            m.match_id AS match_id,
+            m.match_date AS match_date,
+            m.home_team_id AS home_team_id,
+            m.home_team_name AS home_team_name,
+            m.away_team_id AS away_team_id,
+            m.away_team_name AS away_team_name,
+            m.home_score AS home_score,
+            m.away_score AS away_score,
             coalesce(ps.pass_attempts_home, 0) AS pass_attempts_home,
             coalesce(ps.pass_attempts_away, 0) AS pass_attempts_away,
             coalesce(ps.accurate_passes_home, 0) AS accurate_passes_home,
@@ -89,7 +90,7 @@ WITH
             toFloat32(coalesce(ps.expected_goals_set_play_home, 0)) AS expected_goals_set_play_home,
             toFloat32(coalesce(ps.expected_goals_set_play_away, 0)) AS expected_goals_set_play_away,
             coalesce(hs.team_set_piece_shots, 0) AS set_piece_shots_home,
-            coalesce(aside.team_set_piece_shots, 0) AS set_piece_shots_away,
+            coalesce(away_sp.team_set_piece_shots, 0) AS set_piece_shots_away,
             coalesce(ps.player_throws_home, 0) + coalesce(ps.corners_home, 0) AS dead_ball_restart_passes_proxy_home,
             coalesce(ps.player_throws_away, 0) + coalesce(ps.corners_away, 0) AS dead_ball_restart_passes_proxy_away,
             coalesce(ps.pass_attempts_home, 0) + coalesce(ps.pass_attempts_away, 0) AS match_total_pass_attempts,
@@ -118,9 +119,9 @@ WITH
         LEFT JOIN set_piece_team_shots AS hs
             ON  hs.match_id = m.match_id
             AND hs.team_id  = m.home_team_id
-        LEFT JOIN set_piece_team_shots AS aside
-            ON  aside.match_id = m.match_id
-            AND aside.team_id  = m.away_team_id
+        LEFT JOIN set_piece_team_shots AS away_sp
+            ON  away_sp.match_id = m.match_id
+            AND away_sp.team_id  = m.away_team_id
         WHERE m.match_finished = 1
           AND m.match_id > 0
           AND (coalesce(ps.pass_attempts_home, 0) + coalesce(ps.pass_attempts_away, 0)) > 0
@@ -135,7 +136,7 @@ WITH
                   toFloat64(coalesce(ps.pass_attempts_home, 0) + coalesce(ps.pass_attempts_away, 0)),
                   0
               )
-          ) > 0.20
+          ) > 0.15
     )
 
 SELECT
