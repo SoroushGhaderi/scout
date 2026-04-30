@@ -392,6 +392,46 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_possession_stalemat
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
+CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_unproductive_game (
+    match_id Int32,
+    match_date Date,
+    home_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_id Nullable(Int32),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    triggered_side LowCardinality(String),
+    triggered_team_id Nullable(Int32),
+    triggered_team_name Nullable(String),
+    opponent_team_id Nullable(Int32),
+    opponent_team_name Nullable(String),
+    match_total_pass_attempts Int32,
+    match_total_shots Int32,
+    match_passes_per_shot Nullable(Float32),
+    triggered_team_pass_attempts Int32,
+    opponent_pass_attempts Int32,
+    triggered_team_total_shots Int32,
+    opponent_total_shots Int32,
+    triggered_team_pass_share_pct Nullable(Float32),
+    triggered_team_shot_share_pct Nullable(Float32),
+    triggered_team_pass_accuracy_pct Nullable(Float32),
+    opponent_pass_accuracy_pct Nullable(Float32),
+    triggered_team_possession_pct Float32,
+    opponent_possession_pct Float32,
+    triggered_team_opposition_half_passes Int32,
+    opponent_opposition_half_passes Int32,
+    triggered_team_touches_opposition_box Int32,
+    opponent_touches_opposition_box Int32,
+    triggered_team_xg Float32,
+    opponent_xg Float32,
+    match_total_xg Float32,
+    xg_gap Float32,
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, triggered_side)
+PARTITION BY toYYYYMM(match_date);
+
 CREATE TABLE IF NOT EXISTS gold.sig_team_possession_passing_death_by_passes (
     match_id Int32,
     match_date Date,
