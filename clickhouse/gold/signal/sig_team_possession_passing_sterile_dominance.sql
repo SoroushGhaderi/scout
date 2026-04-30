@@ -205,5 +205,5 @@ WHERE m.match_finished = 1
 -- Rank most extreme sterile dominance first.
 ORDER BY
     assumeNotNull(triggered_team_possession_pct) DESC,
-    match_date DESC,
-    match_id DESC;
+    m.match_date DESC,
+    m.match_id DESC;

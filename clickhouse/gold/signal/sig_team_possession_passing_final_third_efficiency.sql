@@ -225,5 +225,5 @@ WHERE m.match_finished = 1
 -- Prioritize highest scoring efficiency.
 ORDER BY
     assumeNotNull(triggered_team_goals_per_final_third_entry) DESC,
-    match_date DESC,
-    match_id DESC;
+    m.match_date DESC,
+    m.match_id DESC;

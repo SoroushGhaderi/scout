@@ -239,4 +239,4 @@ WHERE m.match_finished = 1
   AND assumeNotNull(ps.ball_possession_away) > 65
   AND coalesce(ps.shots_on_target_away, 0) < 2
 
-ORDER BY match_date DESC, match_id;
+ORDER BY m.match_date DESC, match_id;

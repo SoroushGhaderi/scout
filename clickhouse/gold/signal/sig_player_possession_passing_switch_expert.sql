@@ -234,5 +234,5 @@ ORDER BY
     triggered_player_successful_switches_proxy DESC,
     triggered_player_long_ball_success_rate_pct DESC,
     triggered_player_long_ball_attempts DESC,
-    match_date DESC,
-    match_id DESC;
+    m.match_date DESC,
+    m.match_id DESC;

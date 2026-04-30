@@ -201,5 +201,5 @@ WHERE m.match_finished = 1
 -- Prioritize strongest aerial-reliance success.
 ORDER BY
     assumeNotNull(triggered_team_aerial_success_pct) DESC,
-    match_date DESC,
-    match_id DESC;
+    m.match_date DESC,
+    m.match_id DESC;

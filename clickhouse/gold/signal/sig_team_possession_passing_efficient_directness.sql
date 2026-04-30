@@ -251,4 +251,4 @@ WHERE m.match_finished = 1
   AND assumeNotNull(ps.ball_possession_away) < 35
   AND coalesce(ps.total_shots_away, 0) > 5
 
-ORDER BY match_date DESC, match_id;
+ORDER BY m.match_date DESC, match_id;

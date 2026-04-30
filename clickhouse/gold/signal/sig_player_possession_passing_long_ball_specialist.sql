@@ -243,5 +243,5 @@ ORDER BY
     triggered_player_accurate_long_balls DESC,
     triggered_player_long_ball_success_rate_pct DESC,
     triggered_player_long_ball_attempts DESC,
-    match_date DESC,
-    match_id DESC;
+    m.match_date DESC,
+    m.match_id DESC;

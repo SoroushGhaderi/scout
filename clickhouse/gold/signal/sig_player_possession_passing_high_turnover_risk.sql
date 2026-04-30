@@ -44,7 +44,7 @@ INSERT INTO gold.sig_player_possession_passing_high_turnover_risk (
     player_share_of_team_dribbles_pct
 )
 -- Signal: sig_player_possession_passing_high_turnover_risk
--- Trigger: player loses possession > 25 times in a single match.
+-- Trigger: Player loses possession >25 times in a single match.
 -- Intent: identify player-level turnover risk by combining failed passes, failed dribbles, and duels lost, with bilateral possession and passing context.
 
 SELECT
@@ -274,5 +274,5 @@ ORDER BY
     triggered_player_possession_losses DESC,
     triggered_player_failed_passes DESC,
     triggered_player_failed_dribbles DESC,
-    match_date DESC,
-    match_id DESC;
+    m.match_date DESC,
+    m.match_id DESC;

@@ -197,5 +197,5 @@ ORDER BY
     triggered_player_middle_third_touches_proxy DESC,
     triggered_player_total_touches DESC,
     triggered_player_total_passes DESC,
-    match_date DESC,
-    match_id DESC;
+    m.match_date DESC,
+    m.match_id DESC;

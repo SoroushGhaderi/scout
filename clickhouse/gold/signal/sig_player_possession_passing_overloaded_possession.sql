@@ -204,5 +204,5 @@ ORDER BY
     triggered_player_total_touches DESC,
     triggered_player_touches_per90 DESC,
     triggered_player_total_passes DESC,
-    match_date DESC,
-    match_id DESC;
+    m.match_date DESC,
+    m.match_id DESC;

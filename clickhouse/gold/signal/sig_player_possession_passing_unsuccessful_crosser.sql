@@ -233,5 +233,5 @@ ORDER BY
     triggered_player_cross_attempts DESC,
     triggered_player_cross_success_rate_pct ASC,
     triggered_player_accurate_crosses ASC,
-    match_date DESC,
-    match_id DESC;
+    m.match_date DESC,
+    m.match_id DESC;

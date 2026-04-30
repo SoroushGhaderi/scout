@@ -6,7 +6,7 @@ family: possession
 subfamily: passing
 grain: match_player
 headline: "High Turnover Risk"
-trigger: "player loses possession > 25 times in a single match"
+trigger: "Player loses possession >25 times in a single match."
 row_identity:
   - match_id
   - triggered_player_id

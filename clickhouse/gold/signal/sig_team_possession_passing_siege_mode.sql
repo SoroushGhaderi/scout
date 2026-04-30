@@ -174,4 +174,4 @@ WHERE m.match_finished = 1
   AND m.match_id > 0
   AND assumeNotNull(ps.ball_possession_away) > 80
 
-ORDER BY match_date DESC, match_id;
+ORDER BY m.match_date DESC, match_id;

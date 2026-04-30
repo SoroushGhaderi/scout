@@ -165,5 +165,5 @@ WHERE m.match_finished = 1
 ORDER BY
     triggered_player_pass_attempts DESC,
     triggered_player_touches DESC,
-    match_date DESC,
-    match_id DESC;
+    m.match_date DESC,
+    m.match_id DESC;

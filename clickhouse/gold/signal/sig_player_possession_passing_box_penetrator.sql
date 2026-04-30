@@ -203,5 +203,5 @@ ORDER BY
     triggered_player_touches_opposition_box DESC,
     triggered_player_chances_created DESC,
     triggered_player_expected_assists DESC,
-    match_date DESC,
-    match_id DESC;
+    m.match_date DESC,
+    m.match_id DESC;

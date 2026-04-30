@@ -23,6 +23,8 @@ Use `asset_binding.overrides` only when a signal breaks the default convention.
 
 | Signal ID | Entity | Family | Subfamily | Grain | Status | Catalog |
 |---|---|---|---|---|---|---|
+| `sig_match_possession_passing_momentum_swing` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_momentum_swing.md](sig_match_possession_passing_momentum_swing.md) |
+| `sig_match_possession_passing_possession_stalemate` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_possession_stalemate.md](sig_match_possession_passing_possession_stalemate.md) |
 | `sig_team_possession_passing_aerial_reliance` | team | possession | passing | `match_team` | active | [sig_team_possession_passing_aerial_reliance.md](sig_team_possession_passing_aerial_reliance.md) |
 | `sig_team_possession_passing_death_by_passes` | team | possession | passing | `match_team` | active | [sig_team_possession_passing_death_by_passes.md](sig_team_possession_passing_death_by_passes.md) |
 | `sig_team_possession_passing_efficient_directness` | team | possession | passing | `match_team` | active | [sig_team_possession_passing_efficient_directness.md](sig_team_possession_passing_efficient_directness.md) |
@@ -41,10 +43,13 @@ Use `asset_binding.overrides` only when a signal breaks the default convention.
 | `sig_player_possession_passing_back_pass_heavy` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_back_pass_heavy.md](sig_player_possession_passing_back_pass_heavy.md) |
 | `sig_player_possession_passing_box_penetrator` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_box_penetrator.md](sig_player_possession_passing_box_penetrator.md) |
 | `sig_player_possession_passing_creative_hub` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_creative_hub.md](sig_player_possession_passing_creative_hub.md) |
+| `sig_player_possession_passing_corner_specialist` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_corner_specialist.md](sig_player_possession_passing_corner_specialist.md) |
+| `sig_player_possession_passing_deadball_creator` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_deadball_creator.md](sig_player_possession_passing_deadball_creator.md) |
 | `sig_player_possession_passing_cross_heavy` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_cross_heavy.md](sig_player_possession_passing_cross_heavy.md) |
 | `sig_player_possession_passing_dribble_threat` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_dribble_threat.md](sig_player_possession_passing_dribble_threat.md) |
 | `sig_player_possession_passing_high_turnover_risk` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_high_turnover_risk.md](sig_player_possession_passing_high_turnover_risk.md) |
 | `sig_player_possession_passing_high_value_provider` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_high_value_provider.md](sig_player_possession_passing_high_value_provider.md) |
+| `sig_player_possession_passing_impact_sub_passing` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_impact_sub_passing.md](sig_player_possession_passing_impact_sub_passing.md) |
 | `sig_player_possession_passing_isolated_target` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_isolated_target.md](sig_player_possession_passing_isolated_target.md) |
 | `sig_player_possession_passing_long_ball_specialist` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_long_ball_specialist.md](sig_player_possession_passing_long_ball_specialist.md) |
 | `sig_player_possession_passing_midfield_general` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_midfield_general.md](sig_player_possession_passing_midfield_general.md) |
@@ -52,6 +57,7 @@ Use `asset_binding.overrides` only when a signal breaks the default convention.
 | `sig_player_possession_passing_recycling_specialist` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_recycling_specialist.md](sig_player_possession_passing_recycling_specialist.md) |
 | `sig_player_possession_passing_safe_outlet` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_safe_outlet.md](sig_player_possession_passing_safe_outlet.md) |
 | `sig_player_possession_passing_switch_expert` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_switch_expert.md](sig_player_possession_passing_switch_expert.md) |
+| `sig_player_possession_passing_under_pressure_expert` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_under_pressure_expert.md](sig_player_possession_passing_under_pressure_expert.md) |
 | `sig_player_possession_passing_unsuccessful_crosser` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_unsuccessful_crosser.md](sig_player_possession_passing_unsuccessful_crosser.md) |
 | `sig_player_possession_passing_vertical_threat` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_vertical_threat.md](sig_player_possession_passing_vertical_threat.md) |
 

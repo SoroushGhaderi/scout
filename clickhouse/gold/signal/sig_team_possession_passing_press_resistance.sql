@@ -243,5 +243,5 @@ WHERE m.match_finished = 1
 ORDER BY
     opponent_press_actions_per_100_triggered_passes DESC,
     triggered_team_pass_accuracy_pct DESC,
-    match_date DESC,
-    match_id DESC;
+    m.match_date DESC,
+    m.match_id DESC;
