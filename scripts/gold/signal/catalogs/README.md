@@ -59,11 +59,13 @@ Use `asset_binding.overrides` only when a signal breaks the default convention.
 | `sig_player_possession_passing_deadball_creator` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_deadball_creator.md](sig_player_possession_passing_deadball_creator.md) |
 | `sig_player_possession_passing_cross_heavy` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_cross_heavy.md](sig_player_possession_passing_cross_heavy.md) |
 | `sig_player_possession_passing_dribble_threat` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_dribble_threat.md](sig_player_possession_passing_dribble_threat.md) |
+| `sig_player_possession_passing_perfect_dribbler` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_perfect_dribbler.md](sig_player_possession_passing_perfect_dribbler.md) |
 | `sig_player_possession_passing_flawless_distributor` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_flawless_distributor.md](sig_player_possession_passing_flawless_distributor.md) |
 | `sig_player_possession_passing_high_turnover_risk` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_high_turnover_risk.md](sig_player_possession_passing_high_turnover_risk.md) |
 | `sig_player_possession_passing_high_value_provider` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_high_value_provider.md](sig_player_possession_passing_high_value_provider.md) |
 | `sig_player_possession_passing_impact_sub_passing` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_impact_sub_passing.md](sig_player_possession_passing_impact_sub_passing.md) |
 | `sig_player_possession_passing_isolated_target` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_isolated_target.md](sig_player_possession_passing_isolated_target.md) |
+| `sig_player_possession_passing_accurate_long_range` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_accurate_long_range.md](sig_player_possession_passing_accurate_long_range.md) |
 | `sig_player_possession_passing_long_ball_specialist` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_long_ball_specialist.md](sig_player_possession_passing_long_ball_specialist.md) |
 | `sig_player_possession_passing_midfield_general` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_midfield_general.md](sig_player_possession_passing_midfield_general.md) |
 | `sig_player_possession_passing_overloaded_possession` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_overloaded_possession.md](sig_player_possession_passing_overloaded_possession.md) |
@@ -72,6 +74,7 @@ Use `asset_binding.overrides` only when a signal breaks the default convention.
 | `sig_player_possession_passing_switch_expert` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_switch_expert.md](sig_player_possession_passing_switch_expert.md) |
 | `sig_player_possession_passing_under_pressure_expert` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_under_pressure_expert.md](sig_player_possession_passing_under_pressure_expert.md) |
 | `sig_player_possession_passing_unsuccessful_crosser` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_unsuccessful_crosser.md](sig_player_possession_passing_unsuccessful_crosser.md) |
+| `sig_player_possession_passing_volume_crosser` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_volume_crosser.md](sig_player_possession_passing_volume_crosser.md) |
 | `sig_player_possession_passing_vertical_threat` | player | possession | passing | `match_player` | active | [sig_player_possession_passing_vertical_threat.md](sig_player_possession_passing_vertical_threat.md) |
 
 Each per-signal catalog includes:
