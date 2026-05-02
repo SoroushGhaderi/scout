@@ -23,9 +23,14 @@ Use `asset_binding.overrides` only when a signal breaks the default convention.
 
 | Signal ID | Entity | Family | Subfamily | Grain | Status | Catalog |
 |---|---|---|---|---|---|---|
+| `sig_match_possession_passing_dead_zone_game` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_dead_zone_game.md](sig_match_possession_passing_dead_zone_game.md) |
 | `sig_match_possession_passing_dribble_fest` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_dribble_fest.md](sig_match_possession_passing_dribble_fest.md) |
+| `sig_match_possession_passing_heavy_rotation` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_heavy_rotation.md](sig_match_possession_passing_heavy_rotation.md) |
 | `sig_match_possession_passing_momentum_swing` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_momentum_swing.md](sig_match_possession_passing_momentum_swing.md) |
 | `sig_match_possession_passing_keeper_playmaking_battle` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_keeper_playmaking_battle.md](sig_match_possession_passing_keeper_playmaking_battle.md) |
+| `sig_match_possession_passing_clean_game` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_clean_game.md](sig_match_possession_passing_clean_game.md) |
+| `sig_match_possession_passing_early_tactical_lock` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_early_tactical_lock.md](sig_match_possession_passing_early_tactical_lock.md) |
+| `sig_match_possession_passing_counter_vs_bus` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_counter_vs_bus.md](sig_match_possession_passing_counter_vs_bus.md) |
 | `sig_match_possession_passing_passing_clinic` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_passing_clinic.md](sig_match_possession_passing_passing_clinic.md) |
 | `sig_match_possession_passing_possession_stalemate` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_possession_stalemate.md](sig_match_possession_passing_possession_stalemate.md) |
 | `sig_match_possession_passing_set_piece_dominance` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_set_piece_dominance.md](sig_match_possession_passing_set_piece_dominance.md) |
