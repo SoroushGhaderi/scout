@@ -29,6 +29,16 @@ This contract applies to:
 3. Analytical fairness: triggered-side and opponent metrics are symmetric unless intentionally net/delta.
 4. Operational simplicity: readable SQL and predictable execution.
 
+## Signal Similarity Gate
+
+When proposing a new signal, similarity against existing active signals MUST be checked first.
+
+1. If trigger logic, core metric predicates, and tactical intent are materially close to an existing signal, the author MUST pause implementation and explicitly ask the owner to choose one path:
+   - keep the previous signal as-is, or
+   - proceed with the new logic (with clear replacement or coexistence rationale).
+2. The proposal MUST cite the closest existing signal IDs and summarize overlap/differences before requesting the decision.
+3. No production package changes SHOULD be finalized until that decision is provided.
+
 ## Naming and Consistency Contract
 
 1. Signal IDs MUST follow `sig_<name>` in `snake_case`.
