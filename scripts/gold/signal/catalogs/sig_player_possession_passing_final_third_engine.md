@@ -1,45 +1,46 @@
 ---
-signal_id: sig_player_possession_passing_creative_hub
+signal_id: sig_player_possession_passing_final_third_engine
 status: active
 entity: player
 family: possession
 subfamily: passing
 grain: match_player
-headline: "Creative Hub"
-trigger: "player creates > 5 chances (key passes) in a single match"
+headline: "Final Third Engine"
+trigger: "player records >= 20 passes into the final third in a single match"
 row_identity:
   - match_id
   - triggered_player_id
   - triggered_team_id
 asset_paths:
-  table: gold.sig_player_possession_passing_creative_hub
-  sql: clickhouse/gold/signal/sig_player_possession_passing_creative_hub.sql
-  runner: scripts/gold/signal/runners/sig_player_possession_passing_creative_hub.py
+  table: gold.sig_player_possession_passing_final_third_engine
+  sql: clickhouse/gold/signal/sig_player_possession_passing_final_third_engine.sql
+  runner: scripts/gold/signal/runners/sig_player_possession_passing_final_third_engine.py
 ---
-# sig_player_possession_passing_creative_hub
+# sig_player_possession_passing_final_third_engine
 
 ## Purpose
 
-Triggers when a player creates more than 5 chances (key passes) in a single match, identifying creative hubs who repeatedly generate opportunities.
+Triggers when a player records at least 20 passes into the final third in a single match, identifying high-volume territorial progression engines.
 
 ## Tactical And Statistical Logic
 
 - Trigger condition:
-  - `triggered_player_chances_created > 5`
-- Trigger uses player-level full-match totals from `silver.player_match_stat`, where `chances_created` represents key-pass chance creation.
-- Signal includes bilateral team/opponent passing and territorial context from `silver.period_stat` (`period = 'All'`) to separate individual creativity from broader match-state effects.
+  - `triggered_player_passes_final_third >= 20`
+- Trigger uses player-level full-match totals from `silver.player_match_stat`.
+- Signal includes bilateral team/opponent passing quality, possession control, and opposition-half passing context from `silver.period_stat` (`period = 'All'`) to separate individual progression volume from overall team dominance.
+- Signal includes player-level creation and box-touch context to show whether final-third progression translated into chance-generation pressure.
 - Output explicitly stores both player identity (`triggered_player_*`) and triggered-team identity (`triggered_team_*`) for contract-compliant player signal traceability.
 
 ## Technical Assets
 
-- SQL: `clickhouse/gold/signal/sig_player_possession_passing_creative_hub.sql`
-- Runner: `scripts/gold/signal/runners/sig_player_possession_passing_creative_hub.py`
-- Target table: `gold.sig_player_possession_passing_creative_hub`
+- SQL: `clickhouse/gold/signal/sig_player_possession_passing_final_third_engine.sql`
+- Runner: `scripts/gold/signal/runners/sig_player_possession_passing_final_third_engine.py`
+- Target table: `gold.sig_player_possession_passing_final_third_engine`
 
 ## Example Execution
 
 ```bash
-python scripts/gold/signal/runners/sig_player_possession_passing_creative_hub.py
+python scripts/gold/signal/runners/sig_player_possession_passing_final_third_engine.py
 ```
 
 ## Output Schema
@@ -52,8 +53,8 @@ python scripts/gold/signal/runners/sig_player_possession_passing_creative_hub.py
 | `home_team_name` | Home team name | Football developer: readable opponent/context labeling |
 | `away_team_id` | Away team ID | Football developer: stable match context key for bilateral orientation |
 | `away_team_name` | Away team name | Football developer: readable opponent/context labeling |
-| `home_score` | Home goals at full time | Football developer: outcome context for interpreting player behavior |
-| `away_score` | Away goals at full time | Football developer: outcome context for interpreting player behavior |
+| `home_score` | Home goals at full time | Football developer: outcome context for interpreting progression behavior |
+| `away_score` | Away goals at full time | Football developer: outcome context for interpreting progression behavior |
 | `triggered_side` | Side of triggered player (`home` or `away`) | Football developer: canonical side orientation for downstream aggregation |
 | `triggered_player_id` | Triggered player ID | Football developer: primary player key for joins and modeling |
 | `triggered_player_name` | Triggered player name | Football developer: human-readable signal explanation |
@@ -61,24 +62,24 @@ python scripts/gold/signal/runners/sig_player_possession_passing_creative_hub.py
 | `triggered_team_name` | Team name of triggered player | Football developer: readable team attribution for reporting |
 | `opponent_team_id` | Opponent team ID | Football developer: bilateral context and matchup-based features |
 | `opponent_team_name` | Opponent team name | Football developer: readable bilateral context |
-| `triggered_player_chances_created` | Chances created (key passes) by triggered player | Football developer: core trigger metric volume guard (`> 5`) |
-| `triggered_player_expected_assists` | Expected assists generated by triggered player | Football developer: quality context for chance creation value beyond raw count |
-| `triggered_player_passes_final_third` | Triggered player passes into final third | Football developer: progression context tied to creative role execution |
-| `triggered_player_touches_opposition_box` | Triggered player touches in opponent box | Football developer: territorial context showing advanced involvement in chance zones |
-| `triggered_player_accurate_passes` | Accurate passes by triggered player | Football developer: passing quality baseline for creator profile |
-| `triggered_player_total_passes` | Total pass attempts by triggered player | Football developer: volume context around creative burden |
-| `triggered_player_pass_accuracy_pct` | Triggered player pass accuracy percentage | Football developer: efficiency context to balance risk-taking and control |
-| `triggered_player_minutes_played` | Minutes played by triggered player | Football developer: reliability context to separate starters from short stints |
-| `triggered_player_touches` | Total touches by triggered player | Football developer: involvement context to interpret role/load |
-| `triggered_team_pass_attempts` | Total pass attempts by triggered player's team | Football developer: team possession-volume baseline around player event |
-| `opponent_pass_attempts` | Total pass attempts by opponent team | Football developer: bilateral passing-volume context |
-| `triggered_team_accurate_passes` | Accurate passes by triggered player's team | Football developer: team passing-quality baseline around the creator signal |
+| `triggered_player_passes_final_third` | Passes into final third by triggered player | Football developer: core trigger metric volume guard (`>= 20`) |
+| `triggered_player_total_passes` | Total passes attempted by triggered player | Football developer: passing-load context around progression output |
+| `triggered_player_accurate_passes` | Accurate passes by triggered player | Football developer: quality context to evaluate whether progression was controlled |
+| `triggered_player_pass_accuracy_pct` | Triggered player pass accuracy percentage | Football developer: efficiency context around final-third volume |
+| `triggered_player_minutes_played` | Minutes played by triggered player | Football developer: reliability context to separate sustained engines from short-stint spikes |
+| `triggered_player_touches` | Total touches by triggered player | Football developer: involvement baseline for role profiling |
+| `triggered_player_chances_created` | Chances created by triggered player | Football developer: output context showing whether progression translated into direct creation |
+| `triggered_player_expected_assists` | Expected assists generated by triggered player | Football developer: chance-quality context around progression actions |
+| `triggered_player_touches_opposition_box` | Triggered player touches in opponent box | Football developer: advanced-territory context tied to progression threat |
+| `triggered_team_pass_attempts` | Team pass attempts of triggered player's side | Football developer: denominator for player share and team style context |
+| `opponent_pass_attempts` | Opponent team pass attempts | Football developer: bilateral tempo control context |
+| `triggered_team_accurate_passes` | Accurate passes by triggered player's team | Football developer: team passing-quality baseline around player progression |
 | `opponent_accurate_passes` | Accurate passes by opponent team | Football developer: bilateral passing-quality comparator |
-| `triggered_team_pass_accuracy_pct` | Pass accuracy of triggered player's team | Football developer: contextual quality benchmark for creator output |
-| `opponent_pass_accuracy_pct` | Pass accuracy of opponent team | Football developer: bilateral passing-quality reference for matchup balance |
-| `triggered_team_possession_pct` | Possession percentage of triggered side | Football developer: control context for interpreting chance-creation volume |
-| `opponent_possession_pct` | Possession percentage of opponent side | Football developer: bilateral possession comparator |
-| `triggered_team_touches_opposition_box` | Opponent-box touches by triggered player's team | Football developer: territorial pressure context around chance generation |
-| `opponent_touches_opposition_box` | Opponent-box touches by opponent team | Football developer: bilateral territorial-pressure comparator |
-| `player_share_of_team_passes_pct` | Triggered player pass attempts as % of team pass attempts | Football developer: quantifies creator centrality in team circulation |
-| `player_share_of_team_opposition_box_touches_pct` | Triggered player opponent-box touches as % of team opponent-box touches | Football developer: quantifies creator share of high-leverage final-third presence |
+| `triggered_team_pass_accuracy_pct` | Team pass accuracy of triggered side | Football developer: contextual quality benchmark for progression-heavy matches |
+| `opponent_pass_accuracy_pct` | Opponent team pass accuracy | Football developer: bilateral quality reference for matchup balance |
+| `triggered_team_opposition_half_passes` | Triggered team passes in opposition half | Football developer: team territorial passing volume contextualizing player final-third output |
+| `opponent_opposition_half_passes` | Opponent passes in opposition half | Football developer: bilateral territorial passing comparator |
+| `triggered_team_possession_pct` | Triggered side possession percentage | Football developer: control context for interpreting progression volume |
+| `opponent_possession_pct` | Opponent possession percentage | Football developer: bilateral possession comparator |
+| `player_share_of_team_passes_pct` | Triggered player pass attempts as % of team pass attempts | Football developer: measures centrality in total team circulation |
+| `player_share_of_team_opposition_half_passes_pct` | Triggered player final-third passes as % of team opposition-half passes | Football developer: quantifies player's share of advanced territorial ball progression |
