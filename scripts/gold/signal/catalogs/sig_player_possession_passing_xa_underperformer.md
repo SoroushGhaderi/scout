@@ -1,26 +1,26 @@
 ---
-signal_id: sig_player_possession_passing_high_value_provider
+signal_id: sig_player_possession_passing_xa_underperformer
 status: active
 entity: player
 family: possession
 subfamily: passing
 grain: match_player
-headline: "High Value Provider"
-trigger: "player records expected assists (xA) > 1.0 without a registered goal assist"
+headline: "xA Underperformer"
+trigger: "player records expected assists (xA) > 1.0 with 0 actual assists"
 row_identity:
   - match_id
   - triggered_player_id
   - triggered_team_id
 asset_paths:
-  table: gold.sig_player_possession_passing_high_value_provider
-  sql: clickhouse/gold/signal/sig_player_possession_passing_high_value_provider.sql
-  runner: scripts/gold/signal/runners/sig_player_possession_passing_high_value_provider.py
+  table: gold.sig_player_possession_passing_xa_underperformer
+  sql: clickhouse/gold/signal/sig_player_possession_passing_xa_underperformer.sql
+  runner: scripts/gold/signal/runners/sig_player_possession_passing_xa_underperformer.py
 ---
-# sig_player_possession_passing_high_value_provider
+# sig_player_possession_passing_xa_underperformer
 
 ## Purpose
 
-Triggers when a player records more than 1.0 expected assists without a registered goal assist, identifying high-value creators whose best passes were not converted.
+Triggers when a player records more than 1.0 expected assists with 0 actual assists, identifying high-value creators whose best passes were not converted.
 
 ## Tactical And Statistical Logic
 
@@ -34,14 +34,14 @@ Triggers when a player records more than 1.0 expected assists without a register
 
 ## Technical Assets
 
-- SQL: `clickhouse/gold/signal/sig_player_possession_passing_high_value_provider.sql`
-- Runner: `scripts/gold/signal/runners/sig_player_possession_passing_high_value_provider.py`
-- Target table: `gold.sig_player_possession_passing_high_value_provider`
+- SQL: `clickhouse/gold/signal/sig_player_possession_passing_xa_underperformer.sql`
+- Runner: `scripts/gold/signal/runners/sig_player_possession_passing_xa_underperformer.py`
+- Target table: `gold.sig_player_possession_passing_xa_underperformer`
 
 ## Example Execution
 
 ```bash
-python scripts/gold/signal/runners/sig_player_possession_passing_high_value_provider.py
+python scripts/gold/signal/runners/sig_player_possession_passing_xa_underperformer.py
 ```
 
 ## Output Schema

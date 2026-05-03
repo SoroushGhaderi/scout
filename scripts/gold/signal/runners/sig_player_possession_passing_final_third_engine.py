@@ -1,4 +1,4 @@
-"""Run the sig_player_possession_passing_xa_underperformer gold query."""
+"""Run the sig_player_possession_passing_final_third_engine gold query."""
 
 import argparse
 import sys
@@ -19,12 +19,12 @@ SQL_FILE = next(
     (path for path in SIGNAL_SQL_DIR.rglob(f"{Path(__file__).stem}.sql") if path.is_file()),
     SIGNAL_SQL_DIR / f"{Path(__file__).stem}.sql",
 )
-TARGET_TABLE = "gold.sig_player_possession_passing_xa_underperformer"
+TARGET_TABLE = "gold.sig_player_possession_passing_final_third_engine"
 
 
 def parse_args(argv=None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run the player-possession-passing-xa-underperformer signal query"
+        description="Run the player-possession-passing-final-third-engine signal query"
     )
     return parser.parse_args(argv)
 
@@ -52,7 +52,7 @@ def main(argv=None) -> int:
 
     try:
         client.execute(insert_query)
-        logger.info("sig_player_possession_passing_xa_underperformer insert completed")
+        logger.info("sig_player_possession_passing_final_third_engine insert completed")
 
         optimize_sql = f"OPTIMIZE TABLE {TARGET_TABLE} FINAL DEDUPLICATE"
         client.execute(optimize_sql)

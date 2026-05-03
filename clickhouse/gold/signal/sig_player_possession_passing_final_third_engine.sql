@@ -1,4 +1,4 @@
-INSERT INTO gold.sig_player_possession_passing_xa_underperformer (
+INSERT INTO gold.sig_player_possession_passing_creative_hub (
     match_id,
     match_date,
     home_team_id,
@@ -14,9 +14,8 @@ INSERT INTO gold.sig_player_possession_passing_xa_underperformer (
     triggered_team_name,
     opponent_team_id,
     opponent_team_name,
-    triggered_player_expected_assists,
-    triggered_player_assists,
     triggered_player_chances_created,
+    triggered_player_expected_assists,
     triggered_player_passes_final_third,
     triggered_player_touches_opposition_box,
     triggered_player_accurate_passes,
@@ -37,9 +36,9 @@ INSERT INTO gold.sig_player_possession_passing_xa_underperformer (
     player_share_of_team_passes_pct,
     player_share_of_team_opposition_box_touches_pct
 )
--- Signal: sig_player_possession_passing_xa_underperformer
--- Trigger: player records expected assists (xA) > 1.0 with 0 actual assists.
--- Intent: identify high-value creators whose chance quality was not converted into an assist, preserving bilateral passing and territorial context.
+-- Signal: sig_player_possession_passing_creative_hub
+-- Trigger: player creates > 5 chances (key passes) in a single match.
+-- Intent: identify player-level creative hubs who repeatedly generate chances, with bilateral passing and territorial context.
 
 SELECT
     m.match_id,
@@ -61,9 +60,8 @@ SELECT
     if(p.team_id = m.home_team_id, m.away_team_id, m.home_team_id) AS opponent_team_id,
     if(p.team_id = m.home_team_id, m.away_team_name, m.home_team_name) AS opponent_team_name,
 
-    toFloat32(coalesce(p.expected_assists, 0.0)) AS triggered_player_expected_assists,
-    coalesce(p.assists, 0) AS triggered_player_assists,
     coalesce(p.chances_created, 0) AS triggered_player_chances_created,
+    toFloat32(coalesce(p.expected_assists, 0.0)) AS triggered_player_expected_assists,
     coalesce(p.passes_final_third, 0) AS triggered_player_passes_final_third,
     coalesce(p.touches_opp_box, 0) AS triggered_player_touches_opposition_box,
     coalesce(p.accurate_passes, 0) AS triggered_player_accurate_passes,
@@ -195,12 +193,11 @@ LEFT JOIN silver.period_stat AS ps
 WHERE m.match_finished = 1
   AND m.match_id > 0
   AND (p.team_id = m.home_team_id OR p.team_id = m.away_team_id)
-  AND coalesce(p.expected_assists, 0.0) > 1.0
-  AND coalesce(p.assists, 0) = 0
+  AND coalesce(p.chances_created, 0) > 5
 
 ORDER BY
-    triggered_player_expected_assists DESC,
     triggered_player_chances_created DESC,
+    triggered_player_expected_assists DESC,
     triggered_player_passes_final_third DESC,
     m.match_date DESC,
     m.match_id DESC;
