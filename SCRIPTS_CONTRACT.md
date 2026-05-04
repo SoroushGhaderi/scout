@@ -8,19 +8,28 @@ This file is the source of truth for script-level behavior and code handwriting 
 # 1) setup
 python scripts/orchestration/setup_clickhouse.py
 
-# 2) bronze scrape
+# 2) mongodb index bootstrap
+python scripts/mongodb/init_indexes.py
+
+# 3) mongodb signal catalog sync
+python scripts/mongodb/sync_signal_catalogs.py
+
+# optional validation-only catalog sync
+python scripts/mongodb/sync_signal_catalogs.py --dry-run
+
+# 4) bronze scrape
 python scripts/bronze/scrape_fotmob.py 20251208
 
-# 3) bronze load
+# 5) bronze load
 python scripts/bronze/load_clickhouse.py --date 20251208
 
-# 4) silver
+# 6) silver
 python scripts/silver/load_clickhouse.py
 
-# 5) gold
+# 7) gold
 python scripts/gold/load_clickhouse_scenarios.py
 
-# 6) quality gates
+# 8) quality gates
 python scripts/quality/check_bronze_to_silver_reconciliation.py --strict
 
 # or full orchestration
@@ -76,6 +85,7 @@ python scripts/orchestration/pipeline.py 20251208
 2. Avoid duplicate `sys.path` insertions; guard before inserting.
 3. Keep module-level setup minimal and deterministic.
 4. Avoid heavyweight runtime work at import time.
+5. Scripts that depend on local credentials/config should load `.env` files from `project_root/.env` and `project_root.parent/.env` with `override=False` before runtime setup.
 
 ## 8. Typing, Docstrings, and Interfaces
 
@@ -116,9 +126,9 @@ python scripts/orchestration/pipeline.py 20251208
 
 ## 13. Script Surface Stability Rules
 
-1. Layer entrypoints in `scripts/bronze|silver|gold|orchestration|quality` are canonical.
+1. Layer and operational entrypoints in `scripts/bronze|silver|gold|orchestration|quality|mongodb` are canonical.
 2. Root-level layer scripts are removed.
-3. Utility scripts (`ensure_directories`, `health_check`, `refresh_turnstile`) are allowed at root.
+3. Utility scripts (`ensure_directories`, `health_check`, `refresh_turnstile`) are allowed at root; MongoDB operational scripts live under `scripts/mongodb/`.
 4. Do not add new root-level layer scripts.
 5. Any command-surface change must be documented in `scripts/README.md` and architecture docs.
 
