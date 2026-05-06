@@ -6,7 +6,7 @@ family: possession
 subfamily: passing
 grain: match_team
 headline: "Efficient Directness"
-trigger: "ball_possession < 35` and `total_shots > 5` at full match (`period = 'All'`) for home or away"
+trigger: "ball_possession <= 35` and `total_shots >= 15` at full match (`period = 'All'`) for home or away"
 row_identity:
   - match_id
   - triggered_side
@@ -23,7 +23,7 @@ Triggers when a team generates high shot volume with low possession, indicating 
 
 ## Tactical And Statistical Logic
 
-- Trigger condition: `ball_possession < 35` and `total_shots > 5` at full match (`period = 'All'`) for home or away.
+- Trigger condition: `ball_possession <= 35` and `total_shots >= 15` at full match (`period = 'All'`) for home or away.
 - Captures direct, transition-oriented football where threat generation is disproportionate to possession share.
 - Enrichment layers differentiate clinical counter-attacking from noisy low-possession shot production.
 
@@ -52,7 +52,7 @@ python scripts/gold/signal/runners/sig_team_possession_passing_efficient_directn
 | `home_score` | Goals scored by the home team | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
 | `away_score` | Goals scored by the away team | Football developer: anchors joins across match, team, and downstream feature tables — stable match/team reference field |
 | `triggered_side` | Which side (`home` / `away`) fired the signal | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
-| `triggered_team_id` | ID of the team with <35% possession and >5 shots | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
+| `triggered_team_id` | ID of the team with <=35% possession and >=15 shots | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
 | `triggered_team_name` | Name of the triggered team | Football developer: this is the direct trigger metric used to classify the tactical pattern — core trigger field or direct signal context |
 | `opponent_team_id` | ID of the opposition team | Football developer: provides side/opponent orientation so tactical readings are not misattributed — opponent or orientation field for bilateral interpretation |
 | `opponent_team_name` | Name of the opposition team | Football developer: provides side/opponent orientation so tactical readings are not misattributed — opponent or orientation field for bilateral interpretation |

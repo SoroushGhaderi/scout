@@ -62,7 +62,7 @@ INSERT INTO gold.sig_team_possession_passing_efficient_directness (
 )
 -- ============================================================
 -- Signal: sig_team_possession_passing_efficient_directness
--- Intent: Identify teams generating >5 shots with <35%
+-- Intent: Identify teams generating >=15 shots with <=35%
 --         possession, capturing efficient direct/transition
 --         threat and contrasting it with opponent control via
 --         shot quality, progression, and recovery context.
@@ -160,8 +160,8 @@ INNER JOIN silver.period_stat AS ps
     AND ps.period   = 'All'
 WHERE m.match_finished = 1
   AND m.match_id > 0
-  AND assumeNotNull(ps.ball_possession_home) < 35
-  AND coalesce(ps.total_shots_home, 0) > 5
+  AND assumeNotNull(ps.ball_possession_home) <= 35
+  AND coalesce(ps.total_shots_home, 0) >= 15
 
 UNION ALL
 
@@ -248,7 +248,7 @@ INNER JOIN silver.period_stat AS ps
     AND ps.period   = 'All'
 WHERE m.match_finished = 1
   AND m.match_id > 0
-  AND assumeNotNull(ps.ball_possession_away) < 35
-  AND coalesce(ps.total_shots_away, 0) > 5
+  AND assumeNotNull(ps.ball_possession_away) <= 35
+  AND coalesce(ps.total_shots_away, 0) >= 15
 
 ORDER BY m.match_date DESC, match_id;
