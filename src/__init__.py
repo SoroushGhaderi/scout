@@ -1,4 +1,4 @@
-"""PitchWise Orbit Package - FotMob scraper integration."""
+"""DepthMark Package - FotMob scraper integration."""
 
 __version__ = "1.0.0"
 

@@ -1,6 +1,6 @@
-# PitchWise Orbit
+# DepthMark
 
-PitchWise Orbit is a FotMob-only football data pipeline with an explicit medallion architecture.
+DepthMark is a FotMob-only football data pipeline with an explicit medallion architecture.
 
 - Bronze: raw FotMob API responses stored on disk and loaded into ClickHouse `bronze.*` tables
 - Silver: cleaned ClickHouse `silver.*` tables built from Bronze
@@ -23,7 +23,7 @@ FotMob API
 - Bronze warehouse tables live in the `bronze` schema
 - Silver warehouse tables live in the `silver` schema
 - Gold warehouse tables live in the `gold` schema
-- PitchWise Orbit currently supports FotMob only
+- DepthMark currently supports FotMob only
 
 ## Prerequisites
 
@@ -37,7 +37,7 @@ FotMob API
 
 ```bash
 git clone <repository-url>
-cd pitchwise_orbit
+cd depthmark
 cp .env.example .env
 # edit .env and set FOTMOB_X_MAS_TOKEN plus ClickHouse credentials
 
@@ -323,7 +323,7 @@ docker-compose -f docker/docker-compose.yml exec -T clickhouse clickhouse-client
 ## Project Structure
 
 ```text
-pitchwise_orbit/
+depthmark/
 ├── clickhouse/
 │   ├── bronze/
 │   ├── silver/
@@ -396,7 +396,7 @@ docker-compose -f docker/docker-compose.yml exec scraper python scripts/quality/
 
 ## Notes
 
-- PitchWise Orbit is currently FotMob-only
+- DepthMark is currently FotMob-only
 - Silver and Gold are warehouse layers, not local directories
 - Always use schema-qualified names like `bronze.general`, `gold.scenario_demolition`, or `gold.match_summary`
 

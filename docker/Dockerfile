@@ -1,4 +1,4 @@
-# PitchWise Orbit - Production Dockerfile
+# DepthMark - Production Dockerfile
 # Multi-stage build for optimal image size
 
 FROM python:3.11-slim as builder

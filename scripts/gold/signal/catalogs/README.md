@@ -2,12 +2,12 @@
 
 Each active Gold signal has a catalog file in this directory. The index is structured from per-signal metadata so engineers and analysts can quickly scan signal ownership, grain, and status.
 
-## Metadata Contract (Pulse-Oriented)
+## Metadata Contract (TouchDesk-Oriented)
 
-Catalogs now use a richer YAML block focused on Pulse consumption and analytical traceability:
+Catalogs now use a richer YAML block focused on TouchDesk consumption and analytical traceability:
 
-- `taxonomy`: classification dimensions used by Pulse navigation and filtering.
-- `pulse`: UI-facing metadata (`headline`, `default_surface`, narrative template, and user value tags).
+- `taxonomy`: classification dimensions used by TouchDesk navigation and filtering.
+- `touchdesk`: UI-facing metadata (`headline`, `default_surface`, narrative template, and user value tags).
 - `trigger`: machine-readable trigger expression and scope.
 - `identity`: deduplication identity and required output identity fields.
 - `asset_binding`: convention-based asset resolution to avoid repeating identical paths/tables in every file.

@@ -1,4 +1,4 @@
-"""MongoDB storage package for Orbit content catalog."""
+"""MongoDB storage package for DepthMark content catalog."""
 
 from .client import MongoDBClient, build_mongodb_uri, get_mongodb_client
 from .collections import (

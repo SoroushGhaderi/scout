@@ -1,4 +1,4 @@
-"""Core functionality for PitchWise Orbit project.
+"""Core functionality for DepthMark project.
 
 This package contains:
 - interfaces.py: Protocol definitions for all major components
@@ -13,7 +13,7 @@ Usage:
     from src.core import StorageProtocol, ScraperProtocol
     
     # Import exceptions
-    from src.core import PitchWiseOrbitError, StorageError, ScraperError
+    from src.core import DepthMarkError, StorageError, ScraperError
     
     # Import constants
     from src.core.constants import MatchStatus, Defaults, HttpStatus
@@ -34,7 +34,7 @@ from .interfaces import (
     MatchId,
 )
 from .exceptions import (
-    PitchWiseOrbitError,
+    DepthMarkError,
     ConfigurationError,
     StorageError,
     StorageReadError,
@@ -67,7 +67,7 @@ __all__ = [
     # Type aliases
     'MatchId',
     # Base exceptions
-    'PitchWiseOrbitError',
+    'DepthMarkError',
     'ConfigurationError',
     # Storage exceptions
     'StorageError',

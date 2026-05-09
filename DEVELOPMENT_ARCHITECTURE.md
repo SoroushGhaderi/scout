@@ -1,11 +1,11 @@
-# PitchWise Orbit: Development & Architecture Guide
+# DepthMark: Development & Architecture Guide
 
-This document is the current source of truth for how Orbit is built and operated.
-It replaces older mixed guidance with an implementation-accurate view of the `pitchwise_orbit` project.
+This document is the current source of truth for how DepthMark is built and operated.
+It replaces older mixed guidance with an implementation-accurate view of the `depthmark` project.
 
 ## 1. Scope
 
-PitchWise Orbit is a FotMob-only medallion pipeline with explicit layer boundaries:
+DepthMark is a FotMob-only medallion pipeline with explicit layer boundaries:
 
 1. Bronze: raw API payloads on local storage + warehouse raw tables in ClickHouse
 2. Silver: cleaned/conformed analytical tables in ClickHouse
@@ -105,11 +105,11 @@ clickhouse/
 4. `src/utils/`: logging, contracts, alerts, metrics, health checks
 5. `scripts/`: operational CLI entry points
 
-## 5. New Things In Orbit (Implemented)
+## 5. New Things In DepthMark (Implemented)
 
 These are concrete capabilities present in the current repo.
 
-1. Orbit now has a clear script surface by layer under `scripts/bronze`, `scripts/silver`, `scripts/gold`, `scripts/orchestration`, and `scripts/quality`.
+1. DepthMark now has a clear script surface by layer under `scripts/bronze`, `scripts/silver`, `scripts/gold`, `scripts/orchestration`, and `scripts/quality`.
 2. Silver processing is split into explicit `ddl/` and `dml/` stages, with controlled fallback support for legacy `load/` SQL.
 3. Gold scenarios are now a structured system with SQL + runner pairs and catalog/contract docs (currently 48 scenario SQL files and 48 scenario runners).
 4. Scenario SQL discovery supports recursive folders (`team/`, `player/`) while runner naming stays stable.

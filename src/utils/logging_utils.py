@@ -1,4 +1,4 @@
-"""Logging utilities for PitchWise Orbit project with structlog as the global backend."""
+"""Logging utilities for DepthMark project with structlog as the global backend."""
 
 import logging
 import os
@@ -14,7 +14,7 @@ from structlog.stdlib import LoggerFactory
 
 
 _STRUCTLOG_CONFIGURED = False
-_DEFAULT_LOGGER_NAME = "pitchwise_orbit"
+_DEFAULT_LOGGER_NAME = "depthmark"
 _ANSI_ESCAPE_RE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 
 

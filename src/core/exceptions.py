@@ -1,10 +1,10 @@
-"""Custom exception hierarchy for PitchWise Orbit project.
+"""Custom exception hierarchy for DepthMark project.
 
 This module defines a comprehensive exception hierarchy for the entire application.
-All exceptions inherit from PitchWiseOrbitError for easy catching and handling.
+All exceptions inherit from DepthMarkError for easy catching and handling.
 
 Exception Hierarchy:
-    PitchWiseOrbitError (base)
+    DepthMarkError (base)
     ├── ConfigurationError
     ├── StorageError
     │   ├── StorageReadError
@@ -32,11 +32,11 @@ Usage:
 """
 
 
-class PitchWiseOrbitError(Exception):
-    """Base exception for all PitchWise Orbit errors.
+class DepthMarkError(Exception):
+    """Base exception for all DepthMark errors.
     
-    All custom exceptions in the PitchWise Orbit project should inherit from this.
-    This allows catching all PitchWise Orbit-specific errors with a single except block.
+    All custom exceptions in the DepthMark project should inherit from this.
+    This allows catching all DepthMark-specific errors with a single except block.
     
     Attributes:
         message: Error message
@@ -44,7 +44,7 @@ class PitchWiseOrbitError(Exception):
     """
     
     def __init__(self, message: str, details: dict = None):
-        """Initialize PitchWise Orbit error.
+        """Initialize DepthMark error.
         
         Args:
             message: Error message
@@ -78,7 +78,7 @@ class PitchWiseOrbitError(Exception):
 # Configuration Errors
 # =============================================================================
 
-class ConfigurationError(PitchWiseOrbitError):
+class ConfigurationError(DepthMarkError):
     """Configuration-related errors.
     
     Raised when:
@@ -93,7 +93,7 @@ class ConfigurationError(PitchWiseOrbitError):
 # Storage Errors
 # =============================================================================
 
-class StorageError(PitchWiseOrbitError):
+class StorageError(DepthMarkError):
     """Base exception for storage-related errors.
     
     All storage errors inherit from this class.
@@ -137,7 +137,7 @@ class StorageNotFoundError(StorageError):
 # Scraper Errors
 # =============================================================================
 
-class ScraperError(PitchWiseOrbitError):
+class ScraperError(DepthMarkError):
     """Base exception for scraper-related errors.
     
     All scraper errors inherit from this class.
@@ -215,7 +215,7 @@ class ScraperCloudflareChallengeError(ScraperError):
 # Processor Errors
 # =============================================================================
 
-class ProcessorError(PitchWiseOrbitError):
+class ProcessorError(DepthMarkError):
     """Base exception for data processing errors.
     
     All processor errors inherit from this class.
@@ -260,7 +260,7 @@ class ValidationError(ProcessorError):
 # Database Errors
 # =============================================================================
 
-class DatabaseError(PitchWiseOrbitError):
+class DatabaseError(DepthMarkError):
     """Base exception for database-related errors.
     
     All database errors inherit from this class.
@@ -312,7 +312,7 @@ class DatabaseQueryError(DatabaseError):
 # Orchestrator Errors
 # =============================================================================
 
-class OrchestratorError(PitchWiseOrbitError):
+class OrchestratorError(DepthMarkError):
     """Orchestration workflow error.
     
     Raised when:
@@ -336,7 +336,7 @@ def format_error(error: Exception) -> dict:
     Returns:
         Dictionary with error information
     """
-    if isinstance(error, PitchWiseOrbitError):
+    if isinstance(error, DepthMarkError):
         return error.to_dict()
     
     return {
@@ -348,7 +348,7 @@ def format_error(error: Exception) -> dict:
 
 __all__ = [
     # Base
-    'PitchWiseOrbitError',
+    'DepthMarkError',
     # Configuration
     'ConfigurationError',
     # Storage

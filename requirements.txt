@@ -1,4 +1,4 @@
-# PitchWise Orbit - Project Requirements
+# DepthMark - Project Requirements
 # Dependencies for FotMob scraper and data processing
 
 # Core dependencies

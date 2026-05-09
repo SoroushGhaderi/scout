@@ -1,4 +1,4 @@
-"""Initialize MongoDB indexes for Orbit content catalog."""
+"""Initialize MongoDB indexes for DepthMark content catalog."""
 
 import argparse
 import sys
@@ -28,7 +28,7 @@ def load_environment() -> None:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Create required indexes in MongoDB for Orbit content catalog.",
+        description="Create required indexes in MongoDB for DepthMark content catalog.",
     )
     parser.add_argument(
         "--verbose",

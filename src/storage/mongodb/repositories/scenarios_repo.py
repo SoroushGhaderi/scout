@@ -1,4 +1,4 @@
-"""Scenarios repository for Orbit content catalog."""
+"""Scenarios repository for DepthMark content catalog."""
 
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional

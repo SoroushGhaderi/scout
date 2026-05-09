@@ -1,4 +1,4 @@
-"""Common type definitions and aliases for PitchWise Orbit project.
+"""Common type definitions and aliases for DepthMark project.
 
 This module provides type aliases and custom types used throughout the application.
 Using type aliases improves code readability and makes refactoring easier.

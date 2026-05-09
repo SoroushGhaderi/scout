@@ -1,13 +1,13 @@
-# PitchWise Orbit - Docker Compose Configuration
-# Project name: pitchwise_orbit (set via COMPOSE_PROJECT_NAME or directory name)
+# DepthMark - Docker Compose Configuration
+# Project name: depthmark (set via COMPOSE_PROJECT_NAME or directory name)
 
-name: pitchwise_orbit
+name: depthmark
 
 services:
-  # MongoDB - Stores signal/scenario/template content catalog for Orbit
+  # MongoDB - Stores signal/scenario/template content catalog for DepthMark
   mongodb:
     image: mongo:8.0
-    container_name: pitchwise_orbit_mongodb
+    container_name: depthmark_mongodb
     ports:
       - "27017:27017"
     environment:
@@ -32,7 +32,7 @@ services:
   # The script automatically checks if databases exist and creates them if missing.
   clickhouse:
     image: clickhouse/clickhouse-server:23.8
-    container_name: pitchwise_orbit_clickhouse
+    container_name: depthmark_clickhouse
     ports:
       - "8123:8123"  # HTTP interface
       - "9000:9000"  # Native client port
@@ -60,12 +60,12 @@ services:
       - football_network
     restart: unless-stopped
 
-  # PitchWise Orbit Application
+  # DepthMark Application
   scraper:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: pitchwise_orbit_scraper
+    container_name: depthmark_scraper
     volumes:
       # Data persistence
       - ../data:/app/data
@@ -128,7 +128,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: pitchwise_orbit_scheduler
+    container_name: depthmark_scheduler
     volumes:
       - ../data:/app/data
       - ../logs:/app/logs

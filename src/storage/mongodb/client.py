@@ -1,4 +1,4 @@
-"""MongoDB client helpers for Orbit content catalog."""
+"""MongoDB client helpers for DepthMark content catalog."""
 
 import os
 from dataclasses import dataclass
@@ -72,7 +72,7 @@ class MongoConnectionConfig:
 
 
 class MongoDBClient:
-    """Thin wrapper around pymongo.MongoClient used by Orbit."""
+    """Thin wrapper around pymongo.MongoClient used by DepthMark."""
 
     def __init__(self, config: Optional[MongoConnectionConfig] = None):
         self.config = config or MongoConnectionConfig.from_env()
@@ -86,7 +86,7 @@ class MongoDBClient:
                 serverSelectionTimeoutMS=5000,
                 connectTimeoutMS=5000,
                 socketTimeoutMS=10000,
-                appname="pitchwise-orbit",
+                appname="depthmark",
             )
             self._client.admin.command("ping")
             logger.info(

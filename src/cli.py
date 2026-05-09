@@ -1,4 +1,4 @@
-"""PitchWise Orbit CLI entrypoint.
+"""DepthMark CLI entrypoint.
 
 This command provides a stable package entrypoint and proxies to the existing
 scripts-based workflows.
@@ -35,8 +35,8 @@ def _run_script(script_name: str, script_args: list[str]) -> int:
 def main(argv: list[str] | None = None) -> int:
     """CLI main entrypoint."""
     parser = argparse.ArgumentParser(
-        prog="pitchwise_orbit",
-        description="PitchWise Orbit command-line entrypoint",
+        prog="depthmark",
+        description="DepthMark command-line entrypoint",
     )
     parser.add_argument(
         "command",

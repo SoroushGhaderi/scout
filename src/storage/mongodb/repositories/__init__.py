@@ -1,4 +1,4 @@
-"""Repositories for Orbit MongoDB content catalog."""
+"""Repositories for DepthMark MongoDB content catalog."""
 
 from .scenarios_repo import ScenariosRepository
 from .signals_repo import SignalsRepository

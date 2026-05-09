@@ -1,4 +1,4 @@
-"""Project-wide constants for PitchWise Orbit.
+"""Project-wide constants for DepthMark.
 
 This module defines constants used throughout the application.
 Centralizing constants improves maintainability and reduces magic numbers.

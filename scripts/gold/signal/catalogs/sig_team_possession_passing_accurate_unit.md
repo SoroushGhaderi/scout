@@ -43,7 +43,7 @@ python scripts/gold/signal/runners/sig_team_possession_passing_accurate_unit.py
 
 | Column Name | Description | Reason |
 |---|---|---|
-| `match_id` | Unique match identifier | Football developer: stable join key across Gold and Pulse assets. |
+| `match_id` | Unique match identifier | Football developer: stable join key across Gold and TouchDesk assets. |
 | `match_date` | Calendar match date | Football developer: supports time slicing and backtests. |
 | `home_team_id` | Home team ID | Football developer: fixture orientation context. |
 | `home_team_name` | Home team name | Football developer: readable fixture context. |

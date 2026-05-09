@@ -1,4 +1,4 @@
-"""MongoDB index bootstrap for Orbit content catalog."""
+"""MongoDB index bootstrap for DepthMark content catalog."""
 
 from typing import Dict, List
 

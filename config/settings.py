@@ -1,4 +1,4 @@
-"""Environment-based settings management for PitchWise Orbit project.
+"""Environment-based settings management for DepthMark project.
 
 This module provides centralized environment configuration management.
 All environment variables are loaded from .env file using pydantic-settings.

@@ -1,4 +1,4 @@
-"""Collection names used by Orbit content catalog in MongoDB."""
+"""Collection names used by DepthMark content catalog in MongoDB."""
 
 SIGNALS_COLLECTION = "signals"
 SCENARIOS_COLLECTION = "scenarios"

@@ -3,14 +3,14 @@ requires = ["setuptools>=68.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "PitchWise Orbit"
+name = "DepthMark"
 version = "2.0.0"
-description = "PitchWise Orbit: Production-ready sports data pipeline for FotMob"
+description = "DepthMark: Production-ready sports data pipeline for FotMob"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "PitchWise Orbit Team"},
+    {name = "DepthMark Team"},
 ]
 keywords = ["scraper", "sports", "football", "fotmob"]
 classifiers = [
@@ -71,7 +71,7 @@ cloudflare = [
 ]
 
 [project.scripts]
-pitchwise_orbit = "src.cli:main"
+depthmark = "src.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/SoroushGhaderi/scout"

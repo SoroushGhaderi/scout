@@ -1,4 +1,4 @@
-"""Protocol definitions for PitchWise Orbit components.
+"""Protocol definitions for DepthMark components.
 
 This module defines the interfaces (protocols) that components must implement.
 Using protocols instead of abstract base classes allows for structural typing
