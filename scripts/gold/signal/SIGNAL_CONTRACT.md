@@ -22,3 +22,12 @@ Use `SIGNAL_EXECUTION_CONTRACT.md` when the task requires:
 - wiring bulk execution and release checks
 
 Both contracts are normative and complementary; a complete signal package must satisfy both.
+
+## Completion and Commit Rule
+
+For each signal, commit changes only after all required parts are complete and aligned with the standard structure across both contracts:
+
+- core logic and analyst output requirements (`SIGNAL_CORE_CONTRACT.md`)
+- execution wiring, runner updates, and release checks (`SIGNAL_EXECUTION_CONTRACT.md`)
+
+Do not create partial per-signal commits before the full signal package is complete in this structure.
