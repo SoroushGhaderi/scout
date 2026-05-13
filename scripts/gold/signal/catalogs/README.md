@@ -24,6 +24,7 @@ Use `asset_binding.overrides` only when a signal breaks the default convention.
 | Signal ID | Entity | Family | Subfamily | Grain | Status | Catalog |
 |---|---|---|---|---|---|---|
 | `sig_match_discipline_cards_battle_of_attrition` | team | discipline | cards | `match_team` | active | [sig_match_discipline_cards_battle_of_attrition.md](sig_match_discipline_cards_battle_of_attrition.md) |
+| `sig_match_discipline_cards_boiling_over` | team | discipline | cards | `match_team` | active | [sig_match_discipline_cards_boiling_over.md](sig_match_discipline_cards_boiling_over.md) |
 | `sig_match_discipline_cards_clean_fair_play` | team | discipline | cards | `match_team` | active | [sig_match_discipline_cards_clean_fair_play.md](sig_match_discipline_cards_clean_fair_play.md) |
 | `sig_match_discipline_cards_card_frenzy` | team | discipline | cards | `match_team` | active | [sig_match_discipline_cards_card_frenzy.md](sig_match_discipline_cards_card_frenzy.md) |
 | `sig_match_discipline_cards_double_red_drama` | team | discipline | cards | `match_team` | active | [sig_match_discipline_cards_double_red_drama.md](sig_match_discipline_cards_double_red_drama.md) |
