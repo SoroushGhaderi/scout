@@ -8,11 +8,7 @@ This contract defines the high-value, creative part of Gold signal authoring:
 
 This document is intended for deep tactical/analytical reasoning work where design quality matters most.
 
-## Normative Language
-
-- `MUST`: mandatory for production readiness.
-- `SHOULD`: strong recommendation; exceptions require clear rationale.
-- `MAY`: optional.
+> Normative language (`MUST`/`SHOULD`/`MAY`) is defined in `SIGNAL_CONTRACT.md` § Normative Language.
 
 ## Scope
 
@@ -39,12 +35,10 @@ When proposing a new signal, similarity against existing active signals MUST be 
 2. The proposal MUST cite the closest existing signal IDs and summarize overlap/differences before requesting the decision.
 3. No production package changes SHOULD be finalized until that decision is provided.
 
-## Naming and Consistency Contract
+## Naming and Consistency
 
-1. Signal IDs MUST follow `sig_<name>` in `snake_case`.
-2. Prefix MUST be `sig_` only; `signal_` is not allowed for new work.
-3. SQL filename and target table suffix MUST match exactly by `<name>`.
-4. Catalog filename MUST be `catalogs/sig_<name>.md`.
+See `SIGNAL_EXECUTION_CONTRACT.md` § Naming and Consistency Contract for the canonical naming rules.
+All assets produced under this contract MUST conform to those rules.
 
 ## Column Naming Contract
 
@@ -71,9 +65,9 @@ When proposing a new signal, similarity against existing active signals MUST be 
    - Correct: `home_pass_accuracy_pct`, `away_opposition_half_pass_pct`
    - Incorrect: `pass_accuracy_home_pct`, `home_opp_half_pass_pct`
 10. Count columns SHOULD use explicit football action nouns:
-   - Attempts: `*_attempts`
-   - Accurate completions: `accurate_*`
-   - Successful actions: `successful_*`
+    - Attempts: `*_attempts`
+    - Accurate completions: `accurate_*`
+    - Successful actions: `successful_*`
 11. New output columns MUST NOT introduce abbreviations unless already canonical in football analytics (`xg`, `ppda`).
 
 ## Production SQL Contract
@@ -96,17 +90,17 @@ File: `clickhouse/gold/signal/sig_<name>.sql`
 12. Query shape SHOULD remain simple and consistent across signals. Avoid unnecessary CTE layers and indirection.
 13. `FINAL` on source tables SHOULD be used only when correctness requires it; if used, add a short comment explaining why the performance trade-off is justified.
 14. Enrichment MUST be domain-relevant, not generic filler:
-   - Passing: accuracy differential plus volume
-   - Pressing: PPDA or press-success metrics
-   - Shooting: xG, shot volume, on-target rate
-   - Defending: defensive action counts
+    - Passing: accuracy differential plus volume
+    - Pressing: PPDA or press-success metrics
+    - Shooting: xG, shot volume, on-target rate
+    - Defending: defensive action counts
 15. Tactical context metrics MUST be symmetric as `triggered_team_*` and `opponent_*` pairs. Unpaired fields are allowed only for explicit net/delta outputs.
 16. Canonical side-orientation field is `triggered_side`. Legacy `triggered_team_side` is tolerated for existing tables, but new signals MUST use `triggered_side`.
 17. If both teams can satisfy a trigger in one match but only one row is emitted, SQL MUST define deterministic precedence (for example home-priority) and expose an explicit bilateral flag (for example `both_sides_triggered`).
 18. Player-triggered signals MUST store both player identity and team context in final output rows:
-   - `triggered_player_id` and `triggered_player_name`
-   - `triggered_team_id` and `triggered_team_name`
-   - `triggered_side` plus opponent team identifiers (`opponent_team_id`, `opponent_team_name`) unless explicitly non-opponent-oriented.
+    - `triggered_player_id` and `triggered_player_name`
+    - `triggered_team_id` and `triggered_team_name`
+    - `triggered_side` plus opponent team identifiers (`opponent_team_id`, `opponent_team_name`) unless explicitly non-opponent-oriented.
 
 ## Analyst Query Contract (Ad-hoc SQL Before Production)
 

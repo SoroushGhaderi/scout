@@ -8,11 +8,7 @@ This contract defines the low-variance implementation part of Gold signals:
 
 This document is intended for routine implementation work where structure and consistency matter most.
 
-## Normative Language
-
-- `MUST`: mandatory for production readiness.
-- `SHOULD`: strong recommendation; exceptions require clear rationale.
-- `MAY`: optional.
+> Normative language (`MUST`/`SHOULD`/`MAY`) is defined in `SIGNAL_CONTRACT.md` § Normative Language.
 
 ## Scope
 
@@ -104,18 +100,73 @@ Recommended focused checks:
 1. `python3 scripts/gold/load_clickhouse_scenarios.py --part signals --dry-run`
 2. `python3 scripts/gold/load_clickhouse_scenarios.py --part signals`
 
-## Change Management
+## Git Commit Policy
 
-1. Adding a new signal MUST also update:
-   - `clickhouse/gold/02_create_signal_tables.sql` (or active DDL set)
-   - `scripts/gold/signal/catalogs/sig_<name>.md`
-   - `scripts/gold/signal/catalogs/README.md`
-2. Renaming or deleting a signal MUST update all linked assets together:
-   - SQL file
-   - runner
-   - table DDL
-   - catalog file
-   - catalog index
-3. Breaking renames MUST be documented in:
-   - `scripts/README.md`
-   - `DEVELOPMENT_ARCHITECTURE.md` when boundary or command-surface behavior changes
+A per-signal commit is mandatory. The commit MUST be created only after all 5 package parts are complete and consistent. Do not create partial commits. Do not move to unrelated work before this commit exists.
+
+### Completion Checklist (verify before committing)
+
+- [ ] `clickhouse/gold/signal/sig_<name>.sql` present and correct
+- [ ] `scripts/gold/signal/runners/sig_<name>.py` present and wired
+- [ ] `clickhouse/gold/02_create_signal_tables.sql` updated with new table DDL
+- [ ] `scripts/gold/signal/catalogs/sig_<name>.md` present and accurate
+- [ ] `scripts/gold/signal/catalogs/README.md` updated with new catalog entry
+- [ ] Validation gate passed (`--part signals` dry-run and full run)
+
+### Commit Message Templates
+
+**New signal:**
+
+```
+feat(signal): add sig_<name>
+
+- SQL: clickhouse/gold/signal/sig_<name>.sql
+- Table: gold.sig_<name>
+- Runner: scripts/gold/signal/runners/sig_<name>.py
+- Catalog: scripts/gold/signal/catalogs/sig_<name>.md
+```
+
+**Update to existing signal:**
+
+```
+fix(signal): update sig_<name> — <one-line summary of change>
+```
+
+**Rename (breaking):**
+
+```
+refactor(signal): rename sig_<old_name> → sig_<new_name>
+
+Breaking: all downstream references to sig_<old_name> must be updated.
+See DEVELOPMENT_ARCHITECTURE.md for migration notes.
+
+Changed:
+- clickhouse/gold/signal/sig_<old_name>.sql → sig_<new_name>.sql
+- runners/sig_<old_name>.py → runners/sig_<new_name>.py
+- gold.sig_<old_name> → gold.sig_<new_name>
+- catalogs/sig_<old_name>.md → catalogs/sig_<new_name>.md
+```
+
+**Deprecation or deletion:**
+
+```
+chore(signal): deprecate sig_<name>
+
+Reason: <brief explanation>
+Replacement: sig_<replacement_name> (if applicable)
+```
+
+### Asset Consistency on Rename or Delete
+
+When renaming or deleting a signal, all linked assets MUST be updated together in the same commit:
+
+- SQL file
+- runner
+- table DDL
+- catalog file
+- catalog index
+
+Breaking renames MUST also be documented in:
+
+- `scripts/README.md`
+- `DEVELOPMENT_ARCHITECTURE.md` when boundary or command-surface behavior changes
