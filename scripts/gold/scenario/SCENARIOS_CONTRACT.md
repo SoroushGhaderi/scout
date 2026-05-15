@@ -1,6 +1,6 @@
 # Gold Scenarios Contract
 
-This document defines the stable contract for Gold scenario jobs in Scout.
+This document defines the stable contract for Gold scenario jobs in DepthMark.
 
 ## Scope
 
@@ -63,7 +63,7 @@ All four parts are required for a production-ready scenario.
 1. Executes base gold SQL files from `clickhouse/gold/*.sql`.
 2. Discovers and executes `scripts/gold/scenario/scenario*.py` in sorted order.
 3. Supports `--dry-run` for plan/preview mode.
-4. Runs `assert_gold_layer_contracts` after scenario execution.
+4. Runs `assert_gold_layer_contracts` after scenario and signal execution.
 
 ## Catalog Contract
 
@@ -97,4 +97,4 @@ Minimum operational checks:
    - catalog entry
 3. No breaking renames without documentation updates in:
    - `scripts/README.md`
-   - `DEVELOPMENT_ARCHITECTURE.md` (if boundaries or command surface changed)
+   - `docs/DEVELOPMENT_ARCHITECTURE.md` (if boundaries or command surface changed)

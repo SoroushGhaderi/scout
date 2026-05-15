@@ -2,24 +2,28 @@
 
 Each active Gold signal has a catalog file in this directory. The index is structured from per-signal metadata so engineers and analysts can quickly scan signal ownership, grain, and status.
 
-## Metadata Contract (TouchDesk-Oriented)
+## Metadata Contract
 
-Catalogs now use a richer YAML block focused on TouchDesk consumption and analytical traceability:
+Catalogs use a YAML frontmatter block that is parsed by `scripts/mongodb/sync_signal_catalogs.py`.
+The sync script currently requires these top-level fields:
 
-- `taxonomy`: classification dimensions used by TouchDesk navigation and filtering.
-- `touchdesk`: UI-facing metadata (`headline`, `default_surface`, narrative template, and user value tags).
-- `trigger`: machine-readable trigger expression and scope.
-- `identity`: deduplication identity and required output identity fields.
-- `asset_binding`: convention-based asset resolution to avoid repeating identical paths/tables in every file.
-- `quality`: QA expectations and downstream impact tags.
+- `signal_id`
+- `status`
+- `entity`
+- `family`
+- `subfamily`
+- `grain`
+- `row_identity`
+- `asset_paths`
 
-Asset resolution is now convention-based:
+Common optional fields include `headline` and `trigger`.
+Asset paths are explicit in each catalog:
 
 - Target table: `gold.{signal_id}`
 - SQL path: `clickhouse/gold/signal/{signal_id}.sql`
 - Runner path: `scripts/gold/signal/runners/{signal_id}.py`
 
-Use `asset_binding.overrides` only when a signal breaks the default convention.
+Keep this index aligned with active catalog files when adding, renaming, or deleting a signal.
 
 | Signal ID | Entity | Family | Subfamily | Grain | Status | Catalog |
 |---|---|---|---|---|---|---|

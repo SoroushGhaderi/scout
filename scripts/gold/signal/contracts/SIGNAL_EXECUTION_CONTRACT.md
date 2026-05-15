@@ -138,7 +138,7 @@ fix(signal): update sig_<name> — <one-line summary of change>
 refactor(signal): rename sig_<old_name> → sig_<new_name>
 
 Breaking: all downstream references to sig_<old_name> must be updated.
-See DEVELOPMENT_ARCHITECTURE.md for migration notes.
+See `docs/DEVELOPMENT_ARCHITECTURE.md` for migration notes.
 
 Changed:
 - clickhouse/gold/signal/sig_<old_name>.sql → sig_<new_name>.sql
@@ -169,4 +169,4 @@ When renaming or deleting a signal, all linked assets MUST be updated together i
 Breaking renames MUST also be documented in:
 
 - `scripts/README.md`
-- `DEVELOPMENT_ARCHITECTURE.md` when boundary or command-surface behavior changes
+- `docs/DEVELOPMENT_ARCHITECTURE.md` when boundary or command-surface behavior changes

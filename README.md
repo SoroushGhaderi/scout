@@ -1,37 +1,30 @@
 # DepthMark
 
-DepthMark is a FotMob-only football data pipeline with an explicit medallion architecture.
+DepthMark is a FotMob-only football data pipeline built around a clear medallion
+architecture:
 
-- Bronze: raw FotMob API responses stored on disk and loaded into ClickHouse `bronze.*` tables
-- Silver: cleaned ClickHouse `silver.*` tables built from Bronze
-- Gold: analytics-ready ClickHouse `gold.*` tables built from Silver
-
-## Architecture
+- Bronze: raw FotMob API responses on disk plus raw ClickHouse `bronze.*` tables
+- Silver: cleaned and conformed ClickHouse `silver.*` tables
+- Gold: scenario and signal ClickHouse `gold.*` tables for product and analytics use
 
 ```text
 FotMob API
-  -> data/fotmob/                   raw Bronze files
-  -> bronze.*                       ClickHouse Bronze tables
-  -> silver.*                       ClickHouse Silver tables
-  -> gold.*                         ClickHouse Gold tables
+  -> data/fotmob/          raw Bronze files
+  -> bronze.*              raw warehouse tables
+  -> silver.*              cleaned analytical tables
+  -> gold.*                scenarios and signals
 ```
 
-## Layer Rules
-
-- Bronze is the only filesystem-backed layer
-- Silver and Gold exist only in ClickHouse
-- Bronze warehouse tables live in the `bronze` schema
-- Silver warehouse tables live in the `silver` schema
-- Gold warehouse tables live in the `gold` schema
-- DepthMark currently supports FotMob only
+Bronze is the only filesystem-backed data layer. Silver and Gold exist only in
+ClickHouse.
 
 ## Prerequisites
 
 - Docker and Docker Compose
-- Python 3.11 if running locally outside Docker
+- Python 3.11 when running scripts outside Docker
 - A valid `FOTMOB_X_MAS_TOKEN`
 - ClickHouse credentials in `.env`
-- MongoDB credentials in `.env` (for content catalog)
+- MongoDB credentials in `.env` for the signal content catalog
 
 ## Quick Start
 
@@ -39,36 +32,23 @@ FotMob API
 git clone <repository-url>
 cd depthmark
 cp .env.example .env
-# edit .env and set FOTMOB_X_MAS_TOKEN plus ClickHouse credentials
+# edit .env and set FOTMOB_X_MAS_TOKEN, ClickHouse, and MongoDB values
 
 docker-compose -f docker/docker-compose.yml up -d
-
-# create Bronze + Silver + Gold schema
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/setup_clickhouse.py
-
-# run a complete single-day pipeline
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py 20251208
 ```
 
-## ClickHouse Only (No Scraper)
-
-Use this when you only want the database container:
+To start only ClickHouse:
 
 ```bash
 docker-compose -f docker/docker-compose.clickhouse.yml up -d
-```
-
-Open a ClickHouse client session:
-
-```bash
 docker-compose -f docker/docker-compose.clickhouse.yml exec clickhouse clickhouse-client
 ```
 
-## Required Configuration
+## Configuration
 
-### `.env`
-
-Minimum useful values:
+Minimum useful `.env` values:
 
 ```bash
 FOTMOB_X_MAS_TOKEN=your_token_here
@@ -83,9 +63,7 @@ MONGODB_PASSWORD=your_mongodb_password_here
 MONGODB_DATABASE=orbit_content
 ```
 
-### `config.yaml`
-
-Bronze is the only local layer path:
+Bronze local storage is configured in `config.yaml`:
 
 ```yaml
 fotmob:
@@ -94,314 +72,97 @@ fotmob:
     enabled: true
 ```
 
-See `DEVELOPMENT_ARCHITECTURE.md` for the full development, architecture, and configuration reference.
+## Common Commands
 
-### MongoDB code layout
-
-- `src/storage/mongodb/` - client, collection constants, indexes, repositories
-- `schemas/mongodb/` - JSON schemas for content collections
-- `scripts/mongodb/init_indexes.py` - index bootstrap script
-- `scripts/mongodb/sync_signal_catalogs.py` - sync signal markdown catalogs to MongoDB
-
-### Signal Catalog Source Of Truth
-
-Signal metadata is authored in markdown frontmatter under:
-
-- `scripts/gold/signal/catalogs/*.md`
-
-The YAML frontmatter block is the authoritative source for signal metadata stored in MongoDB.
-Current required keys expected by the sync script:
-
-- `signal_id`
-- `status`
-- `entity`
-- `family`
-- `subfamily`
-- `grain`
-- `row_identity`
-- `asset_paths`
-
-The sync process stores:
-
-- flattened metadata fields for fast querying
-- full `frontmatter` object for full-fidelity reuse
-- full markdown body in `markdown_body`
-- relative source file path in `source_path`
-
-## Running The Code
-
-### 1. Start infrastructure
-
-```bash
-docker-compose -f docker/docker-compose.yml up -d
-```
-
-To start only MongoDB (content catalog service):
-
-```bash
-docker-compose -f docker/docker-compose.yml up -d mongodb
-```
-
-### 2. Create ClickHouse schema
-
-Create all layers:
-
-```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/setup_clickhouse.py
-```
-
-Or create one layer at a time:
-
-```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/setup_clickhouse.py
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/setup_clickhouse.py
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/setup_clickhouse_gold.py
-```
-
-### 2.1 Initialize MongoDB content indexes
-
-```bash
-python scripts/mongodb/init_indexes.py
-```
-
-### 2.2 Sync signal catalogs into MongoDB
-
-```bash
-python scripts/mongodb/sync_signal_catalogs.py
-```
-
-Dry-run validation (no DB writes):
-
-```bash
-python scripts/mongodb/sync_signal_catalogs.py --dry-run
-```
-
-### 3. Scrape Bronze files
-
-```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/scrape_fotmob.py 20251208
-```
-
-This writes raw FotMob match responses into `data/fotmob/`.
-
-### 4. Load Bronze files into ClickHouse Bronze tables
-
-```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/load_clickhouse.py --date 20251208
-```
-
-This creates or appends records in tables such as:
-
-- `bronze.match_reference`
-- `bronze.general`
-- `bronze.player`
-- `bronze.shotmap`
-- `bronze.goal`
-- `bronze.period`
-
-`bronze.match_reference` is a compact lookup table for filtering and tracking games by
-`match_id`, `match_date`, home/away team ids and names, league context, match
-status, and score. It is populated from the same FotMob general payload during
-Bronze loading, partitioned by `match_date`, and ordered by `(match_date, match_id)`
-for date/id/team-oriented queries.
-
-### 5. Build Silver tables
-
-```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/load_clickhouse.py
-```
-
-Preview silver load jobs without writes:
-
-```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/load_clickhouse.py --dry-run
-```
-
-This refreshes tables such as:
-
-- `silver.match`
-- `silver.period_stat`
-- `silver.player_match_stat`
-- `silver.momentum`
-- `silver.team_form`
-
-### 6. Build Gold tables
-
-```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py
-```
-
-Preview gold SQL + scenario/signal execution without writes:
-
-```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py --dry-run
-```
-
-This refreshes tables such as:
-
-- `gold.scenario_demolition`
-- `gold.scenario_route_one_masterclass`
-- `gold.scenario_pressing_masterclass`
-
-It also refreshes scenario narrative tables (via `scripts/gold/scenario/scenario_*.py`), including:
-
-- `gold.scenario_high_intensity_engine`
-- `gold.scenario_black_hole`
-- `gold.scenario_high_line_trap`
-- `gold.scenario_ghost_poacher`
-- `gold.scenario_route_one_masterclass`
-- `gold.scenario_total_suffocation`
-- `gold.scenario_territorial_suffocation`
-- `gold.scenario_clinical_pivot`
-
-And it refreshes signal tables (via `scripts/gold/signal/runners/sig_*.py`), including:
-
-- `gold.sig_team_possession_passing_high_press_victim`
-
-## Full Pipeline Modes
-
-### One date
+Run the standard pipeline for one date:
 
 ```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py 20251208
 ```
 
-### Date range
+Run a date range or month:
 
 ```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py --start-date 20251201 --end-date 20251207
-```
-
-### Month
-
-```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py --month 202512
 ```
 
-### Bronze only
+Run individual layers:
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py 20251208 --bronze-only
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/scrape_fotmob.py 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/load_clickhouse.py --date 20251208
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/load_clickhouse.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py
 ```
 
-### Silver only
+Preview non-destructive work:
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py 20251208 --silver-only
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/load_clickhouse.py --dry-run
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py --dry-run
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py --part signals --dry-run
 ```
 
-### Gold only
+Run health and quality checks:
 
 ```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py 20251208 --gold-only
-```
-
-### Skip scraping and reuse existing Bronze files
-
-```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/pipeline.py 20251208 --skip-bronze
-```
-
-## Bronze Table Engine
-
-All ClickHouse Bronze tables use:
-
-```sql
-ENGINE = ReplacingMergeTree(inserted_at)
-```
-
-That allows re-runs and deduplication by keeping the newest inserted version before compaction.
-
-Run optimization periodically:
-
-```bash
-docker-compose -f docker/docker-compose.yml exec -T clickhouse clickhouse-client \
-  --user fotmob_user --password fotmob_pass \
-  < clickhouse/bronze/99_optimize_tables.sql
-```
-
-## Project Structure
-
-```text
-depthmark/
-├── clickhouse/
-│   ├── bronze/
-│   ├── silver/
-│   └── gold/
-│       ├── scenario/
-│       ├── signal/
-│       └── reference/
-├── config/
-├── scripts/
-│   ├── bronze/
-│   │   ├── scrape_fotmob.py
-│   │   ├── load_clickhouse.py
-│   │   └── setup_clickhouse.py
-│   ├── silver/
-│   │   ├── load_clickhouse.py
-│   │   └── setup_clickhouse.py
-│   ├── gold/
-│   │   ├── load_clickhouse_scenarios.py
-│   │   └── setup_clickhouse_gold.py
-│   ├── orchestration/
-│   │   ├── pipeline.py
-│   │   └── setup_clickhouse.py
-│   ├── quality/
-│   │   ├── check_bronze_to_silver_reconciliation.py
-│   │   └── check_logging_style.py
-│   ├── ensure_directories.py
-│   ├── health_check.py
-│   ├── refresh_turnstile.py
-│   └── utils/
-├── src/
-│   ├── processors/
-│   │   ├── bronze/
-│   │   ├── silver/
-│   │   └── gold/
-│   └── storage/
-│       ├── bronze/
-│       ├── silver/
-│       └── gold/
-└── data/
-    └── fotmob/
-```
-
-## Troubleshooting
-
-### Create local directories early
-
-```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/ensure_directories.py
-```
-
-### Check system health
-
-```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/health_check.py --json
-```
-
-### Recreate schema
-
-```bash
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/orchestration/setup_clickhouse.py
-```
-
-### Run quality checks
-
-```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/quality/check_logging_style.py
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/quality/check_bronze_to_silver_reconciliation.py --strict
 ```
 
+## MongoDB Signal Catalog
+
+Signal metadata is authored in markdown frontmatter under
+`scripts/gold/signal/catalogs/*.md`. Sync it into MongoDB with:
+
+```bash
+python scripts/mongodb/init_indexes.py
+python scripts/mongodb/sync_signal_catalogs.py --dry-run
+python scripts/mongodb/sync_signal_catalogs.py
+```
+
+The sync stores queryable metadata fields, the full frontmatter object, the
+markdown body, and the relative source path.
+
+## Project Layout
+
+```text
+depthmark/
+  clickhouse/             ClickHouse DDL/DML by layer
+  config/                 Python configuration modules
+  data/fotmob/            raw Bronze files
+  docker/                 local service definitions
+  docs/                   project-wide architecture and contracts
+  scripts/                operational entry points
+  src/                    scraper, processor, storage, and utility code
+```
+
+Key script groups:
+
+- `scripts/bronze/`: scrape, load, setup, and drop Bronze tables
+- `scripts/silver/`: load, setup, and drop Silver tables
+- `scripts/gold/`: setup/drop/load Gold scenarios and signals
+- `scripts/orchestration/`: end-to-end setup and pipeline flows
+- `scripts/quality/`: reconciliation and logging checks
+- `scripts/mongodb/`: content catalog index and sync jobs
+
+## Documentation
+
+- `docs/DEVELOPMENT_ARCHITECTURE.md`: architecture, command surface, runbook, and operational guidance
+- `docs/SCRIPTS_CONTRACT.md`: script behavior, style, CLI, and stability rules
+- `docs/README.md`: documentation map
+- `scripts/README.md`: script layout and inventory reference
+
+Subsystem contracts stay next to the code they govern, such as
+`scripts/gold/scenario/SCENARIOS_CONTRACT.md` and
+`scripts/gold/signal/contracts/`.
+
 ## Notes
 
-- DepthMark is currently FotMob-only
-- Silver and Gold are warehouse layers, not local directories
-- Always use schema-qualified names like `bronze.general`, `gold.scenario_demolition`, or `gold.match_summary`
-
-## Repo Hygiene
-
-- Script inventory: `SCRIPTS_AUDIT.md`
-- Script command + handwriting contract: `SCRIPTS_CONTRACT.md`
-- Script layout reference: `scripts/README.md`
+- DepthMark currently supports FotMob only.
+- Use schema-qualified table names such as `bronze.general`, `silver.match`,
+  and `gold.scenario_demolition`.
+- Bronze tables use `ReplacingMergeTree(inserted_at)` so reruns can be compacted
+  by the ClickHouse optimization SQL in `clickhouse/bronze/99_optimize_tables.sql`.
