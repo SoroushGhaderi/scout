@@ -3516,6 +3516,58 @@ CREATE TABLE IF NOT EXISTS gold.sig_player_possession_passing_box_penetrator (
 ORDER BY (match_id, triggered_side, triggered_player_id)
 PARTITION BY toYYYYMM(match_date);
 
+CREATE TABLE IF NOT EXISTS gold.sig_player_shooting_goals_clinical_brace (
+    match_id Int32,
+    match_date Date,
+    home_team_id Nullable(Int32),
+    home_team_name Nullable(String),
+    away_team_id Nullable(Int32),
+    away_team_name Nullable(String),
+    home_score Nullable(Int32),
+    away_score Nullable(Int32),
+    triggered_side LowCardinality(String),
+    triggered_player_id Int32,
+    triggered_player_name Nullable(String),
+    triggered_team_id Nullable(Int32),
+    triggered_team_name Nullable(String),
+    opponent_team_id Nullable(Int32),
+    opponent_team_name Nullable(String),
+    trigger_threshold_min_goals Int32,
+    trigger_threshold_max_expected_goals Float32,
+    triggered_player_goals Int32,
+    triggered_player_expected_goals Float32,
+    triggered_player_total_shots Int32,
+    triggered_player_shots_on_target Int32,
+    triggered_player_shot_accuracy_pct Float32,
+    triggered_player_expected_goals_per_shot Float32,
+    triggered_player_goal_minus_expected_goals Float32,
+    triggered_player_minutes_played Int32,
+    goals_above_threshold Int32,
+    expected_goals_below_threshold Float32,
+    triggered_team_goals Int32,
+    opponent_goals Int32,
+    goal_delta Int32,
+    triggered_team_expected_goals Float32,
+    opponent_expected_goals Float32,
+    expected_goals_delta Float32,
+    triggered_team_total_shots Int32,
+    opponent_total_shots Int32,
+    triggered_team_shots_on_target Int32,
+    opponent_shots_on_target Int32,
+    triggered_team_big_chances Int32,
+    opponent_big_chances Int32,
+    triggered_team_possession_pct Float32,
+    opponent_possession_pct Float32,
+    triggered_team_touches_opposition_box Int32,
+    opponent_touches_opposition_box Int32,
+    player_share_of_team_goals_pct Float32,
+    player_share_of_team_expected_goals_pct Float32,
+    player_share_of_team_total_shots_pct Float32,
+    inserted_at DateTime DEFAULT now()
+) ENGINE = ReplacingMergeTree(inserted_at)
+ORDER BY (match_id, triggered_side, triggered_player_id)
+PARTITION BY toYYYYMM(match_date);
+
 CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_counter_vs_bus (
     match_id Int32,
     match_date Date,
