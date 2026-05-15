@@ -33,6 +33,7 @@ Keep this index aligned with active catalog files when adding, renaming, or dele
 | `sig_match_discipline_cards_chaos_90_plus` | team | discipline | cards | `match_team` | active | [sig_match_discipline_cards_chaos_90_plus.md](sig_match_discipline_cards_chaos_90_plus.md) |
 | `sig_match_discipline_cards_clean_fair_play` | team | discipline | cards | `match_team` | active | [sig_match_discipline_cards_clean_fair_play.md](sig_match_discipline_cards_clean_fair_play.md) |
 | `sig_match_discipline_cards_card_frenzy` | team | discipline | cards | `match_team` | active | [sig_match_discipline_cards_card_frenzy.md](sig_match_discipline_cards_card_frenzy.md) |
+| `sig_match_discipline_cards_card_heavy_substitutions` | team | discipline | cards | `match_team` | active | [sig_match_discipline_cards_card_heavy_substitutions.md](sig_match_discipline_cards_card_heavy_substitutions.md) |
 | `sig_match_discipline_cards_double_red_drama` | team | discipline | cards | `match_team` | active | [sig_match_discipline_cards_double_red_drama.md](sig_match_discipline_cards_double_red_drama.md) |
 | `sig_match_discipline_cards_heated_derby_stats` | team | discipline | cards | `match_team` | active | [sig_match_discipline_cards_heated_derby_stats.md](sig_match_discipline_cards_heated_derby_stats.md) |
 | `sig_match_discipline_cards_physical_showdown` | team | discipline | cards | `match_team` | active | [sig_match_discipline_cards_physical_showdown.md](sig_match_discipline_cards_physical_showdown.md) |
