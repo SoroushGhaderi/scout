@@ -143,9 +143,11 @@ Keep this index aligned with active catalog files when adding, renaming, or dele
 | `sig_player_shooting_goals_shot_conversion_peak` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_shot_conversion_peak.md](sig_player_shooting_goals_shot_conversion_peak.md) |
 | `sig_player_shooting_goals_high_xg_no_shot` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_high_xg_no_shot.md](sig_player_shooting_goals_high_xg_no_shot.md) |
 | `sig_player_shooting_goals_xg_accumulator_midfielder` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_xg_accumulator_midfielder.md](sig_player_shooting_goals_xg_accumulator_midfielder.md) |
+| `sig_player_shooting_goals_impact_accumulator` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_impact_accumulator.md](sig_player_shooting_goals_impact_accumulator.md) |
 | `sig_player_shooting_goals_big_chance_bottler` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_big_chance_bottler.md](sig_player_shooting_goals_big_chance_bottler.md) |
 | `sig_player_shooting_goals_sniper_accuracy` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_sniper_accuracy.md](sig_player_shooting_goals_sniper_accuracy.md) |
 | `sig_player_shooting_goals_long_range_specialist` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_long_range_specialist.md](sig_player_shooting_goals_long_range_specialist.md) |
+| `sig_player_shooting_goals_freekick_master` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_freekick_master.md](sig_player_shooting_goals_freekick_master.md) |
 | `sig_player_shooting_goals_one_man_army` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_one_man_army.md](sig_player_shooting_goals_one_man_army.md) |
 | `sig_player_shooting_goals_persistent_threat` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_persistent_threat.md](sig_player_shooting_goals_persistent_threat.md) |
 | `sig_player_shooting_goals_rapid_brace` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_rapid_brace.md](sig_player_shooting_goals_rapid_brace.md) |
