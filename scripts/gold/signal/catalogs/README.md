@@ -92,7 +92,12 @@ Keep this index aligned with active catalog files when adding, renaming, or dele
 | `sig_team_possession_passing_territorial_dominance` | team | possession | passing | `match_team` | active | [sig_team_possession_passing_territorial_dominance.md](sig_team_possession_passing_territorial_dominance.md) |
 | `sig_team_possession_passing_vertical_imbalance` | team | possession | passing | `match_team` | active | [sig_team_possession_passing_vertical_imbalance.md](sig_team_possession_passing_vertical_imbalance.md) |
 | `sig_team_shooting_goals_blank_range` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_blank_range.md](sig_team_shooting_goals_blank_range.md) |
+| `sig_team_shooting_goals_box_siege` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_box_siege.md](sig_team_shooting_goals_box_siege.md) |
+| `sig_team_shooting_goals_no_shots_allowed` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_no_shots_allowed.md](sig_team_shooting_goals_no_shots_allowed.md) |
+| `sig_team_shooting_goals_shot_shy` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_shot_shy.md](sig_team_shooting_goals_shot_shy.md) |
 | `sig_team_shooting_goals_shooting_gallery` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_shooting_gallery.md](sig_team_shooting_goals_shooting_gallery.md) |
+| `sig_team_shooting_goals_late_surge_goals` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_late_surge_goals.md](sig_team_shooting_goals_late_surge_goals.md) |
+| `sig_team_shooting_goals_rapid_response_goal` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_rapid_response_goal.md](sig_team_shooting_goals_rapid_response_goal.md) |
 | `sig_team_discipline_cards_collective_aggression` | team | discipline | cards | `match_team` | active | [sig_team_discipline_cards_collective_aggression.md](sig_team_discipline_cards_collective_aggression.md) |
 | `sig_team_discipline_cards_aggression_spike` | team | discipline | cards | `match_team` | active | [sig_team_discipline_cards_aggression_spike.md](sig_team_discipline_cards_aggression_spike.md) |
 | `sig_team_discipline_cards_aggression_drop_off` | team | discipline | cards | `match_team` | active | [sig_team_discipline_cards_aggression_drop_off.md](sig_team_discipline_cards_aggression_drop_off.md) |
@@ -118,6 +123,9 @@ Keep this index aligned with active catalog files when adding, renaming, or dele
 | `sig_team_discipline_cards_away_hostility` | team | discipline | cards | `match_team` | active | [sig_team_discipline_cards_away_hostility.md](sig_team_discipline_cards_away_hostility.md) |
 | `sig_team_discipline_cards_hostile_territory` | team | discipline | cards | `match_team` | active | [sig_team_discipline_cards_hostile_territory.md](sig_team_discipline_cards_hostile_territory.md) |
 | `sig_team_shooting_goals_ruthless_efficiency` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_ruthless_efficiency.md](sig_team_shooting_goals_ruthless_efficiency.md) |
+| `sig_team_shooting_goals_xg_overperformance_team` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_xg_overperformance_team.md](sig_team_shooting_goals_xg_overperformance_team.md) |
+| `sig_team_shooting_goals_shared_scoring` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_shared_scoring.md](sig_team_shooting_goals_shared_scoring.md) |
+| `sig_team_shooting_goals_defensive_scoring_unit` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_defensive_scoring_unit.md](sig_team_shooting_goals_defensive_scoring_unit.md) |
 | `sig_player_discipline_cards_early_bath` | player | discipline | cards | `match_player` | active | [sig_player_discipline_cards_early_bath.md](sig_player_discipline_cards_early_bath.md) |
 | `sig_player_discipline_cards_late_red_drama` | player | discipline | cards | `match_player` | active | [sig_player_discipline_cards_late_red_drama.md](sig_player_discipline_cards_late_red_drama.md) |
 | `sig_player_discipline_cards_captain_reprimand` | player | discipline | cards | `match_player` | active | [sig_player_discipline_cards_captain_reprimand.md](sig_player_discipline_cards_captain_reprimand.md) |
