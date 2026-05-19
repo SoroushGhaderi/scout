@@ -63,7 +63,11 @@ Keep this index aligned with active catalog files when adding, renaming, or dele
 | `sig_match_possession_passing_set_piece_dominance` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_set_piece_dominance.md](sig_match_possession_passing_set_piece_dominance.md) |
 | `sig_match_possession_passing_unproductive_game` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_unproductive_game.md](sig_match_possession_passing_unproductive_game.md) |
 | `sig_match_possession_passing_wing_play_extravaganza` | team | possession | passing | `match_team` | active | [sig_match_possession_passing_wing_play_extravaganza.md](sig_match_possession_passing_wing_play_extravaganza.md) |
+| `sig_match_shooting_goals_basketball_match` | team | shooting | goals | `match_team` | active | [sig_match_shooting_goals_basketball_match.md](sig_match_shooting_goals_basketball_match.md) |
+| `sig_match_shooting_goals_boring_stalemate` | team | shooting | goals | `match_team` | active | [sig_match_shooting_goals_boring_stalemate.md](sig_match_shooting_goals_boring_stalemate.md) |
 | `sig_match_shooting_goals_goal_fest` | team | shooting | goals | `match_team` | active | [sig_match_shooting_goals_goal_fest.md](sig_match_shooting_goals_goal_fest.md) |
+| `sig_match_shooting_goals_high_xg_low_score` | team | shooting | goals | `match_team` | active | [sig_match_shooting_goals_high_xg_low_score.md](sig_match_shooting_goals_high_xg_low_score.md) |
+| `sig_match_shooting_goals_unlucky_game` | team | shooting | goals | `match_team` | active | [sig_match_shooting_goals_unlucky_game.md](sig_match_shooting_goals_unlucky_game.md) |
 | `sig_team_possession_passing_accurate_unit` | team | possession | passing | `match_team` | active | [sig_team_possession_passing_accurate_unit.md](sig_team_possession_passing_accurate_unit.md) |
 | `sig_team_possession_passing_aerial_reliance` | team | possession | passing | `match_team` | active | [sig_team_possession_passing_aerial_reliance.md](sig_team_possession_passing_aerial_reliance.md) |
 | `sig_team_possession_passing_cross_accuracy_peak` | team | possession | passing | `match_team` | active | [sig_team_possession_passing_cross_accuracy_peak.md](sig_team_possession_passing_cross_accuracy_peak.md) |
