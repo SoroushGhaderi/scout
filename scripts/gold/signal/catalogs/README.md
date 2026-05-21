@@ -182,7 +182,9 @@ Keep this index aligned with active catalog files when adding, renaming, or dele
 | `sig_player_shooting_goals_shot_magnet` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_shot_magnet.md](sig_player_shooting_goals_shot_magnet.md) |
 | `sig_player_shooting_goals_shot_conversion_peak` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_shot_conversion_peak.md](sig_player_shooting_goals_shot_conversion_peak.md) |
 | `sig_player_shooting_goals_high_xg_no_shot` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_high_xg_no_shot.md](sig_player_shooting_goals_high_xg_no_shot.md) |
+| `sig_player_shooting_goals_high_velocity_finisher` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_high_velocity_finisher.md](sig_player_shooting_goals_high_velocity_finisher.md) |
 | `sig_player_shooting_goals_xg_accumulator_midfielder` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_xg_accumulator_midfielder.md](sig_player_shooting_goals_xg_accumulator_midfielder.md) |
+| `sig_player_shooting_goals_midfield_sniper` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_midfield_sniper.md](sig_player_shooting_goals_midfield_sniper.md) |
 | `sig_player_shooting_goals_impact_accumulator` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_impact_accumulator.md](sig_player_shooting_goals_impact_accumulator.md) |
 | `sig_player_shooting_goals_big_chance_bottler` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_big_chance_bottler.md](sig_player_shooting_goals_big_chance_bottler.md) |
 | `sig_player_shooting_goals_sniper_accuracy` | player | shooting | goals | `match_player` | active | [sig_player_shooting_goals_sniper_accuracy.md](sig_player_shooting_goals_sniper_accuracy.md) |
