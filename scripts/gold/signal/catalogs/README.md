@@ -117,6 +117,7 @@ Keep this index aligned with active catalog files when adding, renaming, or dele
 | `sig_team_shooting_goals_dead_ball_specialists` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_dead_ball_specialists.md](sig_team_shooting_goals_dead_ball_specialists.md) |
 | `sig_team_shooting_goals_set_piece_masterclass` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_set_piece_masterclass.md](sig_team_shooting_goals_set_piece_masterclass.md) |
 | `sig_team_shooting_goals_early_blitz` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_early_blitz.md](sig_team_shooting_goals_early_blitz.md) |
+| `sig_team_shooting_goals_half_time_talk_impact` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_half_time_talk_impact.md](sig_team_shooting_goals_half_time_talk_impact.md) |
 | `sig_team_shooting_goals_long_range_barrage` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_long_range_barrage.md](sig_team_shooting_goals_long_range_barrage.md) |
 | `sig_team_shooting_goals_no_shots_allowed` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_no_shots_allowed.md](sig_team_shooting_goals_no_shots_allowed.md) |
 | `sig_team_shooting_goals_shot_on_target_monopoly` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_shot_on_target_monopoly.md](sig_team_shooting_goals_shot_on_target_monopoly.md) |
@@ -125,6 +126,7 @@ Keep this index aligned with active catalog files when adding, renaming, or dele
 | `sig_team_shooting_goals_zero_shot_half` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_zero_shot_half.md](sig_team_shooting_goals_zero_shot_half.md) |
 | `sig_team_shooting_goals_shooting_gallery` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_shooting_gallery.md](sig_team_shooting_goals_shooting_gallery.md) |
 | `sig_team_shooting_goals_sustained_barrage` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_sustained_barrage.md](sig_team_shooting_goals_sustained_barrage.md) |
+| `sig_team_shooting_goals_sustained_second_half_siege` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_sustained_second_half_siege.md](sig_team_shooting_goals_sustained_second_half_siege.md) |
 | `sig_team_shooting_goals_late_game_salvage` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_late_game_salvage.md](sig_team_shooting_goals_late_game_salvage.md) |
 | `sig_team_shooting_goals_late_surge_goals` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_late_surge_goals.md](sig_team_shooting_goals_late_surge_goals.md) |
 | `sig_team_shooting_goals_rapid_double_salvo` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_rapid_double_salvo.md](sig_team_shooting_goals_rapid_double_salvo.md) |
@@ -159,6 +161,7 @@ Keep this index aligned with active catalog files when adding, renaming, or dele
 | `sig_team_shooting_goals_xg_overperformance_team` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_xg_overperformance_team.md](sig_team_shooting_goals_xg_overperformance_team.md) |
 | `sig_team_shooting_goals_offensive_masterclass` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_offensive_masterclass.md](sig_team_shooting_goals_offensive_masterclass.md) |
 | `sig_team_shooting_goals_high_quality_only` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_high_quality_only.md](sig_team_shooting_goals_high_quality_only.md) |
+| `sig_team_shooting_goals_woodwork_frustration_team` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_woodwork_frustration_team.md](sig_team_shooting_goals_woodwork_frustration_team.md) |
 | `sig_team_shooting_goals_expected_goal_dominance` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_expected_goal_dominance.md](sig_team_shooting_goals_expected_goal_dominance.md) |
 | `sig_team_shooting_goals_wasteful_box_presence` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_wasteful_box_presence.md](sig_team_shooting_goals_wasteful_box_presence.md) |
 | `sig_team_shooting_goals_shared_scoring` | team | shooting | goals | `match_team` | active | [sig_team_shooting_goals_shared_scoring.md](sig_team_shooting_goals_shared_scoring.md) |
