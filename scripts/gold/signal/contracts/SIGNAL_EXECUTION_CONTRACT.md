@@ -14,7 +14,7 @@ This document is intended for routine implementation work where structure and co
 
 This contract applies to:
 
-- `clickhouse/gold/02_create_signal_tables.sql` (or active signal DDL set)
+- `clickhouse/gold/create_table_{entity}_{family}_{subfamily}.sql` (or active signal DDL set)
 - `scripts/gold/signal/runners/sig_*.py`
 - `scripts/gold/load_clickhouse_scenarios.py`
 - cross-asset wiring among SQL, runner, table, and catalog files
@@ -112,7 +112,7 @@ If the commit cannot be created (for example permissions, conflicts, or policy c
 
 - [ ] `clickhouse/gold/signal/sig_<name>.sql` present and correct
 - [ ] `scripts/gold/signal/runners/sig_<name>.py` present and wired
-- [ ] `clickhouse/gold/02_create_signal_tables.sql` updated with new table DDL
+- [ ] `clickhouse/gold/create_table_{entity}_{family}_{subfamily}.sql` set updated with new table DDL
 - [ ] `scripts/gold/signal/catalogs/sig_<name>.md` present and accurate
 - [ ] `scripts/gold/signal/catalogs/README.md` updated with new catalog entry
 - [ ] Validation gate passed (`--part signals` dry-run and full run)

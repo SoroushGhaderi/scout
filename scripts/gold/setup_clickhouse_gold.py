@@ -20,14 +20,18 @@ def _parse_args(argv=None) -> argparse.Namespace:
 
 
 def _gold_sql_filter(part: str):
+    def _is_grouped_signal_create_table(name: str) -> bool:
+        # New signal DDL naming: create_table_{entity}_{family}_{subfamily}.sql
+        return name.startswith("create_table_")
+
     def _matches(sql_path: Path) -> bool:
         name = sql_path.name.lower()
         if "create_database" in name:
             return True
         if part == "scenarios":
-            return "create" in name and "scenario" in name
+            return ("create" in name and "scenario" in name) and not _is_grouped_signal_create_table(name)
         if part == "signals":
-            return "create" in name and "signal" in name
+            return ("create" in name and "signal" in name) or _is_grouped_signal_create_table(name)
         return True
 
     return _matches

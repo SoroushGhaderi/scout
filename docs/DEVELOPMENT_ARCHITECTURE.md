@@ -138,7 +138,7 @@ clickhouse/
   gold/
     00_create_database.sql
     01_create_scenario_tables.sql
-    02_create_signal_tables.sql
+    create_table_{entity}_{family}_{subfamily}.sql
     scenario/
       team/scenario_*.sql
       player/scenario_*.sql
@@ -213,6 +213,8 @@ Current required frontmatter keys:
 2. SQL files should be deterministic and rerunnable.
 3. Keep naming stable: Silver SQL uses `NN_<entity>.sql`, Gold scenarios use
    `scenario_<name>.sql`, and Gold signals use `sig_<name>.sql`.
+   Gold signal table DDL files use
+   `create_table_{entity}_{family}_{subfamily}.sql`.
 4. New or changed scenario work must update SQL, runner, Gold scenario DDL, and
    `scripts/gold/scenario/SCENARIOS_CATALOG.md` when relevant.
 5. New or changed signal work must update SQL, runner, signal DDL, catalog
