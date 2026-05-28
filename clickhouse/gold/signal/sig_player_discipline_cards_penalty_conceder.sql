@@ -109,8 +109,8 @@ penalty_card_candidates AS (
         ON c.match_id = ps.match_id
        AND c.player_id IS NOT NULL
        AND lowerUTF8(coalesce(c.team_side, '')) IN ('home', 'away')
-       AND abs(toInt32(c.card_minute) - ps.penalty_minute) <= 1
-    WHERE lowerUTF8(coalesce(c.team_side, '')) != ps.penalty_awarded_side
+    WHERE abs(toInt32(c.card_minute) - ps.penalty_minute) <= 1
+      AND lowerUTF8(coalesce(c.team_side, '')) != ps.penalty_awarded_side
 ),
 assigned_penalty_conceders AS (
     SELECT
