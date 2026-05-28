@@ -109,10 +109,10 @@ SELECT
     m.away_team_name AS opponent_team_name,
 
     toInt32(60) AS trigger_threshold_min_recoveries,
-    toInt32(match_recovery_pairs.home_team_recoveries) AS triggered_team_recoveries,
-    toInt32(match_recovery_pairs.away_team_recoveries) AS opponent_recoveries,
-    toInt32(match_recovery_pairs.home_team_recoveries - match_recovery_pairs.away_team_recoveries) AS recoveries_delta,
-    toInt32(match_recovery_pairs.home_team_recoveries - 60) AS triggered_team_recoveries_above_threshold,
+    toInt32(mrp.home_team_recoveries) AS triggered_team_recoveries,
+    toInt32(mrp.away_team_recoveries) AS opponent_recoveries,
+    toInt32(mrp.home_team_recoveries - mrp.away_team_recoveries) AS recoveries_delta,
+    toInt32(mrp.home_team_recoveries - 60) AS triggered_team_recoveries_above_threshold,
 
     toInt32(coalesce(ps.interceptions_home, 0)) AS triggered_team_interceptions,
     toInt32(coalesce(ps.interceptions_away, 0)) AS opponent_interceptions,
@@ -190,12 +190,12 @@ INNER JOIN silver.period_stat AS ps
     ON ps.match_id = m.match_id
    AND ps.match_date = m.match_date
    AND ps.period = 'All'
-INNER JOIN match_recovery_pairs
-    ON match_recovery_pairs.match_id = m.match_id
-   AND match_recovery_pairs.match_date = m.match_date
+INNER JOIN (SELECT * FROM match_recovery_pairs) AS mrp
+    ON mrp.match_id = m.match_id
+   AND mrp.match_date = m.match_date
 WHERE m.match_finished = 1
   AND m.match_id > 0
-  AND match_recovery_pairs.home_team_recoveries >= 60
+  AND mrp.home_team_recoveries >= 60
 
 UNION ALL
 
@@ -217,10 +217,10 @@ SELECT
     m.home_team_name AS opponent_team_name,
 
     toInt32(60) AS trigger_threshold_min_recoveries,
-    toInt32(match_recovery_pairs.away_team_recoveries) AS triggered_team_recoveries,
-    toInt32(match_recovery_pairs.home_team_recoveries) AS opponent_recoveries,
-    toInt32(match_recovery_pairs.away_team_recoveries - match_recovery_pairs.home_team_recoveries) AS recoveries_delta,
-    toInt32(match_recovery_pairs.away_team_recoveries - 60) AS triggered_team_recoveries_above_threshold,
+    toInt32(mrp.away_team_recoveries) AS triggered_team_recoveries,
+    toInt32(mrp.home_team_recoveries) AS opponent_recoveries,
+    toInt32(mrp.away_team_recoveries - mrp.home_team_recoveries) AS recoveries_delta,
+    toInt32(mrp.away_team_recoveries - 60) AS triggered_team_recoveries_above_threshold,
 
     toInt32(coalesce(ps.interceptions_away, 0)) AS triggered_team_interceptions,
     toInt32(coalesce(ps.interceptions_home, 0)) AS opponent_interceptions,
@@ -298,12 +298,12 @@ INNER JOIN silver.period_stat AS ps
     ON ps.match_id = m.match_id
    AND ps.match_date = m.match_date
    AND ps.period = 'All'
-INNER JOIN match_recovery_pairs
-    ON match_recovery_pairs.match_id = m.match_id
-   AND match_recovery_pairs.match_date = m.match_date
+INNER JOIN (SELECT * FROM match_recovery_pairs) AS mrp
+    ON mrp.match_id = m.match_id
+   AND mrp.match_date = m.match_date
 WHERE m.match_finished = 1
   AND m.match_id > 0
-  AND match_recovery_pairs.away_team_recoveries >= 60
+  AND mrp.away_team_recoveries >= 60
 
 ORDER BY
     triggered_team_recoveries_above_threshold DESC,

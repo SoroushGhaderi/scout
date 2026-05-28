@@ -81,21 +81,21 @@ WITH goal_events AS (
 ),
 ordered_goal_events AS (
     SELECT
-        goal_events.match_id,
-        goal_events.goal_side,
-        goal_events.goal_minute,
-        goal_events.goal_added_time,
-        goal_events.goal_effective_minute,
-        goal_events.shot_id,
+        ge.match_id,
+        ge.goal_side,
+        ge.goal_minute,
+        ge.goal_added_time,
+        ge.goal_effective_minute,
+        ge.shot_id,
         row_number() OVER (
-            PARTITION BY goal_events.match_id
+            PARTITION BY ge.match_id
             ORDER BY
-                goal_events.goal_effective_minute ASC,
-                goal_events.goal_minute ASC,
-                goal_events.goal_added_time ASC,
-                goal_events.shot_id ASC
+                ge.goal_effective_minute ASC,
+                ge.goal_minute ASC,
+                ge.goal_added_time ASC,
+                ge.shot_id ASC
         ) AS goal_event_order
-    FROM goal_events
+    FROM (SELECT * FROM goal_events) AS ge
 ),
 rapid_response_candidates AS (
     SELECT
@@ -110,8 +110,8 @@ rapid_response_candidates AS (
         curr.goal_effective_minute AS response_goal_effective_minute,
         curr.shot_id AS response_goal_shot_id,
         toInt32(curr.goal_effective_minute - prev.goal_effective_minute) AS response_gap_minutes
-    FROM ordered_goal_events AS prev
-    INNER JOIN ordered_goal_events AS curr
+    FROM (SELECT * FROM ordered_goal_events) AS prev
+    INNER JOIN (SELECT * FROM ordered_goal_events) AS curr
         ON curr.match_id = prev.match_id
        AND curr.goal_event_order = prev.goal_event_order + 1
     WHERE curr.goal_side != prev.goal_side
@@ -119,47 +119,47 @@ rapid_response_candidates AS (
 ),
 rapid_response_rollup_base AS (
     SELECT
-        rapid_response_candidates.match_id,
-        rapid_response_candidates.triggered_side,
+        rrc.match_id,
+        rrc.triggered_side,
         toInt32(count()) AS triggered_team_rapid_response_goals,
-        toFloat32(round(avg(toFloat32(rapid_response_candidates.response_gap_minutes)), 2)) AS triggered_team_average_response_time_minutes,
+        toFloat32(round(avg(toFloat32(rrc.response_gap_minutes)), 2)) AS triggered_team_average_response_time_minutes,
         arraySort(groupArray(tuple(
-            rapid_response_candidates.response_goal_effective_minute,
-            rapid_response_candidates.response_goal_minute,
-            rapid_response_candidates.response_goal_added_time,
-            rapid_response_candidates.conceded_goal_effective_minute_before_response,
-            rapid_response_candidates.conceded_goal_minute_before_response,
-            rapid_response_candidates.conceded_goal_added_time_before_response,
-            rapid_response_candidates.response_gap_minutes,
-            rapid_response_candidates.conceded_goal_shot_id,
-            rapid_response_candidates.response_goal_shot_id
+            rrc.response_goal_effective_minute,
+            rrc.response_goal_minute,
+            rrc.response_goal_added_time,
+            rrc.conceded_goal_effective_minute_before_response,
+            rrc.conceded_goal_minute_before_response,
+            rrc.conceded_goal_added_time_before_response,
+            rrc.response_gap_minutes,
+            rrc.conceded_goal_shot_id,
+            rrc.response_goal_shot_id
         ))) AS ordered_response_tuples
-    FROM rapid_response_candidates
+    FROM (SELECT * FROM rapid_response_candidates) AS rrc
     GROUP BY
-        rapid_response_candidates.match_id,
-        rapid_response_candidates.triggered_side
+        rrc.match_id,
+        rrc.triggered_side
 ),
 rapid_response_rollup AS (
     SELECT
-        rapid_response_rollup_base.match_id,
-        rapid_response_rollup_base.triggered_side,
-        rapid_response_rollup_base.triggered_team_rapid_response_goals,
-        rapid_response_rollup_base.triggered_team_average_response_time_minutes,
-        toInt32(tupleElement(arrayElement(rapid_response_rollup_base.ordered_response_tuples, 1), 5))
+        rrrb.match_id,
+        rrrb.triggered_side,
+        rrrb.triggered_team_rapid_response_goals,
+        rrrb.triggered_team_average_response_time_minutes,
+        toInt32(tupleElement(arrayElement(rrrb.ordered_response_tuples, 1), 5))
             AS triggered_team_first_conceded_goal_minute_before_response,
-        toInt32(tupleElement(arrayElement(rapid_response_rollup_base.ordered_response_tuples, 1), 6))
+        toInt32(tupleElement(arrayElement(rrrb.ordered_response_tuples, 1), 6))
             AS triggered_team_first_conceded_goal_added_time_before_response,
-        toInt32(tupleElement(arrayElement(rapid_response_rollup_base.ordered_response_tuples, 1), 4))
+        toInt32(tupleElement(arrayElement(rrrb.ordered_response_tuples, 1), 4))
             AS triggered_team_first_conceded_goal_effective_minute_before_response,
-        toInt32(tupleElement(arrayElement(rapid_response_rollup_base.ordered_response_tuples, 1), 2))
+        toInt32(tupleElement(arrayElement(rrrb.ordered_response_tuples, 1), 2))
             AS triggered_team_first_response_goal_minute,
-        toInt32(tupleElement(arrayElement(rapid_response_rollup_base.ordered_response_tuples, 1), 3))
+        toInt32(tupleElement(arrayElement(rrrb.ordered_response_tuples, 1), 3))
             AS triggered_team_first_response_goal_added_time,
-        toInt32(tupleElement(arrayElement(rapid_response_rollup_base.ordered_response_tuples, 1), 1))
+        toInt32(tupleElement(arrayElement(rrrb.ordered_response_tuples, 1), 1))
             AS triggered_team_first_response_goal_effective_minute,
-        toInt32(tupleElement(arrayElement(rapid_response_rollup_base.ordered_response_tuples, 1), 7))
+        toInt32(tupleElement(arrayElement(rrrb.ordered_response_tuples, 1), 7))
             AS minutes_to_first_response_goal
-    FROM rapid_response_rollup_base
+    FROM (SELECT * FROM rapid_response_rollup_base) AS rrrb
 )
 SELECT
     m.match_id,
@@ -429,14 +429,14 @@ SELECT
         coalesce(ps.corners_home, 0)
     )) AS opponent_corners
 
-FROM rapid_response_rollup AS rrr
+FROM (SELECT * FROM rapid_response_rollup) AS rrr
 INNER JOIN silver.match AS m
     ON m.match_id = rrr.match_id
 INNER JOIN silver.period_stat AS ps
     ON ps.match_id = m.match_id
    AND ps.match_date = m.match_date
    AND ps.period = 'All'
-LEFT JOIN rapid_response_rollup AS opp_rrr
+LEFT JOIN (SELECT * FROM rapid_response_rollup) AS opp_rrr
     ON opp_rrr.match_id = rrr.match_id
    AND opp_rrr.triggered_side = if(rrr.triggered_side = 'home', 'away', 'home')
 WHERE m.match_finished = 1
