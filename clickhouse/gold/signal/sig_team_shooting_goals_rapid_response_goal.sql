@@ -62,7 +62,7 @@ INSERT INTO gold.sig_team_shooting_goals_rapid_response_goal (
 -- Trigger: Team scores a non-own goal within 2 effective minutes of conceding a non-own goal.
 -- Intent: Detect immediate scoring responses after conceding and preserve bilateral team context for
 --         finishing quality, control profile, and tempo diagnostics.
-WITH goal_events AS (
+WITH goal_events AS MATERIALIZED (
     SELECT
         s.match_id,
         if(coalesce(s.is_home_goal, 0) = 1, 'home', 'away') AS goal_side,
@@ -79,7 +79,7 @@ WITH goal_events AS (
       AND isNotNull(s.is_home_goal)
       AND toInt32(coalesce(s.goal_time, s.minute, 0)) > 0
 ),
-ordered_goal_events AS (
+ordered_goal_events AS MATERIALIZED (
     SELECT
         ge.match_id,
         ge.goal_side,
@@ -95,9 +95,9 @@ ordered_goal_events AS (
                 ge.goal_added_time ASC,
                 ge.shot_id ASC
         ) AS goal_event_order
-    FROM (SELECT * FROM goal_events) AS ge
+    FROM goal_events AS ge
 ),
-rapid_response_candidates AS (
+rapid_response_candidates AS MATERIALIZED (
     SELECT
         curr.match_id,
         curr.goal_side AS triggered_side,
@@ -110,14 +110,14 @@ rapid_response_candidates AS (
         curr.goal_effective_minute AS response_goal_effective_minute,
         curr.shot_id AS response_goal_shot_id,
         toInt32(curr.goal_effective_minute - prev.goal_effective_minute) AS response_gap_minutes
-    FROM (SELECT * FROM ordered_goal_events) AS prev
-    INNER JOIN (SELECT * FROM ordered_goal_events) AS curr
+    FROM ordered_goal_events AS prev
+    INNER JOIN ordered_goal_events AS curr
         ON curr.match_id = prev.match_id
        AND curr.goal_event_order = prev.goal_event_order + 1
     WHERE curr.goal_side != prev.goal_side
       AND curr.goal_effective_minute - prev.goal_effective_minute BETWEEN 0 AND 2
 ),
-rapid_response_rollup_base AS (
+rapid_response_rollup_base AS MATERIALIZED (
     SELECT
         rrc.match_id,
         rrc.triggered_side,
@@ -134,12 +134,12 @@ rapid_response_rollup_base AS (
             rrc.conceded_goal_shot_id,
             rrc.response_goal_shot_id
         ))) AS ordered_response_tuples
-    FROM (SELECT * FROM rapid_response_candidates) AS rrc
+    FROM rapid_response_candidates AS rrc
     GROUP BY
         rrc.match_id,
         rrc.triggered_side
 ),
-rapid_response_rollup AS (
+rapid_response_rollup AS MATERIALIZED (
     SELECT
         rrrb.match_id,
         rrrb.triggered_side,
@@ -159,7 +159,7 @@ rapid_response_rollup AS (
             AS triggered_team_first_response_goal_effective_minute,
         toInt32(tupleElement(arrayElement(rrrb.ordered_response_tuples, 1), 7))
             AS minutes_to_first_response_goal
-    FROM (SELECT * FROM rapid_response_rollup_base) AS rrrb
+    FROM rapid_response_rollup_base AS rrrb
 )
 SELECT
     m.match_id,
@@ -429,14 +429,14 @@ SELECT
         coalesce(ps.corners_home, 0)
     )) AS opponent_corners
 
-FROM (SELECT * FROM rapid_response_rollup) AS rrr
+FROM rapid_response_rollup AS rrr
 INNER JOIN silver.match AS m
     ON m.match_id = rrr.match_id
 INNER JOIN silver.period_stat AS ps
     ON ps.match_id = m.match_id
    AND ps.match_date = m.match_date
    AND ps.period = 'All'
-LEFT JOIN (SELECT * FROM rapid_response_rollup) AS opp_rrr
+LEFT JOIN rapid_response_rollup AS opp_rrr
     ON opp_rrr.match_id = rrr.match_id
    AND opp_rrr.triggered_side = if(rrr.triggered_side = 'home', 'away', 'home')
 WHERE m.match_finished = 1
