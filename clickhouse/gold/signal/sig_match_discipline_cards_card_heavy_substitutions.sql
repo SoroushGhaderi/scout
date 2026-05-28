@@ -138,14 +138,14 @@ eligible_matches AS (
 ),
 base_stats AS (
     SELECT
-        m.match_id,
-        m.match_date,
-        m.home_team_id,
-        m.home_team_name,
-        m.away_team_id,
-        m.away_team_name,
-        m.home_score,
-        m.away_score,
+        m.match_id AS match_id,
+        m.match_date AS match_date,
+        m.home_team_id AS home_team_id,
+        m.home_team_name AS home_team_name,
+        m.away_team_id AS away_team_id,
+        m.away_team_name AS away_team_name,
+        m.home_score AS home_score,
+        m.away_score AS away_score,
         coalesce(ps.yellow_cards_home, 0) AS yellow_cards_home,
         coalesce(ps.yellow_cards_away, 0) AS yellow_cards_away,
         coalesce(ps.red_cards_home, 0) AS red_cards_home,
@@ -164,13 +164,13 @@ base_stats AS (
             / nullIf(toFloat64(coalesce(ps.pass_attempts_away, 0)), 0),
             1
         ), 0.0)) AS pass_accuracy_away_pct,
-        em.match_distinct_substitute_yellow_carded_players,
-        em.home_distinct_substitute_yellow_carded_players,
-        em.away_distinct_substitute_yellow_carded_players,
-        em.home_substitute_yellow_card_events,
-        em.away_substitute_yellow_card_events,
-        em.home_first_substitute_yellow_card_minute,
-        em.away_first_substitute_yellow_card_minute
+        em.match_distinct_substitute_yellow_carded_players AS match_distinct_substitute_yellow_carded_players,
+        em.home_distinct_substitute_yellow_carded_players AS home_distinct_substitute_yellow_carded_players,
+        em.away_distinct_substitute_yellow_carded_players AS away_distinct_substitute_yellow_carded_players,
+        em.home_substitute_yellow_card_events AS home_substitute_yellow_card_events,
+        em.away_substitute_yellow_card_events AS away_substitute_yellow_card_events,
+        em.home_first_substitute_yellow_card_minute AS home_first_substitute_yellow_card_minute,
+        em.away_first_substitute_yellow_card_minute AS away_first_substitute_yellow_card_minute
     FROM silver.match AS m
     INNER JOIN silver.period_stat AS ps
         ON ps.match_id = m.match_id
@@ -179,22 +179,22 @@ base_stats AS (
         ON em.match_id = m.match_id
     WHERE m.match_finished = 1
       AND m.match_id > 0
-)
+ )
 SELECT
-    match_id,
-    match_date,
-    home_team_id,
-    home_team_name,
-    away_team_id,
-    away_team_name,
-    home_score,
-    away_score,
+    x.match_id,
+    x.match_date,
+    x.home_team_id,
+    x.home_team_name,
+    x.away_team_id,
+    x.away_team_name,
+    x.home_score,
+    x.away_score,
 
     'home' AS triggered_side,
-    home_team_id AS triggered_team_id,
-    home_team_name AS triggered_team_name,
-    away_team_id AS opponent_team_id,
-    away_team_name AS opponent_team_name,
+    x.home_team_id AS triggered_team_id,
+    x.home_team_name AS triggered_team_name,
+    x.away_team_id AS opponent_team_id,
+    x.away_team_name AS opponent_team_name,
 
     toInt32(4) AS trigger_threshold_min_distinct_substitute_yellow_carded_players,
     toInt32(match_distinct_substitute_yellow_carded_players) AS match_distinct_substitute_yellow_carded_players,
@@ -281,25 +281,25 @@ SELECT
     toFloat32(pass_accuracy_away_pct) AS opponent_pass_accuracy_pct,
     toFloat32(round(pass_accuracy_home_pct - pass_accuracy_away_pct, 1)) AS pass_accuracy_delta_pct
 
-FROM base_stats AS b
+FROM base_stats AS x
 
 UNION ALL
 
 SELECT
-    match_id,
-    match_date,
-    home_team_id,
-    home_team_name,
-    away_team_id,
-    away_team_name,
-    home_score,
-    away_score,
+    x.match_id,
+    x.match_date,
+    x.home_team_id,
+    x.home_team_name,
+    x.away_team_id,
+    x.away_team_name,
+    x.home_score,
+    x.away_score,
 
     'away' AS triggered_side,
-    away_team_id AS triggered_team_id,
-    away_team_name AS triggered_team_name,
-    home_team_id AS opponent_team_id,
-    home_team_name AS opponent_team_name,
+    x.away_team_id AS triggered_team_id,
+    x.away_team_name AS triggered_team_name,
+    x.home_team_id AS opponent_team_id,
+    x.home_team_name AS opponent_team_name,
 
     toInt32(4) AS trigger_threshold_min_distinct_substitute_yellow_carded_players,
     toInt32(match_distinct_substitute_yellow_carded_players) AS match_distinct_substitute_yellow_carded_players,
@@ -386,9 +386,9 @@ SELECT
     toFloat32(pass_accuracy_home_pct) AS opponent_pass_accuracy_pct,
     toFloat32(round(pass_accuracy_away_pct - pass_accuracy_home_pct, 1)) AS pass_accuracy_delta_pct
 
-FROM base_stats AS b
+FROM base_stats AS x
 
 ORDER BY
-    match_distinct_substitute_yellow_carded_players DESC,
+    x.match_distinct_substitute_yellow_carded_players DESC,
     match_id,
     triggered_side;

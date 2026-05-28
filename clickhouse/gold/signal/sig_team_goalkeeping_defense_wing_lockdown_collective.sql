@@ -597,6 +597,6 @@ WHERE m.match_finished = 1
 ORDER BY
     triggered_team_fullbacks_and_wingers_tackles_won_above_threshold DESC,
     fullbacks_and_wingers_tackles_won_delta DESC,
-    match_date DESC,
-    match_id DESC,
+    m.match_date DESC,
+    m.match_id DESC,
     triggered_side;

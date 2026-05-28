@@ -91,8 +91,8 @@ team_window_candidates AS (
     INNER JOIN shot_events AS window_shot
         ON window_shot.match_id = anchor.match_id
        AND window_shot.team_id = anchor.team_id
-       AND window_shot.shot_effective_minute >= anchor.shot_effective_minute
-       AND window_shot.shot_effective_minute <= anchor.shot_effective_minute + 14
+    WHERE window_shot.shot_effective_minute >= anchor.shot_effective_minute
+      AND window_shot.shot_effective_minute <= anchor.shot_effective_minute + 14
     GROUP BY
         anchor.match_id,
         anchor.team_id,
@@ -113,51 +113,51 @@ team_best_window AS (
         ranked.triggered_team_last_shot_in_trigger_window_effective_minute
     FROM (
         SELECT
-            twc.*,
+            team_window_candidates.*,
             row_number() OVER (
-                PARTITION BY twc.match_id, twc.team_id
+                PARTITION BY team_window_candidates.match_id, team_window_candidates.team_id
                 ORDER BY
-                    twc.triggered_team_shots_in_trigger_window DESC,
-                    twc.trigger_window_start_effective_minute ASC,
-                    twc.triggered_team_last_shot_in_trigger_window_effective_minute ASC
+                    team_window_candidates.triggered_team_shots_in_trigger_window DESC,
+                    team_window_candidates.trigger_window_start_effective_minute ASC,
+                    team_window_candidates.triggered_team_last_shot_in_trigger_window_effective_minute ASC
             ) AS trigger_window_rank
-        FROM team_window_candidates AS twc
+        FROM team_window_candidates
     ) AS ranked
     WHERE ranked.trigger_window_rank = 1
       AND ranked.triggered_team_shots_in_trigger_window >= 10
 ),
 team_best_window_with_opponent AS (
     SELECT
-        tbw.match_id,
-        tbw.team_id,
-        tbw.triggered_side,
-        tbw.trigger_window_start_effective_minute,
-        tbw.trigger_window_end_effective_minute,
-        tbw.triggered_team_shots_in_trigger_window,
-        tbw.triggered_team_shots_on_target_in_trigger_window,
-        tbw.triggered_team_xg_in_trigger_window,
-        tbw.triggered_team_first_shot_in_trigger_window_effective_minute,
-        tbw.triggered_team_last_shot_in_trigger_window_effective_minute,
-        toInt32(count(opp.match_id)) AS opponent_shots_in_trigger_window,
-        toInt32(coalesce(sum(opp.is_on_target), 0)) AS opponent_shots_on_target_in_trigger_window,
-        toFloat32(round(coalesce(sum(opp.shot_xg), 0), 3)) AS opponent_xg_in_trigger_window
-    FROM team_best_window AS tbw
-    LEFT JOIN shot_events AS opp
-        ON opp.match_id = tbw.match_id
-       AND opp.team_id != tbw.team_id
-       AND opp.shot_effective_minute >= tbw.trigger_window_start_effective_minute
-       AND opp.shot_effective_minute <= tbw.trigger_window_end_effective_minute
+        team_best_window.match_id,
+        team_best_window.team_id,
+        team_best_window.triggered_side,
+        team_best_window.trigger_window_start_effective_minute,
+        team_best_window.trigger_window_end_effective_minute,
+        team_best_window.triggered_team_shots_in_trigger_window,
+        team_best_window.triggered_team_shots_on_target_in_trigger_window,
+        team_best_window.triggered_team_xg_in_trigger_window,
+        team_best_window.triggered_team_first_shot_in_trigger_window_effective_minute,
+        team_best_window.triggered_team_last_shot_in_trigger_window_effective_minute,
+        toInt32(count(shot_events.match_id)) AS opponent_shots_in_trigger_window,
+        toInt32(coalesce(sum(shot_events.is_on_target), 0)) AS opponent_shots_on_target_in_trigger_window,
+        toFloat32(round(coalesce(sum(shot_events.shot_xg), 0), 3)) AS opponent_xg_in_trigger_window
+    FROM team_best_window
+    LEFT JOIN shot_events
+        ON shot_events.match_id = team_best_window.match_id
+    WHERE shot_events.team_id != team_best_window.team_id
+      AND shot_events.shot_effective_minute >= team_best_window.trigger_window_start_effective_minute
+      AND shot_events.shot_effective_minute <= team_best_window.trigger_window_end_effective_minute
     GROUP BY
-        tbw.match_id,
-        tbw.team_id,
-        tbw.triggered_side,
-        tbw.trigger_window_start_effective_minute,
-        tbw.trigger_window_end_effective_minute,
-        tbw.triggered_team_shots_in_trigger_window,
-        tbw.triggered_team_shots_on_target_in_trigger_window,
-        tbw.triggered_team_xg_in_trigger_window,
-        tbw.triggered_team_first_shot_in_trigger_window_effective_minute,
-        tbw.triggered_team_last_shot_in_trigger_window_effective_minute
+        team_best_window.match_id,
+        team_best_window.team_id,
+        team_best_window.triggered_side,
+        team_best_window.trigger_window_start_effective_minute,
+        team_best_window.trigger_window_end_effective_minute,
+        team_best_window.triggered_team_shots_in_trigger_window,
+        team_best_window.triggered_team_shots_on_target_in_trigger_window,
+        team_best_window.triggered_team_xg_in_trigger_window,
+        team_best_window.triggered_team_first_shot_in_trigger_window_effective_minute,
+        team_best_window.triggered_team_last_shot_in_trigger_window_effective_minute
 )
 -- Signal: sig_team_shooting_goals_sustained_barrage
 -- Trigger: team records >= 10 shots in a single 15-minute effective-minute window.
@@ -182,45 +182,45 @@ SELECT
 
     toInt32(10) AS trigger_threshold_window_shots,
     toInt32(15) AS trigger_window_minutes,
-    toInt32(tbwo.triggered_team_shots_in_trigger_window) AS triggered_team_shots_in_trigger_window,
-    toInt32(tbwo.opponent_shots_in_trigger_window) AS opponent_shots_in_trigger_window,
-    toInt32(tbwo.triggered_team_shots_in_trigger_window - tbwo.opponent_shots_in_trigger_window)
+    toInt32(team_best_window_with_opponent.triggered_team_shots_in_trigger_window) AS triggered_team_shots_in_trigger_window,
+    toInt32(team_best_window_with_opponent.opponent_shots_in_trigger_window) AS opponent_shots_in_trigger_window,
+    toInt32(team_best_window_with_opponent.triggered_team_shots_in_trigger_window - team_best_window_with_opponent.opponent_shots_in_trigger_window)
         AS shots_in_trigger_window_delta,
-    toInt32(tbwo.trigger_window_start_effective_minute) AS trigger_window_start_effective_minute,
-    toInt32(tbwo.trigger_window_end_effective_minute) AS trigger_window_end_effective_minute,
-    toInt32(tbwo.triggered_team_first_shot_in_trigger_window_effective_minute)
+    toInt32(team_best_window_with_opponent.trigger_window_start_effective_minute) AS trigger_window_start_effective_minute,
+    toInt32(team_best_window_with_opponent.trigger_window_end_effective_minute) AS trigger_window_end_effective_minute,
+    toInt32(team_best_window_with_opponent.triggered_team_first_shot_in_trigger_window_effective_minute)
         AS triggered_team_first_shot_in_trigger_window_effective_minute,
-    toInt32(tbwo.triggered_team_last_shot_in_trigger_window_effective_minute)
+    toInt32(team_best_window_with_opponent.triggered_team_last_shot_in_trigger_window_effective_minute)
         AS triggered_team_last_shot_in_trigger_window_effective_minute,
-    toInt32(tbwo.triggered_team_shots_on_target_in_trigger_window)
+    toInt32(team_best_window_with_opponent.triggered_team_shots_on_target_in_trigger_window)
         AS triggered_team_shots_on_target_in_trigger_window,
-    toInt32(tbwo.opponent_shots_on_target_in_trigger_window) AS opponent_shots_on_target_in_trigger_window,
+    toInt32(team_best_window_with_opponent.opponent_shots_on_target_in_trigger_window) AS opponent_shots_on_target_in_trigger_window,
     toFloat32(coalesce(round(
-        100.0 * tbwo.triggered_team_shots_on_target_in_trigger_window
-            / nullIf(tbwo.triggered_team_shots_in_trigger_window, 0),
+        100.0 * team_best_window_with_opponent.triggered_team_shots_on_target_in_trigger_window
+            / nullIf(team_best_window_with_opponent.triggered_team_shots_in_trigger_window, 0),
         1
     ), 0.0)) AS triggered_team_on_target_ratio_in_trigger_window_pct,
     toFloat32(coalesce(round(
-        100.0 * tbwo.opponent_shots_on_target_in_trigger_window
-            / nullIf(tbwo.opponent_shots_in_trigger_window, 0),
+        100.0 * team_best_window_with_opponent.opponent_shots_on_target_in_trigger_window
+            / nullIf(team_best_window_with_opponent.opponent_shots_in_trigger_window, 0),
         1
     ), 0.0)) AS opponent_on_target_ratio_in_trigger_window_pct,
     toFloat32(round(
         coalesce(round(
-            100.0 * tbwo.triggered_team_shots_on_target_in_trigger_window
-                / nullIf(tbwo.triggered_team_shots_in_trigger_window, 0),
+            100.0 * team_best_window_with_opponent.triggered_team_shots_on_target_in_trigger_window
+                / nullIf(team_best_window_with_opponent.triggered_team_shots_in_trigger_window, 0),
             1
         ), 0.0)
       - coalesce(round(
-            100.0 * tbwo.opponent_shots_on_target_in_trigger_window
-                / nullIf(tbwo.opponent_shots_in_trigger_window, 0),
+            100.0 * team_best_window_with_opponent.opponent_shots_on_target_in_trigger_window
+                / nullIf(team_best_window_with_opponent.opponent_shots_in_trigger_window, 0),
             1
         ), 0.0),
         1
     )) AS on_target_ratio_in_trigger_window_delta_pct,
-    toFloat32(tbwo.triggered_team_xg_in_trigger_window) AS triggered_team_xg_in_trigger_window,
-    toFloat32(tbwo.opponent_xg_in_trigger_window) AS opponent_xg_in_trigger_window,
-    toFloat32(round(tbwo.triggered_team_xg_in_trigger_window - tbwo.opponent_xg_in_trigger_window, 3))
+    toFloat32(team_best_window_with_opponent.triggered_team_xg_in_trigger_window) AS triggered_team_xg_in_trigger_window,
+    toFloat32(team_best_window_with_opponent.opponent_xg_in_trigger_window) AS opponent_xg_in_trigger_window,
+    toFloat32(round(team_best_window_with_opponent.triggered_team_xg_in_trigger_window - team_best_window_with_opponent.opponent_xg_in_trigger_window, 3))
         AS xg_in_trigger_window_delta,
 
     toInt32(coalesce(ps.total_shots_home, 0)) AS triggered_team_total_shots,
@@ -297,9 +297,9 @@ INNER JOIN silver.period_stat AS ps
     ON ps.match_id = m.match_id
    AND ps.match_date = m.match_date
    AND ps.period = 'All'
-INNER JOIN team_best_window_with_opponent AS tbwo
-    ON tbwo.match_id = m.match_id
-   AND tbwo.triggered_side = 'home'
+INNER JOIN team_best_window_with_opponent
+    ON team_best_window_with_opponent.match_id = m.match_id
+   AND team_best_window_with_opponent.triggered_side = 'home'
 WHERE m.match_finished = 1
   AND m.match_id > 0
 
@@ -324,45 +324,45 @@ SELECT
 
     toInt32(10) AS trigger_threshold_window_shots,
     toInt32(15) AS trigger_window_minutes,
-    toInt32(tbwo.triggered_team_shots_in_trigger_window) AS triggered_team_shots_in_trigger_window,
-    toInt32(tbwo.opponent_shots_in_trigger_window) AS opponent_shots_in_trigger_window,
-    toInt32(tbwo.triggered_team_shots_in_trigger_window - tbwo.opponent_shots_in_trigger_window)
+    toInt32(team_best_window_with_opponent.triggered_team_shots_in_trigger_window) AS triggered_team_shots_in_trigger_window,
+    toInt32(team_best_window_with_opponent.opponent_shots_in_trigger_window) AS opponent_shots_in_trigger_window,
+    toInt32(team_best_window_with_opponent.triggered_team_shots_in_trigger_window - team_best_window_with_opponent.opponent_shots_in_trigger_window)
         AS shots_in_trigger_window_delta,
-    toInt32(tbwo.trigger_window_start_effective_minute) AS trigger_window_start_effective_minute,
-    toInt32(tbwo.trigger_window_end_effective_minute) AS trigger_window_end_effective_minute,
-    toInt32(tbwo.triggered_team_first_shot_in_trigger_window_effective_minute)
+    toInt32(team_best_window_with_opponent.trigger_window_start_effective_minute) AS trigger_window_start_effective_minute,
+    toInt32(team_best_window_with_opponent.trigger_window_end_effective_minute) AS trigger_window_end_effective_minute,
+    toInt32(team_best_window_with_opponent.triggered_team_first_shot_in_trigger_window_effective_minute)
         AS triggered_team_first_shot_in_trigger_window_effective_minute,
-    toInt32(tbwo.triggered_team_last_shot_in_trigger_window_effective_minute)
+    toInt32(team_best_window_with_opponent.triggered_team_last_shot_in_trigger_window_effective_minute)
         AS triggered_team_last_shot_in_trigger_window_effective_minute,
-    toInt32(tbwo.triggered_team_shots_on_target_in_trigger_window)
+    toInt32(team_best_window_with_opponent.triggered_team_shots_on_target_in_trigger_window)
         AS triggered_team_shots_on_target_in_trigger_window,
-    toInt32(tbwo.opponent_shots_on_target_in_trigger_window) AS opponent_shots_on_target_in_trigger_window,
+    toInt32(team_best_window_with_opponent.opponent_shots_on_target_in_trigger_window) AS opponent_shots_on_target_in_trigger_window,
     toFloat32(coalesce(round(
-        100.0 * tbwo.triggered_team_shots_on_target_in_trigger_window
-            / nullIf(tbwo.triggered_team_shots_in_trigger_window, 0),
+        100.0 * team_best_window_with_opponent.triggered_team_shots_on_target_in_trigger_window
+            / nullIf(team_best_window_with_opponent.triggered_team_shots_in_trigger_window, 0),
         1
     ), 0.0)) AS triggered_team_on_target_ratio_in_trigger_window_pct,
     toFloat32(coalesce(round(
-        100.0 * tbwo.opponent_shots_on_target_in_trigger_window
-            / nullIf(tbwo.opponent_shots_in_trigger_window, 0),
+        100.0 * team_best_window_with_opponent.opponent_shots_on_target_in_trigger_window
+            / nullIf(team_best_window_with_opponent.opponent_shots_in_trigger_window, 0),
         1
     ), 0.0)) AS opponent_on_target_ratio_in_trigger_window_pct,
     toFloat32(round(
         coalesce(round(
-            100.0 * tbwo.triggered_team_shots_on_target_in_trigger_window
-                / nullIf(tbwo.triggered_team_shots_in_trigger_window, 0),
+            100.0 * team_best_window_with_opponent.triggered_team_shots_on_target_in_trigger_window
+                / nullIf(team_best_window_with_opponent.triggered_team_shots_in_trigger_window, 0),
             1
         ), 0.0)
       - coalesce(round(
-            100.0 * tbwo.opponent_shots_on_target_in_trigger_window
-                / nullIf(tbwo.opponent_shots_in_trigger_window, 0),
+            100.0 * team_best_window_with_opponent.opponent_shots_on_target_in_trigger_window
+                / nullIf(team_best_window_with_opponent.opponent_shots_in_trigger_window, 0),
             1
         ), 0.0),
         1
     )) AS on_target_ratio_in_trigger_window_delta_pct,
-    toFloat32(tbwo.triggered_team_xg_in_trigger_window) AS triggered_team_xg_in_trigger_window,
-    toFloat32(tbwo.opponent_xg_in_trigger_window) AS opponent_xg_in_trigger_window,
-    toFloat32(round(tbwo.triggered_team_xg_in_trigger_window - tbwo.opponent_xg_in_trigger_window, 3))
+    toFloat32(team_best_window_with_opponent.triggered_team_xg_in_trigger_window) AS triggered_team_xg_in_trigger_window,
+    toFloat32(team_best_window_with_opponent.opponent_xg_in_trigger_window) AS opponent_xg_in_trigger_window,
+    toFloat32(round(team_best_window_with_opponent.triggered_team_xg_in_trigger_window - team_best_window_with_opponent.opponent_xg_in_trigger_window, 3))
         AS xg_in_trigger_window_delta,
 
     toInt32(coalesce(ps.total_shots_away, 0)) AS triggered_team_total_shots,
@@ -439,9 +439,9 @@ INNER JOIN silver.period_stat AS ps
     ON ps.match_id = m.match_id
    AND ps.match_date = m.match_date
    AND ps.period = 'All'
-INNER JOIN team_best_window_with_opponent AS tbwo
-    ON tbwo.match_id = m.match_id
-   AND tbwo.triggered_side = 'away'
+INNER JOIN team_best_window_with_opponent
+    ON team_best_window_with_opponent.match_id = m.match_id
+   AND team_best_window_with_opponent.triggered_side = 'away'
 WHERE m.match_finished = 1
   AND m.match_id > 0
 

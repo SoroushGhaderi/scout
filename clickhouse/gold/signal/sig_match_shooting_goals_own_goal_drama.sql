@@ -68,7 +68,40 @@ INSERT INTO gold.sig_match_shooting_goals_own_goal_drama (
 -- Intent: detect finished matches with at least one own goal and expose bilateral scoring,
 --         finishing, and control context at canonical match-team grain.
 -- Trigger: match_total_own_goals >= 1 from silver.shot own-goal events.
-WITH own_goal_events AS (
+WITH match_ext AS (
+    SELECT
+        m.match_id,
+        m.match_date,
+        m.home_team_id,
+        m.home_team_name,
+        m.away_team_id,
+        m.away_team_name,
+        m.home_score,
+        m.away_score,
+        m.match_finished,
+        ps.expected_goals_home,
+        ps.expected_goals_away,
+        ps.total_shots_home,
+        ps.total_shots_away,
+        ps.shots_on_target_home,
+        ps.shots_on_target_away,
+        ps.big_chances_home,
+        ps.big_chances_away,
+        ps.touches_opp_box_home,
+        ps.touches_opp_box_away,
+        ps.ball_possession_home,
+        ps.ball_possession_away,
+        ps.accurate_passes_home,
+        ps.accurate_passes_away,
+        ps.pass_attempts_home,
+        ps.pass_attempts_away
+    FROM silver.match AS m
+    INNER JOIN silver.period_stat AS ps
+        ON ps.match_id = m.match_id
+       AND ps.match_date = m.match_date
+       AND ps.period = 'All'
+),
+own_goal_events AS (
     SELECT
         s.match_id,
         toUInt8(coalesce(s.is_home_goal, 0)) AS is_home_goal_flag
@@ -107,27 +140,23 @@ base_stats AS (
         coalesce(ogb.home_own_goals_conceded, 0) AS home_own_goals_conceded,
         coalesce(ogb.away_own_goals_conceded, 0) AS away_own_goals_conceded,
         toInt32(coalesce(m.home_score, 0) + coalesce(m.away_score, 0)) AS match_total_goals,
-        toFloat32(coalesce(ps.expected_goals_home, 0)) AS expected_goals_home,
-        toFloat32(coalesce(ps.expected_goals_away, 0)) AS expected_goals_away,
-        toInt32(coalesce(ps.total_shots_home, 0)) AS total_shots_home,
-        toInt32(coalesce(ps.total_shots_away, 0)) AS total_shots_away,
-        toInt32(coalesce(ps.shots_on_target_home, 0)) AS shots_on_target_home,
-        toInt32(coalesce(ps.shots_on_target_away, 0)) AS shots_on_target_away,
-        toInt32(coalesce(ps.big_chances_home, 0)) AS big_chances_home,
-        toInt32(coalesce(ps.big_chances_away, 0)) AS big_chances_away,
-        toInt32(coalesce(ps.touches_opp_box_home, 0)) AS touches_opposition_box_home,
-        toInt32(coalesce(ps.touches_opp_box_away, 0)) AS touches_opposition_box_away,
-        toFloat32(coalesce(ps.ball_possession_home, 0)) AS possession_home_pct,
-        toFloat32(coalesce(ps.ball_possession_away, 0)) AS possession_away_pct,
-        toInt32(coalesce(ps.accurate_passes_home, 0)) AS accurate_passes_home,
-        toInt32(coalesce(ps.accurate_passes_away, 0)) AS accurate_passes_away,
-        toInt32(coalesce(ps.pass_attempts_home, 0)) AS pass_attempts_home,
-        toInt32(coalesce(ps.pass_attempts_away, 0)) AS pass_attempts_away
-    FROM silver.match AS m
-    INNER JOIN silver.period_stat AS ps
-        ON ps.match_id = m.match_id
-       AND ps.match_date = m.match_date
-       AND ps.period = 'All'
+        toFloat32(coalesce(m.expected_goals_home, 0)) AS expected_goals_home,
+        toFloat32(coalesce(m.expected_goals_away, 0)) AS expected_goals_away,
+        toInt32(coalesce(m.total_shots_home, 0)) AS total_shots_home,
+        toInt32(coalesce(m.total_shots_away, 0)) AS total_shots_away,
+        toInt32(coalesce(m.shots_on_target_home, 0)) AS shots_on_target_home,
+        toInt32(coalesce(m.shots_on_target_away, 0)) AS shots_on_target_away,
+        toInt32(coalesce(m.big_chances_home, 0)) AS big_chances_home,
+        toInt32(coalesce(m.big_chances_away, 0)) AS big_chances_away,
+        toInt32(coalesce(m.touches_opp_box_home, 0)) AS touches_opposition_box_home,
+        toInt32(coalesce(m.touches_opp_box_away, 0)) AS touches_opposition_box_away,
+        toFloat32(coalesce(m.ball_possession_home, 0)) AS possession_home_pct,
+        toFloat32(coalesce(m.ball_possession_away, 0)) AS possession_away_pct,
+        toInt32(coalesce(m.accurate_passes_home, 0)) AS accurate_passes_home,
+        toInt32(coalesce(m.accurate_passes_away, 0)) AS accurate_passes_away,
+        toInt32(coalesce(m.pass_attempts_home, 0)) AS pass_attempts_home,
+        toInt32(coalesce(m.pass_attempts_away, 0)) AS pass_attempts_away
+    FROM match_ext AS m
     INNER JOIN own_goal_breakdown AS ogb
         ON ogb.match_id = m.match_id
     WHERE m.match_finished = 1
@@ -347,4 +376,4 @@ SELECT
         1
     )) AS pass_accuracy_delta_pct
 FROM base_stats AS bs
-SETTINGS allow_experimental_analyzer = 0;
+;

@@ -125,14 +125,14 @@ eligible_matches AS (
 ),
 base_stats AS (
     SELECT
-        m.match_id,
-        m.match_date,
-        m.home_team_id,
-        m.home_team_name,
-        m.away_team_id,
-        m.away_team_name,
-        m.home_score,
-        m.away_score,
+        m.match_id AS match_id,
+        m.match_date AS match_date,
+        m.home_team_id AS home_team_id,
+        m.home_team_name AS home_team_name,
+        m.away_team_id AS away_team_id,
+        m.away_team_name AS away_team_name,
+        m.home_score AS home_score,
+        m.away_score AS away_score,
         coalesce(ps.yellow_cards_home, 0) AS yellow_cards_home,
         coalesce(ps.yellow_cards_away, 0) AS yellow_cards_away,
         coalesce(ps.red_cards_home, 0) AS red_cards_home,
@@ -266,7 +266,7 @@ SELECT
     possession_home_pct AS triggered_team_possession_pct,
     possession_away_pct AS opponent_possession_pct,
     toFloat32(round(possession_home_pct - possession_away_pct, 1)) AS possession_delta_pct
-FROM base_stats AS b
+FROM base_stats
 
 UNION ALL
 
@@ -363,6 +363,6 @@ SELECT
     possession_away_pct AS triggered_team_possession_pct,
     possession_home_pct AS opponent_possession_pct,
     toFloat32(round(possession_away_pct - possession_home_pct, 1)) AS possession_delta_pct
-FROM base_stats AS b
+FROM base_stats
 
 ORDER BY match_id, triggered_side;

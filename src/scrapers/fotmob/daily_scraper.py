@@ -1,5 +1,6 @@
 """Scraper for fetching daily match listings."""
 
+import os
 from typing import Any, Dict, List
 
 from .base_scraper import BaseScraper
@@ -21,7 +22,8 @@ class DailyScraper(BaseScraper):
         self.logger.info(f"Fetching matches for date: {date_str}")
 
         url = f"{self.config.api.base_url}/matches"
-        params = {"date": date_str}
+        timezone = os.getenv("FOTMOB_TIMEZONE", "Asia/Tehran")
+        params = {"date": date_str, "timezone": timezone}
 
         response_data = self.make_request(url, params=params)
 

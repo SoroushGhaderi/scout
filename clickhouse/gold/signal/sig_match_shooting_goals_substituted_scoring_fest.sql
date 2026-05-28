@@ -63,7 +63,38 @@ INSERT INTO gold.sig_match_shooting_goals_substituted_scoring_fest (
 -- Intent: detect finished matches where at least three distinct substitutes score
 --         and emit side-oriented rows with bilateral shooting context.
 -- Trigger: combined distinct substitute goal scorers >= 3 in one finished match.
-WITH substitute_entries AS (
+WITH match_ext AS (
+    SELECT
+        m.match_id,
+        m.match_date,
+        m.home_team_id,
+        m.home_team_name,
+        m.away_team_id,
+        m.away_team_name,
+        m.home_score,
+        m.away_score,
+        m.match_finished,
+        ps.total_shots_home,
+        ps.total_shots_away,
+        ps.shots_on_target_home,
+        ps.shots_on_target_away,
+        ps.expected_goals_home,
+        ps.expected_goals_away,
+        ps.big_chances_home,
+        ps.big_chances_away,
+        ps.ball_possession_home,
+        ps.ball_possession_away,
+        ps.accurate_passes_home,
+        ps.accurate_passes_away,
+        ps.pass_attempts_home,
+        ps.pass_attempts_away
+    FROM silver.match AS m
+    INNER JOIN silver.period_stat AS ps
+        ON ps.match_id = m.match_id
+       AND ps.match_date = m.match_date
+       AND ps.period = 'All'
+),
+substitute_entries AS (
     SELECT
         mp.match_id,
         toInt32(assumeNotNull(mp.person_id)) AS player_id,
@@ -112,7 +143,7 @@ substitute_scorer_goal_counts AS (
 ),
 team_substitute_goal_rollup AS (
     SELECT
-        ssgc.match_id,
+        ssgc.match_id AS sg_match_id,
         ssgc.team_id,
         toInt32(sum(ssgc.goals_by_substitute_scorer)) AS team_substitute_non_own_goals,
         toInt32(count()) AS team_distinct_substitute_goal_scorers,
@@ -124,7 +155,7 @@ team_substitute_goal_rollup AS (
 ),
 team_substitute_goal_timing AS (
     SELECT
-        sge.match_id,
+        sge.match_id AS tgt_match_id,
         sge.team_id,
         toInt32(min(sge.goal_effective_minute)) AS team_first_substitute_goal_effective_minute,
         toInt32(max(sge.goal_effective_minute)) AS team_last_substitute_goal_effective_minute
@@ -135,7 +166,7 @@ team_substitute_goal_timing AS (
 ),
 team_non_own_goal_rollup AS (
     SELECT
-        s.match_id,
+        s.match_id AS nog_match_id,
         toInt32(s.team_id) AS team_id,
         toInt32(count()) AS team_non_own_goals
     FROM silver.shot AS s
@@ -190,42 +221,38 @@ base_stats AS (
         toInt32(coalesce(home_goal.team_non_own_goals, 0)
             + coalesce(away_goal.team_non_own_goals, 0)) AS match_total_non_own_goals,
 
-        toInt32(coalesce(ps.total_shots_home, 0)) AS total_shots_home,
-        toInt32(coalesce(ps.total_shots_away, 0)) AS total_shots_away,
-        toInt32(coalesce(ps.shots_on_target_home, 0)) AS shots_on_target_home,
-        toInt32(coalesce(ps.shots_on_target_away, 0)) AS shots_on_target_away,
-        toFloat32(coalesce(ps.expected_goals_home, 0.0)) AS expected_goals_home,
-        toFloat32(coalesce(ps.expected_goals_away, 0.0)) AS expected_goals_away,
-        toInt32(coalesce(ps.big_chances_home, 0)) AS big_chances_home,
-        toInt32(coalesce(ps.big_chances_away, 0)) AS big_chances_away,
-        toFloat32(coalesce(ps.ball_possession_home, 0.0)) AS possession_home_pct,
-        toFloat32(coalesce(ps.ball_possession_away, 0.0)) AS possession_away_pct,
-        toInt32(coalesce(ps.accurate_passes_home, 0)) AS accurate_passes_home,
-        toInt32(coalesce(ps.accurate_passes_away, 0)) AS accurate_passes_away,
-        toInt32(coalesce(ps.pass_attempts_home, 0)) AS pass_attempts_home,
-        toInt32(coalesce(ps.pass_attempts_away, 0)) AS pass_attempts_away
-    FROM silver.match AS m
-    INNER JOIN silver.period_stat AS ps
-        ON ps.match_id = m.match_id
-       AND ps.match_date = m.match_date
-       AND ps.period = 'All'
+        toInt32(coalesce(m.total_shots_home, 0)) AS total_shots_home,
+        toInt32(coalesce(m.total_shots_away, 0)) AS total_shots_away,
+        toInt32(coalesce(m.shots_on_target_home, 0)) AS shots_on_target_home,
+        toInt32(coalesce(m.shots_on_target_away, 0)) AS shots_on_target_away,
+        toFloat32(coalesce(m.expected_goals_home, 0.0)) AS expected_goals_home,
+        toFloat32(coalesce(m.expected_goals_away, 0.0)) AS expected_goals_away,
+        toInt32(coalesce(m.big_chances_home, 0)) AS big_chances_home,
+        toInt32(coalesce(m.big_chances_away, 0)) AS big_chances_away,
+        toFloat32(coalesce(m.ball_possession_home, 0.0)) AS possession_home_pct,
+        toFloat32(coalesce(m.ball_possession_away, 0.0)) AS possession_away_pct,
+        toInt32(coalesce(m.accurate_passes_home, 0)) AS accurate_passes_home,
+        toInt32(coalesce(m.accurate_passes_away, 0)) AS accurate_passes_away,
+        toInt32(coalesce(m.pass_attempts_home, 0)) AS pass_attempts_home,
+        toInt32(coalesce(m.pass_attempts_away, 0)) AS pass_attempts_away
+    FROM match_ext AS m
     LEFT JOIN team_substitute_goal_rollup AS home_sub
-        ON home_sub.match_id = m.match_id
+        ON home_sub.sg_match_id = m.match_id
        AND home_sub.team_id = m.home_team_id
     LEFT JOIN team_substitute_goal_rollup AS away_sub
-        ON away_sub.match_id = m.match_id
+        ON away_sub.sg_match_id = m.match_id
        AND away_sub.team_id = m.away_team_id
     LEFT JOIN team_substitute_goal_timing AS home_sub_time
-        ON home_sub_time.match_id = m.match_id
+        ON home_sub_time.tgt_match_id = m.match_id
        AND home_sub_time.team_id = m.home_team_id
     LEFT JOIN team_substitute_goal_timing AS away_sub_time
-        ON away_sub_time.match_id = m.match_id
+        ON away_sub_time.tgt_match_id = m.match_id
        AND away_sub_time.team_id = m.away_team_id
     LEFT JOIN team_non_own_goal_rollup AS home_goal
-        ON home_goal.match_id = m.match_id
+        ON home_goal.nog_match_id = m.match_id
        AND home_goal.team_id = m.home_team_id
     LEFT JOIN team_non_own_goal_rollup AS away_goal
-        ON away_goal.match_id = m.match_id
+        ON away_goal.nog_match_id = m.match_id
        AND away_goal.team_id = m.away_team_id
     WHERE m.match_finished = 1
       AND m.match_id > 0
@@ -398,4 +425,4 @@ ORDER BY
     match_date DESC,
     match_id DESC,
     triggered_side
-SETTINGS allow_experimental_analyzer = 0;
+;

@@ -11,7 +11,7 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 ROOT = Path(__file__).parent.parent
 if str(ROOT) not in sys.path:
@@ -24,15 +24,31 @@ logger = get_logger(__name__)
 
 
 def get_chrome_turnstile() -> str:
-    """Read `turnstile_verified` from Chrome cookies for FotMob."""
+    """Read freshest `turnstile_verified` from Chrome cookies for FotMob."""
     try:
         import browser_cookie3
 
+        candidates: List[str] = []
         for domain in ("www.fotmob.com", ".fotmob.com", "fotmob.com"):
             cj = browser_cookie3.chrome(domain_name=domain)
-            tv = {c.name: c.value for c in cj}.get("turnstile_verified", "")
-            if tv:
-                return tv
+            for cookie in cj:
+                if cookie.name == "turnstile_verified" and cookie.value:
+                    candidates.append(cookie.value)
+
+        if not candidates:
+            return ""
+
+        # Prefer the token with the newest embedded timestamp; fall back to latest seen.
+        def _token_created_at(value: str) -> int:
+            parts = value.split(".")
+            if len(parts) == 3:
+                try:
+                    return int(parts[1])
+                except ValueError:
+                    pass
+            return -1
+
+        return max(candidates, key=_token_created_at)
     except Exception as exc:
         logger.debug("Could not read Chrome cookies: %s", exc)
     return ""
@@ -182,10 +198,10 @@ def main():
 
     if status.startswith("expired"):
         logger.warning(
-            "Cookie is expired. Visit https://www.fotmob.com in Chrome, "
-            "wait for the page to load, then run this script again"
+            "Cookie appears expired by timestamp format, but saving anyway. "
+            "If scraping still fails, revisit https://www.fotmob.com in Chrome "
+            "and solve any challenge before re-running."
         )
-        sys.exit(1)
 
     if not update_credentials_json(tv):
         sys.exit(1)

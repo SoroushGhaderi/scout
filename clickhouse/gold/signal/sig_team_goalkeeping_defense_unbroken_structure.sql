@@ -454,6 +454,6 @@ WHERE m.match_finished = 1
 ORDER BY
     triggered_team_shots_inside_box_allowed ASC,
     triggered_team_shots_on_target_faced ASC,
-    match_date DESC,
-    match_id DESC,
+    m.match_date DESC,
+    m.match_id DESC,
     triggered_side;

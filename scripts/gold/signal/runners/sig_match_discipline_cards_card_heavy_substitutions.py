@@ -49,7 +49,7 @@ def main(argv=None) -> int:
         return 1
 
     try:
-        client.execute("SET allow_experimental_analyzer = 1")
+        client.execute("SET enable_analyzer = 0")
         client.execute(insert_query)
         logger.info("%s insert completed", Path(__file__).stem)
 

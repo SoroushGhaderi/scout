@@ -180,8 +180,8 @@ SELECT
         100.0 * (player_throws_away + corners_away) / nullIf(toFloat64(pass_attempts_away), 0),
         1
     ), 0.0)) AS opponent_dead_ball_restart_pass_share_pct
-FROM base_stats AS b
-WHERE b.corners_home >= 15
+FROM base_stats
+WHERE corners_home >= 15
 
 UNION ALL
 
@@ -256,8 +256,8 @@ SELECT
         100.0 * (player_throws_home + corners_home) / nullIf(toFloat64(pass_attempts_home), 0),
         1
     ), 0.0)) AS opponent_dead_ball_restart_pass_share_pct
-FROM base_stats AS b
-WHERE b.corners_away >= 15
+FROM base_stats
+WHERE corners_away >= 15
 )
 
 SELECT

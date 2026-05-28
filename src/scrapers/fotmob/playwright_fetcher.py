@@ -32,6 +32,17 @@ from ...utils.logging_utils import get_logger
 logger = get_logger(__name__)
 
 
+def _turnstile_created_at(value: str) -> int:
+    """Extract creation timestamp from turnstile token, or -1 if unknown."""
+    parts = value.split(".")
+    if len(parts) == 3:
+        try:
+            return int(parts[1])
+        except (ValueError, OverflowError):
+            return -1
+    return -1
+
+
 # ---------------------------------------------------------------------------
 # Signing constants extracted 2026-02-18 — update when FotMob redeploys.
 # These are refreshed automatically on startup via Playwright; this serves
@@ -192,6 +203,15 @@ class PlaywrightFetcher:
             )
             if resp.status_code == 200:
                 return resp.json()
+
+            if resp.status_code == 502:
+                self.logger.warning(
+                    "curl_cffi returned 502; retrying once via Playwright request context"
+                )
+                fallback_json = self._fetch_json_via_playwright(full_url, headers, cookies)
+                if fallback_json is not None:
+                    return fallback_json
+
             self.logger.error(f"Request failed {resp.status_code}: {url_path} — {resp.text[:200]}")
             return None
         except ImportError:
@@ -199,6 +219,57 @@ class PlaywrightFetcher:
             return None
         except Exception as exc:
             self.logger.error(f"Request error for {url_path}: {exc}")
+            return None
+
+    def _fetch_json_via_playwright(
+        self,
+        full_url: str,
+        headers: Dict[str, str],
+        cookies: Dict[str, str],
+    ) -> Optional[Dict[str, Any]]:
+        """Fallback fetch through Playwright's request context for hard 502 cases."""
+        try:
+            from playwright.sync_api import sync_playwright
+        except Exception as exc:
+            self.logger.warning(f"Playwright fallback unavailable: {exc}")
+            return None
+
+        try:
+            with sync_playwright() as pw:
+                browser = pw.chromium.launch(headless=True)
+                try:
+                    context = browser.new_context(
+                        user_agent=self.config.api.user_agent,
+                        extra_http_headers=headers,
+                    )
+                    if cookies:
+                        context.add_cookies(
+                            [
+                                {
+                                    "name": name,
+                                    "value": value,
+                                    "domain": ".fotmob.com",
+                                    "path": "/",
+                                    "secure": True,
+                                }
+                                for name, value in cookies.items()
+                            ]
+                        )
+                    page = context.new_page()
+                    page.goto(self.FOTMOB_BASE, wait_until="domcontentloaded", timeout=30_000)
+
+                    resp = context.request.get(full_url, timeout=self.config.request.timeout * 1000)
+                    if resp.status == 200:
+                        return resp.json()
+
+                    self.logger.error(
+                        f"Playwright fallback failed {resp.status}: {full_url} — {resp.text()[:200]}"
+                    )
+                    return None
+                finally:
+                    browser.close()
+        except Exception as exc:
+            self.logger.warning(f"Playwright fallback request error: {exc}")
             return None
 
     def close(self):
@@ -352,6 +423,11 @@ class PlaywrightFetcher:
                 f"(Chrome Turnstile {'expired' if tv_chrome else 'absent'})"
             )
         else:
+            # Keep the newest available token (even stale) as a best-effort fallback.
+            candidates = [value for value in (tv_chrome, tv_stored) if value]
+            if candidates:
+                newest = max(candidates, key=_turnstile_created_at)
+                base["turnstile_verified"] = newest
             self.logger.warning(
                 "No valid turnstile_verified found in Chrome or stored credentials. "
                 "Visit fotmob.com in Chrome to refresh it, then run refresh_turnstile.py."
@@ -390,12 +466,22 @@ class PlaywrightFetcher:
             import browser_cookie3
 
             cookies: Dict[str, str] = {}
+            turnstile_candidates = []
             for domain in (".fotmob.com", "fotmob.com", "www.fotmob.com"):
                 try:
                     cj = browser_cookie3.chrome(domain_name=domain)
-                    cookies.update({c.name: c.value for c in cj})
+                    for cookie in cj:
+                        cookies[cookie.name] = cookie.value
+                        if cookie.name == "turnstile_verified" and cookie.value:
+                            turnstile_candidates.append(cookie.value)
                 except Exception:
                     pass
+
+            if turnstile_candidates:
+                cookies["turnstile_verified"] = max(
+                    turnstile_candidates,
+                    key=_turnstile_created_at,
+                )
 
             if cookies:
                 self.logger.debug(

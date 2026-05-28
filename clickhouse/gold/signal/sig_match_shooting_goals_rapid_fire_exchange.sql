@@ -62,7 +62,42 @@ INSERT INTO gold.sig_match_shooting_goals_rapid_fire_exchange (
 -- Intent: detect bilateral goal-trading bursts where both teams score within a tight 3-minute
 --         effective window and emit side-oriented finishing, tempo, and control diagnostics.
 -- Trigger: at least one opposite-side consecutive non-own-goal pair with effective-minute gap <= 3.
-WITH goal_events AS (
+WITH match_ext AS (
+    SELECT
+        m.match_id,
+        m.match_date,
+        m.home_team_id,
+        m.home_team_name,
+        m.away_team_id,
+        m.away_team_name,
+        m.home_score,
+        m.away_score,
+        m.match_finished,
+        ps.total_shots_home,
+        ps.total_shots_away,
+        ps.shots_on_target_home,
+        ps.shots_on_target_away,
+        ps.expected_goals_home,
+        ps.expected_goals_away,
+        ps.big_chances_home,
+        ps.big_chances_away,
+        ps.big_chances_missed_home,
+        ps.big_chances_missed_away,
+        ps.touches_opp_box_home,
+        ps.touches_opp_box_away,
+        ps.ball_possession_home,
+        ps.ball_possession_away,
+        ps.accurate_passes_home,
+        ps.accurate_passes_away,
+        ps.pass_attempts_home,
+        ps.pass_attempts_away
+    FROM silver.match AS m
+    INNER JOIN silver.period_stat AS ps
+        ON ps.match_id = m.match_id
+       AND ps.match_date = m.match_date
+       AND ps.period = 'All'
+),
+goal_events AS (
     SELECT
         s.match_id,
         if(coalesce(s.is_home_goal, 0) = 1, 'home', 'away') AS goal_side,
@@ -171,31 +206,27 @@ base_stats AS (
         rfr.smallest_exchange_gap_minutes,
         rfr.average_exchange_gap_minutes,
         rfr.last_rapid_fire_exchange_end_effective_minute,
-        coalesce(ps.total_shots_home, 0) AS total_shots_home,
-        coalesce(ps.total_shots_away, 0) AS total_shots_away,
-        coalesce(ps.shots_on_target_home, 0) AS shots_on_target_home,
-        coalesce(ps.shots_on_target_away, 0) AS shots_on_target_away,
-        toFloat32(coalesce(ps.expected_goals_home, 0.0)) AS expected_goals_home,
-        toFloat32(coalesce(ps.expected_goals_away, 0.0)) AS expected_goals_away,
-        coalesce(ps.big_chances_home, 0) AS big_chances_home,
-        coalesce(ps.big_chances_away, 0) AS big_chances_away,
-        coalesce(ps.big_chances_missed_home, 0) AS big_chances_missed_home,
-        coalesce(ps.big_chances_missed_away, 0) AS big_chances_missed_away,
-        coalesce(ps.touches_opp_box_home, 0) AS touches_opposition_box_home,
-        coalesce(ps.touches_opp_box_away, 0) AS touches_opposition_box_away,
-        toFloat32(coalesce(ps.ball_possession_home, 0.0)) AS possession_home_pct,
-        toFloat32(coalesce(ps.ball_possession_away, 0.0)) AS possession_away_pct,
-        coalesce(ps.accurate_passes_home, 0) AS accurate_passes_home,
-        coalesce(ps.accurate_passes_away, 0) AS accurate_passes_away,
-        coalesce(ps.pass_attempts_home, 0) AS pass_attempts_home,
-        coalesce(ps.pass_attempts_away, 0) AS pass_attempts_away
-    FROM silver.match AS m
+        coalesce(m.total_shots_home, 0) AS total_shots_home,
+        coalesce(m.total_shots_away, 0) AS total_shots_away,
+        coalesce(m.shots_on_target_home, 0) AS shots_on_target_home,
+        coalesce(m.shots_on_target_away, 0) AS shots_on_target_away,
+        toFloat32(coalesce(m.expected_goals_home, 0.0)) AS expected_goals_home,
+        toFloat32(coalesce(m.expected_goals_away, 0.0)) AS expected_goals_away,
+        coalesce(m.big_chances_home, 0) AS big_chances_home,
+        coalesce(m.big_chances_away, 0) AS big_chances_away,
+        coalesce(m.big_chances_missed_home, 0) AS big_chances_missed_home,
+        coalesce(m.big_chances_missed_away, 0) AS big_chances_missed_away,
+        coalesce(m.touches_opp_box_home, 0) AS touches_opposition_box_home,
+        coalesce(m.touches_opp_box_away, 0) AS touches_opposition_box_away,
+        toFloat32(coalesce(m.ball_possession_home, 0.0)) AS possession_home_pct,
+        toFloat32(coalesce(m.ball_possession_away, 0.0)) AS possession_away_pct,
+        coalesce(m.accurate_passes_home, 0) AS accurate_passes_home,
+        coalesce(m.accurate_passes_away, 0) AS accurate_passes_away,
+        coalesce(m.pass_attempts_home, 0) AS pass_attempts_home,
+        coalesce(m.pass_attempts_away, 0) AS pass_attempts_away
+    FROM match_ext AS m
     INNER JOIN rapid_fire_rollup AS rfr
         ON rfr.match_id = m.match_id
-    INNER JOIN silver.period_stat AS ps
-        ON ps.match_id = m.match_id
-       AND ps.match_date = m.match_date
-       AND ps.period = 'All'
     WHERE m.match_finished = 1
       AND m.match_id > 0
 )
@@ -397,4 +428,4 @@ SELECT
         1
     )) AS pass_accuracy_delta_pct
 FROM base_stats
-SETTINGS allow_experimental_analyzer = 0;
+;

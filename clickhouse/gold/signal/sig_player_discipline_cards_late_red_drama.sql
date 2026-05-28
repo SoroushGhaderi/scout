@@ -40,7 +40,6 @@ INSERT INTO gold.sig_player_discipline_cards_late_red_drama (
 WITH player_red_card_counts AS (
     SELECT
         c.match_id,
-        c.team_id,
         c.player_id,
         count() AS triggered_player_red_card_count_match
     FROM silver.card AS c
@@ -49,7 +48,6 @@ WITH player_red_card_counts AS (
       AND positionCaseInsensitive(ifNull(c.card_type, ''), 'red') > 0
     GROUP BY
         c.match_id,
-        c.team_id,
         c.player_id
 ),
 first_late_red AS (
@@ -62,7 +60,7 @@ first_late_red AS (
         toInt32(coalesce(c.score_home_at_time, 0)) AS score_home_at_red,
         toInt32(coalesce(c.score_away_at_time, 0)) AS score_away_at_red,
         row_number() OVER (
-            PARTITION BY c.match_id, c.team_id, c.player_id
+            PARTITION BY c.match_id, c.player_id
             ORDER BY toInt32(coalesce(c.card_minute, 0)) ASC
         ) AS rn
     FROM silver.card AS c
@@ -219,7 +217,6 @@ INNER JOIN silver.match AS m
     ON m.match_id = lr.match_id
 LEFT JOIN player_red_card_counts AS prc
     ON prc.match_id = lr.match_id
-   AND prc.team_id = multiIf(lr.triggered_side = 'home', m.home_team_id, lr.triggered_side = 'away', m.away_team_id, -1)
    AND prc.player_id = lr.triggered_player_id
 LEFT JOIN silver.period_stat AS ps
     ON ps.match_id = lr.match_id
@@ -227,11 +224,6 @@ LEFT JOIN silver.period_stat AS ps
 WHERE m.match_finished = 1
   AND m.match_id > 0
   AND lr.rn = 1
-  AND (
-        (lr.triggered_side = 'home' AND lr.triggered_team_id = m.home_team_id)
-        OR
-        (lr.triggered_side = 'away' AND lr.triggered_team_id = m.away_team_id)
-    )
 
 ORDER BY
     triggered_player_red_card_minute DESC,

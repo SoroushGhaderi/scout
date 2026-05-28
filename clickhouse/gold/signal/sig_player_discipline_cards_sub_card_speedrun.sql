@@ -132,8 +132,8 @@ triggered_substitute_cards AS (
         ON ce.match_id = se.match_id
        AND ce.triggered_player_id = se.triggered_player_id
        AND (ce.is_yellow_card OR ce.is_red_card)
-       AND ce.card_minute >= se.triggered_player_substitution_time
-       AND ce.card_minute <= se.triggered_player_substitution_time + 5
+    WHERE ce.card_minute >= se.triggered_player_substitution_time
+      AND ce.card_minute <= se.triggered_player_substitution_time + 5
 )
 SELECT
     m.match_id,

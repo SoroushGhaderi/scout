@@ -75,7 +75,44 @@ INSERT INTO gold.sig_match_shooting_goals_penalty_decided_match (
 -- Intent: detect low-score finished matches where every recorded goal is scored from
 --         a penalty and emit side-oriented rows for bilateral shooting and control context.
 -- Trigger: scoreline is 1-0, 0-1, or 1-1 and match_total_penalty_goals = match_total_goals.
-WITH goal_events AS (
+WITH match_ext AS (
+    SELECT
+        m.match_id,
+        m.match_date,
+        m.home_team_id,
+        m.home_team_name,
+        m.away_team_id,
+        m.away_team_name,
+        m.home_score,
+        m.away_score,
+        m.match_finished,
+        ps.expected_goals_home,
+        ps.expected_goals_away,
+        ps.expected_goals_non_penalty_home,
+        ps.expected_goals_non_penalty_away,
+        ps.total_shots_home,
+        ps.total_shots_away,
+        ps.shots_on_target_home,
+        ps.shots_on_target_away,
+        ps.big_chances_home,
+        ps.big_chances_away,
+        ps.big_chances_missed_home,
+        ps.big_chances_missed_away,
+        ps.touches_opp_box_home,
+        ps.touches_opp_box_away,
+        ps.ball_possession_home,
+        ps.ball_possession_away,
+        ps.accurate_passes_home,
+        ps.accurate_passes_away,
+        ps.pass_attempts_home,
+        ps.pass_attempts_away
+    FROM silver.match AS m
+    INNER JOIN silver.period_stat AS ps
+        ON ps.match_id = m.match_id
+       AND ps.match_date = m.match_date
+       AND ps.period = 'All'
+),
+goal_events AS (
     SELECT
         s.match_id,
         toUInt8(coalesce(s.is_home_goal, 0)) AS is_home_goal_flag,
@@ -119,41 +156,37 @@ base_stats AS (
         coalesce(gb.away_penalty_goals, 0) AS away_penalty_goals,
         coalesce(gb.home_non_penalty_goals, 0) AS home_non_penalty_goals,
         coalesce(gb.away_non_penalty_goals, 0) AS away_non_penalty_goals,
-        toFloat32(coalesce(ps.expected_goals_home, 0)) AS expected_goals_home,
-        toFloat32(coalesce(ps.expected_goals_away, 0)) AS expected_goals_away,
-        toFloat32(coalesce(ps.expected_goals_non_penalty_home, 0)) AS expected_goals_non_penalty_home,
-        toFloat32(coalesce(ps.expected_goals_non_penalty_away, 0)) AS expected_goals_non_penalty_away,
-        coalesce(ps.total_shots_home, 0) AS total_shots_home,
-        coalesce(ps.total_shots_away, 0) AS total_shots_away,
-        coalesce(ps.shots_on_target_home, 0) AS shots_on_target_home,
-        coalesce(ps.shots_on_target_away, 0) AS shots_on_target_away,
-        coalesce(ps.big_chances_home, 0) AS big_chances_home,
-        coalesce(ps.big_chances_away, 0) AS big_chances_away,
-        coalesce(ps.big_chances_missed_home, 0) AS big_chances_missed_home,
-        coalesce(ps.big_chances_missed_away, 0) AS big_chances_missed_away,
-        coalesce(ps.touches_opp_box_home, 0) AS touches_opposition_box_home,
-        coalesce(ps.touches_opp_box_away, 0) AS touches_opposition_box_away,
-        toFloat32(coalesce(ps.ball_possession_home, 0)) AS possession_home_pct,
-        toFloat32(coalesce(ps.ball_possession_away, 0)) AS possession_away_pct,
-        coalesce(ps.accurate_passes_home, 0) AS accurate_passes_home,
-        coalesce(ps.accurate_passes_away, 0) AS accurate_passes_away,
-        coalesce(ps.pass_attempts_home, 0) AS pass_attempts_home,
-        coalesce(ps.pass_attempts_away, 0) AS pass_attempts_away,
+        toFloat32(coalesce(m.expected_goals_home, 0)) AS expected_goals_home,
+        toFloat32(coalesce(m.expected_goals_away, 0)) AS expected_goals_away,
+        toFloat32(coalesce(m.expected_goals_non_penalty_home, 0)) AS expected_goals_non_penalty_home,
+        toFloat32(coalesce(m.expected_goals_non_penalty_away, 0)) AS expected_goals_non_penalty_away,
+        coalesce(m.total_shots_home, 0) AS total_shots_home,
+        coalesce(m.total_shots_away, 0) AS total_shots_away,
+        coalesce(m.shots_on_target_home, 0) AS shots_on_target_home,
+        coalesce(m.shots_on_target_away, 0) AS shots_on_target_away,
+        coalesce(m.big_chances_home, 0) AS big_chances_home,
+        coalesce(m.big_chances_away, 0) AS big_chances_away,
+        coalesce(m.big_chances_missed_home, 0) AS big_chances_missed_home,
+        coalesce(m.big_chances_missed_away, 0) AS big_chances_missed_away,
+        coalesce(m.touches_opp_box_home, 0) AS touches_opposition_box_home,
+        coalesce(m.touches_opp_box_away, 0) AS touches_opposition_box_away,
+        toFloat32(coalesce(m.ball_possession_home, 0)) AS possession_home_pct,
+        toFloat32(coalesce(m.ball_possession_away, 0)) AS possession_away_pct,
+        coalesce(m.accurate_passes_home, 0) AS accurate_passes_home,
+        coalesce(m.accurate_passes_away, 0) AS accurate_passes_away,
+        coalesce(m.pass_attempts_home, 0) AS pass_attempts_home,
+        coalesce(m.pass_attempts_away, 0) AS pass_attempts_away,
         coalesce(m.home_score, 0) + coalesce(m.away_score, 0) AS match_total_goals,
         toFloat32(round(
-            coalesce(ps.expected_goals_home, 0) + coalesce(ps.expected_goals_away, 0),
+            coalesce(m.expected_goals_home, 0) + coalesce(m.expected_goals_away, 0),
             3
         )) AS match_total_xg,
         toFloat32(round(
-            coalesce(ps.expected_goals_non_penalty_home, 0)
-            + coalesce(ps.expected_goals_non_penalty_away, 0),
+            coalesce(m.expected_goals_non_penalty_home, 0)
+            + coalesce(m.expected_goals_non_penalty_away, 0),
             3
         )) AS match_total_xg_non_penalty
-    FROM silver.match AS m
-    INNER JOIN silver.period_stat AS ps
-        ON ps.match_id = m.match_id
-       AND ps.match_date = m.match_date
-       AND ps.period = 'All'
+    FROM match_ext AS m
     LEFT JOIN goal_breakdown AS gb
         ON gb.match_id = m.match_id
     WHERE m.match_finished = 1
@@ -407,4 +440,4 @@ ORDER BY
     match_date DESC,
     match_id DESC,
     triggered_side
-SETTINGS allow_experimental_analyzer = 0;
+;

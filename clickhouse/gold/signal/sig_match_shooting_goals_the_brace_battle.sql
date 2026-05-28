@@ -65,7 +65,40 @@ INSERT INTO gold.sig_match_shooting_goals_the_brace_battle (
 -- Intent: detect finished matches where both teams have a brace scorer and emit
 --         side-oriented bilateral finishing and control context.
 -- Trigger: at least one home player and one away player each score >= 2 non-own goals.
-WITH scorer_goal_rollup AS (
+WITH match_ext AS (
+    SELECT
+        m.match_id,
+        m.match_date,
+        m.home_team_id,
+        m.home_team_name,
+        m.away_team_id,
+        m.away_team_name,
+        m.home_score,
+        m.away_score,
+        m.match_finished,
+        ps.total_shots_home,
+        ps.total_shots_away,
+        ps.shots_on_target_home,
+        ps.shots_on_target_away,
+        ps.expected_goals_home,
+        ps.expected_goals_away,
+        ps.big_chances_home,
+        ps.big_chances_away,
+        ps.touches_opp_box_home,
+        ps.touches_opp_box_away,
+        ps.ball_possession_home,
+        ps.ball_possession_away,
+        ps.pass_attempts_home,
+        ps.pass_attempts_away,
+        ps.accurate_passes_home,
+        ps.accurate_passes_away
+    FROM silver.match AS m
+    INNER JOIN silver.period_stat AS ps
+        ON ps.match_id = m.match_id
+       AND ps.match_date = m.match_date
+       AND ps.period = 'All'
+),
+scorer_goal_rollup AS (
     SELECT
         s.match_id,
         toInt32(s.team_id) AS team_id,
@@ -97,7 +130,7 @@ brace_scorers AS (
 ),
 team_brace_rollup AS (
     SELECT
-        match_id,
+        match_id AS br_match_id,
         team_id,
         toInt32(count()) AS team_brace_scorers_count,
         toInt32(sum(player_goals)) AS team_goals_by_brace_scorers,
@@ -136,37 +169,33 @@ base_stats AS (
         coalesce(away_brace.top_brace_scorer_player_name, 'Unknown') AS away_top_brace_scorer_player_name,
         toInt32(coalesce(away_brace.top_brace_scorer_goals, 0)) AS away_top_brace_scorer_goals,
 
-        toInt32(coalesce(ps.total_shots_home, 0)) AS total_shots_home,
-        toInt32(coalesce(ps.total_shots_away, 0)) AS total_shots_away,
-        toInt32(coalesce(ps.shots_on_target_home, 0)) AS shots_on_target_home,
-        toInt32(coalesce(ps.shots_on_target_away, 0)) AS shots_on_target_away,
-        toFloat32(coalesce(ps.expected_goals_home, 0.0)) AS expected_goals_home,
-        toFloat32(coalesce(ps.expected_goals_away, 0.0)) AS expected_goals_away,
-        toInt32(coalesce(ps.big_chances_home, 0)) AS big_chances_home,
-        toInt32(coalesce(ps.big_chances_away, 0)) AS big_chances_away,
-        toInt32(coalesce(ps.touches_opp_box_home, 0)) AS touches_opposition_box_home,
-        toInt32(coalesce(ps.touches_opp_box_away, 0)) AS touches_opposition_box_away,
-        toFloat32(coalesce(ps.ball_possession_home, 0.0)) AS possession_home_pct,
-        toFloat32(coalesce(ps.ball_possession_away, 0.0)) AS possession_away_pct,
-        toInt32(coalesce(ps.pass_attempts_home, 0)) AS pass_attempts_home,
-        toInt32(coalesce(ps.pass_attempts_away, 0)) AS pass_attempts_away,
-        toInt32(coalesce(ps.accurate_passes_home, 0)) AS accurate_passes_home,
-        toInt32(coalesce(ps.accurate_passes_away, 0)) AS accurate_passes_away,
+        toInt32(coalesce(m.total_shots_home, 0)) AS total_shots_home,
+        toInt32(coalesce(m.total_shots_away, 0)) AS total_shots_away,
+        toInt32(coalesce(m.shots_on_target_home, 0)) AS shots_on_target_home,
+        toInt32(coalesce(m.shots_on_target_away, 0)) AS shots_on_target_away,
+        toFloat32(coalesce(m.expected_goals_home, 0.0)) AS expected_goals_home,
+        toFloat32(coalesce(m.expected_goals_away, 0.0)) AS expected_goals_away,
+        toInt32(coalesce(m.big_chances_home, 0)) AS big_chances_home,
+        toInt32(coalesce(m.big_chances_away, 0)) AS big_chances_away,
+        toInt32(coalesce(m.touches_opp_box_home, 0)) AS touches_opposition_box_home,
+        toInt32(coalesce(m.touches_opp_box_away, 0)) AS touches_opposition_box_away,
+        toFloat32(coalesce(m.ball_possession_home, 0.0)) AS possession_home_pct,
+        toFloat32(coalesce(m.ball_possession_away, 0.0)) AS possession_away_pct,
+        toInt32(coalesce(m.pass_attempts_home, 0)) AS pass_attempts_home,
+        toInt32(coalesce(m.pass_attempts_away, 0)) AS pass_attempts_away,
+        toInt32(coalesce(m.accurate_passes_home, 0)) AS accurate_passes_home,
+        toInt32(coalesce(m.accurate_passes_away, 0)) AS accurate_passes_away,
 
         toInt32(coalesce(home_brace.team_brace_scorers_count, 0) + coalesce(away_brace.team_brace_scorers_count, 0))
             AS match_total_brace_scorers,
         toInt32(coalesce(home_brace.team_goals_by_brace_scorers, 0) + coalesce(away_brace.team_goals_by_brace_scorers, 0))
             AS match_total_goals_by_brace_scorers
-    FROM silver.match AS m
-    INNER JOIN silver.period_stat AS ps
-        ON ps.match_id = m.match_id
-       AND ps.match_date = m.match_date
-       AND ps.period = 'All'
+    FROM match_ext AS m
     LEFT JOIN team_brace_rollup AS home_brace
-        ON home_brace.match_id = m.match_id
+        ON home_brace.br_match_id = m.match_id
        AND home_brace.team_id = m.home_team_id
     LEFT JOIN team_brace_rollup AS away_brace
-        ON away_brace.match_id = m.match_id
+        ON away_brace.br_match_id = m.match_id
        AND away_brace.team_id = m.away_team_id
     WHERE m.match_finished = 1
       AND m.match_id > 0
@@ -367,4 +396,4 @@ SELECT
         1
     )) AS pass_accuracy_delta_pct
 FROM base_stats
-SETTINGS allow_experimental_analyzer = 0;
+;

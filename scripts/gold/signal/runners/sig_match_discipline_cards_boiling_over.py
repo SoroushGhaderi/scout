@@ -51,7 +51,7 @@ def main(argv=None) -> int:
         return 1
 
     try:
-        client.execute("SET allow_experimental_analyzer = 1")
+        client.execute("SET allow_experimental_analyzer = 0")
         client.execute(insert_query)
         logger.info("sig_match_discipline_cards_boiling_over insert completed")
 
