@@ -8,7 +8,7 @@ This contract applies to:
 
 - `clickhouse/gold/scenario/scenario_*.sql`
 - `scripts/gold/scenario/scenario_*.py`
-- `scripts/gold/load_clickhouse_scenarios.py`
+- `scripts/gold/load_clickhouse_gold.py`
 - `scripts/gold/scenario/SCENARIOS_CATALOG.md`
 
 ## Scenario Unit Contract
@@ -58,7 +58,7 @@ All four parts are required for a production-ready scenario.
 
 ## Bulk Execution Contract
 
-`scripts/gold/load_clickhouse_scenarios.py` is the canonical bulk runner.
+`scripts/gold/load_clickhouse_gold.py` is the canonical bulk runner.
 
 1. Executes base gold SQL files from `clickhouse/gold/*.sql`.
 2. Discovers and executes `scripts/gold/scenario/scenario*.py` in sorted order.
@@ -81,8 +81,8 @@ Each scenario entry in `SCENARIOS_CATALOG.md` must include:
 
 Minimum operational checks:
 
-1. `python scripts/gold/load_clickhouse_scenarios.py --dry-run`
-2. `python scripts/gold/load_clickhouse_scenarios.py`
+1. `python scripts/gold/load_clickhouse_gold.py --dry-run`
+2. `python scripts/gold/load_clickhouse_gold.py`
 3. Verify no gold contract failures (`invalid match_id`, missing scenario tables).
 
 ## Change Management Rules

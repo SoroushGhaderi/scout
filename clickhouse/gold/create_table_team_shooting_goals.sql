@@ -1,6 +1,6 @@
 -- Signal tables for entity=team, family=shooting, subfamily=goals
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_shooting_gallery (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_shooting_gallery (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_shooting_gallery (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_no_shots_allowed (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_no_shots_allowed (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_no_shots_allowed (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_shot_on_target_monopoly (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_shot_on_target_monopoly (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -158,7 +158,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_shot_on_target_monopoly 
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_sustained_barrage (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_sustained_barrage (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -219,7 +219,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_sustained_barrage (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_sustained_second_half_siege (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_sustained_second_half_siege (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -293,7 +293,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_sustained_second_half_si
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_early_blitz (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_early_blitz (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -353,7 +353,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_early_blitz (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_half_time_talk_impact (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_half_time_talk_impact (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -414,7 +414,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_half_time_talk_impact (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_late_surge_goals (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_late_surge_goals (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -474,7 +474,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_late_surge_goals (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_late_game_salvage (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_late_game_salvage (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -538,7 +538,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_late_game_salvage (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_rapid_response_goal (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_rapid_response_goal (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -602,7 +602,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_rapid_response_goal (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_rapid_double_salvo (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_rapid_double_salvo (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -668,7 +668,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_rapid_double_salvo (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_blank_range (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_blank_range (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -724,7 +724,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_blank_range (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_wasteful_box_presence (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_wasteful_box_presence (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -784,7 +784,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_wasteful_box_presence (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_conversion_collapse (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_conversion_collapse (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -845,7 +845,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_conversion_collapse (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_shot_shy (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_shot_shy (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -907,7 +907,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_shot_shy (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_zero_shot_half (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_zero_shot_half (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -972,7 +972,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_zero_shot_half (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_dead_ball_specialists (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_dead_ball_specialists (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1038,7 +1038,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_dead_ball_specialists (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_set_piece_masterclass (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_set_piece_masterclass (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1111,7 +1111,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_set_piece_masterclass (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_shot_accuracy_collapse (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_shot_accuracy_collapse (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1172,7 +1172,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_shot_accuracy_collapse (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_long_range_barrage (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_long_range_barrage (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1226,7 +1226,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_long_range_barrage (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_box_siege (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_box_siege (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1280,7 +1280,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_box_siege (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_efficiency_peak (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_efficiency_peak (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1349,7 +1349,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_efficiency_peak (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_ruthless_efficiency (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_ruthless_efficiency (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1396,7 +1396,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_ruthless_efficiency (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_clinical_finishing_streak (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_clinical_finishing_streak (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1446,7 +1446,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_clinical_finishing_strea
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_big_chance_efficiency (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_big_chance_efficiency (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1517,7 +1517,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_big_chance_efficiency (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_defensive_scoring_unit (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_defensive_scoring_unit (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1567,7 +1567,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_defensive_scoring_unit (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_no_striker_needed (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_no_striker_needed (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1630,7 +1630,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_no_striker_needed (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_shared_scoring (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_shared_scoring (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1686,7 +1686,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_shared_scoring (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_bench_goals_impact (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_bench_goals_impact (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1740,7 +1740,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_bench_goals_impact (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_clinical_bench_impact (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_clinical_bench_impact (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1795,7 +1795,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_clinical_bench_impact (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_xg_overperformance_team (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_xg_overperformance_team (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1858,7 +1858,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_xg_overperformance_team 
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_offensive_masterclass (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_offensive_masterclass (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1912,7 +1912,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_offensive_masterclass (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_high_quality_only (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_high_quality_only (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1966,7 +1966,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_high_quality_only (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_woodwork_frustration_team (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_woodwork_frustration_team (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -2028,7 +2028,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_woodwork_frustration_tea
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_shooting_goals_expected_goal_dominance (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_shooting_goals_expected_goal_dominance (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),

@@ -1,6 +1,6 @@
 -- Signal tables for entity=team, family=creativity, subfamily=playmaking
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_total_fluidity (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_total_fluidity (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_total_fluidity (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_unassisted_goals (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_unassisted_goals (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_unassisted_goals 
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_big_chance_monopoly (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_big_chance_monopoly (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -185,7 +185,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_big_chance_monopo
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_chance_barrage (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_chance_barrage (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_chance_barrage (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_crossing_clinic (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_crossing_clinic (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -288,7 +288,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_crossing_clinic (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_dribbling_exhibition (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_dribbling_exhibition (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -347,7 +347,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_dribbling_exhibit
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_unproductive_flair (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_unproductive_flair (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -410,7 +410,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_unproductive_flai
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_final_third_siege (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_final_third_siege (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -461,7 +461,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_final_third_siege
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_bench_creative_impact (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_bench_creative_impact (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -538,7 +538,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_bench_creative_im
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_sustained_creative_pressure (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_sustained_creative_pressure (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -616,7 +616,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_sustained_creativ
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_unlikely_creative_source (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_unlikely_creative_source (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -696,7 +696,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_unlikely_creative
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_midfield_engine_vision (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_midfield_engine_vision (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -761,7 +761,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_midfield_engine_v
 ) ENGINE = ReplacingMergeTree(inserted_at)
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_one_sided_vision (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_one_sided_vision (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -817,7 +817,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_one_sided_vision 
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_set_piece_threat_volume (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_set_piece_threat_volume (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -882,7 +882,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_set_piece_threat_
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_team_creativity_playmaking_wide_play_monopoly (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_team_creativity_playmaking_wide_play_monopoly (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),

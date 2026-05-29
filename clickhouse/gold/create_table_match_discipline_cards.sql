@@ -1,6 +1,6 @@
 -- Signal tables for entity=match, family=discipline, subfamily=cards
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_battle_of_attrition (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_battle_of_attrition (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_battle_of_attrition (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_blood_and_thunder (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_blood_and_thunder (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_blood_and_thunder (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_clean_fair_play (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_clean_fair_play (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_clean_fair_play (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_card_frenzy (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_card_frenzy (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -218,7 +218,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_card_frenzy (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_boiling_over (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_boiling_over (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -279,7 +279,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_boiling_over (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_stop_start_hell (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_stop_start_hell (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -347,7 +347,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_stop_start_hell (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_chaos_90_plus (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_chaos_90_plus (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -413,7 +413,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_chaos_90_plus (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_double_red_drama (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_double_red_drama (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -461,7 +461,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_double_red_drama (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_heated_derby_stats (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_heated_derby_stats (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -520,7 +520,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_heated_derby_stats (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_unpunished_aggression (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_unpunished_aggression (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -579,7 +579,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_unpunished_aggression
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_referee_strictness (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_referee_strictness (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -631,7 +631,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_referee_strictness (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_referee_showdown (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_referee_showdown (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -705,7 +705,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_referee_showdown (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_one_sided_discipline (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_one_sided_discipline (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -761,7 +761,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_one_sided_discipline 
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_physical_showdown (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_physical_showdown (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -818,7 +818,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_physical_showdown (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_foul_parity (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_foul_parity (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -875,7 +875,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_foul_parity (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_foul_heavy_stalemate (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_foul_heavy_stalemate (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -928,7 +928,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_foul_heavy_stalemate 
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_asymmetric_fouls (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_asymmetric_fouls (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -985,7 +985,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_asymmetric_fouls (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_asymmetric_aggression (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_asymmetric_aggression (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1044,7 +1044,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_asymmetric_aggression
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_discipline_dominance (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_discipline_dominance (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1111,7 +1111,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_discipline_dominance 
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_the_disciplined_siege (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_the_disciplined_siege (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1169,7 +1169,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_the_disciplined_siege
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_discipline_cards_card_heavy_substitutions (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_discipline_cards_card_heavy_substitutions (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),

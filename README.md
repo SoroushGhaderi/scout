@@ -5,14 +5,15 @@ architecture:
 
 - Bronze: raw FotMob API responses on disk plus raw ClickHouse `bronze.*` tables
 - Silver: cleaned and conformed ClickHouse `silver.*` tables
-- Gold: scenario and signal ClickHouse `gold.*` tables for product and analytics use
+- Gold: scenario tables in ClickHouse `gold_scenarios.*` and signal tables in `gold_signals.*` for product and analytics use
 
 ```text
 FotMob API
   -> data/fotmob/          raw Bronze files
   -> bronze.*              raw warehouse tables
   -> silver.*              cleaned analytical tables
-  -> gold.*                scenarios and signals
+  -> gold_scenarios.*      scenario outputs
+  -> gold_signals.*        signal outputs
 ```
 
 Bronze is the only filesystem-backed data layer. Silver and Gold exist only in
@@ -93,15 +94,15 @@ Run individual layers:
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/scrape_fotmob.py 20251208
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/load_clickhouse.py --date 20251208
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/load_clickhouse.py
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_gold.py
 ```
 
 Preview non-destructive work:
 
 ```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/load_clickhouse.py --dry-run
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py --dry-run
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py --part signals --dry-run
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_gold.py --dry-run
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_gold.py --part signals --dry-run
 ```
 
 Run health and quality checks:
@@ -125,6 +126,18 @@ python scripts/mongodb/sync_signal_catalogs.py
 
 The sync stores queryable metadata fields, the full frontmatter object, the
 markdown body, and the relative source path.
+
+`row_identity` in each signal catalog is the canonical per-row identity used for
+deterministic activation IDs. Typical values are:
+
+- team-grain signal: `match_id`, `triggered_side`
+- player-grain signal: `match_id`, `triggered_player_id`, `triggered_team_id`
+
+DepthMark also materializes per-match signal activations in
+`gold_signals.signal_activations` using a deterministic hash key:
+
+- `signal_instance_id = SHA256(\"v1|signal_id|<row_identity values>\")`
+- version prefix (`v1`) keeps IDs stable and enables future controlled upgrades
 
 ## Project Layout
 
@@ -163,6 +176,6 @@ Subsystem contracts stay next to the code they govern, such as
 
 - DepthMark currently supports FotMob only.
 - Use schema-qualified table names such as `bronze.general`, `silver.match`,
-  and `gold.scenario_demolition`.
+  `gold_scenarios.scenario_demolition`, and `gold_signals.sig_match_shooting_goals_goal_fest`.
 - Bronze tables use `ReplacingMergeTree(inserted_at)` so reruns can be compacted
   by the ClickHouse optimization SQL in `clickhouse/bronze/99_optimize_tables.sql`.

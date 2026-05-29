@@ -16,7 +16,7 @@ This contract applies to:
 
 - `clickhouse/gold/create_table_{entity}_{family}_{subfamily}.sql` (or active signal DDL set)
 - `scripts/gold/signal/runners/sig_*.py`
-- `scripts/gold/load_clickhouse_scenarios.py`
+- `scripts/gold/load_clickhouse_gold.py`
 - cross-asset wiring among SQL, runner, table, and catalog files
 
 Compatibility note:
@@ -76,7 +76,7 @@ No package is complete unless all 5 parts are present and consistent.
 
 ## Bulk Execution Contract
 
-`scripts/gold/load_clickhouse_scenarios.py` is the canonical orchestrator.
+`scripts/gold/load_clickhouse_gold.py` is the canonical orchestrator.
 
 1. MUST execute base Gold SQL from `clickhouse/gold/*.sql`.
 2. MUST discover and run `scripts/gold/scenario/scenario*.py` in sorted order.
@@ -88,8 +88,8 @@ No package is complete unless all 5 parts are present and consistent.
 
 Before merge or release, run:
 
-1. `python3 scripts/gold/load_clickhouse_scenarios.py --dry-run`
-2. `python3 scripts/gold/load_clickhouse_scenarios.py`
+1. `python3 scripts/gold/load_clickhouse_gold.py --dry-run`
+2. `python3 scripts/gold/load_clickhouse_gold.py`
 3. Verify no Gold-layer contract failures, including:
    - invalid `match_id`
    - missing signal tables
@@ -97,8 +97,8 @@ Before merge or release, run:
 
 Recommended focused checks:
 
-1. `python3 scripts/gold/load_clickhouse_scenarios.py --part signals --dry-run`
-2. `python3 scripts/gold/load_clickhouse_scenarios.py --part signals`
+1. `python3 scripts/gold/load_clickhouse_gold.py --part signals --dry-run`
+2. `python3 scripts/gold/load_clickhouse_gold.py --part signals`
 
 ## Git Commit Policy
 

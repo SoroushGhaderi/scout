@@ -18,7 +18,8 @@ FotMob API
   -> data/fotmob/          raw Bronze files
   -> bronze.*              raw warehouse tables
   -> silver.*              cleaned analytical tables
-  -> gold.*                scenarios and signals
+  -> gold_scenarios.*      scenario outputs
+  -> gold_signals.*        signal outputs
 ```
 
 ## Layer Boundaries
@@ -29,7 +30,7 @@ FotMob API
 4. Silver standardizes keys, types, and reusable entities.
 5. Gold produces downstream-ready scenario and signal tables.
 6. Warehouse tables must be schema-qualified as `bronze.*`, `silver.*`, or
-   `gold.*`.
+   `gold_scenarios.*` and `gold_signals.*`.
 
 ## Canonical Command Surface
 
@@ -63,10 +64,10 @@ python scripts/silver/drop_clickhouse.py --dry-run
 ### Gold
 
 ```bash
-python scripts/gold/load_clickhouse_scenarios.py
-python scripts/gold/load_clickhouse_scenarios.py --dry-run
-python scripts/gold/load_clickhouse_scenarios.py --part scenarios --dry-run
-python scripts/gold/load_clickhouse_scenarios.py --part signals --dry-run
+python scripts/gold/load_clickhouse_gold.py
+python scripts/gold/load_clickhouse_gold.py --dry-run
+python scripts/gold/load_clickhouse_gold.py --part scenarios --dry-run
+python scripts/gold/load_clickhouse_gold.py --part signals --dry-run
 python scripts/gold/drop_clickhouse_scenarios.py --dry-run
 ```
 
@@ -107,7 +108,7 @@ python scripts/orchestration/pipeline.py 20251208 --skip-bronze
 ```bash
 python scripts/health_check.py --json
 python scripts/silver/load_clickhouse.py --dry-run
-python scripts/gold/load_clickhouse_scenarios.py --dry-run
+python scripts/gold/load_clickhouse_gold.py --dry-run
 python scripts/quality/check_bronze_to_silver_reconciliation.py --strict
 python scripts/quality/check_logging_style.py
 ```
@@ -190,6 +191,30 @@ Current required frontmatter keys:
 - `grain`
 - `row_identity`
 - `asset_paths`
+
+`row_identity` is the stable identity contract for one activated signal row and
+is used to build deterministic activation IDs:
+
+- team-grain rows should use: `match_id`, `triggered_side`
+- player-grain rows should use: `match_id`, `triggered_player_id`, `triggered_team_id`
+
+## Signal Activation IDs
+
+DepthMark materializes deterministic signal activation IDs into
+`gold_signals.signal_activations`.
+
+Creation flow:
+
+1. DDL creates the activation table from
+   `clickhouse/gold/create_table_signal_activations.sql`.
+2. Gold signal runners populate `gold_signals.sig_*` tables.
+3. `scripts/gold/signal/build_signal_activations.py` scans active signal
+   catalogs and reads each catalog `row_identity`.
+4. The script inserts one activation row per signal output row with:
+   - `signal_instance_id = lower(hex(SHA256(concat('v1|', signal_id, '|', ...identity values))))`
+   - `signal_id_version = 'v1'`
+5. `scripts/gold/load_clickhouse_gold.py` runs this activation builder after
+   successful signal execution (`--part signals` or `--part all`).
 
 ## Operational Guarantees
 

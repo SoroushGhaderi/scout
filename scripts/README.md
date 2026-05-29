@@ -15,7 +15,7 @@ Use these paths for new automation and daily runs:
 - `scripts/silver/load_clickhouse.py`
 - `scripts/silver/drop_clickhouse.py`
 - `scripts/silver/setup_clickhouse.py`
-- `scripts/gold/load_clickhouse_scenarios.py`
+- `scripts/gold/load_clickhouse_gold.py`
 - `scripts/gold/drop_clickhouse_scenarios.py`
 - `scripts/gold/setup_clickhouse_gold.py`
 - `scripts/orchestration/pipeline.py`
@@ -24,9 +24,9 @@ Use these paths for new automation and daily runs:
 ### Dry-Run Support
 
 - `scripts/silver/load_clickhouse.py --dry-run`
-- `scripts/gold/load_clickhouse_scenarios.py --dry-run`
-- `scripts/gold/load_clickhouse_scenarios.py --part scenarios --dry-run`
-- `scripts/gold/load_clickhouse_scenarios.py --part signals --dry-run`
+- `scripts/gold/load_clickhouse_gold.py --dry-run`
+- `scripts/gold/load_clickhouse_gold.py --part scenarios --dry-run`
+- `scripts/gold/load_clickhouse_gold.py --part signals --dry-run`
 
 ## Operational Utility Scripts
 
@@ -35,6 +35,7 @@ Use these paths for new automation and daily runs:
 - `scripts/refresh_turnstile.py`
 - `scripts/mongodb/init_indexes.py`
 - `scripts/mongodb/sync_signal_catalogs.py`
+- `scripts/gold/signal/build_signal_activations.py`
 
 ## Quality Check Scripts
 
@@ -43,7 +44,7 @@ Use these paths for new automation and daily runs:
 
 ## Scenario Scripts
 
-These `scripts/gold/scenario/scenario_*.py` runners are discovered and executed by `scripts/gold/load_clickhouse_scenarios.py`.
+These `scripts/gold/scenario/scenario_*.py` runners are discovered and executed by `scripts/gold/load_clickhouse_gold.py`.
 Scenario standards are defined in `scripts/gold/scenario/SCENARIOS_CONTRACT.md`.
 
 Current inventory: 48 scenario runners and 48 matching SQL transforms.
@@ -54,8 +55,11 @@ Current inventory: 48 scenario runners and 48 matching SQL transforms.
 
 ## Signal Scripts
 
-These `scripts/gold/signal/runners/sig_*.py` runners are also discovered and executed by `scripts/gold/load_clickhouse_scenarios.py`.
+These `scripts/gold/signal/runners/sig_*.py` runners are also discovered and executed by `scripts/gold/load_clickhouse_gold.py`.
 Legacy `signal_*.py` runners are still supported by the loader for migration compatibility, but new work should use `sig_*.py`.
+After successful signal runner execution, the loader runs `scripts/gold/signal/build_signal_activations.py`
+to populate deterministic per-match activation IDs in `gold.signal_activations`.
+The activation ID key uses each signal catalog `row_identity` definition.
 
 Current inventory: 211 signal runners, 211 matching SQL transforms, and 211 matching markdown catalogs.
 
