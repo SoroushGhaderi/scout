@@ -62,7 +62,7 @@ INSERT INTO gold.sig_team_shooting_goals_rapid_response_goal (
 -- Trigger: Team scores a non-own goal within 2 effective minutes of conceding a non-own goal.
 -- Intent: Detect immediate scoring responses after conceding and preserve bilateral team context for
 --         finishing quality, control profile, and tempo diagnostics.
-WITH goal_events AS MATERIALIZED (
+WITH goal_events AS (
     SELECT
         s.match_id,
         if(coalesce(s.is_home_goal, 0) = 1, 'home', 'away') AS goal_side,
@@ -79,7 +79,7 @@ WITH goal_events AS MATERIALIZED (
       AND isNotNull(s.is_home_goal)
       AND toInt32(coalesce(s.goal_time, s.minute, 0)) > 0
 ),
-ordered_goal_events AS MATERIALIZED (
+ordered_goal_events AS (
     SELECT
         ge.match_id,
         ge.goal_side,
@@ -97,7 +97,7 @@ ordered_goal_events AS MATERIALIZED (
         ) AS goal_event_order
     FROM goal_events AS ge
 ),
-rapid_response_candidates AS MATERIALIZED (
+rapid_response_candidates AS (
     SELECT
         curr.match_id,
         curr.goal_side AS triggered_side,
@@ -117,7 +117,7 @@ rapid_response_candidates AS MATERIALIZED (
     WHERE curr.goal_side != prev.goal_side
       AND curr.goal_effective_minute - prev.goal_effective_minute BETWEEN 0 AND 2
 ),
-rapid_response_rollup_base AS MATERIALIZED (
+rapid_response_rollup_base AS (
     SELECT
         rrc.match_id,
         rrc.triggered_side,
@@ -139,7 +139,7 @@ rapid_response_rollup_base AS MATERIALIZED (
         rrc.match_id,
         rrc.triggered_side
 ),
-rapid_response_rollup AS MATERIALIZED (
+rapid_response_rollup AS (
     SELECT
         rrrb.match_id,
         rrrb.triggered_side,

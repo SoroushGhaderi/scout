@@ -55,7 +55,7 @@ INSERT INTO gold.sig_team_goalkeeping_defense_recovery_dominance (
     goal_delta,
     triggered_team_clean_sheet_flag
 )
-WITH team_recoveries AS MATERIALIZED (
+WITH team_recoveries AS (
     SELECT
         p.match_id,
         p.match_date,

@@ -1,6 +1,6 @@
 -- Signal tables for entity=match, family=possession, subfamily=passing
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_momentum_swing (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_momentum_swing (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_momentum_swing (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_dribble_fest (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_dribble_fest (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_dribble_fest (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_dead_zone_game (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_dead_zone_game (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_dead_zone_game (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_passing_clinic (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_passing_clinic (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_passing_clinic (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_clinical_match (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_clinical_match (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -218,7 +218,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_clinical_match (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_heavy_rotation (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_heavy_rotation (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -270,7 +270,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_heavy_rotation (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_possession_stalemate (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_possession_stalemate (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -305,7 +305,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_possession_stalemat
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_unproductive_game (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_unproductive_game (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -345,7 +345,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_unproductive_game (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_clean_game (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_clean_game (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -388,7 +388,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_clean_game (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_high_turnover_affair (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_high_turnover_affair (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -431,7 +431,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_high_turnover_affai
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_early_tactical_lock (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_early_tactical_lock (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -477,7 +477,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_early_tactical_lock
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_set_piece_dominance (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_set_piece_dominance (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -524,7 +524,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_set_piece_dominance
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_wing_play_extravaganza (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_wing_play_extravaganza (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -565,7 +565,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_wing_play_extravaga
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_keeper_playmaking_battle (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_keeper_playmaking_battle (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -610,7 +610,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_keeper_playmaking_b
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_possession_passing_counter_vs_bus (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_possession_passing_counter_vs_bus (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),

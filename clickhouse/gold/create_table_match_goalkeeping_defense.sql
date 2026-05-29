@@ -1,6 +1,6 @@
 -- Signal tables for entity=match, family=goalkeeping, subfamily=defense
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_save_fest (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_save_fest (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_save_fest (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_save_to_goal_ratio (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_save_to_goal_ratio (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_save_to_goal_ratio
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_keeper_masterclass_duel (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_keeper_masterclass_duel (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -195,7 +195,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_keeper_masterclass
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_aerial_battleground (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_aerial_battleground (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -258,7 +258,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_aerial_battlegroun
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_interruption_heavy (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_interruption_heavy (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -326,7 +326,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_interruption_heavy
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_physical_duels_peak (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_physical_duels_peak (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -394,7 +394,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_physical_duels_pea
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_tackle_war (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_tackle_war (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -456,7 +456,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_tackle_war (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_tackle_and_interception_fest (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_tackle_and_interception_fest (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -521,7 +521,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_tackle_and_interce
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_box_siege_survival (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_box_siege_survival (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -599,7 +599,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_box_siege_survival
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_offside_frenzy (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_offside_frenzy (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -668,7 +668,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_offside_frenzy (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_coordinated_trap_match (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_coordinated_trap_match (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -737,7 +737,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_coordinated_trap_m
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_defensive_masterclass_match (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_defensive_masterclass_match (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -799,7 +799,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_defensive_mastercl
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_goalkeeper_man_of_the_match (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_goalkeeper_man_of_the_match (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -860,7 +860,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_goalkeeper_man_of_
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_goalless_siege_match (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_goalless_siege_match (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -941,7 +941,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_goalless_siege_mat
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_no_penetration_match (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_no_penetration_match (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1013,7 +1013,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_no_penetration_mat
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_shot_block_fest (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_shot_block_fest (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),
@@ -1081,7 +1081,7 @@ CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_shot_block_fest (
 ORDER BY (match_id, triggered_side)
 PARTITION BY toYYYYMM(match_date);
 
-CREATE TABLE IF NOT EXISTS gold.sig_match_goalkeeping_defense_unproductive_attack (
+CREATE TABLE IF NOT EXISTS gold_signals.sig_match_goalkeeping_defense_unproductive_attack (
     match_id Int32,
     match_date Date,
     home_team_id Nullable(Int32),

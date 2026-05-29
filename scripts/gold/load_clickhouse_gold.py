@@ -1,4 +1,4 @@
-"""Process FotMob gold layer in ClickHouse."""
+"""Run FotMob gold layer orchestration in ClickHouse."""
 
 import argparse
 import os
@@ -178,12 +178,36 @@ def _run_selected_jobs(part: str, dry_run: bool) -> tuple[int, int, int, int]:
     )
 
 
+def _run_signal_activation_builder(dry_run: bool) -> int:
+    script_path = Path(__file__).resolve().parent / "signal" / "build_signal_activations.py"
+    if not script_path.exists():
+        logger.error("Signal activation builder script not found: %s", script_path)
+        return 1
+
+    if dry_run:
+        logger.info("[dry-run] Would execute signal activation builder: %s", script_path)
+        return 0
+
+    logger.info("Running signal activation builder: %s", script_path.name)
+    command = _build_command(script_path)
+    result = subprocess.run(command, cwd=project_root)
+    if result.returncode != 0:
+        logger.error(
+            "Signal activation builder failed: %s (exit code %s)",
+            script_path.name,
+            result.returncode,
+        )
+        return result.returncode
+    logger.info("Signal activation builder completed: %s", script_path.name)
+    return 0
+
+
 def main(argv=None) -> int:
     global logger
     stage_start = time.perf_counter()
     args = parse_args(argv)
     logger = setup_logging(
-        name="clickhouse_gold_loader",
+        name="clickhouse_gold_orchestrator",
         log_dir=settings.log_dir,
         log_level=settings.log_level,
     )
@@ -210,7 +234,12 @@ def main(argv=None) -> int:
             signal_success_count,
             signal_failed_count,
         ) = _run_selected_jobs(part=args.part, dry_run=True)
+        signal_activation_exit_code = 0
+        if args.part in ("all", "signals"):
+            signal_activation_exit_code = _run_signal_activation_builder(dry_run=True)
         failed_count = scenario_failed_count + signal_failed_count
+        if signal_activation_exit_code != 0:
+            failed_count += 1
         total_jobs = (
             scenario_success_count
             + scenario_failed_count
@@ -229,6 +258,7 @@ def main(argv=None) -> int:
                 f"SQL files planned: <b>{len(sql_files)}</b>",
                 f"Scenario failures: <b>{scenario_failed_count}</b>",
                 f"Signal failures: <b>{signal_failed_count}</b>",
+                f"Signal activation builder exit code: <b>{signal_activation_exit_code}</b>",
             ],
             insight_lines=[
                 f"Scenario/signal pass projection: <b>{scenario_success_rate:.1f}%</b>",
@@ -270,6 +300,7 @@ def main(argv=None) -> int:
     scenario_failed_count = 0
     signal_success_count = 0
     signal_failed_count = 0
+    signal_activation_exit_code = 0
     contracts_checked = False
     exit_code = 0
     try:
@@ -291,8 +322,19 @@ def main(argv=None) -> int:
             signal_success_count,
             signal_failed_count,
         ) = _run_selected_jobs(part=args.part, dry_run=False)
+        signal_activation_exit_code = 0
+        if args.part in ("all", "signals") and signal_failed_count == 0:
+            signal_activation_exit_code = _run_signal_activation_builder(dry_run=False)
+        elif args.part in ("all", "signals") and signal_failed_count > 0:
+            logger.warning("Skipping signal activation builder because signal scripts had failures")
+            signal_activation_exit_code = 1
+
         if scenario_failed_count > 0 or signal_failed_count > 0:
             logger.error("Gold processing completed with failed scenario/signal scripts")
+            exit_code = 1
+            return exit_code
+        if signal_activation_exit_code != 0:
+            logger.error("Gold processing completed with failed signal activation builder")
             exit_code = 1
             return exit_code
 
@@ -333,6 +375,7 @@ def main(argv=None) -> int:
                 f"Scenario failures: <b>{scenario_failed_count}</b>",
                 f"Signals succeeded: <b>{signal_success_count}</b>",
                 f"Signal failures: <b>{signal_failed_count}</b>",
+                f"Signal activation builder exit code: <b>{signal_activation_exit_code}</b>",
                 f"Contract checks: <b>{'passed' if contracts_checked else 'failed or skipped'}</b>",
             ],
             insight_lines=[

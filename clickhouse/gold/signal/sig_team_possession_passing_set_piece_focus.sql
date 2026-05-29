@@ -50,7 +50,7 @@ INSERT INTO gold.sig_team_possession_passing_set_piece_focus (
 -- Trigger: Team wins >= 15 corners in a single match.
 -- Intent: detect team-level set-piece-focused possession/passing profiles driven by extreme corner volume, with bilateral passing and attacking context.
 
-WITH set_piece_team_shots AS MATERIALIZED (
+WITH set_piece_team_shots AS (
     SELECT
         s.match_id,
         assumeNotNull(s.team_id) AS team_id,

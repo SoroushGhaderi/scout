@@ -94,15 +94,15 @@ Run individual layers:
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/scrape_fotmob.py 20251208
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/bronze/load_clickhouse.py --date 20251208
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/load_clickhouse.py
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_gold.py
 ```
 
 Preview non-destructive work:
 
 ```bash
 docker-compose -f docker/docker-compose.yml exec scraper python scripts/silver/load_clickhouse.py --dry-run
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py --dry-run
-docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_scenarios.py --part signals --dry-run
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_gold.py --dry-run
+docker-compose -f docker/docker-compose.yml exec scraper python scripts/gold/load_clickhouse_gold.py --part signals --dry-run
 ```
 
 Run health and quality checks:
@@ -126,6 +126,18 @@ python scripts/mongodb/sync_signal_catalogs.py
 
 The sync stores queryable metadata fields, the full frontmatter object, the
 markdown body, and the relative source path.
+
+`row_identity` in each signal catalog is the canonical per-row identity used for
+deterministic activation IDs. Typical values are:
+
+- team-grain signal: `match_id`, `triggered_side`
+- player-grain signal: `match_id`, `triggered_player_id`, `triggered_team_id`
+
+DepthMark also materializes per-match signal activations in
+`gold_signals.signal_activations` using a deterministic hash key:
+
+- `signal_instance_id = SHA256(\"v1|signal_id|<row_identity values>\")`
+- version prefix (`v1`) keeps IDs stable and enables future controlled upgrades
 
 ## Project Layout
 

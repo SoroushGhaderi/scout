@@ -54,15 +54,26 @@ def main(argv=None) -> int:
     try:
         for sql_file in sql_files:
             content = sql_file.read_text(encoding="utf-8")
-            if args.part == "scenarios":
+            file_name = sql_file.name.lower()
+            if "create_database" in file_name:
+                if args.part == "scenarios":
+                    rewritten = f"CREATE DATABASE IF NOT EXISTS {gold_scenarios_db()};\n"
+                elif args.part == "signals":
+                    rewritten = f"CREATE DATABASE IF NOT EXISTS {gold_signals_db()};\n"
+                else:
+                    rewritten = (
+                        f"CREATE DATABASE IF NOT EXISTS {gold_scenarios_db()};\n"
+                        f"CREATE DATABASE IF NOT EXISTS {gold_signals_db()};\n"
+                    )
+            elif args.part == "scenarios":
                 rewritten = content.replace("gold.", f"{gold_scenarios_db()}.")
             elif args.part == "signals":
                 rewritten = content.replace("gold.", f"{gold_signals_db()}.")
             else:
                 rewritten = content
-                if "scenario" in sql_file.name.lower():
+                if "scenario" in file_name:
                     rewritten = content.replace("gold.", f"{gold_scenarios_db()}.")
-                if "signal" in sql_file.name.lower() or sql_file.name.lower().startswith("create_table_"):
+                if "signal" in file_name or file_name.startswith("create_table_"):
                     rewritten = content.replace("gold.", f"{gold_signals_db()}.")
 
             tmp_sql = sql_file.with_suffix(".tmp.sql")
