@@ -62,6 +62,52 @@ WITH set_piece_team_shots AS (
         s.match_id,
         s.team_id
 ),
+base_stats AS (
+    SELECT
+        m.match_id,
+        m.match_date,
+        m.home_team_id,
+        m.home_team_name,
+        m.away_team_id,
+        m.away_team_name,
+        m.home_score,
+        m.away_score,
+        coalesce(ps.pass_attempts_home, 0) AS pass_attempts_home,
+        coalesce(ps.pass_attempts_away, 0) AS pass_attempts_away,
+        coalesce(ps.accurate_passes_home, 0) AS accurate_passes_home,
+        coalesce(ps.accurate_passes_away, 0) AS accurate_passes_away,
+        coalesce(ps.cross_attempts_home, 0) AS cross_attempts_home,
+        coalesce(ps.cross_attempts_away, 0) AS cross_attempts_away,
+        coalesce(ps.opposition_half_passes_home, 0) AS opposition_half_passes_home,
+        coalesce(ps.opposition_half_passes_away, 0) AS opposition_half_passes_away,
+        coalesce(ps.touches_opp_box_home, 0) AS touches_opposition_box_home,
+        coalesce(ps.touches_opp_box_away, 0) AS touches_opposition_box_away,
+        coalesce(ps.total_shots_home, 0) AS total_shots_home,
+        coalesce(ps.total_shots_away, 0) AS total_shots_away,
+        toFloat32(coalesce(ps.ball_possession_home, 0)) AS possession_home_pct,
+        toFloat32(coalesce(ps.ball_possession_away, 0)) AS possession_away_pct,
+        coalesce(ps.corners_home, 0) AS corners_home,
+        coalesce(ps.corners_away, 0) AS corners_away,
+        coalesce(ps.player_throws_home, 0) AS player_throws_home,
+        coalesce(ps.player_throws_away, 0) AS player_throws_away,
+        toFloat32(coalesce(ps.expected_goals_set_play_home, 0)) AS expected_goals_set_play_home,
+        toFloat32(coalesce(ps.expected_goals_set_play_away, 0)) AS expected_goals_set_play_away,
+        coalesce(hs.team_set_piece_shots, 0) AS set_piece_shots_home,
+        coalesce(away_sp.team_set_piece_shots, 0) AS set_piece_shots_away
+    FROM silver.match AS m
+    INNER JOIN silver.period_stat AS ps
+        ON ps.match_id = m.match_id
+       AND ps.match_date = m.match_date
+       AND ps.period = 'All'
+    LEFT JOIN set_piece_team_shots AS hs
+        ON hs.match_id = m.match_id
+       AND hs.team_id = m.home_team_id
+    LEFT JOIN set_piece_team_shots AS away_sp
+        ON away_sp.match_id = m.match_id
+       AND away_sp.team_id = m.away_team_id
+    WHERE m.match_finished = 1
+      AND m.match_id > 0
+),
 triggered_rows AS (
 -- Home-side triggers.
 SELECT
@@ -134,52 +180,7 @@ SELECT
         100.0 * (b.player_throws_away + b.corners_away) / nullIf(toFloat64(b.pass_attempts_away), 0),
         1
     ), 0.0)) AS opponent_dead_ball_restart_pass_share_pct
-FROM (
-    SELECT
-        m.match_id,
-        m.match_date,
-        m.home_team_id,
-        m.home_team_name,
-        m.away_team_id,
-        m.away_team_name,
-        m.home_score,
-        m.away_score,
-        coalesce(ps.pass_attempts_home, 0) AS pass_attempts_home,
-        coalesce(ps.pass_attempts_away, 0) AS pass_attempts_away,
-        coalesce(ps.accurate_passes_home, 0) AS accurate_passes_home,
-        coalesce(ps.accurate_passes_away, 0) AS accurate_passes_away,
-        coalesce(ps.cross_attempts_home, 0) AS cross_attempts_home,
-        coalesce(ps.cross_attempts_away, 0) AS cross_attempts_away,
-        coalesce(ps.opposition_half_passes_home, 0) AS opposition_half_passes_home,
-        coalesce(ps.opposition_half_passes_away, 0) AS opposition_half_passes_away,
-        coalesce(ps.touches_opp_box_home, 0) AS touches_opposition_box_home,
-        coalesce(ps.touches_opp_box_away, 0) AS touches_opposition_box_away,
-        coalesce(ps.total_shots_home, 0) AS total_shots_home,
-        coalesce(ps.total_shots_away, 0) AS total_shots_away,
-        toFloat32(coalesce(ps.ball_possession_home, 0)) AS possession_home_pct,
-        toFloat32(coalesce(ps.ball_possession_away, 0)) AS possession_away_pct,
-        coalesce(ps.corners_home, 0) AS corners_home,
-        coalesce(ps.corners_away, 0) AS corners_away,
-        coalesce(ps.player_throws_home, 0) AS player_throws_home,
-        coalesce(ps.player_throws_away, 0) AS player_throws_away,
-        toFloat32(coalesce(ps.expected_goals_set_play_home, 0)) AS expected_goals_set_play_home,
-        toFloat32(coalesce(ps.expected_goals_set_play_away, 0)) AS expected_goals_set_play_away,
-        coalesce(hs.team_set_piece_shots, 0) AS set_piece_shots_home,
-        coalesce(away_sp.team_set_piece_shots, 0) AS set_piece_shots_away
-    FROM silver.match AS m
-    INNER JOIN silver.period_stat AS ps
-        ON ps.match_id = m.match_id
-       AND ps.match_date = m.match_date
-       AND ps.period = 'All'
-    LEFT JOIN set_piece_team_shots AS hs
-        ON hs.match_id = m.match_id
-       AND hs.team_id = m.home_team_id
-    LEFT JOIN set_piece_team_shots AS away_sp
-        ON away_sp.match_id = m.match_id
-       AND away_sp.team_id = m.away_team_id
-    WHERE m.match_finished = 1
-      AND m.match_id > 0
-) AS b
+FROM (SELECT * FROM base_stats) AS b
 WHERE b.corners_home >= 15
 
 UNION ALL
@@ -255,52 +256,7 @@ SELECT
         100.0 * (b.player_throws_home + b.corners_home) / nullIf(toFloat64(b.pass_attempts_home), 0),
         1
     ), 0.0)) AS opponent_dead_ball_restart_pass_share_pct
-FROM (
-    SELECT
-        m.match_id,
-        m.match_date,
-        m.home_team_id,
-        m.home_team_name,
-        m.away_team_id,
-        m.away_team_name,
-        m.home_score,
-        m.away_score,
-        coalesce(ps.pass_attempts_home, 0) AS pass_attempts_home,
-        coalesce(ps.pass_attempts_away, 0) AS pass_attempts_away,
-        coalesce(ps.accurate_passes_home, 0) AS accurate_passes_home,
-        coalesce(ps.accurate_passes_away, 0) AS accurate_passes_away,
-        coalesce(ps.cross_attempts_home, 0) AS cross_attempts_home,
-        coalesce(ps.cross_attempts_away, 0) AS cross_attempts_away,
-        coalesce(ps.opposition_half_passes_home, 0) AS opposition_half_passes_home,
-        coalesce(ps.opposition_half_passes_away, 0) AS opposition_half_passes_away,
-        coalesce(ps.touches_opp_box_home, 0) AS touches_opposition_box_home,
-        coalesce(ps.touches_opp_box_away, 0) AS touches_opposition_box_away,
-        coalesce(ps.total_shots_home, 0) AS total_shots_home,
-        coalesce(ps.total_shots_away, 0) AS total_shots_away,
-        toFloat32(coalesce(ps.ball_possession_home, 0)) AS possession_home_pct,
-        toFloat32(coalesce(ps.ball_possession_away, 0)) AS possession_away_pct,
-        coalesce(ps.corners_home, 0) AS corners_home,
-        coalesce(ps.corners_away, 0) AS corners_away,
-        coalesce(ps.player_throws_home, 0) AS player_throws_home,
-        coalesce(ps.player_throws_away, 0) AS player_throws_away,
-        toFloat32(coalesce(ps.expected_goals_set_play_home, 0)) AS expected_goals_set_play_home,
-        toFloat32(coalesce(ps.expected_goals_set_play_away, 0)) AS expected_goals_set_play_away,
-        coalesce(hs.team_set_piece_shots, 0) AS set_piece_shots_home,
-        coalesce(away_sp.team_set_piece_shots, 0) AS set_piece_shots_away
-    FROM silver.match AS m
-    INNER JOIN silver.period_stat AS ps
-        ON ps.match_id = m.match_id
-       AND ps.match_date = m.match_date
-       AND ps.period = 'All'
-    LEFT JOIN set_piece_team_shots AS hs
-        ON hs.match_id = m.match_id
-       AND hs.team_id = m.home_team_id
-    LEFT JOIN set_piece_team_shots AS away_sp
-        ON away_sp.match_id = m.match_id
-       AND away_sp.team_id = m.away_team_id
-    WHERE m.match_finished = 1
-      AND m.match_id > 0
-) AS b
+FROM (SELECT * FROM base_stats) AS b
 WHERE b.corners_away >= 15
 )
 

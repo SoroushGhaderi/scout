@@ -95,7 +95,7 @@ ordered_goal_events AS (
                 ge.goal_added_time ASC,
                 ge.shot_id ASC
         ) AS goal_event_order
-    FROM goal_events AS ge
+    FROM (SELECT * FROM goal_events) AS ge
 ),
 rapid_response_candidates AS (
     SELECT
@@ -110,8 +110,8 @@ rapid_response_candidates AS (
         curr.goal_effective_minute AS response_goal_effective_minute,
         curr.shot_id AS response_goal_shot_id,
         toInt32(curr.goal_effective_minute - prev.goal_effective_minute) AS response_gap_minutes
-    FROM ordered_goal_events AS prev
-    INNER JOIN ordered_goal_events AS curr
+    FROM (SELECT * FROM ordered_goal_events) AS prev
+    INNER JOIN (SELECT * FROM ordered_goal_events) AS curr
         ON curr.match_id = prev.match_id
        AND curr.goal_event_order = prev.goal_event_order + 1
     WHERE curr.goal_side != prev.goal_side
@@ -134,7 +134,7 @@ rapid_response_rollup_base AS (
             rrc.conceded_goal_shot_id,
             rrc.response_goal_shot_id
         ))) AS ordered_response_tuples
-    FROM rapid_response_candidates AS rrc
+    FROM (SELECT * FROM rapid_response_candidates) AS rrc
     GROUP BY
         rrc.match_id,
         rrc.triggered_side
@@ -159,7 +159,7 @@ rapid_response_rollup AS (
             AS triggered_team_first_response_goal_effective_minute,
         toInt32(tupleElement(arrayElement(rrrb.ordered_response_tuples, 1), 7))
             AS minutes_to_first_response_goal
-    FROM rapid_response_rollup_base AS rrrb
+    FROM (SELECT * FROM rapid_response_rollup_base) AS rrrb
 )
 SELECT
     m.match_id,
@@ -429,14 +429,14 @@ SELECT
         coalesce(ps.corners_home, 0)
     )) AS opponent_corners
 
-FROM rapid_response_rollup AS rrr
+FROM (SELECT * FROM rapid_response_rollup) AS rrr
 INNER JOIN silver.match AS m
     ON m.match_id = rrr.match_id
 INNER JOIN silver.period_stat AS ps
     ON ps.match_id = m.match_id
    AND ps.match_date = m.match_date
    AND ps.period = 'All'
-LEFT JOIN rapid_response_rollup AS opp_rrr
+LEFT JOIN (SELECT * FROM rapid_response_rollup) AS opp_rrr
     ON opp_rrr.match_id = rrr.match_id
    AND opp_rrr.triggered_side = if(rrr.triggered_side = 'home', 'away', 'home')
 WHERE m.match_finished = 1
